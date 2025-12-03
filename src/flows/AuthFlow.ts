@@ -1,0 +1,34 @@
+import { LoginPage } from "../pages/LoginPage";
+import { expect } from '@playwright/test';
+
+export class AuthFlow {
+
+  constructor(private loginPage: LoginPage) {}
+
+  async loginSuccess (email:string,password:string) {
+    await this.loginPage.visitLoginPage();
+    await this.loginPage.fillEmailInput(email);
+    await this.loginPage.fillPasswordInput(password);
+    await this.loginPage.clickLoginBtn();
+    await this.loginPage.page.waitForURL('https://web3tv.dev/')
+    await this.loginPage.page.waitForResponse('https://web3tv.dev/api/users/whoami')
+    await expect(this.loginPage.page.locator('#profile-button')).toBeVisible();
+  }
+
+  async passwordError (email:string,password:string) {
+    await this.loginPage.visitLoginPage();
+    await this.loginPage.fillEmailInput(email);
+    await this.loginPage.fillPasswordInput(password);
+    await this.loginPage.clickLoginBtn();
+    await expect(this.loginPage.page.locator('form')).toContainText('Invalid password. Please re-enter another password.');
+    expect(this.loginPage.page.waitForURL('/login'));
+  }
+
+  async usernameError (email:string, password:string) {
+     await this.loginPage.visitLoginPage();
+    await this.loginPage.fillEmailInput(email);
+    await this.loginPage.removeFocusFromElement();
+    await expect(this.loginPage.page.locator('form')).toContainText('Username not found. Try another one.');
+    expect(this.loginPage.page.waitForURL('/login'));
+  }
+}
