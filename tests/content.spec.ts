@@ -14,7 +14,9 @@ test('upload video to channel', async ({ page }) => {
     const authFlow = new AuthFlow(loginPage);
     const uploadVideoFlow = new UploadVideoFlow(uploadVideoPage, headerPage);
     await authFlow.loginSuccess(user1.login,user1.password);
-    
+
     await uploadVideoFlow.uploadVideo('test-data/fixtures/video/10secVideo.mp4');
+    await uploadVideoFlow.fillInReqFileds('First video');
+    await uploadVideoFlow.confirmUploading();
 });
 
