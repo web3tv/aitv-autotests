@@ -20,7 +20,7 @@ export class UploadVideoFlow {
         response.status() === 200,
         { timeout: 15_000 }
     );
-    await expect(this.uploadVideoPage.page.getByText('Video Preview [Uploading]')).toBeVisible();
+    await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible();
     await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
     await expect(this.uploadVideoPage.page.locator('form')).toContainText('10secVideo');
     }

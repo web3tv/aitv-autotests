@@ -9,6 +9,7 @@ export class HeaderPage {
   readonly newShortBtn: Locator;
   readonly liveBtn: Locator;
   readonly heroCoins: Locator;
+  readonly joinBtn: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -19,6 +20,8 @@ export class HeaderPage {
     this.liveBtn = page.getByText('Live');
 
     this.heroCoins = page.locator('[data-id="coins"]');
+
+    this.joinBtn = page.getByRole('button', { name: 'Join' });
     
   }
 
@@ -36,6 +39,12 @@ export class HeaderPage {
     await expect(this.heroCoins.locator('h3')).toContainText(['sol']);
     await expect(this.heroCoins.locator('h3')).toContainText(['xrp']);
     await expect(this.heroCoins.locator('h3')).toContainText(['eth']);
+  }
+
+  async clickJoinBtn(){
+    await expect(this.joinBtn).toBeVisible();
+    await this.joinBtn.click();
+    await this.page.waitForURL('/register')
   }
   
 
