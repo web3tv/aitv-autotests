@@ -6,19 +6,18 @@ export class LoginPage {
   // private username: string = '';
 
   readonly page: Page;
+
+  // LOGIN 
   readonly emailInput: Locator;
   readonly passwordInput: Locator;
   readonly loginBtn: Locator;
-  readonly usernameInput: Locator;
-  readonly checkbox: Locator;
-  readonly emailBtn: Locator;
-  
   
 
   // REGISTRATION
+  readonly usernameInput: Locator;
   readonly emailInputRegistration: Locator;
   readonly errorMessage: Locator;
-
+  readonly checkbox: Locator;
   readonly firstPassword: Locator;
   readonly secondPassword: Locator;
   readonly createAccountBtn: Locator;
@@ -40,7 +39,7 @@ export class LoginPage {
     this.usernameInput = page.getByRole('textbox', { name: 'Enter username' });
     this.errorMessage = page.getByText(/handle|username/i);
     this.checkbox = page.getByRole('checkbox');
-    this.emailBtn = page.getByRole('button', { name: 'Continue with email' });
+    this.registerEmailBtn = page.getByRole('button', { name: 'Continue with email' });
     this.emailInputRegistration = page.getByRole('textbox', { name: 'Enter email' });
     this.firstPassword = page.getByRole('textbox', { name: 'Enter password' });
     this.secondPassword = page.getByRole('textbox', { name: 'Retype Password' });
@@ -90,8 +89,8 @@ export class LoginPage {
   }
 
   async clickContinueWithEmail() {
-    await expect(this.emailBtn).toBeEnabled();
-    await this.emailBtn.click();
+    await expect(this.registerEmailBtn).toBeEnabled();
+    await this.registerEmailBtn.click();
     await expect(this.page.getByText('Enter your email address')).toBeVisible();
     // await expect(this.page.getByText('Enter your email address,')).toBeVisible();
   }

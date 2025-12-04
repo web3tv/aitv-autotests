@@ -135,7 +135,7 @@ test.describe('Validation tests', () => {
 
     await loginPage.fillUsernameInput('abc def');
     await loginPage.blur();
-    await loginPage.assertError('Handle must start with a letter and contain only latin lowercase letters, digits, and underscores.');
+    await loginPage.assertError('Username must start with a letter and contain only latin lowercase letters, digits, and underscores.');
     await loginPage.assertButtonsDisabled();
   });
 
