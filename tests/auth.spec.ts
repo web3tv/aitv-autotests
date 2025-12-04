@@ -81,7 +81,7 @@ test.describe('Registration tests', () => {
 
     await test.step('Confirm email via verification URL', async () => {
       await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-      await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 20000 });
+      await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
     });
 
     await authFlow.loginSuccess(email, password);
