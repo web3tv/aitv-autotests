@@ -53,16 +53,14 @@ test.describe('Registration tests', () => {
     
     await loginPage.clickCreateAccountBtn(email);
     
+    //NEED TO ADD
+    // Get email address
+    // Send email
+    // Get link
+    // Open this link
+    // Login as new user
     
     
-   
-    
-    
-    
-    
-   
-
-
   })
 
 });
