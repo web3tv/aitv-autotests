@@ -55,6 +55,7 @@ export class LoginPage {
   }
 
   async fillEmailInput(email:string){
+    await expect(this.emailInput).toBeEditable({ timeout: 15000 });
     await this.emailInput.fill(email);
   }
 

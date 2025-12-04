@@ -58,6 +58,7 @@ test.describe('Registration tests', () => {
 
       await mainPage.visitMainPage();
       await headerPage.clickJoinBtn();
+      await expect(loginPage.emailInput).toBeVisible({ timeout: 20_000 });
       await loginPage.fillUsernameInput();
       await loginPage.clickCheckbox();
       await loginPage.clickContinueWithEmail();
