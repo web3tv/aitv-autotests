@@ -89,3 +89,81 @@ test.describe('Registration tests', () => {
 
 });
 
+test.describe('Validation tests', () => {
+  test.beforeEach(async ({ page }) => {
+    const mainPage = new MainPage(page);
+    const headerPage = new HeaderPage(page);
+    const loginPage = new LoginPage(page);
+
+    await mainPage.visitMainPage();
+    await headerPage.clickJoinBtn();
+
+    await expect(loginPage.usernameInput).toBeVisible();
+  });
+
+  test('1. Empty username → Handle is required', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.fillUsernameInput('');
+    await loginPage.blur();
+
+    await loginPage.assertError('Username is required');
+    await loginPage.assertButtonsDisabled();
+  });
+
+  test('2. Too short username → Handle must be at least 3 characters', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.fillUsernameInput('ab');
+    await loginPage.blur();
+    //TODO Username must be at least !5! characters
+    await loginPage.assertError('Username must be at least 3 characters');
+    await loginPage.assertButtonsDisabled();
+  });
+
+  test('3. Reject Not Latin chars', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.fillUsernameInput('abcппкп');
+    await loginPage.blur();
+    await loginPage.assertError('Username must start with a letter and contain only latin lowercase letters, digits, and underscores.');
+    await loginPage.assertButtonsDisabled();
+  });
+
+  test('4. Reject spaces', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.fillUsernameInput('abc def');
+    await loginPage.blur();
+    await loginPage.assertError('Handle must start with a letter and contain only latin lowercase letters, digits, and underscores.');
+    await loginPage.assertButtonsDisabled();
+  });
+
+  test('5. Reject starting underscore', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.fillUsernameInput('_abcdef');
+    await loginPage.blur();
+    await loginPage.assertError('Username must start with a letter and contain only lowercase letters, numbers, and underscores');
+    await loginPage.assertButtonsDisabled();
+  });
+
+  test('6. Username exists', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    const alreadyCreatedUsername = 'tttttttt'
+    await loginPage.fillUsernameInput(alreadyCreatedUsername);
+    await loginPage.blur();
+    await loginPage.assertError('Username exists');
+    await loginPage.assertButtonsDisabled();
+  });
+
+  test('7. Uppercase → should convert to lowercase', async ({ page }) => {
+    const loginPage = new LoginPage(page);
+
+    await loginPage.fillUsernameInput('FewFWFTESTING');
+    await loginPage.blur();
+    await loginPage.assertLowercased('fewfwftesting');
+  });
+
+});
+

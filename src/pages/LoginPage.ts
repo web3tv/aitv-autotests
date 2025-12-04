@@ -12,26 +12,43 @@ export class LoginPage {
   readonly usernameInput: Locator;
   readonly checkbox: Locator;
   readonly emailBtn: Locator;
+  
+  
+
+  // REGISTRATION
   readonly emailInputRegistration: Locator;
+  readonly errorMessage: Locator;
+
   readonly firstPassword: Locator;
   readonly secondPassword: Locator;
   readonly createAccountBtn: Locator;
 
+
+  readonly registerWalletBtn: Locator;
+  readonly registerEmailBtn: Locator;
+  readonly telegramLoginBtn: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
+    // LOGIN PAGE
     this.emailInput = page.getByRole('textbox', { name: 'Enter email or username' });
     this.passwordInput = page.getByRole('textbox', { name: 'Enter password' });
     this.loginBtn = page.getByRole('button', { name: 'Login' });
 
     // REGISTRATION PAGE
     this.usernameInput = page.getByRole('textbox', { name: 'Enter username' });
+    this.errorMessage = page.getByText(/handle|username/i);
     this.checkbox = page.getByRole('checkbox');
     this.emailBtn = page.getByRole('button', { name: 'Continue with email' });
     this.emailInputRegistration = page.getByRole('textbox', { name: 'Enter email' });
     this.firstPassword = page.getByRole('textbox', { name: 'Enter password' });
     this.secondPassword = page.getByRole('textbox', { name: 'Retype Password' });
     this.createAccountBtn = page.getByRole('button', { name: 'Create Account' });
+
+    this.registerWalletBtn = page.locator('[data-id="register-wallet"]');
+    this.registerEmailBtn = page.locator('[data-id="register-email"]');
+    this.telegramLoginBtn = page.locator('[data-id="telegram-login"]');
   }
 
   async visitLoginPage() {
@@ -100,4 +117,29 @@ export class LoginPage {
     await expect(this.page.locator('body')).toContainText('Please check your email for the verification link sent to:');
     await expect(this.page.locator('body')).toContainText(email);
   }
+
+  async blur() {
+    await this.page.click('body');
+  }
+
+  async setUsernameAndBlur(value: string) {
+    await this.usernameInput.fill(value);
+    await this.blur();
+  }
+
+  async assertError(text: string) {
+    await expect(this.page.getByText(text)).toBeVisible();
+    //await expect(this.page.getByText(text)).toBeVisible();
+  }
+
+  async assertLowercased(expected: string) {
+    await expect(this.usernameInput).toHaveValue(expected);
+  }
+
+  async assertButtonsDisabled() {
+    await expect(this.registerWalletBtn).toBeDisabled();
+    await expect(this.registerEmailBtn).toBeDisabled();
+    await expect(this.telegramLoginBtn).toBeDisabled();
+  }
+
 }
