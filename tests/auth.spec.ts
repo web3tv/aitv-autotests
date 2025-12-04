@@ -58,7 +58,6 @@ test.describe('Registration tests', () => {
 
       await mainPage.visitMainPage();
       await headerPage.clickJoinBtn();
-
       await loginPage.fillUsernameInput();
       await loginPage.clickCheckbox();
       await loginPage.clickContinueWithEmail();
@@ -78,19 +77,11 @@ test.describe('Registration tests', () => {
 
     await test.step('Mail.tm: Extract verification URL', async () => {
       verificationUrl = await mail.extractVerificationUrl();
-      console.log('🔥 Verification URL:', verificationUrl);
     });
 
     await test.step('Confirm email via verification URL', async () => {
-    await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-
-      await expect(
-        page.getByText(/Email Successfully Verified!/i)
-      ).toBeVisible({
-        timeout: 20000 
-      });
-
-      console.log('🎉 Email was successfully verified!');
+      await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 20000 });
     });
 
     await authFlow.loginSuccess(email, password);
