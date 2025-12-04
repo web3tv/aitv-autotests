@@ -6,7 +6,7 @@ import { UploadVideoPage } from '../src/pages/UploadVideoPagel';
 import { AuthFlow } from '../src/flows/AuthFlow';
 import { UploadVideoFlow } from '../src/flows/UploadVideoFlow';
 
-test('upload video to channel', async ({ page }) => {
+test('Upload video to channel and check this video in studio', async ({ page }) => {
     const headerPage = new HeaderPage(page);
     const loginPage = new LoginPage(page);
     const uploadVideoPage = new UploadVideoPage(page)

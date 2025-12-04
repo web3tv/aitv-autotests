@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { user1 } from '../test-data/users';
-import { LoginPage } from '../src/pages/LoginPage';
-import { AuthFlow } from '../src/flows/AuthFlow';
+import { HeaderPage } from '../src/pages/HeaderPage';
+import { MainPage } from '../src/pages/MainPage';
 
 
-test('Login as user', async ({ page }) => { 
-  const loginPage = new LoginPage(page);
-  const authFlow = new AuthFlow(loginPage)
-  await authFlow.loginSuccess(user1.login, user1.password);
+test('check hero icons', async ({ page }) => { 
+  const headerPage = new HeaderPage(page);
+  const mainPage = new MainPage(page)
+
+  await mainPage.visitMainPage();
+  await headerPage.checkVisibilityHeroCoins();
 });

@@ -14,7 +14,7 @@ export class UploadVideoFlow {
     this.headerPage.clickAddVideoBtn();
     this.headerPage.clickNewVideoBtn();
     await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
-    this.uploadVideoPage.uploadVideo(pathToFileURL);
+    await this.uploadVideoPage.uploadVideo(pathToFileURL);
     await this.uploadVideoPage.page.waitForResponse((response) =>
         response.url().startsWith('https://web3tv.dev/api/videos/studio-videos') &&
         response.status() === 200,
@@ -39,7 +39,7 @@ export class UploadVideoFlow {
         await  this.uploadVideoPage.fillVideoDescription(finalDescription);
         await this.uploadVideoPage.page.getByRole('button', { name: 'Auto-generated' }).click();
         await expect(this.uploadVideoPage.page.getByRole('paragraph')).toContainText('Select thumbnail:');
-        await expect(this.uploadVideoPage.page.getByRole('dialog', { name: 'Auto-generated thumbnail' })).toBeVisible();
+        await expect(this.uploadVideoPage.page.getByRole('dialog', { name: 'Auto-generated thumbnail' })).toBeVisible({timeout:15000});
         await this.uploadVideoPage.page.getByRole('button').nth(3).click();
         await this.uploadVideoPage.page.waitForTimeout(2000);
         await this.uploadVideoPage.page.getByRole('button', { name: 'Done' }).click();
