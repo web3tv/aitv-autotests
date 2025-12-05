@@ -10,8 +10,8 @@ export class AuthFlow {
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.fillPasswordInput(password);
     await this.loginPage.clickLoginBtn();
-    await this.loginPage.page.waitForURL('https://web3tv.dev/')
-    await this.loginPage.page.waitForResponse('https://web3tv.dev/api/users/whoami',{timeout:40_000})
+    await this.loginPage.page.waitForURL('/')
+    await this.loginPage.page.waitForResponse('/api/users/whoami',{timeout:40_000})
     await expect(this.loginPage.page.locator('#profile-button')).toBeVisible();
   }
 

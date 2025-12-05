@@ -1,4 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.dev' });
+
 
 export default defineConfig({
   testDir: './tests',
@@ -11,7 +14,7 @@ export default defineConfig({
     ['html', { open: 'always', outputFolder: 'playwright-report' }],
   ],
   use: {
-    baseURL: 'https://web3tv.dev',
+    baseURL: process.env.BASE_URL,
     trace: 'on-first-retry',    
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',   

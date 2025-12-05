@@ -16,7 +16,7 @@ export class UploadVideoFlow {
     await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
     await this.uploadVideoPage.uploadVideo(pathToFileURL);
     await this.uploadVideoPage.page.waitForResponse((response) =>
-        response.url().startsWith('https://web3tv.dev/api/videos/studio-videos') &&
+        response.url().startsWith('/api/videos/studio-videos') &&
         response.status() === 200,
         { timeout: 15_000 }
     );

@@ -78,7 +78,7 @@ export class LoginPage {
     await this.usernameInput.fill(finalUsername);
     await expect(this.usernameInput).toHaveValue(finalUsername)
     // await this.page.waitForResponse((response) =>
-    //     response.url().startsWith('https://api.web3tv.dev/handles/check') &&
+    //     response.url().startsWith('/handles/check') &&
     //     response.status() === 200,
     //     { timeout: 15_000 }
     // );

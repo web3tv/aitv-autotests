@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { user1 } from '../test-data/users';
 import { LoginPage } from '../src/pages/LoginPage';
 import { AuthFlow } from '../src/flows/AuthFlow';
 import { MainPage } from '../src/pages/MainPage';
@@ -13,14 +12,19 @@ test.describe('Login tests', () => {
   test('Login as user', async ({ page }) => { 
     const loginPage = new LoginPage(page)
     const authFlow = new AuthFlow(loginPage);
+    const login = process.env.USER_LOGIN!;
+    const password = process.env.USER_PASSWORD!;
+  
 
-    await authFlow.loginSuccess(user1.login, user1.password);
+    await authFlow.loginSuccess(login, password);
   });
 
   test('Check incorrect password', async ({ page }) => { 
     const loginPage = new LoginPage(page)
     const authFlow = new AuthFlow(loginPage);
-    await authFlow.passwordError(user1.login, "Admin1@");
+    const login = process.env.USER_LOGIN!;
+
+    await authFlow.passwordError(login, "Admin1@");
   });
 
   test('Check incorrect username', async ({ page }) => { 
@@ -31,8 +35,6 @@ test.describe('Login tests', () => {
   });
 
 });
-
-
 
 test.describe('Registration tests', () => {
 
@@ -58,7 +60,7 @@ test.describe('Registration tests', () => {
 
       await mainPage.visitMainPage();
       await headerPage.clickJoinBtn();
-      await expect(loginPage.emailInput).toBeVisible({ timeout: 20_000 });
+      await expect(loginPage.usernameInput).toBeVisible({ timeout: 20_000 });
       await loginPage.fillUsernameInput();
       await loginPage.clickCheckbox();
       await loginPage.clickContinueWithEmail();
@@ -102,7 +104,7 @@ test.describe('Validation tests', () => {
     await expect(loginPage.usernameInput).toBeVisible();
   });
 
-  test('1. Empty username → Handle is required', async ({ page }) => {
+  test('1. Empty username → Username is required', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.fillUsernameInput('');
@@ -112,7 +114,7 @@ test.describe('Validation tests', () => {
     await loginPage.assertButtonsDisabled();
   });
 
-  test('2. Too short username → Handle must be at least 3 characters', async ({ page }) => {
+  test('2. Too short username → Username must be at least 3 characters', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.fillUsernameInput('ab');
@@ -122,7 +124,7 @@ test.describe('Validation tests', () => {
     await loginPage.assertButtonsDisabled();
   });
 
-  test('3. Reject Not Latin chars', async ({ page }) => {
+  test('3. Reject Not Latin chars → Username must start with a letter and contain only latin lowercase letters, digits, and underscores.', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
     await loginPage.fillUsernameInput('abcппкп');
@@ -167,4 +169,7 @@ test.describe('Validation tests', () => {
   });
 
 });
+
+
+
 
