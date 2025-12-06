@@ -3,11 +3,7 @@ import { LoginPage } from '../../src/pages/LoginPage';
 import { MainPage } from '../../src/pages/MainPage';
 import { HeaderPage } from '../../src/pages/HeaderPage';
 
-
-
-
-
-test.describe('Validation tests', () => {
+test.describe('username validation on registration page', () => {
   test.beforeEach(async ({ page }) => {
     const mainPage = new MainPage(page);
     const headerPage = new HeaderPage(page);
