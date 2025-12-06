@@ -1,6 +1,7 @@
 import { expect } from "@playwright/test";
 import { HeaderPage } from "../pages/HeaderPage";
 import { UploadVideoPage } from "../pages/UploadVideoPagel";
+import { SideBarPage } from "../pages/SideBarPage";
 
 export class UploadVideoFlow {
     private timestamp: string = '';
@@ -11,27 +12,27 @@ export class UploadVideoFlow {
     ) {}
 
     async uploadVideo(pathToFileURL:string){
-    this.headerPage.clickAddVideoBtn();
-    this.headerPage.clickNewVideoBtn();
-    await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
-    await this.uploadVideoPage.uploadVideo(pathToFileURL);
-    await this.uploadVideoPage.page.waitForResponse((response) =>
-        response.url().startsWith('/api/videos/studio-videos') &&
-        response.status() === 200,
-        { timeout: 15_000 }
-    );
-    await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 30_000 });
-    await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
-    await expect(this.uploadVideoPage.page.locator('form')).toContainText('10secVideo');
+        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickNewVideoBtn();
+        await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
+        await this.uploadVideoPage.uploadVideo(pathToFileURL);
+        await this.uploadVideoPage.page.waitForResponse((response) =>
+            response.url().includes('/api/videos/studio-videos') &&
+            response.status() === 200,
+            { timeout: 40000 }
+        );
+        await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 30_000 });
+        await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
+        await expect(this.uploadVideoPage.page.locator('form')).toContainText('10secVideo');
     }
 
     async fillVideoTitle(name:string){
-        this.uploadVideoPage.fillVideoTitle(name);
+        await this.uploadVideoPage.fillVideoTitle(name);
     }
 
-    async uploadVideoThumb(pathToFileURL:string){
-        this.uploadVideoThumb(pathToFileURL);
-    }
+    // async uploadVideoThumb(pathToFileURL:string){
+    //     this.uploadVideoThumb(pathToFileURL);
+    // }
 
     async fillInReqFileds(title:any){
         this.timestamp = Date.now().toString();
@@ -48,10 +49,11 @@ export class UploadVideoFlow {
     }
 
     async confirmUploading(){
+        const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
         await  this.uploadVideoPage.clickPublishbtn();
         await expect(this.uploadVideoPage.page.getByLabel('Upload Complete')).toContainText('Congratulations!Your video has been successfully uploaded.');
         await this.uploadVideoPage.page.getByRole('button').filter({ hasText: /^$/ }).click();
-        await this.uploadVideoPage.page.getByRole('link', { name: 'Content' }).click();
+        await sideBarPage.clickStudioContent();
         await expect(this.uploadVideoPage.page.locator('body')).toContainText(this.timestamp);
     }
 

@@ -71,6 +71,7 @@ export class LoginPage {
      await this.page.click('body');
   }
   
+  // Here we check the input for compliance.
   async fillUsernameInput(username?: string) {
     const finalUsername = username ?? `autotest_${Date.now()}`;
 
@@ -82,6 +83,14 @@ export class LoginPage {
     //     response.status() === 200,
     //     { timeout: 15_000 }
     // );
+  }
+
+  // Here we do not check the input for compliance. 
+  async fillUsernameInput2(username?: string) {
+    const finalUsername = username ?? `autotest_${Date.now()}`;
+
+    await expect(this.usernameInput).toBeEditable();
+    await this.usernameInput.fill(finalUsername);
   }
 
   async clickCheckbox() {
@@ -129,7 +138,6 @@ export class LoginPage {
 
   async assertError(text: string) {
     await expect(this.page.getByText(text)).toBeVisible();
-    //await expect(this.page.getByText(text)).toBeVisible();
   }
 
   async assertLowercased(expected: string) {
