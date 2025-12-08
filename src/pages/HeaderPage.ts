@@ -46,6 +46,8 @@ export class HeaderPage {
     await this.joinBtn.click();
     await this.page.waitForURL('/register')
   }
+
+  
   
 
 }
