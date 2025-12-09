@@ -2,14 +2,18 @@ import { expect } from "@playwright/test";
 import { HeaderPage } from "../pages/HeaderPage";
 import { UploadVideoPage } from "../pages/UploadVideoPagel";
 import { SideBarPage } from "../pages/SideBarPage";
+import { Page } from '@playwright/test';
 
 export class UploadVideoFlow {
     private timestamp: string = '';
 
-    constructor(
-    private uploadVideoPage: UploadVideoPage,
-    private headerPage: HeaderPage
-    ) {}
+    readonly uploadVideoPage: UploadVideoPage;
+    readonly headerPage: HeaderPage;
+
+    constructor(public page: Page){
+        this.uploadVideoPage = new UploadVideoPage(page);
+        this.headerPage = new HeaderPage(page);
+    }
 
     async uploadVideo(pathToFileURL:string){
         await this.headerPage.clickAddVideoBtn();

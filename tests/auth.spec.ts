@@ -10,26 +10,31 @@ import { MailTmHelper } from '../utils/mailTmHelper';
 test.describe('Login tests', () => {
 
   test('Login as user', async ({ page }) => { 
-    const loginPage = new LoginPage(page)
-    const authFlow = new AuthFlow(loginPage);
+    const authFlow = new AuthFlow(page);
     const login = process.env.USER_LOGIN!;
     const password = process.env.USER_PASSWORD!;
   
-
     await authFlow.loginSuccess(login, password);
   });
 
-  test('Check incorrect password', async ({ page }) => { 
-    const loginPage = new LoginPage(page)
-    const authFlow = new AuthFlow(loginPage);
+  test('User logout', async ({ page }) => { 
+    const authFlow = new AuthFlow(page);
+    const login = process.env.USER_LOGIN!;
+    const password = process.env.USER_PASSWORD!;
+  
+    await authFlow.loginSuccess(login, password);
+    await authFlow.logout();
+  });
+
+  test('Can`t login with incorrect password', async ({ page }) => { 
+    const authFlow = new AuthFlow(page);
     const login = process.env.USER_LOGIN!;
 
     await authFlow.passwordError(login, "Admin1@");
   });
 
-  test('Check incorrect username', async ({ page }) => { 
-    const loginPage = new LoginPage(page)
-    const authFlow = new AuthFlow(loginPage);
+  test('Can`t login with incorrect username', async ({ page }) => { 
+    const authFlow = new AuthFlow(page);
 
     await authFlow.usernameError("user1", "Admin1@@");
   });
@@ -41,7 +46,7 @@ test.describe('Sign Up tests', () => {
   test('Register user via Email', async ({ page, request }) => {
     const mail = new MailTmHelper(request);
     const loginPage = new LoginPage(page)
-    const authFlow = new AuthFlow(loginPage);
+    const authFlow = new AuthFlow(page);
     const password = 'Admin1@@'
 
     let email: string = '';

@@ -8,14 +8,11 @@ import { UploadVideoFlow } from '../src/flows/UploadVideoFlow';
 
 test.describe('Uploading tests', () => {
     test('Upload video to channel and check this video in studio', async ({ page }) => {
-        const headerPage = new HeaderPage(page);
-        const loginPage = new LoginPage(page);
-        const uploadVideoPage = new UploadVideoPage(page)
         const login = process.env.USER_LOGIN!;
         const password = process.env.USER_PASSWORD!;
     
-        const authFlow = new AuthFlow(loginPage);
-        const uploadVideoFlow = new UploadVideoFlow(uploadVideoPage, headerPage);
+        const authFlow = new AuthFlow(page);
+        const uploadVideoFlow = new UploadVideoFlow(page);
         await authFlow.loginSuccess(login,password);
 
         await uploadVideoFlow.uploadVideo('test-data/fixtures/video/10secVideo.mp4');
