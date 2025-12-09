@@ -97,3 +97,18 @@ test.describe('Sign Up tests', () => {
 
 });
 
+test.describe('Forgot password', () => {
+
+  // test('Reset password and check', async ({ page, request }) => {
+  //   const mail = new MailTmHelper(request);
+  //   const loginPage = new LoginPage(page)
+  //   const authFlow = new AuthFlow(page);
+  //   const password = 'Admin1@@'
+
+   
+
+  //   await authFlow.loginSuccess(email, password);
+  // });
+
+});
+
