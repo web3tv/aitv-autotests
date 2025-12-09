@@ -36,7 +36,7 @@ test.describe('Login tests', () => {
 
 });
 
-test.describe('Registration tests', () => {
+test.describe('Sign Up tests', () => {
 
   test('Register user via Email', async ({ page, request }) => {
     const mail = new MailTmHelper(request);
