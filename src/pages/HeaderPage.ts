@@ -11,6 +11,8 @@ export class HeaderPage {
   readonly heroCoins: Locator;
   readonly joinBtn: Locator;
 
+  readonly userIcon: Locator;
+
   constructor(page: Page) {
     this.page = page;
     
@@ -23,6 +25,8 @@ export class HeaderPage {
 
     this.joinBtn = page.getByRole('button', { name: 'Join' });
     
+
+    this.userIcon = page.locator('#profile-button');
   }
 
   async clickAddVideoBtn(){
@@ -47,7 +51,10 @@ export class HeaderPage {
     await this.page.waitForURL('/register')
   }
 
-  
+  async clickUserIcon(){
+    await expect(this.userIcon).toBeEnabled();
+    await this.userIcon.click();
+  }
   
 
 }

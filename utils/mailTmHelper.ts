@@ -14,7 +14,7 @@ export class MailTmHelper {
   }
 
   
-  // Get domen and generate email
+ 
   async generateEmail() {
     const res = await this.request.get(`${this.baseUrl}/domains`);
     const data = await res.json();
@@ -24,7 +24,7 @@ export class MailTmHelper {
     return this.email;
   }
 
-  // 2. Создать mailbox
+ 
   async createMailbox() {
     await this.request.post(`${this.baseUrl}/accounts`, {
       data: {

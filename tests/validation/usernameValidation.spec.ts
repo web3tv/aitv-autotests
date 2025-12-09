@@ -25,13 +25,12 @@ test.describe('username validation on registration page', () => {
     await loginPage.assertButtonsDisabled();
   });
 
-  test('2. Too short username → Username must be at least 3 characters', async ({ page }) => {
+  test('2. Too short username → Username must be at least 4 characters', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
-    await loginPage.fillUsernameInput('ab');
+    await loginPage.fillUsernameInput('abc');
     await loginPage.blur();
-    //TODO Username must be at least !5! characters
-    await loginPage.assertError('Username must be at least 3 characters');
+    await loginPage.assertError('Username must be at least 4 characters');
     await loginPage.assertButtonsDisabled();
   });
 
