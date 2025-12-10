@@ -3,12 +3,14 @@ import { HeaderPage } from "../pages/HeaderPage";
 import { UploadVideoPage } from "../pages/UploadVideoPagel";
 import { SideBarPage } from "../pages/SideBarPage";
 import { Page } from '@playwright/test';
+import { StudioContentPage } from "../pages/StudioContentPage";
 
 export class UploadVideoFlow {
     private timestamp: string = '';
 
     readonly uploadVideoPage: UploadVideoPage;
     readonly headerPage: HeaderPage;
+    readonly privateRadioBtn: Locator;
 
     constructor(public page: Page){
         this.uploadVideoPage = new UploadVideoPage(page);
@@ -27,7 +29,16 @@ export class UploadVideoFlow {
         );
         await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 30_000 });
         await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
-        await expect(this.uploadVideoPage.page.locator('form')).toContainText('10secVideo');
+        await expect(this.uploadVideoPage.page.locator('form')).toContainText('5secVideo');
+    }
+
+    async waitStatusSuccessfully(){
+        try{
+            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:50_000});
+        } catch(err){
+            throw new Error("Video not uploaded");
+        }
+        
     }
 
     async fillVideoTitle(name:string){
@@ -52,14 +63,40 @@ export class UploadVideoFlow {
         await  this.uploadVideoPage.clickNextBtn();
     }
 
-    async confirmUploading(){
-        const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
+    async selectVisibility(type: 'public' | 'private' | 'paid') {
+        if(type == 'public'){
+            await this.uploadVideoPage.clickPublicBtn();
+        }
+        if(type == 'private'){
+            await this.uploadVideoPage.clickPrivateBtn();
+        }
+        if(type == 'paid'){
+            await this.uploadVideoPage.clickPaidBtn();
+        }
+
+    }
+
+    async clickPublishBtn(){
         await  this.uploadVideoPage.clickPublishbtn();
         await expect(this.uploadVideoPage.page.getByLabel('Upload Complete')).toContainText('Congratulations!Your video has been successfully uploaded.');
         await this.uploadVideoPage.page.getByRole('button').filter({ hasText: /^$/ }).click();
-        await sideBarPage.clickStudioContent();
-        await expect(this.uploadVideoPage.page.locator('body')).toContainText(this.timestamp);
     }
+
+
+    async confirmUploading(visibility: any){
+        const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
+        const studioContentPage = new StudioContentPage(this.uploadVideoPage.page)
+        await sideBarPage.clickStudioContent();
+        
+        await studioContentPage.checkVideoDescription(this.timestamp);
+        await studioContentPage.checkVideoVisibility(visibility)
+    }
+
+
+
+
+
+    
 
   
 }

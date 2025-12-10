@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { expect } from '@playwright/test';
 
 export class UploadVideoPage {
   readonly page: Page;
@@ -11,8 +12,12 @@ export class UploadVideoPage {
   readonly videoCategory: Locator;
   readonly nextBtn: Locator;
   readonly publishBtn: Locator;
+  
+  readonly publicRadioBtn: Locator;
+  readonly privateRadioBtn: Locator;
+  readonly paidRadioBtn: Locator;
 
-    constructor(page: Page) {
+  constructor(page: Page) {
     this.page = page;
 
     this.uploadVideoButton = page.getByTestId('dropzone-input');
@@ -24,39 +29,63 @@ export class UploadVideoPage {
     
     this.nextBtn = page.getByRole('button', { name: 'Next' });
     this.publishBtn = page.getByRole('button', { name: 'Publish' });
-  
+    
+    this.publicRadioBtn = page.getByRole('radio', { name: 'Public' });
+    this.privateRadioBtn = page.getByRole('radio', { name: 'Private' });
+    this.paidRadioBtn = page.getByRole('radio', { name: 'Paid' });
 
-    }
+  }
 
 
-    async uploadVideo(pathToFileURL:string){
-        await this.uploadVideoButton.setInputFiles(pathToFileURL);
-    }
+  async uploadVideo(pathToFileURL:string){
+      await this.uploadVideoButton.setInputFiles(pathToFileURL);
+  }
 
-    async uploadVideoThumb(pathToFileURL:string){
-        await this.uploadVideoThumbnail.setInputFiles(pathToFileURL);
-    }
+  async uploadVideoThumb(pathToFileURL:string){
+      await this.uploadVideoThumbnail.setInputFiles(pathToFileURL);
+  }
 
-    async fillVideoTitle(name: any){
-      await this.videoTitle.fill(name);
-    }
+  async fillVideoTitle(name: any){
+    await this.videoTitle.fill(name);
+  }
 
-    async fillVideoDescription(description: string){
-      await this.videoDescription.fill(description);
-    }
+  async fillVideoDescription(description: string){
+    await this.videoDescription.fill(description);
+  }
 
-    async selectVideoCategory(){
-      await this.videoCategoryDropdown.click();
-      await this.videoCategory.click();
-    }
+  async selectVideoCategory(){
+    await this.videoCategoryDropdown.click();
+    await this.videoCategory.click();
+  }
 
-    async clickNextBtn(){
-      await this.nextBtn.click();
-    }
+  async clickNextBtn(){
+    await this.nextBtn.click();
+  }
 
-    async clickPublishbtn(){
-      await this.publishBtn.click();
-    }
+  async clickPublishbtn(){
+    await this.publishBtn.click();
+  }
+
+  async clickPublicBtn() {
+    await this.publicRadioBtn.waitFor({ state: 'visible' });
+    await expect(this.publicRadioBtn).toBeEnabled();
+    await this.publicRadioBtn.click();
+    await expect(this.publicRadioBtn).toBeChecked();
+  }
+
+  async clickPrivateBtn() {
+    await this.privateRadioBtn.waitFor({ state: 'visible' });
+    await expect(this.privateRadioBtn).toBeEnabled();
+    await this.privateRadioBtn.click();
+    await expect(this.privateRadioBtn).toBeChecked();
+  }
+
+  async clickPaidBtn() {
+    await this.paidRadioBtn.waitFor({ state: 'visible' });
+    await expect(this.paidRadioBtn).toBeEnabled();
+    await this.paidRadioBtn.click();
+    await expect(this.paidRadioBtn).toBeChecked();
+  }
 
 }
 
