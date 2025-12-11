@@ -1,6 +1,6 @@
-import { HeaderPage } from "../pages/HeaderPage";
-import { LoginPage } from "../pages/LoginPage";
-import { UserDropdownPage } from "../pages/UserDropdownPage";
+import { HeaderPage } from "../pages/components/HeaderPage";
+import { LoginPage } from "../pages/auth/LoginPage";
+import { UserDropdownPage } from "../pages/components/UserDropdownPage";
 import { expect } from '@playwright/test';
 import { Page } from '@playwright/test';
 

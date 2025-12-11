@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../../src/pages/LoginPage';
-import { MainPage } from '../../src/pages/MainPage';
-import { HeaderPage } from '../../src/pages/HeaderPage';
+import { LoginPage } from '../../src/pages/auth/LoginPage';
+import { MainPage } from '../../src/pages/components/MainPage';
+import { HeaderPage } from '../../src/pages/components/HeaderPage';
 
 test.describe('Username validation on registration page', () => {
   test.beforeEach(async ({ page }) => {

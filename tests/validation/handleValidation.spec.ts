@@ -1,16 +1,16 @@
 import { test, expect } from '@playwright/test';
-import { SideBarPage } from '../../src/pages/SideBarPage';
-import { HeaderPage } from '../../src/pages/HeaderPage';
+import { SideBarPage } from '../../src/pages/components/SideBarPage';
+import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { AuthFlow } from '../../src/flows/AuthFlow';
-import { StudioProfilePage } from '../../src/pages/StudioProfilePage';
-import { UserDropdownPage } from '../../src/pages/UserDropdownPage';
-import { CreateChannelPage } from '../../src/pages/CreateChannelPage';
+import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
+import { UserDropdownPage } from '../../src/pages/components/UserDropdownPage';
+import { CreateChannelPage } from '../../src/pages/studio/CreateChannelPage';
 
 
 test.describe('Handle validation on Edit Channel Page', () => {
 
     test.beforeEach(async ({ page }) => {
-        const login = process.env.USER_LOGIN!;
+        const login = process.env.USER_LOGIN_PUBLIC!;
         const password = process.env.USER_PASSWORD!;
     
         const authFlow = new AuthFlow(page);
@@ -128,7 +128,7 @@ test.describe('Handle validation on Create Channel Page', () => {
         const userDropdownPage = new UserDropdownPage(page);
         const headerPage = new HeaderPage(page);
         const createChannelPage = new CreateChannelPage(page)
-        const login = process.env.USER_LOGIN!;
+        const login = process.env.USER_LOGIN_PUBLIC!;
         const password = process.env.USER_PASSWORD!;
     
         const authFlow = new AuthFlow(page);

@@ -17,6 +17,8 @@ export class UploadVideoPage {
   readonly privateRadioBtn: Locator;
   readonly paidRadioBtn: Locator;
 
+  readonly membershipBtn: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -33,7 +35,9 @@ export class UploadVideoPage {
     this.publicRadioBtn = page.getByRole('radio', { name: 'Public' });
     this.privateRadioBtn = page.getByRole('radio', { name: 'Private' });
     this.paidRadioBtn = page.getByRole('radio', { name: 'Paid' });
-
+    
+    // Name might be changed ---> Take a look
+    this.membershipBtn = page.getByRole('checkbox', { name: 'Subscription #1 1 week 49.' })
   }
 
 
@@ -85,6 +89,11 @@ export class UploadVideoPage {
     await expect(this.paidRadioBtn).toBeEnabled();
     await this.paidRadioBtn.click();
     await expect(this.paidRadioBtn).toBeChecked();
+  }
+
+  async clickMembershipCheckbox(){
+    await expect(this.membershipBtn).toBeEnabled();
+    await this.membershipBtn.check();
   }
 
 }

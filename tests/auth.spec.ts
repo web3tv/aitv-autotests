@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../src/pages/LoginPage';
+import { LoginPage } from '../src/pages/auth/LoginPage';
 import { AuthFlow } from '../src/flows/AuthFlow';
-import { MainPage } from '../src/pages/MainPage';
-import { HeaderPage } from '../src/pages/HeaderPage';
-import { MailTmHelper } from '../utils/mailTmHelper';
+import { MainPage } from '../src/pages/components/MainPage';
+import { HeaderPage } from '../src/pages/components/HeaderPage';
+import { MailTmHelper } from '../src/utils/mailTmHelper';
 
 
 
@@ -11,7 +11,7 @@ test.describe('Login tests', () => {
 
   test('Login as user', async ({ page }) => { 
     const authFlow = new AuthFlow(page);
-    const login = process.env.USER_LOGIN!;
+    const login = process.env.USER_LOGIN_PUBLIC!;
     const password = process.env.USER_PASSWORD!;
   
     await authFlow.loginSuccess(login, password);
@@ -19,7 +19,7 @@ test.describe('Login tests', () => {
 
   test('User logout', async ({ page }) => { 
     const authFlow = new AuthFlow(page);
-    const login = process.env.USER_LOGIN!;
+    const login = process.env.USER_LOGIN_PUBLIC!;
     const password = process.env.USER_PASSWORD!;
   
     await authFlow.loginSuccess(login, password);
@@ -28,7 +28,7 @@ test.describe('Login tests', () => {
 
   test('Can`t login with incorrect password', async ({ page }) => { 
     const authFlow = new AuthFlow(page);
-    const login = process.env.USER_LOGIN!;
+    const login = process.env.USER_LOGIN_PUBLIC!;
 
     await authFlow.passwordError(login, "Admin1@");
   });

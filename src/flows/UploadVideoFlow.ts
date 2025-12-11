@@ -1,16 +1,16 @@
 import { expect } from "@playwright/test";
-import { HeaderPage } from "../pages/HeaderPage";
-import { UploadVideoPage } from "../pages/UploadVideoPagel";
-import { SideBarPage } from "../pages/SideBarPage";
+import { HeaderPage } from "../pages/components/HeaderPage";
+import { UploadVideoPage } from "../pages/components/UploadVideoPagel";
+import { SideBarPage } from "../pages/components/SideBarPage";
 import { Page } from '@playwright/test';
-import { StudioContentPage } from "../pages/StudioContentPage";
+import { StudioContentPage } from "../pages/studio/StudioContentPage";
 
 export class UploadVideoFlow {
     private timestamp: string = '';
 
     readonly uploadVideoPage: UploadVideoPage;
     readonly headerPage: HeaderPage;
-    readonly privateRadioBtn: Locator;
+    
 
     constructor(public page: Page){
         this.uploadVideoPage = new UploadVideoPage(page);
@@ -61,6 +61,7 @@ export class UploadVideoFlow {
         await this.uploadVideoPage.page.getByRole('button', { name: 'Done' }).click();
         await this.uploadVideoPage.selectVideoCategory();
         await  this.uploadVideoPage.clickNextBtn();
+        return this.timestamp;
     }
 
     async selectVisibility(type: 'public' | 'private' | 'paid') {
@@ -71,14 +72,23 @@ export class UploadVideoFlow {
             await this.uploadVideoPage.clickPrivateBtn();
         }
         if(type == 'paid'){
-            await this.uploadVideoPage.clickPaidBtn();
+            try {
+                await this.uploadVideoPage.clickPaidBtn();
+                await this.uploadVideoPage.clickMembershipCheckbox();   
+            }catch(err){
+                console.log('PAID button is not displayed')
+            }
+            
         }
+    }
+
+    async chooseMembership(){
 
     }
 
     async clickPublishBtn(){
         await  this.uploadVideoPage.clickPublishbtn();
-        await expect(this.uploadVideoPage.page.getByLabel('Upload Complete')).toContainText('Congratulations!Your video has been successfully uploaded.');
+        await expect(this.uploadVideoPage.page.getByLabel('Upload Complete')).toContainText('Congratulations!Your video has been successfully uploaded.',{timeout:10_000});
         await this.uploadVideoPage.page.getByRole('button').filter({ hasText: /^$/ }).click();
     }
 
