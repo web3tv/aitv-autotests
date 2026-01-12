@@ -12,7 +12,19 @@ export async function waitForVideoJSPlaying(page: Page) {
   });
 }
 
-export async function assertVideoCurrentTimeMoves(page: Page) {
+export async function assertVideoCurrentTimeMoves(page: Page, timeoutMs = 3000) {
+  const videoLocator = page.locator('video.vjs-tech');
+  await videoLocator.waitFor({ state: 'visible', timeout: timeoutMs });
+
+  await page.waitForFunction(
+    () => {
+      const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
+      return video && video.readyState >= 2; 
+    },
+    null,
+    { timeout: timeoutMs }
+  );
+
   const isPlaying = await page.evaluate(async () => {
     const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
     if (!video) return false;
@@ -28,6 +40,7 @@ export async function assertVideoCurrentTimeMoves(page: Page) {
     throw new Error('❌ Видео не проигрывается (currentTime не изменился)!');
   }
 }
+
 
 export async function assertProgressBarMoves(page: Page) {
   const slider = page.locator('.vjs-progress-holder');

@@ -4,7 +4,7 @@ import { AuthFlow } from '../src/flows/AuthFlow';
 import { MainPage } from '../src/pages/components/MainPage';
 import { HeaderPage } from '../src/pages/components/HeaderPage';
 import { MailTmHelper } from '../src/utils/mailTmHelper';
-
+import { AuthApi } from "../src/api/AuthApi";
 
 
 test.describe('Login tests', () => {
@@ -95,6 +95,14 @@ test.describe('Sign Up tests', () => {
     await authFlow.loginSuccess(email, password);
   });
 
+  test('Register and verify user via API',async ({ page,request })=>{
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const user = await authApi.createAndVerifyUser();
+    const password = process.env.USER_PASSWORD!;
+    console.log(user);
+    await authFlow.loginSuccess(user.email, password);
+  })
 });
 
 test.describe('Forgot password', () => {
