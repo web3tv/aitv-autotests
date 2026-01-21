@@ -20,6 +20,7 @@ export class ChannelMainPage {
     }
 
     async clickFirstVideo(){
+        await expect(this.firstVideo).toBeVisible();
         await this.firstVideo.click();
     }
 

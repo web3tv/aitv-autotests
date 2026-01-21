@@ -25,12 +25,12 @@ test.describe('Uploading tests', () => {
         await uploadVideoFlow.selectVisibility('public');
         await uploadVideoFlow.clickPublishBtn();
         await uploadVideoFlow.confirmUploading('Public');
-        // const newUrl:any = await studioContentPage.getFirstVideoUrl();
+        const newUrl:any = await studioContentPage.getFirstVideoUrl();
 
-        // const incogPage = await openInIncognito(browser, newUrl);
-        // await expect(incogPage.getByText("5secVideo")).toBeVisible({ timeout: 10_000 });
-        // await expect(incogPage.getByText(description)).toBeVisible({ timeout: 10_000 });
-        // await assertVideoIsPlaying(incogPage);
+        const incogPage = await openInIncognito(browser, newUrl);
+        await expect(incogPage.getByText("5secVideo")).toBeVisible({ timeout: 10_000 });
+        await expect(incogPage.getByText(description)).toBeVisible({ timeout: 10_000 });
+        await assertVideoIsPlaying(incogPage);
     });
 
     test('Upload private video to channel + Check video in studio + Check video is not displayed for other users', async ({ browser,page }) => {
@@ -73,7 +73,6 @@ test.describe('Uploading tests', () => {
         await uploadVideoFlow.confirmUploading('Paid');
         const newUrl:any = await studioContentPage.getFirstVideoUrl();
 
-        //TODO: Должно ли Paid видео открываться по прямой ссылке и редиректить на страницу подписок?
         const incogPage = await openInIncognito(browser, newUrl);
         await expect(incogPage.locator('[data-id="sub-card"]')).toBeVisible()
     });
@@ -103,7 +102,7 @@ test.describe('Check visibility settings',()=>{
        
     })
 
-    test('Check private video not displaye on channel page', async({page})=>{
+    test('Check private video not displayed on channel page', async({page})=>{
         const urlWithPublicVideos = process.env.USER_CHANNEL_PRIVATE_URL!;
         const channelMainPage = new ChannelMainPage(page);
 

@@ -57,7 +57,7 @@ export class UploadVideoFlow {
         await expect(this.uploadVideoPage.page.getByRole('paragraph')).toContainText('Select thumbnail:');
         await expect(this.uploadVideoPage.page.getByRole('dialog', { name: 'Auto-generated thumbnail' })).toBeVisible({timeout:15000});
         await this.uploadVideoPage.page.getByRole('button').nth(3).click();
-        await this.uploadVideoPage.page.waitForTimeout(2000);
+        await this.uploadVideoPage.page.waitForTimeout(5000);
         await this.uploadVideoPage.page.getByRole('button', { name: 'Done' }).click();
         await this.uploadVideoPage.selectVideoCategory();
         await  this.uploadVideoPage.clickNextBtn();

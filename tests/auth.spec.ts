@@ -54,7 +54,7 @@ test.describe('Sign Up tests', () => {
 
     await test.step('Mail.tm: Generate email with domain', async () => {
       email = await mail.generateEmail();
-      console.log('Generated email:', email);
+      // console.log('Generated email:', email);
 
       await mail.createMailbox();
     });
@@ -100,7 +100,7 @@ test.describe('Sign Up tests', () => {
     const authFlow = new AuthFlow(page);
     const user = await authApi.createAndVerifyUser();
     const password = process.env.USER_PASSWORD!;
-    console.log(user);
+    // console.log(user);
     await authFlow.loginSuccess(user.email, password);
   })
 });
