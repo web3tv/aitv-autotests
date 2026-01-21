@@ -13,7 +13,7 @@ test.describe('Login tests', () => {
     const authFlow = new AuthFlow(page);
     const login = process.env.USER_LOGIN_PUBLIC!;
     const password = process.env.USER_PASSWORD!;
-
+  console.log('BASE_URL:', process.env.BASE_URL);
     await authFlow.loginSuccess(login, password);
   });
 

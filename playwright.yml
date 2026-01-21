@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Playwright Tests (VPN)
 
 on:
   push:
@@ -22,37 +22,55 @@ jobs:
           node-version: 20
           cache: npm
 
+      # ---------------- VPN ----------------
+
+      - name: Install WireGuard VPN Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wireguard-tools iproute2
+
+      - name: Connect to WireGuard VPN
+        env:
+          WG_CLIENT_CONFIG: ${{ secrets.WG_CLIENT_CONFIG }}
+        run: |
+          printf "%s\n" "$WG_CLIENT_CONFIG" > wg0.conf
+          sudo install -m 600 wg0.conf /etc/wireguard/wg0.conf
+          sudo wg-quick up wg0
+          sudo ip route replace 10.3.0.0/16 dev wg0
+          rm -f wg0.conf
+
+          echo "=== WireGuard status ==="
+          sudo wg show
+          ip addr show wg0
+          ip route
+
+      # ---------------- Playwright ----------------
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
+      - name: Install Chromium only
         run: npx playwright install chromium --with-deps
-        # run: npx playwright install --with-deps
 
       - name: Run Playwright tests
         run: npx playwright test
         env:
           CI: true
 
-          # Base
           BASE_URL: ${{ secrets.BASE_URL }}
 
-          # User channels URLs
           USER_CHANNEL_PUBLIC_URL: ${{ secrets.USER_CHANNEL_PUBLIC_URL }}
           USER_CHANNEL_PRIVATE_URL: ${{ secrets.USER_CHANNEL_PRIVATE_URL }}
           USER_CHANNEL_PAID_URL: ${{ secrets.USER_CHANNEL_PAID_URL }}
 
-          # Users
           USER_LOGIN_PUBLIC: ${{ secrets.USER_LOGIN_PUBLIC }}
           USER_LOGIN_PRIVATE: ${{ secrets.USER_LOGIN_PRIVATE }}
           USER_LOGIN_PAID: ${{ secrets.USER_LOGIN_PAID }}
           USER_LOGIN_ADMIN: ${{ secrets.USER_LOGIN_ADMIN }}
 
-          # Password / flags
           USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
           USER_EXIST: ${{ secrets.USER_EXIST }}
 
-          # Videos
           VIDEO_PRIVATE_URL: ${{ secrets.VIDEO_PRIVATE_URL }}
 
       - name: Upload Playwright report
