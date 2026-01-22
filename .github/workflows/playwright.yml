@@ -15,9 +15,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Load env from .env
+      - name: Load env from .env.dev
         run: |
-          cat .env >> $GITHUB_ENV
+          cat .env.dev >> $GITHUB_ENV
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -64,5 +64,14 @@ jobs:
         run: npx playwright test
         env:
           CI: true
+      
+      - name: Disconnect VPN
+        if: always()
+        run: sudo wg-quick down wg0
 
       - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
