@@ -1,13 +1,17 @@
 name: Playwright Tests (VPN)
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  push:
+    branches: [ main ]
 
 jobs:
-  playwright:
+
+  # ==========================================
+  # 🟢 FUNCTIONAL
+  # ==========================================
+  functional:
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
@@ -16,8 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Load env from .env.dev
-        run: |
-          cat .env.dev >> $GITHUB_ENV
+        run: cat .env.dev >> $GITHUB_ENV
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -48,30 +51,153 @@ jobs:
           ip route
 
       - name: Check DEV availability
-        run: |
-          curl -I https://web3tv.dev || exit 1
+        run: curl -I https://web3tv.dev || exit 1
 
-          
       # ---------------- Playwright ----------------
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Chromium
-        run: npx playwright install chromium --with-deps
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      - name: Run functional tests
+        run: |
+          npx playwright test --project=functional-chromium
+          npx playwright test --project=functional-firefox
         env:
           CI: true
-      
+
       - name: Disconnect VPN
         if: always()
         run: sudo wg-quick down wg0
 
-      - name: Upload Playwright report
+      - name: Upload functional report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: functional-playwright-report
           path: playwright-report
+
+
+  # ==========================================
+  # 🖥 VISUAL DESKTOP (main only)
+  # ==========================================
+  visual-desktop:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs: functional
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Load env from .env.dev
+        run: cat .env.dev >> $GITHUB_ENV
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # VPN
+      - name: Install WireGuard VPN Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wireguard-tools iproute2
+
+      - name: Connect to WireGuard VPN
+        env:
+          WG_CLIENT_CONFIG: ${{ secrets.WG_CLIENT_CONFIG }}
+        run: |
+          printf "%s\n" "$WG_CLIENT_CONFIG" > wg0.conf
+          sudo install -m 600 wg0.conf /etc/wireguard/wg0.conf
+          sudo wg-quick up wg0
+          sudo ip route replace 10.3.0.0/16 dev wg0
+          rm -f wg0.conf
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run visual desktop tests
+        run: npx playwright test --project=visual-desktop
+        env:
+          CI: true
+
+      - name: Disconnect VPN
+        if: always()
+        run: sudo wg-quick down wg0
+
+      - name: Upload visual desktop report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-desktop-playwright-report
+          path: playwright-report
+
+
+  # ==========================================
+  # 📱 VISUAL MOBILE (main only)
+  # ==========================================
+  # visual-mobile:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs: functional
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Load env from .env.dev
+        run: cat .env.dev >> $GITHUB_ENV
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # VPN
+      - name: Install WireGuard VPN Client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wireguard-tools iproute2
+
+      - name: Connect to WireGuard VPN
+        env:
+          WG_CLIENT_CONFIG: ${{ secrets.WG_CLIENT_CONFIG }}
+        run: |
+          printf "%s\n" "$WG_CLIENT_CONFIG" > wg0.conf
+          sudo install -m 600 wg0.conf /etc/wireguard/wg0.conf
+          sudo wg-quick up wg0
+          sudo ip route replace 10.3.0.0/16 dev wg0
+          rm -f wg0.conf
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run visual mobile tests
+        run: npx playwright test --project=visual-mobile
+        env:
+          CI: true
+
+      - name: Disconnect VPN
+        if: always()
+        run: sudo wg-quick down wg0
+
+      - name: Upload visual mobile report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-mobile-playwright-report
+          path: playwright-report
+
