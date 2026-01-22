@@ -15,9 +15,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Load env variables
+      - name: Load env from .env.dev
         run: |
-        grep -v '^#' .env.dev | grep -v '^$' >> $GITHUB_ENV
+          cat .env.dev >> $GITHUB_ENV
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
