@@ -16,7 +16,7 @@ test.describe('SideBar menu visual tests', () => {
             await document.fonts.ready;
         });
         await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible();
-        await expect(page.locator('.sidebarNav')).toHaveScreenshot({maxDiffPixelRatio: 0.015});
+        await expect(page.locator('.sidebarNav')).toHaveScreenshot();
     });
 
     test('SideBar menu for logged in user', async ({ page }) => {
@@ -28,7 +28,7 @@ test.describe('SideBar menu visual tests', () => {
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
-        await expect(page.locator('.sidebarNav')).toHaveScreenshot({maxDiffPixelRatio: 0.015});
+        await expect(page.locator('.sidebarNav')).toHaveScreenshot();
     });
 })
 
@@ -46,7 +46,7 @@ test.describe('Header panel visual tests', () => {
         });
         await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible();
         await expect(page.getByText('BETAConnect walletJoinLogin')).toBeVisible();
-        await expect(page.getByText('BETAConnect walletJoinLogin')).toHaveScreenshot({maxDiffPixelRatio: 0.015});
+        await expect(page.getByText('BETAConnect walletJoinLogin')).toHaveScreenshot();
     });
 
     test('Header panel for logged in user', async ({ page }) => {
@@ -62,8 +62,7 @@ test.describe('Header panel visual tests', () => {
         await expect(page.locator('div').first()).toHaveScreenshot({
             mask: [
                  page.locator('[id="profile-button"]')
-            ],
-            maxDiffPixelRatio: 0.015
+            ]
         });
        
     });
@@ -88,8 +87,7 @@ test.describe('Video page visual tests', () => {
             fullPage: true,
             mask: [
                 page.locator('[data-id="recommended-videos"]')
-            ],
-            maxDiffPixelRatio: 0.015
+            ]
         });
     });
 
@@ -110,8 +108,7 @@ test.describe('Video page visual tests', () => {
             fullPage: true,
             mask: [
                 page.locator('[data-id="recommended-videos"]')
-            ],
-            maxDiffPixelRatio: 0.015
+            ]
         });
        
     });
@@ -138,8 +135,7 @@ test.describe('Channel page visual tests', () => {
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
                 page.locator('[data-id="subscribers"]')            
-            ],
-            maxDiffPixelRatio: 0.015
+            ]
         });
     });
 
@@ -162,8 +158,7 @@ test.describe('Channel page visual tests', () => {
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
                 page.locator('[data-id="subscribers"]')            
-            ],
-            maxDiffPixelRatio: 0.015
+            ]
         });
     });
 
