@@ -47,6 +47,11 @@ jobs:
           ip addr show wg0
           ip route
 
+      - name: Check DEV availability
+        run: |
+          curl -I https://web3tv.dev || exit 1
+
+          
       # ---------------- Playwright ----------------
 
       - name: Install dependencies
