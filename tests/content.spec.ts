@@ -74,7 +74,9 @@ test.describe('Uploading tests', () => {
         const newUrl:any = await studioContentPage.getFirstVideoUrl();
 
         const incogPage = await openInIncognito(browser, newUrl);
-        await expect(incogPage.locator('[data-id="sub-card"]')).toBeVisible()
+        await expect(incogPage).toHaveURL( /\/@user_with_paid_videos\/membership/,{timeout:15_000});
+        await expect(incogPage.locator('.infinite-scroll-component')).toBeVisible();
+        await expect(incogPage.locator('[data-id="sub-card"]')).toBeVisible();
     });
 
 });
