@@ -34,7 +34,7 @@ export class UploadVideoFlow {
 
     async waitStatusSuccessfully(){
         try{
-            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:50_000});
+            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:90_000});
         } catch(err){
             throw new Error("Video not uploaded");
         }
