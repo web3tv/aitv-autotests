@@ -64,5 +64,3 @@ jobs:
         run: npx playwright test
         env:
           CI: true
-
-      - name: Upload Playwright report
