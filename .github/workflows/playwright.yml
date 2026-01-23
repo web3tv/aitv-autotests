@@ -40,8 +40,7 @@ jobs:
       - run: npx playwright install --with-deps
 
       - run: |
-          npx playwright test --project=visual-desktop-chromium
-          npx playwright test --project=visual-desktop-firefox
+          npx playwright test --project=functional
         env:
           CI: true
 
@@ -87,7 +86,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps
 
-      - run: npx playwright test --project=visual-desktop
+      - run: npx playwright test --project=visual-desktop-chromium
         env:
           CI: true
 
