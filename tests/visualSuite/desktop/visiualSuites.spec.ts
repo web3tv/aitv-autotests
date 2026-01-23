@@ -86,7 +86,8 @@ test.describe('Video page visual tests', () => {
         await expect(page).toHaveScreenshot({
             fullPage: true,
             mask: [
-                page.locator('[data-id="recommended-videos"]')
+                page.locator('[data-id="recommended-videos"]'),
+                page.locator('[aria-label="Video Player"]')
             ]
         });
     });
@@ -107,7 +108,8 @@ test.describe('Video page visual tests', () => {
         await expect(page).toHaveScreenshot({
             fullPage: true,
             mask: [
-                page.locator('[data-id="recommended-videos"]')
+                page.locator('[data-id="recommended-videos"]'),
+                page.locator('[aria-label="Video Player"]')
             ]
         });
        
