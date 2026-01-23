@@ -9,24 +9,20 @@ on:
 jobs:
 
   functional:
-    name: Functional Tests
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load env
-        run: cat .env.dev >> $GITHUB_ENV
+      - run: cat .env.dev >> $GITHUB_ENV
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      # -------- VPN --------
-      - name: Install WireGuard
-        run: |
+      - run: |
           sudo apt-get update
           sudo apt-get install -y wireguard-tools iproute2
 
@@ -40,29 +36,19 @@ jobs:
           sudo ip route replace 10.3.0.0/16 dev wg0
           rm -f wg0.conf
 
-      - name: Check DEV
-        run: curl -I https://web3tv.dev || exit 1
+      - run: npm ci
+      - run: npx playwright install --with-deps
 
-      # -------- Playwright --------
-      - name: Install deps
-        run: npm ci
-
-      - name: Install browsers
-        run: npx playwright install --with-deps
-
-      - name: Run functional tests
-        run: |
+      - run: |
           npx playwright test --project=functional-chromium
           npx playwright test --project=functional-firefox
         env:
           CI: true
 
-      - name: Disconnect VPN
-        if: always()
+      - if: always()
         run: sudo wg-quick down wg0
 
-      - name: Upload report
-        if: always()
+      - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: functional-report
@@ -70,7 +56,6 @@ jobs:
 
 
   visual-desktop:
-    name: Visual Desktop
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -78,18 +63,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Load env
-        run: cat .env.dev >> $GITHUB_ENV
+      - run: cat .env.dev >> $GITHUB_ENV
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      # -------- VPN --------
-      - name: Install WireGuard
-        run: |
+      - run: |
           sudo apt-get update
           sudo apt-get install -y wireguard-tools iproute2
 
@@ -103,50 +84,33 @@ jobs:
           sudo ip route replace 10.3.0.0/16 dev wg0
           rm -f wg0.conf
 
-      - name: Install deps
-        run: npm ci
+      - run: npm ci
+      - run: npx playwright install --with-deps
 
-      - name: Install browsers
-        run: npx playwright install --with-deps
-
-      - name: Run visual desktop tests
-        run: npx playwright test --project=visual-desktop
+      - run: npx playwright test --project=visual-desktop
         env:
           CI: true
 
-      - name: Disconnect VPN
-        if: always()
+      - if: always()
         run: sudo wg-quick down wg0
 
-      - name: Upload report
-        if: always()
+      - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: visual-desktop-report
           path: playwright-report
 
 
-  # visual-mobile:
-    name: Visual Mobile
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    needs: functional
-
-    steps:
+  
       - uses: actions/checkout@v4
-
-      - name: Load env
-        run: cat .env.dev >> $GITHUB_ENV
+      - run: cat .env.dev >> $GITHUB_ENV
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      # -------- VPN --------
-      - name: Install WireGuard
-        run: |
+      - run: |
           sudo apt-get update
           sudo apt-get install -y wireguard-tools iproute2
 
@@ -160,23 +124,17 @@ jobs:
           sudo ip route replace 10.3.0.0/16 dev wg0
           rm -f wg0.conf
 
-      - name: Install deps
-        run: npm ci
+      - run: npm ci
+      - run: npx playwright install --with-deps
 
-      - name: Install browsers
-        run: npx playwright install --with-deps
-
-      - name: Run visual mobile tests
-        run: npx playwright test --project=visual-mobile
+      - run: npx playwright test --project=visual-mobile
         env:
           CI: true
 
-      - name: Disconnect VPN
-        if: always()
+      - if: always()
         run: sudo wg-quick down wg0
 
-      - name: Upload report
-        if: always()
+      - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: visual-mobile-report
