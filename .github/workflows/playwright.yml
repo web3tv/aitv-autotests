@@ -59,7 +59,6 @@ jobs:
 
   visual-desktop:
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    needs: functional
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
