@@ -6,9 +6,12 @@ on:
   push:
     branches: [ main ]
 
+  workflow_dispatch:
+
 jobs:
 
   functional:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
@@ -55,6 +58,7 @@ jobs:
 
 
   visual-desktop:
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     needs: functional
     runs-on: ubuntu-latest
     timeout-minutes: 40
