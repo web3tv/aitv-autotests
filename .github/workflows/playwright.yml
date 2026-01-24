@@ -46,6 +46,19 @@ jobs:
           npx playwright test --project=functional
         env:
           CI: true
+  
+      - name: Send Slack notification
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"text\": \"Playwright Visual Tests: *$STATUS* \n$RUN_URL\"
+          }" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
 
       - if: always()
         run: sudo wg-quick down wg0
