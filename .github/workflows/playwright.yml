@@ -71,6 +71,8 @@ jobs:
             "$WEBHOOK"
 
   visual-desktop:
+    needs: functional
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
