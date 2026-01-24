@@ -2,6 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.dev' });
 
+if (!process.env.CI) {
+  dotenv.config({ path: '.env.dev', quiet: true });
+}
+
 
 export default defineConfig({
   testDir: './tests',
