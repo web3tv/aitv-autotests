@@ -57,24 +57,17 @@ jobs:
           name: functional-report
           path: playwright-report
 
-      - name: Debug job name
-        if: always()
-        run: |
-          echo "github.job = ${{ github.job }}"
-          echo "workflow = ${{ github.workflow }}"
-          echo "status = ${{ job.status }}"
-          
       - name: Send Slack notification
         if: always()
         env:
           STATUS: ${{ job.status }}
-          JOB_NAME: ${{ github.workflow }} - ${{ github.job }}
+          JOB_NAME: ${{ github.job }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"message\":\"Playwright result: $STATUS\n$RUN_URL\"}" \
+            --data "{\"message\":\"Job: $JOB_NAME\nStatus: $STATUS\n$RUN_URL\"}" \
             "$WEBHOOK"
 
   visual-desktop:
