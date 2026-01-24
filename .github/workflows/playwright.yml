@@ -64,17 +64,10 @@ jobs:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          echo "Status: $STATUS"
-          echo "Webhook length: ${#WEBHOOK}"
-
-          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
-            -X POST \
+          curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"text\":\"Playwright result: $STATUS\n$RUN_URL\"}" \
-            "$WEBHOOK")
-
-          echo "Slack response:"
-          echo "$RESPONSE"
+            --data "{\"message\":\"Playwright result: $STATUS\n$RUN_URL\"}" \
+            "$WEBHOOK"
 
   visual-desktop:
     if: github.event_name == 'workflow_dispatch'
