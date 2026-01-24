@@ -62,18 +62,19 @@ jobs:
         env:
           STATUS: ${{ job.status }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          if [ "$STATUS" = "success" ]; then
-            ICON=":white_check_mark:"
-          else
-            ICON=":x:"
-          fi
+          echo "Status: $STATUS"
+          echo "Webhook length: ${#WEBHOOK}"
 
-          curl -X POST -H 'Content-type: application/json' \
-          --data "{
-            \"text\": \"$ICON Playwright Visual Tests: *$STATUS*\n$RUN_URL\"
-          }" \
-          ${{ secrets.SLACK_WEBHOOK_URL }}
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            --data "{\"text\":\"Playwright result: $STATUS\n$RUN_URL\"}" \
+            "$WEBHOOK")
+
+          echo "Slack response:"
+          echo "$RESPONSE"
 
   visual-desktop:
     if: github.event_name == 'workflow_dispatch'
