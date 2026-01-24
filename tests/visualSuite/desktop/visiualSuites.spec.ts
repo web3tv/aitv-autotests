@@ -45,8 +45,8 @@ test.describe('Header panel visual tests', () => {
             await document.fonts.ready;
         });
         await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible();
-        await expect(page.getByText('BETAConnect walletJoinLogin')).toBeVisible();
-        await expect(page.getByText('BETAConnect walletJoinLogin')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page.locator('[data-id="header"]')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
     });
 
     test('Header panel for logged in user', async ({ page }) => {
@@ -58,8 +58,8 @@ test.describe('Header panel visual tests', () => {
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
-        await expect(page.locator('div').first()).toBeVisible();
-        await expect(page.locator('div').first()).toHaveScreenshot({
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page.locator('[data-id="header"]')).toHaveScreenshot({
             mask: [
                 page.locator('[id="profile-button"]')
             ],

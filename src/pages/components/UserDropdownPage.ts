@@ -11,14 +11,15 @@ export class UserDropdownPage {
     constructor(page: Page) {
         this.page = page;
 
-        this.createChannelBtn =  page.getByRole('button', { name: 'Add Channel' });
+        this.createChannelBtn =  page.getByRole('link', { name: 'Add Channel' });
         this.logoutBtn = page.getByRole('menuitem', { name: 'Sign out' })
     }
 
     async clickAddChannelBtn(){
         await expect(this.createChannelBtn).toBeEnabled();
         await this.createChannelBtn.click();
-        await expect(this.page.getByRole('dialog', { name: 'Create channel' })).toBeVisible();
+        await this.page.waitForURL('**/create-channel');
+        await expect(this.page.getByText('Create Your Web3TV ChannelSet')).toBeVisible();
     }
     
     async clickLogoutBtn(){

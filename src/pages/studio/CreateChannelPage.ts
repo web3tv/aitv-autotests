@@ -7,14 +7,24 @@ export class CreateChannelPage {
     readonly handleInput: Locator;
     readonly nameInput: Locator;
 
+    readonly startSetupBtn: Locator;
     readonly submitBtn: Locator;
 
     constructor(page: Page) {
         this.page = page;
 
-        this.handleInput = page.getByRole('textbox', { name: 'handle' })
-        this.nameInput = page.getByRole('textbox', { name: 'name' })
-        this.submitBtn = page.getByRole('button', { name: 'Submit' })
+        // Main page
+        this.startSetupBtn = page.getByRole('button', { name: 'Start Setup' })
+
+
+        this.handleInput = page.getByRole('textbox', { name: 'yourhandle' })
+        this.nameInput = page.getByRole('textbox', { name: 'Enter your channel name' })
+        this.submitBtn = page.getByRole('button', { name: 'Continue' })
+    }
+
+    async clickStartSetup(){
+        await expect(this.startSetupBtn).toBeEnabled();
+        await this.startSetupBtn.click();
     }
 
     async fillHandleName(name:any){
@@ -57,7 +67,6 @@ export class CreateChannelPage {
     async assertError(text: string) {
         await expect(this.page.getByText(text)).toBeVisible();
     }
-
 
     async assertSaveBtnDisabled() {
         await expect(this.submitBtn).toBeDisabled();

@@ -6,7 +6,6 @@ import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
 import { UserDropdownPage } from '../../src/pages/components/UserDropdownPage';
 import { CreateChannelPage } from '../../src/pages/studio/CreateChannelPage';
 
-
 test.describe('Handle validation on Edit Channel Page', () => {
 
     test.beforeEach(async ({ page }) => {
@@ -136,6 +135,7 @@ test.describe('Handle validation on Create Channel Page', () => {
         await authFlow.loginSuccess(login, password);
         await headerPage.clickUserIcon();
         await userDropdownPage.clickAddChannelBtn();
+        await createChannelPage.clickStartSetup();
         await createChannelPage.fillName('test_name')
     });
 
@@ -200,7 +200,6 @@ test.describe('Handle validation on Create Channel Page', () => {
         await createChannelPage.assertSaveBtnDisabled();
     });
     
-    // NEED TI FIX ON FE SIDE
     test('7. Username exists', async ({ page }) => {
         const username = process.env.USER_EXIST
         const createChannelPage = new CreateChannelPage(page)
