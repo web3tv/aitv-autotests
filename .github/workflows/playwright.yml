@@ -61,6 +61,7 @@ jobs:
         if: always()
         env:
           STATUS: ${{ job.status }}
+          JOB_NAME: ${{ github.job }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
