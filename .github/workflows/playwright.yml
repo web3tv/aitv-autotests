@@ -55,6 +55,7 @@ jobs:
 
 
   visual-desktop:
+    needs: functional
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
