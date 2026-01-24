@@ -71,7 +71,6 @@ jobs:
             "$WEBHOOK"
 
   visual-desktop:
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
@@ -113,6 +112,19 @@ jobs:
         with:
           name: visual-desktop-report
           path: playwright-report
+      
+      - name: Send Slack notification
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+          JOB_NAME: ${{ github.job }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            --data "{\"message\":\"Job: $JOB_NAME\nStatus: $STATUS\n$RUN_URL\"}" \
+            "$WEBHOOK"
 
 
       
