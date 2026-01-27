@@ -17,14 +17,19 @@ export class AuthFlow {
     this.userDropdownPage = new UserDropdownPage(page);
   }
 
-  async loginSuccess (email:string,password:string) {
+  async loginSuccess (email:string,password:string,device?: 'mobile' | 'desktop') {
     await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.fillPasswordInput(password);
     await this.loginPage.clickLoginBtn();
     await this.loginPage.page.waitForURL('/')
     await this.loginPage.page.waitForResponse('/api/users/whoami',{timeout:40_000})
-    await expect(this.loginPage.page.locator('#profile-button')).toBeVisible();
+    if (device === 'mobile') {
+      await expect(this.loginPage.page.locator('[data-id="user-avatar"]')).toBeVisible();
+    }
+    else{
+      await expect(this.loginPage.page.locator('#profile-button')).toBeVisible();
+    }
   }
 
   async passwordError (email:string,password:string) {

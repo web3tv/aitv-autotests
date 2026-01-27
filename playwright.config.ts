@@ -47,16 +47,30 @@ export default defineConfig({
     // docker run --rm -v "$PWD:/app" pw-tests npx playwright test --project=visual-desktop-chromium
     {
       name: 'visual-desktop-chromium',
-      testMatch: /.*visual.*\.spec\.ts$/,
+      testMatch: /visualSuite\/desktop\/visualSuites\.spec\.ts$/,
       fullyParallel: false,
       workers: 1,
       use: {
         browserName: 'chromium',
+        viewport: { width: 1920, height: 1080 },
         deviceScaleFactor: 1,
         colorScheme: 'light',
         locale: 'en-US',
       },
     },
+
+    // RUN THIS PROJECT ONLY IN DOCKER!
+    // docker run --rm -v "$PWD:/app" pw-tests npx playwright test --project=visual-mobile-chromium
+    {
+      name: 'visual-mobile-webkit',
+      testMatch: /visualSuite\/mobile\/visualSuites\.spec\.ts$/,
+      fullyParallel: false,
+      workers: 1,
+      use: {
+         ...devices['iPhone 15']
+      },
+    },
+
     
   // {
     //   name: 'functional',
@@ -67,15 +81,7 @@ export default defineConfig({
     //   },
     // },
 
-    // {
-    //   name: 'mobile_chrome',
-    //   use: {
-    //     ...devices['Pixel 7'], // или другой mobile-профиль
-    //     isMobile: true,
-    //     viewport: { width: 400, height: 700 }
-    //   },
-    // },
-
+    
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
