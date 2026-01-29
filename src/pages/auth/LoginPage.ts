@@ -52,6 +52,7 @@ export class LoginPage {
 
   async visitLoginPage() {
     await this.page.goto('/login');
+    await this.page.waitForLoadState('networkidle');
   }
 
   async fillEmailInput(email:string){

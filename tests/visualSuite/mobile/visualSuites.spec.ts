@@ -15,7 +15,7 @@ test.describe('Video page visual tests', () => {
         await expect(page.locator('h1')).toBeVisible();
         await expect(page.getByRole('link', { name: 'user_with_public_videos Channel 0 Subscribers' })).toBeVisible();
         await expect(page).toHaveScreenshot({
-            fullPage: true,
+            // fullPage: true,
             mask: [
                 page.locator('[data-id="recommended-videos"]'),
                 page.locator('[aria-label="Video Player"]')
@@ -38,7 +38,7 @@ test.describe('Video page visual tests', () => {
         await expect(page.locator('h1')).toBeVisible();
         await expect(page.getByRole('link', { name: 'user_with_public_videos Channel 0 Subscribers' })).toBeVisible();
         await expect(page).toHaveScreenshot({
-            fullPage: true,
+            // fullPage: true,
             mask: [
                 page.locator('[data-id="recommended-videos"]'),
                 page.locator('[aria-label="Video Player"]')
@@ -98,7 +98,7 @@ test.describe('Channel page visual tests', () => {
 
 test.describe('Mobile navigation buttons visual tests', () => {
 
-    test('Main page for anonymous user', async ({ page }) => {
+    test('Mobile navigation buttonse for anonymous user', async ({ page }) => {
         await page.goto('/');
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
@@ -109,13 +109,12 @@ test.describe('Mobile navigation buttons visual tests', () => {
         await expect(page.getByText('HomeShortsYou')).toHaveScreenshot({maxDiffPixelRatio: 0.02});  
     });
 
-    test('Main page for logged in user', async ({ page }) => {
+    test('Mobile navigation buttons for logged in user', async ({ page }) => {
         const authFlow = new AuthFlow(page);
         const login = process.env.USER_LOGIN_PUBLIC!;
         const password = process.env.USER_PASSWORD!;
         await authFlow.loginSuccess(login, password,'mobile');
         
-        await page.goto('/');
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
             await document.fonts.ready;
