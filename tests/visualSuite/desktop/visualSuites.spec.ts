@@ -158,4 +158,24 @@ test.describe('Channel page visual tests', () => {
         });
     });
 
+    test('Channel page for anonymous user - collapse sidebar', async ({ page }) => {
+        await page.goto(channelUrl);
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => {
+            await document.fonts.ready;
+        });
+        await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
+        await page.getByTestId('menu-btn').click();
+        await expect(page).toHaveScreenshot({
+            fullPage: false,
+            mask: [
+                page.locator('[data-id="video"]'),
+                page.locator('[data-id="avatar"]'),
+                page.locator('[data-id="count"]'),
+                page.locator('[data-id="subscribers"]')            
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
+
 })
