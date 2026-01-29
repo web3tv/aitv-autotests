@@ -99,7 +99,6 @@ test.describe('Sign Up tests', () => {
     const authFlow = new AuthFlow(page);
     const user = await authApi.createAndVerifyUser();
     const password = process.env.USER_PASSWORD!;
-    // console.log(user);
     await authFlow.loginSuccess(user.email, password);
   })
 });
