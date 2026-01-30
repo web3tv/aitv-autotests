@@ -13,8 +13,6 @@ export class MailTmHelper {
     this.request = request;
   }
 
-  
- 
   async generateEmail() {
     const res = await this.request.get(`${this.baseUrl}/domains`);
     const data = await res.json();
@@ -24,7 +22,6 @@ export class MailTmHelper {
     return this.email;
   }
 
- 
   async createMailbox() {
     await this.request.post(`${this.baseUrl}/accounts`, {
       data: {
@@ -35,11 +32,11 @@ export class MailTmHelper {
   }
 
   // 3. Получить токен
-  async getToken() {
+  async getToken(email:string,password:string) {
     const res = await this.request.post(`${this.baseUrl}/token`, {
       data: {
-        address: this.email,
-        password: this.password
+        address: email,
+        password: password
       }
     });
 
@@ -50,10 +47,10 @@ export class MailTmHelper {
   }
 
   // 4. POLLING писем (ждём письмо от Web3TV)
-  async waitForMessage(retries = 10, delayMs = 3000) {
+  async waitForMessage(token:string,retries = 10, delayMs = 3000) {
     for (let i = 0; i < retries; i++) {
       const res = await this.request.get(`${this.baseUrl}/messages`, {
-        headers: { Authorization: `Bearer ${this.token}` }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       const json = await res.json();

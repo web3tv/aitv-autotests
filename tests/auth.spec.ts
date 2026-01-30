@@ -5,6 +5,7 @@ import { MainPage } from '../src/pages/components/MainPage';
 import { HeaderPage } from '../src/pages/components/HeaderPage';
 import { MailTmHelper } from '../src/utils/mailTmHelper';
 import { AuthApi } from "../src/api/AuthApi";
+import { RegistrationFlow } from '../src/flows/RegistrationFlow';
 
 
 test.describe('Login tests', () => {
@@ -43,54 +44,11 @@ test.describe('Login tests', () => {
 test.describe('Sign Up tests', () => {
 
   test('Register user via Email', async ({ page, request }) => {
-    const mail = new MailTmHelper(request);
-    const loginPage = new LoginPage(page)
     const authFlow = new AuthFlow(page);
-    const password = 'Admin1@@'
-
-    let email: string = '';
-    let verificationUrl: string;
-
-    await test.step('Mail.tm: Generate email with domain', async () => {
-      email = await mail.generateEmail();
-      // console.log('Generated email:', email);
-
-      await mail.createMailbox();
-    });
-
-    await test.step('Web3TV: Fill registration form', async () => {
-      const mainPage = new MainPage(page);
-      const headerPage = new HeaderPage(page);
-
-      await mainPage.visitMainPage();
-      await headerPage.clickJoinBtn();
-      await expect(loginPage.usernameInput).toBeVisible({ timeout: 20_000 });
-      await loginPage.fillUsernameInput();
-      await loginPage.clickCheckbox();
-      await loginPage.clickContinueWithEmail();
-      await loginPage.fillEmailRegistrationInput(email);
-      await loginPage.fillFirstPassword(password);
-      await loginPage.fillSecondPassword(password);
-      await loginPage.clickCreateAccountBtn(email);
-    });
-
-    await test.step('Mail.tm: Fetch token', async () => {
-      await mail.getToken();
-    });
-
-    await test.step('Mail.tm: Wait for verification email', async () => {
-      await mail.waitForMessage();
-    });
-
-    await test.step('Mail.tm: Extract verification URL', async () => {
-      verificationUrl = await mail.extractVerificationUrl();
-    });
-
-    await test.step('Confirm email via verification URL', async () => {
-      await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-      await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
-    });
-
+    const registrationFlow = new RegistrationFlow(page,request)
+    
+    await registrationFlow.openRegistrationPage();
+    const { email, password } = await registrationFlow.registerAndVerifyUserViaEmail();
     await authFlow.loginSuccess(email, password);
   });
 
