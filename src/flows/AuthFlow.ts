@@ -32,6 +32,11 @@ export class AuthFlow {
     }
   }
 
+  async forgotPassword(){
+    await this.loginPage.visitLoginPage();
+    
+  }
+
   async passwordError (email:string,password:string) {
     await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);

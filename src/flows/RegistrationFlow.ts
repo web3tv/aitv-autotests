@@ -21,27 +21,27 @@ export class RegistrationFlow {
   }
 
   async registerViaEmail(email:string,password:string){
-    await this.loginPage.fillUsernameInput();  // генерирует сам
+    const username = await this.loginPage.fillUsernameInput();  // генерирует сам
     await this.loginPage.clickCheckbox();
     await this.loginPage.clickContinueWithEmail();
     await this.loginPage.fillEmailRegistrationInput(email);
     await this.loginPage.fillFirstPassword(password);
     await this.loginPage.fillSecondPassword(password);
     await this.loginPage.clickCreateAccountBtn(email);
+    return username
   }
 
   async registerAndVerifyUserViaEmail() {
     const password = 'Admin1@@'
     const mailTmPassword = 'StrongPass123!';
-    
     const email = await this.mailTmHelper.generateEmail();
     await this.mailTmHelper.createMailbox();
-    await this.registerViaEmail(email,password);
+    const username = await this.registerViaEmail(email,password);
     const token = await this.mailTmHelper.getToken(email, mailTmPassword);
-    await this.mailTmHelper.waitForMessage(token);
+    await this.mailTmHelper.waitForMessage(token,'Email Verification');
     const verificationUrl = await this.mailTmHelper.extractVerificationUrl();
     await this.page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(this.page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
-    return { email, password };
+    return { email, password, username, mailTmPassword, token };
   }
 }
