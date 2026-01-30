@@ -84,19 +84,14 @@ test.describe('Forgot password', () => {
     const messageId = await mailTmHelper.waitForMessage(token,'Your password reset code');
     const resetPassUrl = await mailTmHelper.extractPasswordResetnUrl(messageId,token);
     await page.goto(resetPassUrl, { waitUntil: 'networkidle' });
-
     await page.locator('input[name="password"]').click();
-
     await expect(page.locator('input[name="password"]')).toBeVisible();
     await expect(page.locator('input[name="password"]')).toBeEditable();
-
     await page.locator('input[name="password"]').pressSequentially(newPassword);
     await expect(page.locator('input[name="confirmPassword"]')).toBeEditable();
     await page.locator('input[name="confirmPassword"]').pressSequentially(newPassword);
-
     await expect(page.locator('input[name="password"]')).toHaveValue('Admin1234@@');
     await expect(page.locator('input[name="confirmPassword"]')).toHaveValue('Admin1234@@');
-
     await expect(page.getByRole('button', { name: 'Change Password' })).toBeEnabled();
 
     const [response] = await Promise.all([
@@ -106,10 +101,7 @@ test.describe('Forgot password', () => {
       ),
       await page.getByRole('button', { name: 'Change Password' }).click()
     ]);
-
     expect(response.status()).toBe(200);
-    
-
     await authFlow.loginSuccess(email, newPassword);
   });
 
