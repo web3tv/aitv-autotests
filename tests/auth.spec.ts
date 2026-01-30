@@ -98,7 +98,17 @@ test.describe('Forgot password', () => {
     await expect(page.locator('input[name="confirmPassword"]')).toHaveValue('Admin1234@@');
 
     await expect(page.getByRole('button', { name: 'Change Password' })).toBeEnabled();
-    await page.getByRole('button', { name: 'Change Password' }).click();
+
+    const [response] = await Promise.all([
+      page.waitForResponse(res =>
+        res.url().includes('/api/auth/update-password') &&
+        res.request().method() === 'POST'
+      ),
+      await page.getByRole('button', { name: 'Change Password' }).click()
+    ]);
+
+    expect(response.status()).toBe(200);
+    
 
     await authFlow.loginSuccess(email, newPassword);
   });
