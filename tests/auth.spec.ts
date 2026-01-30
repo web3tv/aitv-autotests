@@ -100,7 +100,7 @@ test.describe('Forgot password', () => {
     await expect(page.getByRole('button', { name: 'Change Password' })).toBeEnabled();
     await page.getByRole('button', { name: 'Change Password' }).click();
 
-    // await authFlow.loginSuccess(email, newPassword);
+    await authFlow.loginSuccess(email, newPassword);
   });
 
 });
