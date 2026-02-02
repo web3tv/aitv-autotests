@@ -8,7 +8,7 @@ import { assertVideoIsPlaying } from '../src/utils/videoPlayerHelper';
 import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
 
 
-test.describe.skip('Uploading tests', () => {
+test.describe('Uploading tests', () => {
     //TODO: Оставить или убрать проверку на воспроизведение видео
     test('Upload video to channel and check this video in studio', async ({ browser,page }) => {
         const login = process.env.USER_LOGIN_PUBLIC!;
@@ -81,7 +81,7 @@ test.describe.skip('Uploading tests', () => {
 
 });
 
-test.describe.skip('Check visibility settings',()=>{
+test.describe('Check visibility settings',()=>{
 
     test('Check public video is available', async({page})=>{
         const urlWithPublicVideos = process.env.USER_CHANNEL_PUBLIC_URL!;
@@ -100,7 +100,7 @@ test.describe.skip('Check visibility settings',()=>{
     })
 
     //TODO: Need to use test API
-    test.skip('Check paid video is available after purchasing', async({page})=>{
+    test('Check paid video is available after purchasing', async({page})=>{
        
     })
 

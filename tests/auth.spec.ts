@@ -8,7 +8,7 @@ import { AuthApi } from "../src/api/AuthApi";
 import { RegistrationFlow } from '../src/flows/RegistrationFlow';
 
 
-test.describe.skip('Login tests', () => {
+test.describe('Login tests', () => {
 
   test('Login as user', async ({ page }) => { 
     const authFlow = new AuthFlow(page);
@@ -41,7 +41,7 @@ test.describe.skip('Login tests', () => {
 
 });
 
-test.describe.skip('Sign Up tests', () => {
+test.describe('Sign Up tests', () => {
 
   test('Register user via Email', async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
