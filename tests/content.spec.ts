@@ -100,7 +100,7 @@ test.describe('Check visibility settings',()=>{
     })
 
     //TODO: Need to use test API
-    test.skip('Check paid video is available after purchasing', async({page})=>{
+    test('Check paid video is available after purchasing', async({page})=>{
        
     })
 

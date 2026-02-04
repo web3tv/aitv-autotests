@@ -47,24 +47,29 @@ export class MailTmHelper {
   }
 
   // 4. POLLING писем (ждём письмо от Web3TV)
-  async waitForMessage(token:string,retries = 10, delayMs = 3000) {
+  async waitForMessage(token: string,subjectText: string,retries = 10, delayMs = 3000) {
     for (let i = 0; i < retries; i++) {
       const res = await this.request.get(`${this.baseUrl}/messages`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      const json = await res.json();
-      const messages = json['hydra:member'];
 
-      if (messages.length > 0) {
-        this.messageId = messages[0].id;
+      const json = await res.json();
+      const messages = json?.['hydra:member'] ?? [];
+
+      const targetMessage = messages.find(m =>
+        m.subject?.includes(subjectText)
+      );
+
+      if (targetMessage) {
+        this.messageId = targetMessage.id;
         return this.messageId;
       }
 
       await new Promise(r => setTimeout(r, delayMs));
     }
 
-    throw new Error('Mail.tm timeout: письмо не пришло');
+    throw new Error(`Mail.tm timeout: письмо "${subjectText}" не пришло`);
   }
 
   // 5. Забрать письмо по ID + достать verification URL
@@ -117,4 +122,21 @@ export class MailTmHelper {
 
   //   throw new Error('Verification URL not found in email');
   // }
+
+  async extractPasswordResetnUrl(messageId:string,token:string) {
+    const res = await this.request.get(`${this.baseUrl}/messages/${messageId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const json = await res.json();
+    const text = json.text ?? '';
+
+    const verifyMatch = text.match( /https:\/\/web3tv\.dev\/reset-password\?[^\s"'<>)]*/i);
+    if (verifyMatch) {
+      console.log("verifyMatch:"+verifyMatch)
+      return verifyMatch[0];
+    }
+
+    throw new Error('Reset Password URL not found in email');
+  }
 }

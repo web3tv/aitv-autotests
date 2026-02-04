@@ -79,11 +79,7 @@ export class LoginPage {
     await expect(this.usernameInput).toBeEditable();
     await this.usernameInput.fill(finalUsername);
     await expect(this.usernameInput).toHaveValue(finalUsername)
-    // await this.page.waitForResponse((response) =>
-    //     response.url().startsWith('/handles/check') &&
-    //     response.status() === 200,
-    //     { timeout: 15_000 }
-    // );
+    return finalUsername;
   }
 
   // Here we do not check the input for compliance. 

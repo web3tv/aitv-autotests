@@ -32,6 +32,24 @@ export class AuthFlow {
     }
   }
 
+  async loginFailed (email:string,password:string,device?: 'mobile' | 'desktop') {
+    await this.loginPage.visitLoginPage();
+    await this.loginPage.fillEmailInput(email);
+    await this.loginPage.fillPasswordInput(password);
+    await this.loginPage.clickLoginBtn();
+    await this.page.waitForResponse((response) =>
+            response.url().includes('/api/auth/login') &&
+            response.status() === 400,
+            { timeout: 40000 }
+        );
+    await expect(this.page.locator('form')).toContainText('Invalid password. Please re-enter another password.');
+  }
+
+  async forgotPassword(){
+    await this.loginPage.visitLoginPage();
+    
+  }
+
   async passwordError (email:string,password:string) {
     await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
