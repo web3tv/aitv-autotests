@@ -63,7 +63,7 @@ test.describe('Sign Up tests', () => {
 
 test.describe('Forgot password', () => {
 
-  test('Reset password and check', async ({ page, request }) => {
+  test('Reset password and check old and new password', async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const registrationFlow = new RegistrationFlow(page,request)
     const mailTmHelper = new MailTmHelper(request)
@@ -102,6 +102,7 @@ test.describe('Forgot password', () => {
       await page.getByRole('button', { name: 'Change Password' }).click()
     ]);
     expect(response.status()).toBe(200);
+    await authFlow.loginFailed(email,password);
     await authFlow.loginSuccess(email, newPassword);
   });
 

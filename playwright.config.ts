@@ -49,7 +49,7 @@ export default defineConfig({
       name: 'visual-desktop-chromium',
       testMatch: /visualSuite\/desktop\/visualSuites\.spec\.ts$/,
       fullyParallel: false,
-      workers: 1,
+      // workers: 1,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
@@ -65,7 +65,7 @@ export default defineConfig({
       name: 'visual-mobile-webkit',
       testMatch: /visualSuite\/mobile\/visualSuites\.spec\.ts$/,
       fullyParallel: false,
-      workers: 1,
+      // workers: 1,
       use: {
          ...devices['iPhone 15']
       },
