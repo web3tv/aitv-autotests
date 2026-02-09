@@ -6,7 +6,7 @@ import * as crypto from "node:crypto";
 export class AuthApi {
     constructor(
     private request: APIRequestContext,
-    private baseUrl = "https://api.web3tv.dev"
+    private baseUrl = process.env.API_URL
     ) {}
 
     async createUser() {

@@ -1,5 +1,6 @@
 import { HeaderPage } from "../pages/components/HeaderPage";
 import { LoginPage } from "../pages/auth/LoginPage";
+import { ResetPasswordPage } from "../pages/auth/ResetPasswordPage";
 import { UserDropdownPage } from "../pages/components/UserDropdownPage";
 import { expect } from '@playwright/test';
 import { Page } from '@playwright/test';
@@ -8,11 +9,13 @@ import { Page } from '@playwright/test';
 export class AuthFlow {
 
   readonly loginPage: LoginPage;
+  readonly resetPasswordPage: ResetPasswordPage;
   readonly headerPage: HeaderPage;
   readonly userDropdownPage: UserDropdownPage;
 
   constructor(public page: Page) {
     this.loginPage = new LoginPage(page);
+    this.resetPasswordPage = new ResetPasswordPage(page);
     this.headerPage = new HeaderPage(page);
     this.userDropdownPage = new UserDropdownPage(page);
   }

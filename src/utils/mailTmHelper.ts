@@ -83,7 +83,6 @@ export class MailTmHelper {
 
     const verifyMatch = text.match(/https:\/\/web3tv\.dev\/verification\?[^\s\)"]+/);
     if (verifyMatch) {
-      console.log("verifyMatch:"+verifyMatch)
       return verifyMatch[0];
     }
 
@@ -133,7 +132,6 @@ export class MailTmHelper {
 
     const verifyMatch = text.match( /https:\/\/web3tv\.dev\/reset-password\?[^\s"'<>)]*/i);
     if (verifyMatch) {
-      console.log("verifyMatch:"+verifyMatch)
       return verifyMatch[0];
     }
 
