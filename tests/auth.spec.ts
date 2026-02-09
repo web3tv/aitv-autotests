@@ -70,7 +70,7 @@ test.describe('Forgot password', () => {
     const newPassword = 'Admin1234@@'
     
     await registrationFlow.openRegistrationPage();
-    const { email, password, username , mailTmPassword, token } = await registrationFlow.registerAndVerifyUserViaEmail();
+    const { email, password, token } = await registrationFlow.registerAndVerifyUserViaEmail();
 
     await authFlow.forgotPassword();
     await page.getByRole('link', { name: 'Forgot Password?' }).click();
@@ -84,27 +84,57 @@ test.describe('Forgot password', () => {
     const messageId = await mailTmHelper.waitForMessage(token,'Your password reset code');
     const resetPassUrl = await mailTmHelper.extractPasswordResetnUrl(messageId,token);
     await page.goto(resetPassUrl, { waitUntil: 'networkidle' });
-    await page.locator('input[name="password"]').click();
-    await expect(page.locator('input[name="password"]')).toBeVisible();
-    await expect(page.locator('input[name="password"]')).toBeEditable();
-    await page.locator('input[name="password"]').pressSequentially(newPassword);
-    await expect(page.locator('input[name="confirmPassword"]')).toBeEditable();
-    await page.locator('input[name="confirmPassword"]').pressSequentially(newPassword);
-    await expect(page.locator('input[name="password"]')).toHaveValue('Admin1234@@');
-    await expect(page.locator('input[name="confirmPassword"]')).toHaveValue('Admin1234@@');
-    await expect(page.getByRole('button', { name: 'Change Password' })).toBeEnabled();
-
+    
+    const resetPasswordPage = authFlow.resetPasswordPage;
+    await resetPasswordPage.verifyPasswordFieldsVisible();
+    await resetPasswordPage.verifyPasswordFieldsEditable();
+    await resetPasswordPage.resetPassword(newPassword);
+    
     const [response] = await Promise.all([
       page.waitForResponse(res =>
         res.url().includes('/api/auth/update-password') &&
         res.request().method() === 'POST'
       ),
-      await page.getByRole('button', { name: 'Change Password' }).click()
+      await resetPasswordPage.clickChangePasswordBtn()
     ]);
     expect(response.status()).toBe(200);
     await authFlow.loginFailed(email,password);
     await authFlow.loginSuccess(email, newPassword);
   });
+  
+  test('Can`t reset password with mismatched passwords', async ({ page, request }) => {
+      const authFlow = new AuthFlow(page);
+      const registrationFlow = new RegistrationFlow(page,request)
+      const mailTmHelper = new MailTmHelper(request)
+      const newPassword = 'Admin1234@@'
+      const wrongPassword = 'Admin1233@@'
+      
+      await registrationFlow.openRegistrationPage();
+      const { email, password, username , mailTmPassword, token } = await registrationFlow.registerAndVerifyUserViaEmail();
+
+      await authFlow.forgotPassword();
+      await page.getByRole('link', { name: 'Forgot Password?' }).click();
+      await expect(page.getByText('Enter your Web3 TV username')).toBeVisible();
+      await page.getByRole('textbox', { name: 'Enter email address' }).click();
+      await page.getByRole('textbox', { name: 'Enter email address' }).fill(email);
+      
+      await expect(page.getByRole('button', { name: 'Submit' })).toBeEnabled()
+      await page.getByRole('button', { name: 'Submit' }).click();
+
+      const messageId = await mailTmHelper.waitForMessage(token,'Your password reset code');
+      const resetPassUrl = await mailTmHelper.extractPasswordResetnUrl(messageId,token);
+      await page.goto(resetPassUrl, { waitUntil: 'networkidle' });
+   
+      const resetPasswordPage = authFlow.resetPasswordPage;
+      await resetPasswordPage.verifyPasswordFieldsVisible();
+      await resetPasswordPage.verifyPasswordFieldsEditable();
+      
+      await resetPasswordPage.fillPasswordsWithMismatch(newPassword, wrongPassword);
+      await resetPasswordPage.verifyPasswordValue(newPassword);
+      await resetPasswordPage.verifyConfirmPasswordValue(wrongPassword);
+      
+      await resetPasswordPage.verifyChangePasswordBtnDisabled();
+    });
 
 });
 

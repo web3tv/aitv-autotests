@@ -73,9 +73,16 @@ export class MailTmHelper {
   }
 
   // 5. Забрать письмо по ID + достать verification URL
-  async extractVerificationUrl() {
-    const res = await this.request.get(`${this.baseUrl}/messages/${this.messageId}`, {
-      headers: { Authorization: `Bearer ${this.token}` }
+  async extractVerificationUrl(messageId?: string, token?: string) {
+    const msgId = messageId ?? this.messageId;
+    const authToken = token ?? this.token;
+    
+    if (!msgId || !authToken) {
+        throw new Error('messageId and token are required');
+    }
+
+    const res = await this.request.get(`${this.baseUrl}/messages/${msgId}`, {
+      headers: { Authorization: `Bearer ${authToken}` }
     });
 
     const json = await res.json();
@@ -83,12 +90,11 @@ export class MailTmHelper {
 
     const verifyMatch = text.match(/https:\/\/web3tv\.dev\/verification\?[^\s\)"]+/);
     if (verifyMatch) {
-      console.log("verifyMatch:"+verifyMatch)
       return verifyMatch[0];
     }
 
     throw new Error('Verification URL not found in email');
-  }
+}
 
   // 5. Забрать письмо по ID + достать verification URL
   // async extractVerificationUrl() {
@@ -133,7 +139,6 @@ export class MailTmHelper {
 
     const verifyMatch = text.match( /https:\/\/web3tv\.dev\/reset-password\?[^\s"'<>)]*/i);
     if (verifyMatch) {
-      console.log("verifyMatch:"+verifyMatch)
       return verifyMatch[0];
     }
 

@@ -38,8 +38,8 @@ export class RegistrationFlow {
     await this.mailTmHelper.createMailbox();
     const username = await this.registerViaEmail(email,password);
     const token = await this.mailTmHelper.getToken(email, mailTmPassword);
-    await this.mailTmHelper.waitForMessage(token,'Email Verification');
-    const verificationUrl = await this.mailTmHelper.extractVerificationUrl();
+    const messageId = await this.mailTmHelper.waitForMessage(token,'Email Verification');
+    const verificationUrl = await this.mailTmHelper.extractVerificationUrl(messageId, token);
     await this.page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(this.page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
     return { email, password, username, mailTmPassword, token };
