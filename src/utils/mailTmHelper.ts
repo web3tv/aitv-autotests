@@ -73,9 +73,16 @@ export class MailTmHelper {
   }
 
   // 5. Забрать письмо по ID + достать verification URL
-  async extractVerificationUrl() {
-    const res = await this.request.get(`${this.baseUrl}/messages/${this.messageId}`, {
-      headers: { Authorization: `Bearer ${this.token}` }
+  async extractVerificationUrl(messageId?: string, token?: string) {
+    const msgId = messageId ?? this.messageId;
+    const authToken = token ?? this.token;
+    
+    if (!msgId || !authToken) {
+        throw new Error('messageId and token are required');
+    }
+
+    const res = await this.request.get(`${this.baseUrl}/messages/${msgId}`, {
+      headers: { Authorization: `Bearer ${authToken}` }
     });
 
     const json = await res.json();
@@ -87,7 +94,7 @@ export class MailTmHelper {
     }
 
     throw new Error('Verification URL not found in email');
-  }
+}
 
   // 5. Забрать письмо по ID + достать verification URL
   // async extractVerificationUrl() {

@@ -17,6 +17,7 @@ export class AccountPage {
     // Email inputs
     readonly newEmailInput: Locator;
     readonly emailPasswordInput: Locator;
+    readonly oldEmail: Locator;    
 
     // Buttons
     readonly submitBtn: Locator;
@@ -39,6 +40,7 @@ export class AccountPage {
         // Email input fields
         this.newEmailInput = page.locator('input[name="newEmail"]');
         this.emailPasswordInput = page.getByRole('textbox', { name: 'Enter password' });
+        this.oldEmail = page.getByTestId('account-page');
 
         // Submit button
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
@@ -46,8 +48,6 @@ export class AccountPage {
         // Alert messages
         this.emailConfirmationAlert = page.getByRole('alert').filter({ hasText: 'Please check your email for' });
     }
-
-
 
     // CHANGE PASSWORD METHODS
     async clickEditPasswordBtn(): Promise<void> {
@@ -88,8 +88,6 @@ export class AccountPage {
         await this.page.getByRole('button').click();
     }
 
-
-
     // CHANGE EMAIL METHODS
     async clickEditEmailBtn(): Promise<void> {
         await expect(this.editEmailBtn).toBeEnabled();
@@ -112,14 +110,12 @@ export class AccountPage {
         await expect(this.emailConfirmationAlert).toBeVisible();
     }
 
-    async changeEmail(newEmail: string, password: string): Promise<void> {
+    async changeEmail(email:string,newEmail: string, password: string): Promise<void> {
+        await expect(this.oldEmail).toContainText(email);
         await this.clickEditEmailBtn();
         await this.fillNewEmail(newEmail);
         await this.fillEmailPassword(password);
         await this.clickSubmitBtn();
         await this.verifyEmailConfirmationAlert();
     }
-
-
-
 }

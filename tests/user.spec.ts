@@ -57,37 +57,51 @@ test.describe('Change password', () => {
 })
 
 
-test.describe('Update email', () => {
+test.describe.serial('Update email', () => {
+  let previousFailed = false;
+  let oldEmail: string;
+  let password: string;
+  let newEmail: string;
 
-    test('Update email -> Verify new email -> Login with new email', async ({ page, request }) => {
-        const authFlow = new AuthFlow(page);
-        const registrationFlow = new RegistrationFlow(page, request);
-        const mailTmHelper = new MailTmHelper(request);
-        
-        await registrationFlow.openRegistrationPage();
-        const { email, password } = await registrationFlow.registerAndVerifyUserViaEmail();
+  test.afterEach(async ({}, testInfo) => {
+    if (testInfo.status !== 'passed') previousFailed = true;
+  });
 
-        await authFlow.loginSuccess(email, password);
+  test('Change email', async ({ page, request }) => {
+    const authFlow = new AuthFlow(page);
+    const registrationFlow = new RegistrationFlow(page, request);
+    const mailTmHelper = new MailTmHelper(request);
+    const sideBarPage = new SideBarPage(page);
+    const accountPage = new AccountPage(page);
 
-        const sideBarPage = new SideBarPage(page);
-        await sideBarPage.clickSettingsAccount();
+    await registrationFlow.openRegistrationPage();
+    ({ email: oldEmail, password } = await registrationFlow.registerAndVerifyUserViaEmail());
 
-        
-        const newEmail = await mailTmHelper.generateEmail();
-        await mailTmHelper.createMailbox();
-        const newEmailToken = await mailTmHelper.getToken(newEmail, mailTmHelper['password']);
+    await authFlow.loginSuccess(oldEmail, password);
+    await sideBarPage.clickSettingsAccount();
 
-        const accountPage = new AccountPage(page);
-        await accountPage.changeEmail(newEmail, password);
+    newEmail = await mailTmHelper.generateEmail();
+    await mailTmHelper.createMailbox();
+    const newEmailToken = await mailTmHelper.getToken(newEmail, mailTmHelper['password']);
 
-        const messageId = await mailTmHelper.waitForMessage(newEmailToken, 'Email Verification');
-        const verificationUrl = await mailTmHelper.extractVerificationUrl();
+    await accountPage.changeEmail(oldEmail, newEmail, password);
 
-        await page.goto(verificationUrl, { waitUntil: 'networkidle' });
-        await expect(page).toHaveURL('/');
+    const messageId = await mailTmHelper.waitForMessage(newEmailToken, 'Email Verification');
+    const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, newEmailToken);
 
-        await authFlow.logout();
+    await page.goto(verificationUrl, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
+  });
 
-        await authFlow.loginSuccess(newEmail, password);
-    });
-})
+  test('Login with new email', async ({ page }) => {
+    test.skip(previousFailed, 'Previous test failed');
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(newEmail, password);
+  });
+
+  test('Old email login should fail', async ({ page }) => {
+    test.skip(previousFailed, 'Previous test failed');
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginFailed(oldEmail, password);
+  });
+});

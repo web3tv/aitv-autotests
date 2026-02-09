@@ -70,7 +70,7 @@ test.describe('Forgot password', () => {
     const newPassword = 'Admin1234@@'
     
     await registrationFlow.openRegistrationPage();
-    const { email, password, username , mailTmPassword, token } = await registrationFlow.registerAndVerifyUserViaEmail();
+    const { email, password, token } = await registrationFlow.registerAndVerifyUserViaEmail();
 
     await authFlow.forgotPassword();
     await page.getByRole('link', { name: 'Forgot Password?' }).click();
