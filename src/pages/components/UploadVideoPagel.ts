@@ -67,6 +67,7 @@ export class UploadVideoPage {
   }
 
   async clickPublishbtn(){
+    await this.publishBtn.waitFor({ state: 'visible' });
     await this.publishBtn.click();
   }
 
