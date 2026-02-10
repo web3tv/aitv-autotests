@@ -32,13 +32,25 @@ export class UploadVideoFlow {
         await expect(this.uploadVideoPage.page.locator('form')).toContainText('5secVideo');
     }
 
-    async waitStatusSuccessfully(){
+    async waitStatusSuccessfully(expectedStatus = 'completed') {
+        await this.uploadVideoPage.page.waitForResponse(
+            async response => {
+                if (!response.url().includes('/api/videos/studio-videos')) {
+                    return false;
+                }
+
+                const body = await response.json();
+                const uploadState = body?.data?.items?.[0]?.status?.uploadState;
+
+                return uploadState === expectedStatus;
+            },
+                { timeout: 60_000 });
         try{
-            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:50_000});
+            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:15_000});
         } catch(err){
             throw new Error("Video not uploaded");
         }
-        
+    
     }
 
     async fillVideoTitle(name:string){
@@ -64,12 +76,15 @@ export class UploadVideoFlow {
         return this.timestamp;
     }
 
-    async selectVisibility(type: 'public' | 'private' | 'paid') {
+    async selectVisibility(type: 'public' | 'private' | 'unlisted' | 'paid') {
         if(type == 'public'){
             await this.uploadVideoPage.clickPublicBtn();
         }
         if(type == 'private'){
             await this.uploadVideoPage.clickPrivateBtn();
+        }
+        if(type == 'unlisted'){
+            await this.uploadVideoPage.clickUnlistedBtn();
         }
         if(type == 'paid'){
             try {
@@ -80,6 +95,7 @@ export class UploadVideoFlow {
             }
             
         }
+        
     }
 
     async chooseMembership(){

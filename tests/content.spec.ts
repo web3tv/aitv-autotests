@@ -79,6 +79,31 @@ test.describe('Uploading tests', () => {
         await expect(incogPage.locator('[data-id="sub-card"]')).toBeVisible();
     });
 
+    // TODO: Fix after timing changes
+    test('Upload unlisted video to channel + Check video in studio + ', async ({ browser,page }) => {
+        const login = process.env.USER_LOGIN_PAID!;
+        const password = process.env.USER_PASSWORD!;
+    
+        const authFlow = new AuthFlow(page);
+        const uploadVideoFlow = new UploadVideoFlow(page);
+        const studioContentPage = new StudioContentPage(page)
+
+        await authFlow.loginSuccess(login,password);
+
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.waitStatusSuccessfully();
+        await uploadVideoFlow.fillInReqFileds('First video');
+        await uploadVideoFlow.selectVisibility('unlisted');
+        await uploadVideoFlow.clickPublishBtn();
+        await uploadVideoFlow.confirmUploading('Unlisted');
+        const newUrl:any = await studioContentPage.getFirstVideoUrl();
+
+        const incogPage = await openInIncognito(browser, newUrl);
+        // await expect(incogPage).toHaveURL( /\/@user_with_paid_videos\/membership/,{timeout:15_000});
+        // await expect(incogPage.locator('.infinite-scroll-component')).toBeVisible();
+        // await expect(incogPage.locator('[data-id="sub-card"]')).toBeVisible();
+    });
+
 });
 
 test.describe('Check visibility settings',()=>{

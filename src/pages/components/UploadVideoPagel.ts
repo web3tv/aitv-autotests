@@ -15,6 +15,7 @@ export class UploadVideoPage {
   
   readonly publicRadioBtn: Locator;
   readonly privateRadioBtn: Locator;
+  readonly unlistedRadioBtn: Locator;
   readonly paidRadioBtn: Locator;
 
   readonly membershipBtn: Locator;
@@ -34,6 +35,7 @@ export class UploadVideoPage {
     
     this.publicRadioBtn = page.getByRole('radio', { name: 'Public' });
     this.privateRadioBtn = page.getByRole('radio', { name: 'Private' });
+    this.unlistedRadioBtn = page.getByRole('radio', { name: 'Unlisted' });
     this.paidRadioBtn = page.getByRole('radio', { name: 'Paid' });
     
     // Name might be changed ---> Take a look
@@ -79,6 +81,13 @@ export class UploadVideoPage {
   }
 
   async clickPrivateBtn() {
+    await this.privateRadioBtn.waitFor({ state: 'visible' });
+    await expect(this.privateRadioBtn).toBeEnabled();
+    await this.privateRadioBtn.click();
+    await expect(this.privateRadioBtn).toBeChecked();
+  }
+
+  async clickUnlistedBtn() {
     await this.privateRadioBtn.waitFor({ state: 'visible' });
     await expect(this.privateRadioBtn).toBeEnabled();
     await this.privateRadioBtn.click();
