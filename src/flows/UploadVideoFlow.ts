@@ -64,6 +64,7 @@ export class UploadVideoFlow {
     async fillInReqFileds(title:any){
         this.timestamp = Date.now().toString();
         const finalDescription = `${this.timestamp}`;
+        await this.uploadVideoPage.fillVideoTitle(title);
         await  this.uploadVideoPage.fillVideoDescription(finalDescription);
         await this.uploadVideoPage.page.getByRole('button', { name: 'Auto-generated' }).click();
         await expect(this.uploadVideoPage.page.getByRole('paragraph')).toContainText('Select thumbnail:');

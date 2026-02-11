@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../src/flows/AuthFlow';
 import { RegistrationFlow } from '../src/flows/RegistrationFlow';
 import { SideBarPage } from '../src/pages/components/SideBarPage';
-import { AccountPage } from '../src/pages/account/accountPage';
+import { AccountPage } from '../src/pages/account/AccountPage';
 import { MailTmHelper } from '../src/utils/mailTmHelper';
 
 

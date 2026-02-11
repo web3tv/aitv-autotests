@@ -60,6 +60,13 @@ export class StudioProfilePage {
     async assertSaveBtnEnabled() {
         await expect(this.saveBtn).toBeEnabled();
     }
+
+
+
+    async changePrivacyToPublic(){
+        await this.page.getByRole('checkbox', { name: 'Private' }).uncheck();
+        await this.page.getByRole('button', { name: 'Save' }).click();
+      }
     
 
 }

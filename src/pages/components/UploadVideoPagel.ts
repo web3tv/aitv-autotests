@@ -24,7 +24,7 @@ export class UploadVideoPage {
     this.page = page;
 
     this.uploadVideoButton = page.getByTestId('dropzone-input');
-    this.videoTitle = page.getByRole('textbox', { name: 'Title' });
+    this.videoTitle = page.getByRole('textbox', { name: 'e.g. Why you should buy' });
     this.uploadVideoThumbnail = page.getByTestId('upload-image');
     this.videoDescription = page.locator('.ql-editor');
     this.videoCategoryDropdown = page.getByRole('button', { name: 'Open' });

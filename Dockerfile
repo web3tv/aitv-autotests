@@ -11,5 +11,5 @@ RUN npx playwright install --with-deps
 
 COPY . .
 
-CMD ["npx", "playwright", "test"]
+CMD ["npx", "playwright", "test", "--workers=1","--project=visual-desktop-chromium","--project=visual-mobile-webkit"]
 
