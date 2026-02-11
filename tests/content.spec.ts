@@ -9,10 +9,12 @@ import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
 
 
 test.describe('Uploading tests', () => {
-    //TODO: Оставить или убрать проверку на воспроизведение видео
+    //TODO: Сделать отдельным сьютом все типы аплоада и проверка доступности видео.
+
     test('Upload video to channel and check this video in studio', async ({ browser,page }) => {
         const login = process.env.USER_LOGIN_PUBLIC!;
         const password = process.env.USER_PASSWORD!;
+        const videoName: string = Date.now().toString();
     
         const authFlow = new AuthFlow(page);
         const uploadVideoFlow = new UploadVideoFlow(page);
@@ -20,7 +22,7 @@ test.describe('Uploading tests', () => {
 
         await authFlow.loginSuccess(login,password);
         await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
-        const description = await uploadVideoFlow.fillInReqFileds('First video');
+        const description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('public');
         await uploadVideoFlow.clickPublishBtn();
@@ -28,7 +30,7 @@ test.describe('Uploading tests', () => {
         const newUrl:any = await studioContentPage.getFirstVideoUrl();
 
         const incogPage = await openInIncognito(browser, newUrl);
-        await expect(incogPage.getByText("5secVideo")).toBeVisible({ timeout: 10_000 });
+        await expect(incogPage.getByText(videoName)).toBeVisible({ timeout: 10_000 });
         await expect(incogPage.getByText(description)).toBeVisible({ timeout: 10_000 });
         await assertVideoIsPlaying(incogPage);
     });
@@ -79,10 +81,11 @@ test.describe('Uploading tests', () => {
         await expect(incogPage.locator('[data-id="sub-card"]')).toBeVisible();
     });
 
-    // TODO: Fix after timing changes
-    test('Upload unlisted video to channel + Check video in studio + ', async ({ browser,page }) => {
-        const login = process.env.USER_LOGIN_PAID!;
+    test('Upload unlisted video to channel', async ({ browser,page }) => {
+        const login = process.env.USER_LOGIN_UNLISTED!;
         const password = process.env.USER_PASSWORD!;
+        const channelUrl = process.env.USER_CHANNEL_UNLISTED_URL!;
+        const videoName: string = Date.now().toString();
     
         const authFlow = new AuthFlow(page);
         const uploadVideoFlow = new UploadVideoFlow(page);
@@ -92,16 +95,19 @@ test.describe('Uploading tests', () => {
 
         await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
         await uploadVideoFlow.waitStatusSuccessfully();
-        await uploadVideoFlow.fillInReqFileds('First video');
+        const description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.selectVisibility('unlisted');
         await uploadVideoFlow.clickPublishBtn();
         await uploadVideoFlow.confirmUploading('Unlisted');
         const newUrl:any = await studioContentPage.getFirstVideoUrl();
+        await page.goto(channelUrl, { waitUntil: 'networkidle' });
+        await expect(page.locator('body')).toContainText('This channel doesn`t have any content');
+
 
         const incogPage = await openInIncognito(browser, newUrl);
-        // await expect(incogPage).toHaveURL( /\/@user_with_paid_videos\/membership/,{timeout:15_000});
-        // await expect(incogPage.locator('.infinite-scroll-component')).toBeVisible();
-        // await expect(incogPage.locator('[data-id="sub-card"]')).toBeVisible();
+        await expect(incogPage.getByText(videoName)).toBeVisible({ timeout: 10_000 });
+        await expect(incogPage.getByText(description)).toBeVisible({ timeout: 10_000 });
+        await assertVideoIsPlaying(incogPage);
     });
 
 });

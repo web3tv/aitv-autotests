@@ -88,10 +88,10 @@ export class UploadVideoPage {
   }
 
   async clickUnlistedBtn() {
-    await this.privateRadioBtn.waitFor({ state: 'visible' });
-    await expect(this.privateRadioBtn).toBeEnabled();
-    await this.privateRadioBtn.click();
-    await expect(this.privateRadioBtn).toBeChecked();
+    await this.unlistedRadioBtn.waitFor({ state: 'visible' });
+    await expect(this.unlistedRadioBtn).toBeEnabled();
+    await this.unlistedRadioBtn.click();
+    await expect(this.unlistedRadioBtn).toBeChecked();
   }
 
   async clickPaidBtn() {

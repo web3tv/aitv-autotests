@@ -14,7 +14,7 @@ test.describe.configure({ mode: 'serial' });
 test.describe('Subscription plan suite', () => {
     let user: { email: string };
     let videoUrl;
-    let videoName: string = Date.now().toString();;
+    let videoName: string = Date.now().toString();
     const membershipName = 'Subscription #1';
     const membershipDescription = 'Description for card #1';
 
