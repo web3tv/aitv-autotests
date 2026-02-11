@@ -56,16 +56,24 @@ export class LoginPage {
   }
 
   async fillEmailInput(email:string){
-    await expect(this.emailInput).toBeEditable({ timeout: 15000 });
+    await this.emailInput.waitFor({ state: 'visible', timeout: 15000 });
+    await this.emailInput.click();
+    await this.emailInput.clear();
     await this.emailInput.fill(email);
+    await expect(this.emailInput).toHaveValue(email);
   }
 
   async fillPasswordInput(password:string){
+    await this.passwordInput.waitFor({ state: 'visible', timeout: 15000 });
+    await this.passwordInput.click();
+    await this.passwordInput.clear();
     await this.passwordInput.fill(password);
+    await expect(this.passwordInput).toHaveValue(password);
   }
 
   async clickLoginBtn(){
-     await this.loginBtn.click();
+    await expect(this.loginBtn).toBeEnabled({ timeout: 15000 });
+    await this.loginBtn.click();
   }
 
   async removeFocusFromElement(){

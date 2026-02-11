@@ -15,7 +15,7 @@ export class SideBarPage {
   // STUDIO
   readonly studioDashboard: Locator;
   readonly studioContent: Locator;
-  readonly studioSubscriptions: Locator;
+  readonly studioMemberships: Locator;
   readonly studioProfileChannel: Locator;
 
   // SETTINGS
@@ -46,7 +46,7 @@ export class SideBarPage {
     // STUDIO
     this.studioDashboard            = page.locator('[data-id="Dashboard"]');
     this.studioContent              = page.locator('[data-id="Content"]');
-    this.studioSubscriptions        = page.locator('[data-id="Subscriptions"]');
+    this.studioMemberships          = page.locator('[data-id="Memberships"]');
     this.studioProfileChannel       = page.locator('[data-id="Profile & Channel"]');
 
     // SETTINGS
@@ -127,9 +127,9 @@ export class SideBarPage {
     await expect(this.page).toHaveURL(/\/studio\/content$/);
   }
 
-  async clickStudioSubscriptions() {
-    await expect(this.studioSubscriptions).toBeVisible();
-    await this.studioSubscriptions.click();
+  async clickStudioMemberships() {
+    await expect(this.studioMemberships).toBeVisible();
+    await this.studioMemberships.click();
     await expect(this.page).toHaveURL(/\/studio\/membership$/);
   }
 

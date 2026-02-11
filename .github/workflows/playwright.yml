@@ -69,7 +69,7 @@ jobs:
             --data "{\"message\":\"Job: $JOB_NAME\nStatus: $STATUS\n$RUN_URL\"}" \
             "$WEBHOOK"
 
-  visual-desktop:
+  visual-tests:
     needs: functional
     if: always()
     runs-on: ubuntu-latest
@@ -98,10 +98,13 @@ jobs:
           sudo ip route replace 10.3.0.0/16 dev wg0
           rm -f wg0.conf
 
-      - run: npm ci
-      - run: npx playwright install --with-deps
-
-      - run: npx playwright test --project=visual-desktop-chromium
+      - name: Run visual tests in Docker
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/app" \
+            -w /app \
+            mcr.microsoft.com/playwright:v1.57.0-jammy \
+            npx playwright test --project=visual-desktop-chromium --project=visual-mobile-webkit
         env:
           CI: true
 
@@ -111,9 +114,9 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: visual-desktop-report
+          name: visual-tests-report
           path: playwright-report
-      
+
       - name: Send Slack notification
         if: always()
         env:
@@ -127,62 +130,3 @@ jobs:
             --data "{\"message\":\"Job: $JOB_NAME\nStatus: $STATUS\n$RUN_URL\"}" \
             "$WEBHOOK"
 
-  visual-mobile:
-    needs: visual-desktop
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-
-    steps:
-      - uses: actions/checkout@v4
-      - run: cat .env.dev >> $GITHUB_ENV
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: |
-          sudo apt-get update
-          sudo apt-get install -y wireguard-tools iproute2
-
-      - name: Connect VPN
-        env:
-          WG_CLIENT_CONFIG: ${{ secrets.WG_CLIENT_CONFIG }}
-        run: |
-          printf "%s\n" "$WG_CLIENT_CONFIG" > wg0.conf
-          sudo install -m 600 wg0.conf /etc/wireguard/wg0.conf
-          sudo wg-quick up wg0
-          sudo ip route replace 10.3.0.0/16 dev wg0
-          rm -f wg0.conf
-
-      - run: npm ci
-      - run: npx playwright install --with-deps
-
-      - run: npx playwright test --project=visual-mobile-webkit
-        env:
-          CI: true
-
-      - if: always()
-        run: sudo wg-quick down wg0
-
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-mobile-report
-          path: playwright-report
-      
-      - name: Send Slack notification
-        if: always()
-        env:
-          STATUS: ${{ job.status }}
-          JOB_NAME: ${{ github.job }}
-          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            --data "{\"message\":\"Job: $JOB_NAME\nStatus: $STATUS\n$RUN_URL\"}" \
-            "$WEBHOOK"
-
-      

@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
+import { HeroPayPage } from '../heroPay/HeroPayPage';
 
 export class ChannelMainPage {
 
@@ -10,6 +11,13 @@ export class ChannelMainPage {
     readonly exclusiveBadge: Locator;
     readonly lockedBadge: Locator;
 
+
+
+    // MEMBERSHIP
+
+    readonly subscribeBtn: Locator;
+    readonly registerLoginBtn: Locator;
+
     constructor(page: Page) {
         this.page = page;
 
@@ -17,6 +25,11 @@ export class ChannelMainPage {
 
         this.exclusiveBadge = page.locator('div').filter({ hasText: /^Exclusive Content$/ }).first();
         this.lockedBadge = this.firstVideo.locator('.locked');
+
+
+        // MEMBERSHIP
+        this.subscribeBtn = page.getByRole('button', { name: 'Subscribe Now!' });
+        this.registerLoginBtn = page.getByRole('button', { name: 'Register/Login' });
     }
 
     async clickFirstVideo(){
@@ -46,6 +59,18 @@ export class ChannelMainPage {
     async checkPrivateVideoNotAvailable(){
         await expect(this.page.getByText('This page isn\'t available.')).toBeVisible();
         await expect(this.page.getByRole('paragraph')).toContainText('This page isn\'t available. Sorry about that. Try searching for something else.');
+    }
+
+    async purhcaseMembership(){
+        await this.subscribeBtn.click();
+        const heroPay = new HeroPayPage(this.page);
+        await heroPay.mockPayment();
+        
+        await expect(this.page.locator('body')).toContainText('Active');
+    }
+
+    async checkRegisterLoginBtn(){
+        await expect(this.registerLoginBtn).toBeVisible();
     }
 
 
