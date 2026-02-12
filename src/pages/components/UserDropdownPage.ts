@@ -19,7 +19,7 @@ export class UserDropdownPage {
         await expect(this.createChannelBtn).toBeEnabled();
         await this.createChannelBtn.click();
         await this.page.waitForURL('**/create-channel');
-        await expect(this.page.getByText('Create Your Web3TV ChannelSet')).toBeVisible();
+        await expect(this.page.getByText('Create Your Web3.TV ChannelSet')).toBeVisible();
     }
     
     async clickLogoutBtn(){

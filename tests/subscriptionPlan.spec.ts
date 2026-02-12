@@ -80,7 +80,7 @@ test.describe('Subscription plan suite', () => {
       await expect(page.locator('.infinite-scroll-component')).toBeVisible();
       await expect(page.locator('[data-id="sub-card"]')).toBeVisible();
       const channelMainPage = new ChannelMainPage(page);
-      await channelMainPage.purhcaseMembership();
+      await channelMainPage.purhcaseMembershipFromMembershipPage();
 
       await page.goto(videoUrl!, {waitUntil: 'networkidle'});
       await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
