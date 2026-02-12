@@ -104,7 +104,7 @@ jobs:
             -v "${{ github.workspace }}:/app" \
             -w /app \
             mcr.microsoft.com/playwright:v1.57.0-jammy \
-            npx playwright test --project=visual-desktop-chromium --project=visual-mobile-webkit
+            bash -lc "npm ci; npx playwright@1.57.0 test --project=visual-desktop-chromium --project=visual-mobile-webkit"
         env:
           CI: true
 
