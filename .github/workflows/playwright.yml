@@ -10,21 +10,14 @@ on:
 jobs:
   
   visual-tests:
-    
-    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 40
 
     steps:
       - uses: actions/checkout@v4
-      - run: cat .env.dev >> $GITHUB_ENV
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - run: |
+      - name: Install WireGuard
+        run: |
           sudo apt-get update
           sudo apt-get install -y wireguard-tools iproute2
 
@@ -38,21 +31,24 @@ jobs:
           sudo ip route replace 10.3.0.0/16 dev wg0
           rm -f wg0.conf
 
+
       - name: Run visual tests in Docker
         run: |
-            docker run --rm \
+          docker run --rm \
+            --network host \
+            --env-file .env.dev \
+            -e CI=true \
             -v "${{ github.workspace }}:/app" \
             -w /app \
-            -e CI=true \
             mcr.microsoft.com/playwright:v1.57.0-jammy \
             bash -lc "npm ci --include=dev && npx playwright test --project=visual-desktop-chromium --project=visual-mobile-webkit"
-        env:
-          CI: true
 
-      - if: always()
+      - name: Disconnect VPN
+        if: always()
         run: sudo wg-quick down wg0
 
-      - if: always()
+      - name: Upload Playwright report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: visual-tests-report
