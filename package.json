@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test:dev": "playwright test --config=playwright.config.ts",
-    "test:oldstage": "playwright test --config=playwright.OldStage.config.ts"
+    "test:dev": "playwright test --config=playwright.config.ts"
   },
   "keywords": [],
   "author": "",

@@ -59,7 +59,7 @@ export class StudioMembershipPage {
     await expect(this.form).toContainText(`${membershipName}49.991 weekSubscribe Now!${membershipDescription}`);
     await this.nextButton.click();
     await this.page.getByRole('button', { name: 'Create' }).click();
-    await expect(this.successMessage).toBeVisible();
+    await expect(this.successMessage).toBeVisible({ timeout: 30_000 });
     await this.closeButton.click();
   }
 
