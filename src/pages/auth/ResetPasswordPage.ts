@@ -25,7 +25,7 @@ export class ResetPasswordPage {
     this.changePasswordBtn = page.getByRole('button', { name: 'Change Password' });
 
     
-    this.titleText = page.getByText('Enter your Web3 TV username');
+    this.titleText = page.getByText('Enter your Web3.TV username');
   }
 
   async fillPasswordInput(password: string): Promise<void> {

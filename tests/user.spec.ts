@@ -18,7 +18,6 @@ test.describe('Change password', () => {
 
         await authFlow.loginSuccess(email, password);
 
-
         const sideBarPage = new SideBarPage(page);
         await sideBarPage.clickSettingsAccount();
 
@@ -55,17 +54,10 @@ test.describe('Change password', () => {
     });
 
 })
-
-
 test.describe.serial('Update email', () => {
-  let previousFailed = false;
   let oldEmail: string;
   let password: string;
   let newEmail: string;
-
-  test.afterEach(async ({}, testInfo) => {
-    if (testInfo.status !== 'passed') previousFailed = true;
-  });
 
   test('Change email', async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
@@ -94,13 +86,11 @@ test.describe.serial('Update email', () => {
   });
 
   test('Login with new email', async ({ page }) => {
-    test.skip(previousFailed, 'Previous test failed');
     const authFlow = new AuthFlow(page);
     await authFlow.loginSuccess(newEmail, password);
   });
 
   test('Old email login should fail', async ({ page }) => {
-    test.skip(previousFailed, 'Previous test failed');
     const authFlow = new AuthFlow(page);
     await authFlow.loginFailed(oldEmail, password);
   });

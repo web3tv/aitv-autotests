@@ -74,7 +74,7 @@ test.describe('Forgot password', () => {
 
     await authFlow.forgotPassword();
     await page.getByRole('link', { name: 'Forgot Password?' }).click();
-    await expect(page.getByText('Enter your Web3 TV username')).toBeVisible();
+    await expect(page.getByText('Enter your Web3.TV username')).toBeVisible();
     await page.getByRole('textbox', { name: 'Enter email address' }).click();
     await page.getByRole('textbox', { name: 'Enter email address' }).fill(email);
     
@@ -114,7 +114,7 @@ test.describe('Forgot password', () => {
 
       await authFlow.forgotPassword();
       await page.getByRole('link', { name: 'Forgot Password?' }).click();
-      await expect(page.getByText('Enter your Web3 TV username')).toBeVisible();
+      await expect(page.getByText('Enter your Web3.TV username')).toBeVisible();
       await page.getByRole('textbox', { name: 'Enter email address' }).click();
       await page.getByRole('textbox', { name: 'Enter email address' }).fill(email);
       
