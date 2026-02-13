@@ -4,94 +4,108 @@ import { RegistrationFlow } from '../src/flows/RegistrationFlow';
 import { SideBarPage } from '../src/pages/components/SideBarPage';
 import { AccountPage } from '../src/pages/account/AccountPage';
 import { MailTmHelper } from '../src/utils/mailTmHelper';
+import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
+import { AuthApi } from '../src/api/AuthApi';
 
+test.describe.serial('Change password', () => {
+  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+  const newPassword = 'NewPassword1@';
 
-//TODO: Add test for successful password change (with email verification)
-test.describe('Change password', () => {
+  test('Create user', async ({ page, request }) => {
+    const registrationFlow = new RegistrationFlow(page, request);
+    await registrationFlow.openRegistrationPage();
+    user = await registrationFlow.registerAndVerifyUserViaEmail();
+  })
 
-    test('Update password without verifying via email -> Can`t login with new password', async ({ page, request }) => {
-        const authFlow = new AuthFlow(page);
-        const registrationFlow = new RegistrationFlow(page,request)
-        
-        await registrationFlow.openRegistrationPage();
-        const { email, password } = await registrationFlow.registerAndVerifyUserViaEmail();
+  test('Update password without verifying via email', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(user.email, user.password);
+    const sideBarPage = new SideBarPage(page);
+    await sideBarPage.clickSettingsAccount();
+    const accountPage = new AccountPage(page);
+    await accountPage.changePassword(user.password, newPassword);
+  });
 
-        await authFlow.loginSuccess(email, password);
+  test('Login with old password without verifying via email -> Success', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(user.email, user.password);
+  });
 
-        const sideBarPage = new SideBarPage(page);
-        await sideBarPage.clickSettingsAccount();
+  test('Login with new password without verifying via email -> Error', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginFailed(user.email, newPassword);
+  });
 
-        const accountPage = new AccountPage(page);
+  test('Verify changing password via email', async ({ page, request }) => {
+    const mailTmHelper = new MailTmHelper(request);
+    const messageId = await mailTmHelper.waitForMessage(user.token, 'Password Verification');
+    const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, user.token);
+    await page.goto(verificationUrl, { waitUntil: 'networkidle' });
+    await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({timeout: 20_000 });
+  });
 
-        const newPassword = 'NewPassword1@';
-        await accountPage.changePassword(password, newPassword);
-        await authFlow.logout();
+  test('Login with old password after verification via email -> Success', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginFailed(user.email, user.password);
+  });
 
-        await authFlow.loginFailed(email, newPassword)
-        
-    });
-
-    test('Update password without verifying via email -> Can login with old password', async ({ page, request }) => {
-        const authFlow = new AuthFlow(page);
-        const registrationFlow = new RegistrationFlow(page,request)
-        
-        await registrationFlow.openRegistrationPage();
-        const { email, password } = await registrationFlow.registerAndVerifyUserViaEmail();
-
-        await authFlow.loginSuccess(email, password);
-
-
-        const sideBarPage = new SideBarPage(page);
-        await sideBarPage.clickSettingsAccount();
-
-        const accountPage = new AccountPage(page);
-
-        const newPassword = 'NewPassword1@';
-        await accountPage.changePassword(password, newPassword);
-        await authFlow.logout();
-
-        await authFlow.loginSuccess(email, password)
-    });
+  test('Login with new password after verification via email -> Error', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(user.email, newPassword);
+  });
 
 })
-test.describe.serial('Update email', () => {
-  let oldEmail: string;
-  let password: string;
+
+test.describe.serial('Change email', () => {
+  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+  let newEmailToken: string;
   let newEmail: string;
+  let verificationUrl: string;
+
+  test('Create user', async ({ page, request }) => {
+    const registrationFlow = new RegistrationFlow(page, request);
+    await registrationFlow.openRegistrationPage();
+    user = await registrationFlow.registerAndVerifyUserViaEmail();
+  })
 
   test('Change email', async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
-    const registrationFlow = new RegistrationFlow(page, request);
-    const mailTmHelper = new MailTmHelper(request);
     const sideBarPage = new SideBarPage(page);
     const accountPage = new AccountPage(page);
-
-    await registrationFlow.openRegistrationPage();
-    ({ email: oldEmail, password } = await registrationFlow.registerAndVerifyUserViaEmail());
-
-    await authFlow.loginSuccess(oldEmail, password);
-    await sideBarPage.clickSettingsAccount();
-
+    const mailTmHelper = new MailTmHelper(request);
     newEmail = await mailTmHelper.generateEmail();
+
+    await authFlow.loginSuccess(user.email, user.password);
+    await sideBarPage.clickSettingsAccount();
     await mailTmHelper.createMailbox();
-    const newEmailToken = await mailTmHelper.getToken(newEmail, mailTmHelper['password']);
-
-    await accountPage.changeEmail(oldEmail, newEmail, password);
-
+    newEmailToken = await mailTmHelper.getToken(newEmail, mailTmHelper['password']);
+    await accountPage.changeEmail(user.email, newEmail, user.password);
     const messageId = await mailTmHelper.waitForMessage(newEmailToken, 'Email Verification');
-    const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, newEmailToken);
+    verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, newEmailToken);
+  })
 
+  test('Login with old email before verification -> Success', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(user.email, user.password);
+  })
+
+  test('Login with new email before verification -> Error', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginFailed(newEmail, user.password);
+  })
+
+  test('Verify changing email via email', async ({ page }) => {
     await page.goto(verificationUrl, { waitUntil: 'networkidle' });
     await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
+  })
+
+  test('Login with NEW email after verification -> Success', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(newEmail, user.password);
   });
 
-  test('Login with new email', async ({ page }) => {
+  test('Login with OLD email after verification -> Error', async ({ page }) => {
     const authFlow = new AuthFlow(page);
-    await authFlow.loginSuccess(newEmail, password);
-  });
-
-  test('Old email login should fail', async ({ page }) => {
-    const authFlow = new AuthFlow(page);
-    await authFlow.loginFailed(oldEmail, password);
+    await authFlow.loginFailed(user.email, user.password);
   });
 });
