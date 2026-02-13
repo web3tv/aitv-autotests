@@ -9,8 +9,6 @@ import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
 import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
 import { assertVideoIsPlaying } from '../src/utils/videoPlayerHelper';
 
-test.describe.configure({ mode: 'serial' });
-
 test.describe('Subscription plan suite', () => {
     let user: { email: string };
     let videoUrl;

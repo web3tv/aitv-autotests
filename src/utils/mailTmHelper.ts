@@ -22,17 +22,37 @@ export class MailTmHelper {
     return this.email;
   }
 
-  async createMailbox() {
-    await this.request.post(`${this.baseUrl}/accounts`, {
-      data: {
-        address: this.email,
-        password: this.password
+  async createMailbox(retries = 3, delayMs = 10000) {
+    console.log('Attempting to create mailbox with email:', this.email);
+
+    for (let i = 0; i < retries; i++) {
+      const res = await this.request.post(`${this.baseUrl}/accounts`, {
+        data: {
+          address: this.email,
+          password: this.password
+        }
+      });
+
+      if (res.ok()) {
+        console.log('Mailbox created successfully.');
+        return;
       }
-    });
+
+      if (res.status() === 429) {
+        console.warn(`Too Many Requests. Retrying in ${delayMs}ms... (${i + 1}/${retries})`);
+        await new Promise(r => setTimeout(r, delayMs));
+        continue;
+      }
+
+      throw new Error(`Failed to create mailbox: ${res.statusText()}`);
+    }
+
+    throw new Error('Failed to create mailbox after multiple retries due to Too Many Requests.');
   }
 
-  // 3. Получить токен
-  async getToken(email:string,password:string) {
+  async getToken(email: string, password: string) {
+    console.log('Attempting to fetch token from Mail.tm');
+
     const res = await this.request.post(`${this.baseUrl}/token`, {
       data: {
         address: email,
@@ -40,28 +60,44 @@ export class MailTmHelper {
       }
     });
 
-    const json = await res.json();
-    this.token = json.token;
+    if (!res.ok()) {
+      if (res.status() === 401) {
+        console.error('Invalid credentials provided. Ensure the email and password match the created account.');
+      }
+      throw new Error(`Failed to fetch token from Mail.tm: ${res.statusText()}`);
+    }
 
+    const json = await res.json();
+    // console.log('Token received successfully.');
+    this.token = json.token;
     return this.token;
   }
 
-  // 4. POLLING писем (ждём письмо от Web3TV)
-  async waitForMessage(token: string,subjectText: string,retries = 10, delayMs = 3000) {
+  async waitForMessage(token: string, subjectText: string, retries = 10, delayMs = 3000) {
+    if (!token) {
+      throw new Error('Authorization token is missing. Cannot fetch messages from Mail.tm.');
+    }
+
     for (let i = 0; i < retries; i++) {
       const res = await this.request.get(`${this.baseUrl}/messages`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      if (!res.ok()) {
+        if (res.status() === 401) {
+          console.error('Unauthorized error. The token might be invalid or expired.');
+        }
+        throw new Error(`Failed to fetch messages from Mail.tm: ${res.statusText()}`);
+      }
 
       const json = await res.json();
       const messages = json?.['hydra:member'] ?? [];
-
       const targetMessage = messages.find(m =>
         m.subject?.includes(subjectText)
       );
 
       if (targetMessage) {
+        // console.log(`Found target message with subject: ${targetMessage.subject}`);
         this.messageId = targetMessage.id;
         return this.messageId;
       }
@@ -72,7 +108,6 @@ export class MailTmHelper {
     throw new Error(`Mail.tm timeout: письмо "${subjectText}" не пришло`);
   }
 
-  // 5. Забрать письмо по ID + достать verification URL
   async extractVerificationUrl(messageId?: string, token?: string) {
     const msgId = messageId ?? this.messageId;
     const authToken = token ?? this.token;
@@ -95,39 +130,6 @@ export class MailTmHelper {
 
     throw new Error('Verification URL not found in email');
 }
-
-  // 5. Забрать письмо по ID + достать verification URL
-  // async extractVerificationUrl() {
-  //   const res = await this.request.get(`${this.baseUrl}/messages/${this.messageId}`, {
-  //     headers: { Authorization: `Bearer ${this.token}` }
-  //   });
-
-  //   const json = await res.json();
-  //   const html = json.html?.[0] ?? '';
-
-  //   let link = null;
-
-  //   // 1. Ищем tracking-ссылку (ПРАВИЛЬНАЯ)
-  //   const trackingMatch = html.match(/https?:\/\/url\d+\.web3\.tv\/[^\s"']+/i);
-  //   if (trackingMatch) {
-  //     link = trackingMatch[0];
-  //     return link;
-  //   }
-
-  //   // 2. fallback — обычная verification ссылка
-  //   const verifyMatch = html.match(/https:\/\/web3tv\.dev\/verification[^\s"']+/i);
-  //   if (verifyMatch) {
-  //     return verifyMatch[0];
-  //   }
-
-  //   // 3. fallback — первый href
-  //   const hrefMatch = html.match(/href="([^"]+)"/i);
-  //   if (hrefMatch) {
-  //     return hrefMatch[1];
-  //   }
-
-  //   throw new Error('Verification URL not found in email');
-  // }
 
   async extractPasswordResetnUrl(messageId:string,token:string) {
     const res = await this.request.get(`${this.baseUrl}/messages/${messageId}`, {
