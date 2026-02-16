@@ -6,6 +6,12 @@ import { AccountPage } from '../src/pages/account/AccountPage';
 import { MailTmHelper } from '../src/utils/mailTmHelper';
 import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
 import { AuthApi } from '../src/api/AuthApi';
+import { ProfilePage } from '../src/pages/account/ProfilePage';
+import { SecurityPage } from '../src/pages/account/SecurityPage';
+
+
+
+// ACCOUNT PAGE
 
 test.describe.serial('Change password', () => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
@@ -109,3 +115,69 @@ test.describe.serial('Change email', () => {
     await authFlow.loginFailed(user.email, user.password);
   });
 });
+
+
+
+// PROFILE PAGE
+
+test.describe('Change user Avatar', () => {
+  let user: { email: string };
+  
+  test('Change user avatar and check new avatar is displayed', async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    user = await authApi.createAndVerifyUser();
+    const authFlow = new AuthFlow(page);
+    const password = process.env.USER_PASSWORD!;
+    await authFlow.loginSuccess(user.email, password);
+    const sideBarPage = new SideBarPage(page);
+    await sideBarPage.clickSettingsProfile();
+    const profilePage = new ProfilePage(page);
+    await profilePage.uploadProfileAvatarAndConfirmNewAvatarDisplayed();
+  })
+
+})
+
+
+
+// SECURITY PAGE
+
+test.describe.serial('Check 2FA', () => {
+  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+  
+  test('Setup 2FA', async ({ page, request }) => {
+    const registrationFlow = new RegistrationFlow(page, request);
+    await registrationFlow.openRegistrationPage();
+    user = await registrationFlow.registerAndVerifyUserViaEmail();
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(user.email, user.password);
+    const sideBarPage = new SideBarPage(page);
+    sideBarPage.clickSettingsSecurity();
+    const securityPage = new SecurityPage(page);
+    await securityPage.setup2FA(user.email);
+  })  
+
+  test('Login - insert incorrect 2FA code - Failed', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginWith2FaFailed(user.email, user.password);
+  })
+
+  test('Login - insert correct 2FA code - Success', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginWith2FaSuccess(user.email, user.password, user.token);
+  })   
+
+  test('Disable 2FA - check login without 2FA', async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginWith2FaSuccess(user.email, user.password, user.token);
+    const sideBarPage = new SideBarPage(page);
+    sideBarPage.clickSettingsSecurity();
+    const securityPage = new SecurityPage(page);
+    await securityPage.disable2FA(user.email);
+    await authFlow.logout();  
+    await authFlow.loginSuccess(user.email, user.password);
+  }) 
+
+})
+
+
+// TODO: Convert to NFT

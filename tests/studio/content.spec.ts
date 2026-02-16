@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../src/flows/AuthFlow';
-import { UploadVideoFlow } from '../src/flows/UploadVideoFlow';
-import { StudioContentPage } from '../src/pages/studio/StudioContentPage';
-import { assertVideoIsPlaying } from '../src/utils/videoPlayerHelper';
-import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
-import { SideBarPage } from '../src/pages/components/SideBarPage';
-import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
-import { AuthApi } from '../src/api/AuthApi';
-import { StudioMembershipPage } from '../src/pages/studio/StudioMembershipPage';
+import { AuthFlow } from '../../src/flows/AuthFlow';
+import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
+import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
+import { assertVideoIsPlaying } from '../../src/utils/videoPlayerHelper';
+import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
+import { SideBarPage } from '../../src/pages/components/SideBarPage';
+import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
+import { AuthApi } from '../../src/api/AuthApi';
+import { StudioMembershipPage } from '../../src/pages/studio/StudioMembershipPage';
 
 test.describe.serial('Public video', () => {
     let user: { email: string, username: string };

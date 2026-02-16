@@ -73,7 +73,13 @@ export class MailTmHelper {
     return this.token;
   }
 
-  async waitForMessage(token: string, subjectText: string, retries = 10, delayMs = 3000) {
+  async waitForMessage(
+    token: string,
+    subjectText: string,
+    retries = 10,
+    delayMs = 3000,
+    afterTimestamp?: number
+  ) {
     if (!token) {
       throw new Error('Authorization token is missing. Cannot fetch messages from Mail.tm.');
     }
@@ -92,9 +98,18 @@ export class MailTmHelper {
 
       const json = await res.json();
       const messages = json?.['hydra:member'] ?? [];
-      const targetMessage = messages.find(m =>
-        m.subject?.includes(subjectText)
-      );
+      const targetMessage = messages.find(m => {
+        if (!m.subject?.includes(subjectText)) {
+          return false;
+        }
+
+        if (afterTimestamp === undefined) {
+          return true;
+        }
+
+        const messageTime = new Date(m.createdAt ?? m.receivedAt ?? 0).getTime();
+        return messageTime > afterTimestamp;
+      });
 
       if (targetMessage) {
         // console.log(`Found target message with subject: ${targetMessage.subject}`);
@@ -145,5 +160,20 @@ export class MailTmHelper {
     }
 
     throw new Error('Reset Password URL not found in email');
+  }
+
+  async extract2FACode(messageId:string,token:string) {
+    const res = await this.request.get(`${this.baseUrl}/messages/${messageId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const json = await res.json();
+    const text = json.text ?? '';
+
+    if (text.length !== 4) {
+      throw new Error(`Invalid 2FA code: "${text}"`);
+    }
+
+    return text.split('');
   }
 }
