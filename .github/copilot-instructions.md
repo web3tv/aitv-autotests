@@ -1,113 +1,245 @@
-# AI Agent Instructions for web3tv-autotests
+🤖 Copilot Instructions — web3tv-autotests
 
-## Project Overview
-This is a **Playwright-based E2E test automation suite** for web3tv, a web application with authentication, channels, video content, and user profiles. Tests are organized by feature and include functional and visual regression testing.
+This project is a Playwright-based E2E automation suite.
 
-## Architecture
+Copilot MUST strictly follow the architectural contract below when generating or modifying tests.
 
-### Page Object Model (POM)
-- **Pages** (`src/pages/`): Encapsulate UI selectors and low-level interactions (buttons, inputs, navigation)
-- **Flows** (`src/flows/`): Orchestrate multi-step user journeys by composing pages (e.g., `AuthFlow` uses `LoginPage`, `HeaderPage`, `UserDropdownPage`)
-- **Tests** (`tests/`): Use flows to assert business outcomes rather than UI details
+====================================================================
+🚨 STRICT ARCHITECTURAL RULES (MANDATORY — NO EXCEPTIONS)
 
-**Pattern Example:** `AuthFlow.loginSuccess()` orchestrates login → checks URL → waits for API response → verifies UI elements.
+Tests MUST NOT use page directly.
 
-### API Layer
-- `AuthApi.ts`: Handles direct API calls for user creation, registration, and auth token management
-- Uses Playwright's `APIRequestContext` with base URL `https://api.web3tv.dev`
-- Critical for test data setup without UI interaction
+Tests MUST NOT define selectors.
 
-### Utilities
-- `dataGenerator.ts`: Generates unique emails and usernames using pattern `randomString+randomNumbers@domain`
-- `mailTmHelper.ts`, `videoPlayerHelper.ts`: Domain-specific test helpers
-- `incognitoHelper.ts`: Private browsing context setup
+Tests MUST NOT call:
 
-## Test Structure
+page.locator()
 
-### Projects (in `playwright.config.ts`)
-1. **`functional`**: Excludes visual tests, runs on standard resolution (1920×1080)
-2. **`visual-desktop-chromium`**: Visual regression tests, **runs only in Docker**
-3. **`visual-mobile-chromium`**: Mobile visual tests, **runs only in Docker**
+page.getByRole()
 
-### Test Organization
-- `tests/auth.spec.ts`: Login/registration/logout flows
-- `tests/content.spec.ts`: Channel/video operations
-- `tests/validation/`: Specific validation rule testing
-- `tests/visualSuite/`: Desktop and mobile visual regressions
+page.getByText()
 
-## Critical Commands
+page.click()
 
-```bash
-# Local functional testing (dev config)
-npm run test:dev
+page.fill()
 
-# OldStage environment testing
-npm run test:oldstage
+page.waitForURL()
 
-# Docker: Visual regression tests (required for visual tests)
-docker run --rm -v "${PWD}:/app" -w /app mcr.microsoft.com/playwright:v1.57.0-jammy npx playwright test tests/visualSuite
+page.waitForResponse()
 
-# Run specific test file
-npx playwright test tests/auth.spec.ts
-```
+Tests MUST NOT instantiate Page classes directly.
 
-## Key Patterns & Conventions
+Tests MUST use Flow classes ONLY.
 
-### Environment Configuration
-- Uses `.env.dev` and `.env.oldstage` (load via dotenv, excluded from git)
-- Variables: `BASE_URL`, `USER_LOGIN_PUBLIC`, `USER_PASSWORD`, etc.
-- CI mode detected via `process.env.CI` for headless execution
+All selectors MUST exist inside src/pages/.
 
-### Selectors
-Use semantic selectors (accessibility-first):
-```typescript
-page.getByRole('button', { name: 'Login' })
-page.getByRole('textbox', { name: 'Enter email or username' })
-page.getByText(/handle|username/i)  // regex patterns for flexible matching
-```
+All multi-step business logic MUST exist inside src/flows/.
 
-### Wait Strategies
-- Always wait for navigation: `page.waitForURL('/')`
-- Wait for API responses: `page.waitForResponse('/api/users/whoami', {timeout: 40_000})`
-- Explicit waits preferred over implicit timeouts
+If required functionality does not exist:
 
-### Test Reliability
-- Screenshots/videos captured on failure only
-- HTML reports generated (open automatically in dev, saved in CI)
-- Retries: 1 attempt in CI, 0 in local dev
-- Default test timeout: 90s, expect timeout: 10s
+Extend the appropriate Page class
 
-## Common Tasks
+Then extend the appropriate Flow class
 
-### Adding a New Test
-1. Create page locators in `src/pages/` (or reuse existing)
-2. Compose flow method in `src/flows/` combining page interactions
-3. Use flow in test file with assertions on business outcomes
+Then use the Flow inside the test
 
-### Extending Authentication
-- Add methods to `AuthFlow` (user logout, password reset, etc.)
-- Page methods in `LoginPage` remain low-level (click, fill, navigate)
-- Use `AuthApi` for backend setup operations
+Tests are orchestration-only and contain assertions only.
 
-### Running Specific Tests
-```typescript
-test.only('Focus on one test')  // temporary during development
-test.skip('Skip flaky test')    // document reasons in comments
-```
+Violating these rules is a CRITICAL architecture error.
 
-## Docker & CI Context
-- Visual tests **must run in Docker** (consistent browser rendering)
-- CI uses single worker, 1 retry for stability
-- Docker image: `mcr.microsoft.com/playwright:v1.57.0-jammy`
-- Reports auto-opened locally, stored as artifacts in CI
+====================================================================
+🏗 ARCHITECTURE LAYERS
 
-## Testing External Integrations
-- **MailTm integration**: Temporary email service for registration testing
-- **Ethers.js**: Web3 wallet interactions (in dependencies)
-- **API-first approach**: Prefer API calls for test setup over UI when possible
+Tests → Flows → Pages → Components → Selectors
 
-## Debugging
-- Traces saved on first retry (`trace: 'on-first-retry'`)
-- Screenshots on failure only (reduces noise)
-- Use `page.pause()` in tests for interactive debugging
-- Check `playwright-report/` or `test-results/` after runs
+Tests (tests/)
+
+Contain business scenario definitions
+
+Call Flow methods only
+
+Contain assertions only
+
+Must NOT contain UI logic
+
+Must NOT contain navigation logic
+
+Must NOT contain waits
+
+Flows (src/flows/)
+
+Combine multiple Pages
+
+Represent business actions (loginSuccess, createChannel, logoutUser)
+
+Handle navigation
+
+Handle page.waitForURL
+
+Handle page.waitForResponse
+
+Handle synchronization
+
+May instantiate Page classes internally
+
+Pages (src/pages/)
+
+Contain selectors
+
+Contain atomic UI interactions
+
+No business logic
+
+No cross-page orchestration
+
+Components (src/pages/components/)
+
+Reusable UI fragments (Header, Dropdown, VideoPlayer, etc.)
+
+Used inside Pages only
+
+====================================================================
+✅ VALID TEST EXAMPLE
+
+Example of a correct test:
+
+test('User can login successfully', async ({ authFlow }) => {
+await authFlow.loginSuccess(email, password);
+});
+
+====================================================================
+❌ INVALID TEST EXAMPLE (FORBIDDEN)
+
+Example of forbidden pattern:
+
+test('Login', async ({ page }) => {
+await page.getByRole('textbox', { name: 'Email' }).fill(email);
+await page.getByRole('button', { name: 'Login' }).click();
+});
+
+Direct page interaction in tests is NOT allowed.
+
+====================================================================
+🧩 FLOW EXAMPLE
+
+export class AuthFlow {
+constructor(private readonly page: Page) {}
+
+async loginSuccess(email: string, password: string) {
+const loginPage = new LoginPage(this.page);
+
+await loginPage.navigate();
+await loginPage.fillEmail(email);
+await loginPage.fillPassword(password);
+await loginPage.submit();
+
+await this.page.waitForURL('/');
+await this.page.waitForResponse('/api/users/whoami');
+
+
+}
+}
+
+====================================================================
+🧱 PAGE EXAMPLE
+
+export class LoginPage {
+constructor(private readonly page: Page) {}
+
+async navigate() {
+await this.page.goto('/login');
+}
+
+async fillEmail(email: string) {
+await this.page
+.getByRole('textbox', { name: 'Enter email or username' })
+.fill(email);
+}
+
+async fillPassword(password: string) {
+await this.page
+.getByRole('textbox', { name: 'Password' })
+.fill(password);
+}
+
+async submit() {
+await this.page
+.getByRole('button', { name: 'Login' })
+.click();
+}
+}
+
+====================================================================
+🎯 SELECTOR STRATEGY
+
+Use accessibility-first selectors:
+
+getByRole
+
+getByText (regex allowed)
+
+semantic selectors only
+
+Avoid:
+
+brittle CSS chains
+
+nth-child
+
+hardcoded DOM hierarchy selectors
+
+====================================================================
+⏳ WAIT STRATEGY
+
+Flows are responsible for:
+
+page.waitForURL()
+
+page.waitForResponse()
+
+navigation handling
+
+synchronization logic
+
+Tests MUST NOT contain waits.
+
+====================================================================
+🔐 API USAGE
+
+For test setup:
+
+Prefer AuthApi over UI interactions
+
+Use APIRequestContext
+
+Avoid UI setup when API can perform the action
+
+====================================================================
+🐳 VISUAL TESTS
+
+Located in tests/visualSuite
+
+Must run in Docker only
+
+Must not mix with functional tests
+
+====================================================================
+⚠️ WHEN GENERATING A NEW TEST
+
+Check if existing Flow already covers the scenario.
+
+If not:
+
+Extend Page
+
+Extend Flow
+
+Then write Test.
+
+Never shortcut architecture.
+
+Never bypass Flow layer.
+
+Never place selectors inside tests.
+
+Architecture consistency is more important than brevity.

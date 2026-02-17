@@ -4,7 +4,6 @@ import { RegistrationFlow } from '../src/flows/RegistrationFlow';
 import { SideBarPage } from '../src/pages/components/SideBarPage';
 import { AccountPage } from '../src/pages/account/AccountPage';
 import { MailTmHelper } from '../src/utils/mailTmHelper';
-import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
 import { AuthApi } from '../src/api/AuthApi';
 import { ProfilePage } from '../src/pages/account/ProfilePage';
 import { SecurityPage } from '../src/pages/account/SecurityPage';
