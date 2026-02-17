@@ -1,8 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../src/pages/auth/LoginPage';
 import { AuthFlow } from '../src/flows/AuthFlow';
-import { MainPage } from '../src/pages/components/MainPage';
-import { HeaderPage } from '../src/pages/components/HeaderPage';
 import { MailTmHelper } from '../src/utils/mailTmHelper';
 import { AuthApi } from "../src/api/AuthApi";
 import { RegistrationFlow } from '../src/flows/RegistrationFlow';
@@ -14,6 +11,7 @@ test.describe('Login tests', () => {
     const authFlow = new AuthFlow(page);
     const login = process.env.USER_LOGIN_PUBLIC!;
     const password = process.env.USER_PASSWORD!;
+
     await authFlow.loginSuccess(login, password);
   });
 
@@ -45,7 +43,7 @@ test.describe('Sign Up tests', () => {
 
   test('Register user via Email', async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
-    const registrationFlow = new RegistrationFlow(page,request)
+    const registrationFlow = new RegistrationFlow(page, request);
     
     await registrationFlow.openRegistrationPage();
     const { email, password } = await registrationFlow.registerAndVerifyUserViaEmail();
@@ -55,8 +53,8 @@ test.describe('Sign Up tests', () => {
   test('Register and verify user via API',async ({ page,request })=>{
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
-    const user = await authApi.createAndVerifyUser();
     const password = process.env.USER_PASSWORD!;
+    const user = await authApi.createAndVerifyUser();
     await authFlow.loginSuccess(user.email, password);
   })
 });
@@ -65,76 +63,42 @@ test.describe('Forgot password', () => {
 
   test('Reset password and check old and new password', async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
-    const registrationFlow = new RegistrationFlow(page,request)
-    const mailTmHelper = new MailTmHelper(request)
-    const newPassword = 'Admin1234@@'
+    const registrationFlow = new RegistrationFlow(page, request);
+    const mailTmHelper = new MailTmHelper(request);
+    const newPassword = 'Admin1234@@';
     
     await registrationFlow.openRegistrationPage();
     const { email, password, token } = await registrationFlow.registerAndVerifyUserViaEmail();
 
-    await authFlow.forgotPassword();
-    await page.getByRole('link', { name: 'Forgot Password?' }).click();
-    await expect(page.getByText('Enter your Web3.TV username')).toBeVisible();
-    await page.getByRole('textbox', { name: 'Enter email address' }).click();
-    await page.getByRole('textbox', { name: 'Enter email address' }).fill(email);
-    
-    await expect(page.getByRole('button', { name: 'Submit' })).toBeEnabled()
-    await page.getByRole('button', { name: 'Submit' }).click();
+    await authFlow.submitForgotPasswordRequest(email);
 
     const messageId = await mailTmHelper.waitForMessage(token,'Your password reset code');
     const resetPassUrl = await mailTmHelper.extractPasswordResetnUrl(messageId,token);
-    await page.goto(resetPassUrl, { waitUntil: 'networkidle' });
-    
-    const resetPasswordPage = authFlow.resetPasswordPage;
-    await resetPasswordPage.verifyPasswordFieldsVisible();
-    await resetPasswordPage.verifyPasswordFieldsEditable();
-    await resetPasswordPage.resetPassword(newPassword);
-    
-    const [response] = await Promise.all([
-      page.waitForResponse(res =>
-        res.url().includes('/api/auth/update-password') &&
-        res.request().method() === 'POST'
-      ),
-      await resetPasswordPage.clickChangePasswordBtn()
-    ]);
-    expect(response.status()).toBe(200);
+    await authFlow.prepareResetPasswordForm(resetPassUrl);
+    const status = await authFlow.completePasswordReset(newPassword);
+    expect(status).toBe(200);
     await authFlow.loginFailed(email,password);
     await authFlow.loginSuccess(email, newPassword);
   });
   
   test('Can`t reset password with mismatched passwords', async ({ page, request }) => {
-      const authFlow = new AuthFlow(page);
-      const registrationFlow = new RegistrationFlow(page,request)
-      const mailTmHelper = new MailTmHelper(request)
-      const newPassword = 'Admin1234@@'
-      const wrongPassword = 'Admin1233@@'
-      
-      await registrationFlow.openRegistrationPage();
-      const { email, password, username , mailTmPassword, token } = await registrationFlow.registerAndVerifyUserViaEmail();
+    const authFlow = new AuthFlow(page);
+    const registrationFlow = new RegistrationFlow(page, request);
+    const mailTmHelper = new MailTmHelper(request);
+    const newPassword = 'Admin1234@@';
+    const wrongPassword = 'Admin1233@@';
+    
+    await registrationFlow.openRegistrationPage();
+    const { email, password, username , mailTmPassword, token } = await registrationFlow.registerAndVerifyUserViaEmail();
 
-      await authFlow.forgotPassword();
-      await page.getByRole('link', { name: 'Forgot Password?' }).click();
-      await expect(page.getByText('Enter your Web3.TV username')).toBeVisible();
-      await page.getByRole('textbox', { name: 'Enter email address' }).click();
-      await page.getByRole('textbox', { name: 'Enter email address' }).fill(email);
-      
-      await expect(page.getByRole('button', { name: 'Submit' })).toBeEnabled()
-      await page.getByRole('button', { name: 'Submit' }).click();
+    await authFlow.submitForgotPasswordRequest(email);
 
-      const messageId = await mailTmHelper.waitForMessage(token,'Your password reset code');
-      const resetPassUrl = await mailTmHelper.extractPasswordResetnUrl(messageId,token);
-      await page.goto(resetPassUrl, { waitUntil: 'networkidle' });
-   
-      const resetPasswordPage = authFlow.resetPasswordPage;
-      await resetPasswordPage.verifyPasswordFieldsVisible();
-      await resetPasswordPage.verifyPasswordFieldsEditable();
-      
-      await resetPasswordPage.fillPasswordsWithMismatch(newPassword, wrongPassword);
-      await resetPasswordPage.verifyPasswordValue(newPassword);
-      await resetPasswordPage.verifyConfirmPasswordValue(wrongPassword);
-      
-      await resetPasswordPage.verifyChangePasswordBtnDisabled();
-    });
+    const messageId = await mailTmHelper.waitForMessage(token,'Your password reset code');
+    const resetPassUrl = await mailTmHelper.extractPasswordResetnUrl(messageId,token);
+    await authFlow.prepareResetPasswordForm(resetPassUrl);
+    await authFlow.fillResetPasswordWithMismatch(newPassword, wrongPassword);
+    await authFlow.assertResetPasswordMismatchState(newPassword, wrongPassword);
+  });
 
 });
 

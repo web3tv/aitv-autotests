@@ -243,3 +243,21 @@ Never bypass Flow layer.
 Never place selectors inside tests.
 
 Architecture consistency is more important than brevity.
+
+====================================================================
+🧰 TEST BODY STRUCTURE
+
+Inside each test, always declare every required constant, Flow instance, and input value first, and only then call Flow methods. Never mix declarations with actions.
+
+Example:
+
+const authFlow = new AuthFlow(page);
+const login = process.env.USER_LOGIN_PUBLIC!;
+const password = process.env.USER_PASSWORD!;
+
+await authFlow.loginSuccess(login, password);
+
+====================================================================
+📐 CODE STYLE
+
+Keep indentation consistent with the surrounding file (2 spaces in tests and pages). Do not mix tabs and spaces or change the existing indentation style when editing.

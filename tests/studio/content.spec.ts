@@ -18,22 +18,23 @@ test.describe.serial('Public video', () => {
     const baseUrl = process.env.BASE_URL
 
     test('Create user and fix channel privacy to public', async ({ page, request }) => {
-          const authApi = new AuthApi(request);
-          const authFlow = new AuthFlow(page);
-          const studioProfilePage = new StudioProfilePage(page);
-          user = await authApi.createAndVerifyUser();
-          const password = process.env.USER_PASSWORD!;
-          await authFlow.loginSuccess(user.email, password);
-          const sideBar = new SideBarPage(page);
-          await sideBar.clickStudioProfileChannel();
-          await studioProfilePage.changePrivacyToPublic();
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const studioProfilePage = new StudioProfilePage(page);
+        const sideBar = new SideBarPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
+        await sideBar.clickStudioProfileChannel();
+        await studioProfilePage.changePrivacyToPublic();
     })
 
     test('Upload public video to channel and check video on studio page -> Available', async ({ page }) => {
-        const password = process.env.USER_PASSWORD!;
         const authFlow = new AuthFlow(page);
         const uploadVideoFlow = new UploadVideoFlow(page);
-        const studioContentPage = new StudioContentPage(page)
+        const studioContentPage = new StudioContentPage(page);
+        const password = process.env.USER_PASSWORD!;
 
         await authFlow.loginSuccess(user.email,password);
         await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
@@ -65,8 +66,9 @@ test.describe.serial('Public video', () => {
     test('Check public video as another user via direct link -> Available', async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        user2 = await authApi.createAndVerifyUser();
         const password = process.env.USER_PASSWORD!;
+
+        user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
 
         await page.goto(newUrl!, { waitUntil: 'networkidle' });
@@ -89,19 +91,20 @@ test.describe.serial('Private video', () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
         const studioProfilePage = new StudioProfilePage(page);
-        user = await authApi.createAndVerifyUser();
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(user.email, password);
         const sideBar = new SideBarPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
         await sideBar.clickStudioProfileChannel();
         await studioProfilePage.changePrivacyToPublic();
     })
 
     test('Upload private video to channel and check video on studio page -> Available', async ({ page }) => {
-        const password = process.env.USER_PASSWORD!;
         const authFlow = new AuthFlow(page);
         const uploadVideoFlow = new UploadVideoFlow(page);
-        const studioContentPage = new StudioContentPage(page)
+        const studioContentPage = new StudioContentPage(page);
+        const password = process.env.USER_PASSWORD!;
 
         await authFlow.loginSuccess(user.email,password);
         await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
@@ -133,8 +136,9 @@ test.describe.serial('Private video', () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
         const channelMainPage = new ChannelMainPage(page);
-        user2 = await authApi.createAndVerifyUser();
         const password = process.env.USER_PASSWORD!;
+
+        user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
         await page.goto(newUrl!, { waitUntil: 'networkidle' });
         await channelMainPage.checkPrivateVideoViaDirectLink();
@@ -156,32 +160,32 @@ test.describe.serial('Paid video', () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
         const studioProfilePage = new StudioProfilePage(page);
-        user = await authApi.createAndVerifyUser();
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(user.email, password);
         const sideBar = new SideBarPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
         await sideBar.clickStudioProfileChannel();
         await studioProfilePage.changePrivacyToPublic();
     })
 
     test('Create subscription plan', async ({ page }) => {
-          const authFlow = new AuthFlow(page);
-          const password = process.env.USER_PASSWORD!;
-          await authFlow.loginSuccess(user.email, password);
-    
-          const sideBar = new SideBarPage(page);
-          await sideBar.clickStudioMemberships();
-          
-          const studioMembershipPage = new StudioMembershipPage(page);
-          await studioMembershipPage.addMembershipPlan(membershipName, membershipDescription);
-          await studioMembershipPage.checkAddedPlan(membershipName, membershipDescription);
-    })
+        const authFlow = new AuthFlow(page);
+        const sideBar = new SideBarPage(page);
+        const studioMembershipPage = new StudioMembershipPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        await authFlow.loginSuccess(user.email, password);
+        await sideBar.clickStudioMemberships();
+        await studioMembershipPage.addMembershipPlan(membershipName, membershipDescription);
+        await studioMembershipPage.checkAddedPlan(membershipName, membershipDescription);
+})
     
     test('Upload paid video to channel and check video on studio page -> Available', async ({ page }) => {
-        const password = process.env.USER_PASSWORD!;
         const authFlow = new AuthFlow(page);
         const uploadVideoFlow = new UploadVideoFlow(page);
-        const studioContentPage = new StudioContentPage(page)
+        const studioContentPage = new StudioContentPage(page);
+        const password = process.env.USER_PASSWORD!;
 
         await authFlow.loginSuccess(user.email,password);
         await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
@@ -204,8 +208,10 @@ test.describe.serial('Paid video', () => {
     })
 
     test('Check paid video as anonymous via direct link -> Unavailable' , async ({ page }) => {
-        const channelMainPage = new ChannelMainPage(page);   
-        await page.goto(videoUrl!, { waitUntil: 'networkidle' });
+        const channelMainPage = new ChannelMainPage(page);
+        const paidVideoUrl = videoUrl!;
+
+        await page.goto(paidVideoUrl, { waitUntil: 'networkidle' });
         await expect(page.locator('h3')).toContainText(membershipName);
         await expect(page.locator('body')).toContainText(membershipDescription);
         await expect(page.locator('body')).toContainText('$49.991 week');
@@ -217,8 +223,9 @@ test.describe.serial('Paid video', () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
         const channelMainPage = new ChannelMainPage(page);
-        user2 = await authApi.createAndVerifyUser();
         const password = process.env.USER_PASSWORD!;
+
+        user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
         await page.goto(videoUrl!, { waitUntil: 'networkidle' });
         await expect(page.locator('h3')).toContainText(membershipName);
@@ -239,22 +246,23 @@ test.describe.serial('Unlisted video', () => {
     const baseUrl = process.env.BASE_URL
 
     test('Create user and fix channel privacy to public', async ({ page, request }) => {
-          const authApi = new AuthApi(request);
-          const authFlow = new AuthFlow(page);
-          const studioProfilePage = new StudioProfilePage(page);
-          user = await authApi.createAndVerifyUser();
-          const password = process.env.USER_PASSWORD!;
-          await authFlow.loginSuccess(user.email, password);
-          const sideBar = new SideBarPage(page);
-          await sideBar.clickStudioProfileChannel();
-          await studioProfilePage.changePrivacyToPublic();
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const studioProfilePage = new StudioProfilePage(page);
+        const sideBar = new SideBarPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
+        await sideBar.clickStudioProfileChannel();
+        await studioProfilePage.changePrivacyToPublic();
     })
 
     test('Upload unlisted video to channel and check video on studio page -> Available', async ({ page }) => {
-        const password = process.env.USER_PASSWORD!;
         const authFlow = new AuthFlow(page);
         const uploadVideoFlow = new UploadVideoFlow(page);
-        const studioContentPage = new StudioContentPage(page)
+        const studioContentPage = new StudioContentPage(page);
+        const password = process.env.USER_PASSWORD!;
 
         await authFlow.loginSuccess(user.email,password);
         await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
@@ -286,8 +294,9 @@ test.describe.serial('Unlisted video', () => {
     test('Check unlisted video as another user via direct link -> Available', async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        user2 = await authApi.createAndVerifyUser();
         const password = process.env.USER_PASSWORD!;
+
+        user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
 
         await page.goto(videoUrl!, { waitUntil: 'networkidle' });

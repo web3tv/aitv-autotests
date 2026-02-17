@@ -1,54 +1,49 @@
-import { Page, Locator } from '@playwright/test';
-import { expect } from '@playwright/test';
-import { HeaderPage } from '../components/HeaderPage';
+import { expect, Locator, Page } from '@playwright/test';
 
 export class SecurityPage {
-
     readonly page: Page;
-
-   
-
-    // Messages
     readonly profileAvatar: Locator;
-
+    readonly setUpBtn: Locator;
+    readonly passwordMessage: Locator;
+    readonly passwordInput: Locator;
+    readonly twoFaCheckbox: Locator;
+    readonly submitBtn: Locator;
+    readonly successToast: Locator;
 
     constructor(page: Page) {
         this.page = page;
-
-
-        // user avatar
-        this.profileAvatar = page.getByTestId('edit-profile-form').locator('img')
-       
+        this.profileAvatar = page.getByTestId('edit-profile-form').locator('img');
+        this.setUpBtn = page.getByRole('button', { name: 'Set Up' });
+        this.passwordMessage = page.locator('#check-password-2fa');
+        this.passwordInput = page.getByRole('textbox', { name: 'Enter password' });
+        this.twoFaCheckbox = page.getByRole('checkbox');
+        this.submitBtn = page.getByRole('button', { name: 'Submit' });
+        this.successToast = page.getByText('Setting updated!');
     }
 
+    async setup2FA(email: string) {
+        await this.toggleTwoFA(email, true);
+    }
 
-    async setup2FA(email: string){
-        await this.page.getByRole('button', { name: 'Set Up' }).click();
-        await expect(this.page.locator('#check-password-2fa')).toContainText(`After enabling two-factor authorization you have to confirm every authorization using ${email}`);
-        await this.page.getByRole('textbox', { name: 'Enter password' }).click();
-        await this.page.getByRole('textbox', { name: 'Enter password' }).fill('Admin1@@');
-        await this.page.getByRole('checkbox').check();
-        await this.page.getByRole('button', { name: 'Submit' }).click();
+    async disable2FA(email: string) {
+        await this.toggleTwoFA(email, false);
+    }
+
+    private async toggleTwoFA(email: string, enable: boolean) {
+        await this.setUpBtn.click();
+        await expect(this.passwordMessage).toContainText(`After enabling two-factor authorization you have to confirm every authorization using ${email}`);
+        await this.passwordInput.click();
+        await this.passwordInput.fill('Admin1@@');
+        if (enable) {
+            await this.twoFaCheckbox.check();
+        } else {
+            await this.twoFaCheckbox.uncheck();
+        }
+        await this.submitBtn.click();
         await this.page.waitForResponse(res =>
             res.url().includes('/api/account/email-2fa/set') &&
             res.status() === 200
         );
-        await expect(this.page.getByText('Setting updated!')).toBeVisible();
+        await expect(this.successToast).toBeVisible();
     }
-
-    async disable2FA(email:string){
-        await this.page.getByRole('button', { name: 'Set Up' }).click();
-        await expect(this.page.locator('#check-password-2fa')).toContainText(`After enabling two-factor authorization you have to confirm every authorization using ${email}`);
-        await this.page.getByRole('textbox', { name: 'Enter password' }).click();
-        await this.page.getByRole('textbox', { name: 'Enter password' }).fill('Admin1@@');
-        await this.page.getByRole('checkbox').uncheck();
-        await this.page.getByRole('button', { name: 'Submit' }).click();
-        await this.page.waitForResponse(res =>
-            res.url().includes('/api/account/email-2fa/set') &&
-            res.status() === 200
-        );
-        await expect(this.page.getByText('Setting updated!')).toBeVisible();
-    }
-
-
 }

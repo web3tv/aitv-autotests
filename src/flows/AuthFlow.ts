@@ -5,6 +5,7 @@ import { UserDropdownPage } from "../pages/components/UserDropdownPage";
 import { expect } from '@playwright/test';
 import { Page } from '@playwright/test';
 import { MailTmHelper } from "../utils/mailTmHelper";
+import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 
 
 export class AuthFlow {
@@ -13,12 +14,14 @@ export class AuthFlow {
   readonly resetPasswordPage: ResetPasswordPage;
   readonly headerPage: HeaderPage;
   readonly userDropdownPage: UserDropdownPage;
+  readonly forgotPasswordPage: ForgotPasswordPage;
 
   constructor(public page: Page) {
     this.loginPage = new LoginPage(page);
     this.resetPasswordPage = new ResetPasswordPage(page);
     this.headerPage = new HeaderPage(page);
     this.userDropdownPage = new UserDropdownPage(page);
+    this.forgotPasswordPage = new ForgotPasswordPage(page);
   }
 
   async loginSuccess (email:string,password:string,device?: 'mobile' | 'desktop') {
@@ -91,9 +94,43 @@ export class AuthFlow {
     await expect(this.loginPage.page.locator('#profile-button')).toBeVisible();
   }
 
-  async forgotPassword(){
+  async submitForgotPasswordRequest(email: string) {
     await this.loginPage.visitLoginPage();
-    
+    await this.forgotPasswordPage.openForm();
+    await this.forgotPasswordPage.fillEmail(email);
+    await this.forgotPasswordPage.submitRequest();
+  }
+
+  async prepareResetPasswordForm(resetUrl: string) {
+    await this.page.goto(resetUrl, { waitUntil: 'networkidle' });
+    await this.resetPasswordPage.verifyPasswordFieldsVisible();
+    await this.resetPasswordPage.verifyPasswordFieldsEditable();
+  }
+
+  async completePasswordReset(newPassword: string) {
+    await this.resetPasswordPage.resetPassword(newPassword);
+    return this.waitForResetPasswordResponse();
+  }
+
+  private async waitForResetPasswordResponse() {
+    const [response] = await Promise.all([
+      this.page.waitForResponse(res =>
+        res.url().includes('/api/auth/update-password') &&
+        res.request().method() === 'POST'
+      ),
+      this.resetPasswordPage.clickChangePasswordBtn()
+    ]);
+    return response.status();
+  }
+
+  async fillResetPasswordWithMismatch(password: string, confirmPassword: string) {
+    await this.resetPasswordPage.fillPasswordsWithMismatch(password, confirmPassword);
+  }
+
+  async assertResetPasswordMismatchState(password: string, confirmPassword: string) {
+    await this.resetPasswordPage.verifyPasswordValue(password);
+    await this.resetPasswordPage.verifyConfirmPasswordValue(confirmPassword);
+    await this.resetPasswordPage.verifyChangePasswordBtnDisabled();
   }
 
   async passwordError (email:string,password:string) {
