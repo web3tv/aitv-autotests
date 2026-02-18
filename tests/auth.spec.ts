@@ -7,28 +7,30 @@ import { RegistrationFlow } from '../src/flows/RegistrationFlow';
 
 test.describe('Login tests', () => {
 
-  test('Login as user', async ({ page }) => { 
+  test('Success login as user', async ({ page,request }) => { 
+    const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
-    const login = process.env.USER_LOGIN_PUBLIC!;
     const password = process.env.USER_PASSWORD!;
-
-    await authFlow.loginSuccess(login, password);
+    const user = await authApi.createAndVerifyUser();
+    await authFlow.loginSuccess(user.email, password);
   });
 
-  test('User logout', async ({ page }) => { 
+  test('Success logout', async ({ page,request }) => { 
+    const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
-    const login = process.env.USER_LOGIN_PUBLIC!;
     const password = process.env.USER_PASSWORD!;
-  
-    await authFlow.loginSuccess(login, password);
+    const user = await authApi.createAndVerifyUser();
+    await authFlow.loginSuccess(user.email, password);
     await authFlow.logout();
   });
 
-  test('Can`t login with incorrect password', async ({ page }) => { 
+  test('Can`t login with incorrect password', async ({ page, request }) => { 
+    const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
-    const login = process.env.USER_LOGIN_PUBLIC!;
+    const password = process.env.USER_PASSWORD!;
+    const user = await authApi.createAndVerifyUser();
 
-    await authFlow.passwordError(login, "Admin1@");
+    await authFlow.passwordError(user.email, "Admin1@");
   });
 
   test('Can`t login with incorrect username', async ({ page }) => { 
@@ -61,7 +63,7 @@ test.describe('Sign Up tests', () => {
 
 test.describe('Forgot password', () => {
 
-  test('Reset password and check old and new password', async ({ page, request }) => {
+  test('Reset password and login with old password -> Error, login with new password -> Success', async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const registrationFlow = new RegistrationFlow(page, request);
     const mailTmHelper = new MailTmHelper(request);

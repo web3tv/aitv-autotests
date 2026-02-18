@@ -51,7 +51,7 @@ test.describe.serial('Public video', () => {
 
     test('Check public video visibility on channel page -> Available', async({page})=>{
         const channelMainPage = new ChannelMainPage(page);
-        const channelUrl = baseUrl + '@' + user.username;
+        const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkVideoIsExist(videoName);
     })
@@ -121,7 +121,7 @@ test.describe.serial('Private video', () => {
 
     test('Check private video visibility on channel page -> Not available', async({page})=>{
         const channelMainPage = new ChannelMainPage(page);
-        const channelUrl = baseUrl + '@' + user.username;
+        const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkPrivateVideoOnChannelPage();
     })
@@ -202,7 +202,7 @@ test.describe.serial('Paid video', () => {
 
     test('Check paid video visibility on channel page -> Available', async({page})=>{
         const channelMainPage = new ChannelMainPage(page);
-        const channelUrl = baseUrl + '@' + user.username;
+        const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkPaidVideoAttributes();
     })
@@ -279,7 +279,7 @@ test.describe.serial('Unlisted video', () => {
 
     test('Check unlisted video visibility on channel page -> Not Available', async({page})=>{
         const channelMainPage = new ChannelMainPage(page);
-        const channelUrl = baseUrl + '@' + user.username;
+        const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkUnlistedVideoNotAvailable();
     })

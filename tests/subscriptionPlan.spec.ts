@@ -9,7 +9,7 @@ import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
 import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
 import { assertVideoIsPlaying } from '../src/utils/videoPlayerHelper';
 
-test.describe('Subscription plan suite', () => {
+test.describe('Paid video suite', () => {
     let user: { email: string };
     let videoUrl;
     let videoName: string = Date.now().toString();
@@ -58,7 +58,7 @@ test.describe('Subscription plan suite', () => {
       console.log('Video URL:', videoUrl);
     });
 
-    test('Open paid video as anonymous -> Page is not available', async ({ page }) => {
+    test('Open paid video as anonymous -> Video is not available', async ({ page }) => {
       const anonymousVideoUrl = videoUrl!;
       const channelMainPage = new ChannelMainPage(page);
 
@@ -68,7 +68,7 @@ test.describe('Subscription plan suite', () => {
       await channelMainPage.checkRegisterLoginBtn();
     });
 
-    test('Open paid video as logged in user', async ({ page ,request}) => {
+    test('Open paid video as logged in user -> Purchase membership -> Video is available', async ({ page ,request}) => {
       const authApi = new AuthApi(request);
       const authFlow = new AuthFlow(page);
       const channelMainPage = new ChannelMainPage(page);
