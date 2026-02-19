@@ -37,7 +37,7 @@ test.describe.serial('Public video', () => {
         const password = process.env.USER_PASSWORD!;
 
         await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('public');
@@ -107,7 +107,7 @@ test.describe.serial('Private video', () => {
         const password = process.env.USER_PASSWORD!;
 
         await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('private');
@@ -188,7 +188,7 @@ test.describe.serial('Paid video', () => {
         const password = process.env.USER_PASSWORD!;
 
         await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('paid');
@@ -265,7 +265,7 @@ test.describe.serial('Unlisted video', () => {
         const password = process.env.USER_PASSWORD!;
 
         await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('unlisted');
@@ -305,4 +305,43 @@ test.describe.serial('Unlisted video', () => {
         await assertVideoIsPlaying(page);
     })
 
+})
+
+test.describe('Upload video >50mb', () => {
+    let user: { email: string, username: string };
+    let description: string;
+    const videoName: string = Date.now().toString();
+    let videoUrl: string | null;
+    test('Create user and fix channel privacy to public', async ({ page, request }) => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const studioProfilePage = new StudioProfilePage(page);
+        const sideBar = new SideBarPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
+        await sideBar.clickStudioProfileChannel();
+        await studioProfilePage.changePrivacyToPublic();
+    })
+
+    test('Upload unlisted video to channel and check video on studio page -> Available', async ({ page }) => {
+        test.setTimeout(240_000);
+        const authFlow = new AuthFlow(page);
+        const uploadVideoFlow = new UploadVideoFlow(page);
+        const studioContentPage = new StudioContentPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        await authFlow.loginSuccess(user.email,password);
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/Video_more50mb.mp4','Video_more50mb');
+        description = await uploadVideoFlow.fillInReqFileds(videoName);
+        await uploadVideoFlow.waitStatusSuccessfullyForBigVideo();
+        await uploadVideoFlow.selectVisibility('unlisted');
+        await uploadVideoFlow.clickPublishBtn();
+        await uploadVideoFlow.confirmUploading('Unlisted');
+        videoUrl = await studioContentPage.getFirstVideoUrl();
+        if (!videoUrl) {
+            throw new Error('Video URL was not found');
+        }
+    })
 })

@@ -48,7 +48,7 @@ test.describe('Paid video suite', () => {
       const password = process.env.USER_PASSWORD!;
 
       await authFlow.loginSuccess(user.email, password);
-      await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+      await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
       await uploadVideoFlow.waitStatusSuccessfully();
       await uploadVideoFlow.fillInReqFileds(videoName);
       await uploadVideoFlow.selectVisibility('paid');

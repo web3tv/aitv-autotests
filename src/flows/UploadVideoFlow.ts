@@ -17,7 +17,7 @@ export class UploadVideoFlow {
         this.headerPage = new HeaderPage(page);
     }
 
-    async uploadVideo(pathToFileURL:string){
+    async uploadVideo(pathToFileURL:string,videoName:string){
         await this.headerPage.clickAddVideoBtn();
         await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
@@ -29,7 +29,7 @@ export class UploadVideoFlow {
         );
         await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 60_000 });
         await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
-        await expect(this.uploadVideoPage.page.locator('form')).toContainText('5secVideo');
+        await expect(this.uploadVideoPage.page.locator('form')).toContainText(videoName);
     }
 
     async waitStatusSuccessfully(expectedStatus = 'completed') {
@@ -47,6 +47,27 @@ export class UploadVideoFlow {
                 { timeout: 60_000 });
         try{
             await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:15_000});
+        } catch(err){
+            throw new Error("Video not uploaded");
+        }
+    
+    }
+
+    async waitStatusSuccessfullyForBigVideo(expectedStatus = 'completed') {
+        await this.uploadVideoPage.page.waitForResponse(
+            async response => {
+                if (!response.url().includes('/api/videos/studio-videos')) {
+                    return false;
+                }
+
+                const body = await response.json();
+                const uploadState = body?.data?.items?.[0]?.status?.uploadState;
+
+                return uploadState === expectedStatus;
+            },
+                { timeout: 240_000 });
+        try{
+            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:60_000});
         } catch(err){
             throw new Error("Video not uploaded");
         }
