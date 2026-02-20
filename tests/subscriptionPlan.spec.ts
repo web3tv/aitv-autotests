@@ -9,7 +9,7 @@ import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
 import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
 import { assertVideoIsPlaying } from '../src/utils/videoPlayerHelper';
 
-test.describe('Paid video suite', () => {
+test.describe.serial('Paid video suite', () => {
     let user: { email: string };
     let videoUrl;
     let videoName: string = Date.now().toString();

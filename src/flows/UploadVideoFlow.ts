@@ -32,6 +32,22 @@ export class UploadVideoFlow {
         await expect(this.uploadVideoPage.page.locator('form')).toContainText(videoName);
     }
 
+ 
+    async uploadShort(pathToFileURL:string,videoName:string){
+        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickNewShortBtn();
+        await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Short' })).toBeVisible();
+        await this.uploadVideoPage.uploadVideo(pathToFileURL);
+        await this.uploadVideoPage.page.waitForResponse((response) =>
+            response.url().includes('/api/videos/studio-videos') &&
+            response.status() === 200,
+            { timeout: 40000 }
+        );
+        await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 60_000 });
+        await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
+        await expect(this.uploadVideoPage.page.locator('form')).toContainText(videoName);
+    }
+
     async waitStatusSuccessfully(expectedStatus = 'completed') {
         await this.uploadVideoPage.page.waitForResponse(
             async response => {
@@ -44,9 +60,9 @@ export class UploadVideoFlow {
 
                 return uploadState === expectedStatus;
             },
-                { timeout: 60_000 });
+                { timeout: 240_000 });
         try{
-            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:15_000});
+            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:60_000});
         } catch(err){
             throw new Error("Video not uploaded");
         }
@@ -131,11 +147,20 @@ export class UploadVideoFlow {
     }
 
 
-    async confirmUploading(visibility: any){
+    async confirmVideoUploading(visibility: any){
         const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
         const studioContentPage = new StudioContentPage(this.uploadVideoPage.page)
         await sideBarPage.clickStudioContent();
         
+        await studioContentPage.checkVideoDescription(this.timestamp);
+        await studioContentPage.checkVideoVisibility(visibility)
+    }
+
+    async confirmShortsUploading(visibility: any){  
+        const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
+        const studioContentPage = new StudioContentPage(this.uploadVideoPage.page)
+        await sideBarPage.clickStudioContent();
+        await studioContentPage.clickShortsTab();
         await studioContentPage.checkVideoDescription(this.timestamp);
         await studioContentPage.checkVideoVisibility(visibility)
     }

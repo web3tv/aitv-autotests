@@ -8,7 +8,7 @@ import { AuthApi } from '../src/api/AuthApi';
 import { ProfilePage } from '../src/pages/account/ProfilePage';
 import { SecurityPage } from '../src/pages/account/SecurityPage';
 
-
+test.describe.configure({ mode: 'parallel' });
 
 // ACCOUNT PAGE
 

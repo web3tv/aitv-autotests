@@ -8,8 +8,11 @@ export class ChannelMainPage {
 
 
     readonly firstVideo: Locator;
+    readonly firstShort: Locator;
+
     readonly exclusiveBadge: Locator;
     readonly lockedBadge: Locator;
+   
 
 
 
@@ -22,6 +25,7 @@ export class ChannelMainPage {
         this.page = page;
 
         this.firstVideo = page.locator('[data-id="video"]').first();
+        this.firstShort = page.locator('[data-id="clip"]').first();
 
         this.exclusiveBadge = page.locator('div').filter({ hasText: /^Exclusive Content$/ }).first();
         this.lockedBadge = this.firstVideo.locator('.locked');
@@ -33,7 +37,7 @@ export class ChannelMainPage {
     }
 
 
-    // PUBLIC VIDEO
+    // PUBLIC VIDEO/ SHORTS
 
     async checkVideoIsExist(name: string){
         await expect(this.firstVideo).toContainText(name);
@@ -43,6 +47,16 @@ export class ChannelMainPage {
         await expect(this.firstVideo).toBeVisible();
         await this.firstVideo.click();
     }
+
+    async checkShortsIsExist(name: string){
+        await expect(this.firstShort).toContainText(name);
+    }
+
+    async clickFirstShort(){
+        await expect(this.firstShort).toBeVisible();
+        await this.firstShort.click();
+    }
+
 
 
     //PRIVATE VIDEO
