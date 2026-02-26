@@ -53,7 +53,7 @@ test.describe.serial('Paid video suite', () => {
       await uploadVideoFlow.fillInReqFileds(videoName);
       await uploadVideoFlow.selectVisibility('paid');
       await uploadVideoFlow.clickPublishBtn();
-      await uploadVideoFlow.confirmUploading('Paid');
+      await uploadVideoFlow.confirmVideoUploading('Paid');
       videoUrl = await studioContentPage.getFirstVideoUrl();
       console.log('Video URL:', videoUrl);
     });

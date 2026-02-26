@@ -32,8 +32,8 @@ export class ProfilePage {
     async uploadProfileAvatarAndConfirmNewAvatarDisplayed(){
         const oldAvatarSrc = await this.profileAvatar.getAttribute('src');
         await this.uploadImageButton.setInputFiles('test-data/fixtures/photo/cat.jpg');
-        await this.confirmButton.click();
         await expect(this.confirmButton).toBeEnabled();
+        await this.confirmButton.click();
         await this.submitButton.click();
         await this.page.waitForResponse(res =>
             res.url().includes('/api/profile/update') &&
