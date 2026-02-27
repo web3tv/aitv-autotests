@@ -9,6 +9,7 @@ import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { StudioMembershipPage } from '../../src/pages/studio/StudioMembershipPage';
 
+test.describe.configure({ mode: 'parallel' });
 
 test.describe.serial('Public video', () => {
     let user: { email: string, username: string };
