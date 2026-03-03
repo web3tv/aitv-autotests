@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-
+//TODO: Check channel information!!!
 
 //TODO: 1. Create channel
 //TODO: 2. Check channel is available in the list
@@ -22,3 +22,7 @@ import { test, expect } from '@playwright/test';
 //TODO: 16. Home page - Playlists 
 
 //TODO: 17. Home page - Counter - videos, subscribers
+
+
+
+

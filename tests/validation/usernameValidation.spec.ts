@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../src/pages/auth/LoginPage';
 import { MainPage } from '../../src/pages/components/MainPage';
 import { HeaderPage } from '../../src/pages/components/HeaderPage';
+import { AuthApi } from '../../src/api/AuthApi';
 
 test.describe('Username validation on registration page', () => {
   test.beforeEach(async ({ page }) => {
@@ -70,8 +71,10 @@ test.describe('Username validation on registration page', () => {
     await loginPage.assertButtonsDisabled();
   });
 
-  test('7. Username exists', async ({ page }) => {
-    const username = process.env.USER_EXIST
+  test('7. Username exists', async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const user = await authApi.createAndVerifyUser();
+    const username = user.username
 
     const loginPage = new LoginPage(page);
     await loginPage.fillUsernameInput(username);

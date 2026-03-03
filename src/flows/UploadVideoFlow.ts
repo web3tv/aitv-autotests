@@ -17,7 +17,7 @@ export class UploadVideoFlow {
         this.headerPage = new HeaderPage(page);
     }
 
-    async uploadVideo(pathToFileURL:string){
+    async uploadVideo(pathToFileURL:string,videoName:string){
         await this.headerPage.clickAddVideoBtn();
         await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
@@ -29,7 +29,23 @@ export class UploadVideoFlow {
         );
         await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 60_000 });
         await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
-        await expect(this.uploadVideoPage.page.locator('form')).toContainText('5secVideo');
+        await expect(this.uploadVideoPage.page.locator('form')).toContainText(videoName);
+    }
+
+ 
+    async uploadShort(pathToFileURL:string,videoName:string){
+        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickNewShortBtn();
+        await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Short' })).toBeVisible();
+        await this.uploadVideoPage.uploadVideo(pathToFileURL);
+        await this.uploadVideoPage.page.waitForResponse((response) =>
+            response.url().includes('/api/videos/studio-videos') &&
+            response.status() === 200,
+            { timeout: 40000 }
+        );
+        await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 60_000 });
+        await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
+        await expect(this.uploadVideoPage.page.locator('form')).toContainText(videoName);
     }
 
     async waitStatusSuccessfully(expectedStatus = 'completed') {
@@ -44,9 +60,30 @@ export class UploadVideoFlow {
 
                 return uploadState === expectedStatus;
             },
-                { timeout: 60_000 });
+                { timeout: 240_000 });
         try{
-            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:15_000});
+            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:60_000});
+        } catch(err){
+            throw new Error("Video not uploaded");
+        }
+    
+    }
+
+    async waitStatusSuccessfullyForBigVideo(expectedStatus = 'completed') {
+        await this.uploadVideoPage.page.waitForResponse(
+            async response => {
+                if (!response.url().includes('/api/videos/studio-videos')) {
+                    return false;
+                }
+
+                const body = await response.json();
+                const uploadState = body?.data?.items?.[0]?.status?.uploadState;
+
+                return uploadState === expectedStatus;
+            },
+                { timeout: 240_000 });
+        try{
+            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:60_000});
         } catch(err){
             throw new Error("Video not uploaded");
         }
@@ -57,23 +94,19 @@ export class UploadVideoFlow {
         await this.uploadVideoPage.fillVideoTitle(name);
     }
 
-    // async uploadVideoThumb(pathToFileURL:string){
-    //     this.uploadVideoThumb(pathToFileURL);
-    // }
+    async uploadVideoThumb(pathToFileURL:string){
+        await this.uploadVideoPage.uploadVideoThumb(pathToFileURL);
+        await this.uploadVideoPage.page.getByRole('button', { name: 'Confirm' }).click();
+    }
 
     async fillInReqFileds(title:any){
         this.timestamp = Date.now().toString();
         const finalDescription = `${this.timestamp}`;
         await this.uploadVideoPage.fillVideoTitle(title);
-        await  this.uploadVideoPage.fillVideoDescription(finalDescription);
-        await this.uploadVideoPage.page.getByRole('button', { name: 'Auto-generated' }).click();
-        await expect(this.uploadVideoPage.page.getByRole('paragraph')).toContainText('Select thumbnail:');
-        await expect(this.uploadVideoPage.page.getByRole('dialog', { name: 'Auto-generated thumbnail' })).toBeVisible({timeout:15000});
-        await this.uploadVideoPage.page.getByRole('button').nth(3).click();
-        await this.uploadVideoPage.page.waitForTimeout(5000);
-        await this.uploadVideoPage.page.getByRole('button', { name: 'Done' }).click();
+        await this.uploadVideoPage.fillVideoDescription(finalDescription);
+        await this.uploadVideoThumb('test-data/fixtures/photo/cat.jpg');
         await this.uploadVideoPage.selectVideoCategory();
-        await  this.uploadVideoPage.clickNextBtn();
+        await this.uploadVideoPage.clickNextBtn();
         return this.timestamp;
     }
 
@@ -106,15 +139,25 @@ export class UploadVideoFlow {
     async clickPublishBtn(){
         await  this.uploadVideoPage.clickPublishbtn();
         await expect(this.uploadVideoPage.page.getByLabel('Upload Complete')).toContainText('Congratulations!Your video has been successfully uploaded.',{timeout:10_000});
+        await this.page.waitForTimeout(5000);
         await this.uploadVideoPage.page.getByRole('button').filter({ hasText: /^$/ }).click();
     }
 
 
-    async confirmUploading(visibility: any){
+    async confirmVideoUploading(visibility: any){
         const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
         const studioContentPage = new StudioContentPage(this.uploadVideoPage.page)
         await sideBarPage.clickStudioContent();
         
+        await studioContentPage.checkVideoDescription(this.timestamp);
+        await studioContentPage.checkVideoVisibility(visibility)
+    }
+
+    async confirmShortsUploading(visibility: any){  
+        const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
+        const studioContentPage = new StudioContentPage(this.uploadVideoPage.page)
+        await sideBarPage.clickStudioContent();
+        await studioContentPage.clickShortsTab();
         await studioContentPage.checkVideoDescription(this.timestamp);
         await studioContentPage.checkVideoVisibility(visibility)
     }

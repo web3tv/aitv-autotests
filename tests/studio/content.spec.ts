@@ -9,6 +9,8 @@ import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { StudioMembershipPage } from '../../src/pages/studio/StudioMembershipPage';
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe.serial('Public video', () => {
     let user: { email: string, username: string };
     let user2: { email: string };
@@ -36,12 +38,12 @@ test.describe.serial('Public video', () => {
         const studioContentPage = new StudioContentPage(page)
 
         await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('public');
         await uploadVideoFlow.clickPublishBtn();
-        await uploadVideoFlow.confirmUploading('Public');
+        await uploadVideoFlow.confirmVideoUploading('Public');
         newUrl = await studioContentPage.getFirstVideoUrl();
         if (!newUrl) {
             throw new Error('Video URL was not found');
@@ -50,7 +52,7 @@ test.describe.serial('Public video', () => {
 
     test('Check public video visibility on channel page -> Available', async({page})=>{
         const channelMainPage = new ChannelMainPage(page);
-        const channelUrl = baseUrl + '@' + user.username;
+        const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkVideoIsExist(videoName);
     })
@@ -104,12 +106,12 @@ test.describe.serial('Private video', () => {
         const studioContentPage = new StudioContentPage(page)
 
         await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('private');
         await uploadVideoFlow.clickPublishBtn();
-        await uploadVideoFlow.confirmUploading('Private');
+        await uploadVideoFlow.confirmVideoUploading('Private');
         newUrl = await studioContentPage.getFirstVideoUrl();
         if (!newUrl) {
             throw new Error('Video URL was not found');
@@ -118,7 +120,7 @@ test.describe.serial('Private video', () => {
 
     test('Check private video visibility on channel page -> Not available', async({page})=>{
         const channelMainPage = new ChannelMainPage(page);
-        const channelUrl = baseUrl + '@' + user.username;
+        const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkPrivateVideoOnChannelPage();
     })
@@ -184,12 +186,12 @@ test.describe.serial('Paid video', () => {
         const studioContentPage = new StudioContentPage(page)
 
         await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('paid');
         await uploadVideoFlow.clickPublishBtn();
-        await uploadVideoFlow.confirmUploading('Paid');
+        await uploadVideoFlow.confirmVideoUploading('Paid');
         videoUrl = await studioContentPage.getFirstVideoUrl();
         if (!videoUrl) {
             throw new Error('Video URL was not found');
@@ -198,7 +200,7 @@ test.describe.serial('Paid video', () => {
 
     test('Check paid video visibility on channel page -> Available', async({page})=>{
         const channelMainPage = new ChannelMainPage(page);
-        const channelUrl = baseUrl + '@' + user.username;
+        const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkPaidVideoAttributes();
     })
@@ -257,12 +259,12 @@ test.describe.serial('Unlisted video', () => {
         const studioContentPage = new StudioContentPage(page)
 
         await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4');
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
         await uploadVideoFlow.selectVisibility('unlisted');
         await uploadVideoFlow.clickPublishBtn();
-        await uploadVideoFlow.confirmUploading('Unlisted');
+        await uploadVideoFlow.confirmVideoUploading('Unlisted');
         videoUrl = await studioContentPage.getFirstVideoUrl();
         if (!videoUrl) {
             throw new Error('Video URL was not found');
@@ -271,7 +273,7 @@ test.describe.serial('Unlisted video', () => {
 
     test('Check unlisted video visibility on channel page -> Not Available', async({page})=>{
         const channelMainPage = new ChannelMainPage(page);
-        const channelUrl = baseUrl + '@' + user.username;
+        const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkUnlistedVideoNotAvailable();
     })
@@ -297,3 +299,103 @@ test.describe.serial('Unlisted video', () => {
     })
 
 })
+
+test('Upload video >50mb workflow', async ({ page, request }) => {
+    test.setTimeout(270_000);
+    let user: { email: string, username: string };
+    let description: string;
+    const videoName: string = Date.now().toString();
+    
+    await test.step('Create user and fix channel privacy to public', async () => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const password = process.env.USER_PASSWORD!;
+
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
+    });
+
+    await test.step('Upload large video to channel and check video on studio page', async () => {
+        const uploadVideoFlow = new UploadVideoFlow(page);
+
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/Video_more50mb.mp4','Video_more50mb');
+        description = await uploadVideoFlow.fillInReqFileds(videoName);
+        await uploadVideoFlow.waitStatusSuccessfullyForBigVideo();
+        await uploadVideoFlow.selectVisibility('unlisted');
+        await uploadVideoFlow.clickPublishBtn();
+        await uploadVideoFlow.confirmVideoUploading('Unlisted');
+    });
+})
+
+
+test.describe.serial('Upload public short video', () => {
+    let user: { email: string, username: string };
+    let user2: { email: string };
+    const videoName: string = Date.now().toString();
+    let newUrl: string | null;
+    let description: string;
+    const baseUrl = process.env.BASE_URL
+
+    test('Create user and fix channel privacy to public', async ({ page, request }) => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const studioProfilePage = new StudioProfilePage(page);
+        const sideBar = new SideBarPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
+        await sideBar.clickStudioProfileChannel();
+        await studioProfilePage.changePrivacyToPublic();
+    })
+
+    test('Upload public video to channel and check video on studio page -> Available', async ({ page }) => {
+        test.setTimeout(240_000);
+        const authFlow = new AuthFlow(page);
+        const uploadVideoFlow = new UploadVideoFlow(page);
+        const studioContentPage = new StudioContentPage(page);
+        const password = process.env.USER_PASSWORD!;
+
+        await authFlow.loginSuccess(user.email,password);
+        await uploadVideoFlow.uploadShort('test-data/fixtures/video/shortsVideo.MOV','shortsVideo');
+        description = await uploadVideoFlow.fillInReqFileds(videoName);
+        await uploadVideoFlow.waitStatusSuccessfully();
+        await uploadVideoFlow.selectVisibility('public');
+        await uploadVideoFlow.clickPublishBtn();
+        await uploadVideoFlow.confirmShortsUploading('Public');
+        newUrl = await studioContentPage.getFirstVideoUrl();
+        if (!newUrl) {
+            throw new Error('Video URL was not found');
+        }
+    })
+
+    test('Check public video visibility on channel page -> Available', async({page})=>{
+        const channelMainPage = new ChannelMainPage(page);
+        const channelUrl = baseUrl + '/@' + user.username;
+        await page.goto(channelUrl, { waitUntil: 'networkidle' });
+        await channelMainPage.checkShortsIsExist(videoName);
+    })
+
+    test('Check public video as anonymous via direct link -> Available' , async ({ page }) => {
+        await page.goto(newUrl!, { waitUntil: 'networkidle' });
+        console.log('videoName:'+ videoName);
+        console.log('description:'+ description);
+        await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
+    })
+
+    test('Check public video as another user via direct link -> Available', async ({ page, request }) => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const password = process.env.USER_PASSWORD!;
+
+        user2 = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user2.email, password);
+
+        await page.goto(newUrl!, { waitUntil: 'networkidle' });
+        await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
+    })
+})
+
+
+
+// TODO: Edit video and chech changes 

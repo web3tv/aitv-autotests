@@ -25,7 +25,7 @@ export class UploadVideoPage {
 
     this.uploadVideoButton = page.getByTestId('dropzone-input');
     this.videoTitle = page.getByRole('textbox', { name: 'e.g. Why you should buy' });
-    this.uploadVideoThumbnail = page.getByTestId('upload-image');
+    this.uploadVideoThumbnail = page.locator('input[data-id="upload-image"]');
     this.videoDescription = page.locator('.ql-editor');
     this.videoCategoryDropdown = page.getByRole('button', { name: 'Open' });
     this.videoCategory = page.getByRole('option', { name: 'Chain Abstraction' });
@@ -44,11 +44,11 @@ export class UploadVideoPage {
 
 
   async uploadVideo(pathToFileURL:string){
-      await this.uploadVideoButton.setInputFiles(pathToFileURL);
+    await this.uploadVideoButton.setInputFiles(pathToFileURL);
   }
 
   async uploadVideoThumb(pathToFileURL:string){
-      await this.uploadVideoThumbnail.setInputFiles(pathToFileURL);
+    await this.uploadVideoThumbnail.setInputFiles(pathToFileURL);
   }
 
   async fillVideoTitle(name: any){
@@ -62,6 +62,7 @@ export class UploadVideoPage {
   async selectVideoCategory(){
     await this.videoCategoryDropdown.click();
     await this.videoCategory.click();
+    await expect(this.page.getByRole('combobox', { name: 'Choose value' })).toHaveValue('Chain Abstraction');
   }
 
   async clickNextBtn(){

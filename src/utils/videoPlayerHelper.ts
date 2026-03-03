@@ -55,7 +55,7 @@ export async function assertProgressBarMoves(page: Page) {
     );
   }
 
-  console.log(`Прогресс-бар движется: ${start} → ${end}`);
+  // console.log(`Прогресс-бар движется: ${start} → ${end}`);
 }
 
 

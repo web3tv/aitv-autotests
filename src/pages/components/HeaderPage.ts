@@ -37,6 +37,10 @@ export class HeaderPage {
     await this.newVideoBtn.click();
   }
 
+  async clickNewShortBtn(){
+    await this.newShortBtn.click();
+  }
+
   async checkVisibilityHeroCoins(){
     await expect(this.heroCoins).toBeVisible();
     await expect(this.heroCoins.locator('h3')).toContainText(['btc']);

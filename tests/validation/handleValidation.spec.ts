@@ -5,16 +5,16 @@ import { AuthFlow } from '../../src/flows/AuthFlow';
 import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
 import { UserDropdownPage } from '../../src/pages/components/UserDropdownPage';
 import { CreateChannelPage } from '../../src/pages/studio/CreateChannelPage';
+import { AuthApi } from '../../src/api/AuthApi';
 
 test.describe('Handle validation on Edit Channel Page', () => {
 
-    test.beforeEach(async ({ page }) => {
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-    
+    test.beforeEach(async ({ page, request }) => {
+        const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-    
-        await authFlow.loginSuccess(login, password);
+        const password = process.env.USER_PASSWORD!;
+        const user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
     });
 
     test('1. Empty username → Username is required', async ({ page }) => {
@@ -96,8 +96,11 @@ test.describe('Handle validation on Edit Channel Page', () => {
         await studioProfilePage.assertSaveBtnDisabled();
     });
 
-    test('7. Username exists', async ({ page }) => {
-        const username = process.env.USER_EXIST
+    test('7. Username exists', async ({ page, request }) => {
+        const authApi = new AuthApi(request);
+        const user = await authApi.createAndVerifyUser();
+
+        const username = user.username
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
         
@@ -123,16 +126,16 @@ test.describe('Handle validation on Edit Channel Page', () => {
 })
 
 test.describe('Handle validation on Create Channel Page', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, request }) => {
         const userDropdownPage = new UserDropdownPage(page);
         const headerPage = new HeaderPage(page);
         const createChannelPage = new CreateChannelPage(page)
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-    
+        const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-    
-        await authFlow.loginSuccess(login, password);
+        const password = process.env.USER_PASSWORD!;
+
+        const user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
         await headerPage.clickUserIcon();
         await userDropdownPage.clickAddChannelBtn();
         await createChannelPage.clickStartSetup();
@@ -200,8 +203,10 @@ test.describe('Handle validation on Create Channel Page', () => {
         await createChannelPage.assertSaveBtnDisabled();
     });
     
-    test('7. Username exists', async ({ page }) => {
-        const username = process.env.USER_EXIST
+    test('7. Username exists', async ({ page, request }) => {
+        const authApi = new AuthApi(request);
+        const user = await authApi.createAndVerifyUser();
+        const username = user.username
         const createChannelPage = new CreateChannelPage(page)
         
         await createChannelPage.fillHandleName(username);

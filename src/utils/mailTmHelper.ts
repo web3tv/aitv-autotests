@@ -23,7 +23,7 @@ export class MailTmHelper {
   }
 
   async createMailbox(retries = 3, delayMs = 10000) {
-    console.log('Attempting to create mailbox with email:', this.email);
+    // console.log('Attempting to create mailbox with email:', this.email);
 
     for (let i = 0; i < retries; i++) {
       const res = await this.request.post(`${this.baseUrl}/accounts`, {
@@ -34,7 +34,7 @@ export class MailTmHelper {
       });
 
       if (res.ok()) {
-        console.log('Mailbox created successfully.');
+        // console.log('Mailbox created successfully.');
         return;
       }
 
@@ -51,7 +51,7 @@ export class MailTmHelper {
   }
 
   async getToken(email: string, password: string) {
-    console.log('Attempting to fetch token from Mail.tm');
+    // console.log('Attempting to fetch token from Mail.tm');
 
     const res = await this.request.post(`${this.baseUrl}/token`, {
       data: {
@@ -138,7 +138,7 @@ export class MailTmHelper {
     const json = await res.json();
     const text = json.text ?? '';
 
-    const verifyMatch = text.match(/https:\/\/web3tv\.dev\/verification\?[^\s\)"]+/);
+    const verifyMatch = text.match( /https:\/\/web3tv2?\.dev\/verification\?[^\s\)"]+/);
     if (verifyMatch) {
       return verifyMatch[0];
     }
@@ -154,7 +154,7 @@ export class MailTmHelper {
     const json = await res.json();
     const text = json.text ?? '';
 
-    const verifyMatch = text.match( /https:\/\/web3tv\.dev\/reset-password\?[^\s"'<>)]*/i);
+    const verifyMatch = text.match( /https:\/\/web3tv2?\.dev\/reset-password\?[^\s"'<>)]*/i);
     if (verifyMatch) {
       return verifyMatch[0];
     }

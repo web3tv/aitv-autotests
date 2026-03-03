@@ -5,7 +5,11 @@ export class StudioContentPage {
     readonly page: Page;
 
     readonly firstVideoRaw : Locator;
-    
+    readonly shortsTab: Locator;
+    readonly videosTab: Locator;
+    readonly liveTab: Locator; 
+    readonly playlistTab: Locator;
+
 
 
 
@@ -13,6 +17,10 @@ export class StudioContentPage {
         this.page = page;
 
         this.firstVideoRaw = this.page.locator('.infinite-scroll-component').locator('div').first();
+        this.shortsTab = this.page.locator('[data-id="shorts-tab"]');
+        this.videosTab = this.page.locator('[data-id="videos-tab"]');
+        this.liveTab = this.page.locator('[data-id="live-tab"]');
+        this.playlistTab = this.page.locator('[data-id="playlist-tab"]');
     }
 
     async checkVideoDescription(description: any){
@@ -23,16 +31,30 @@ export class StudioContentPage {
     }
 
 
+
     async getFirstVideoUrl(){
         const href = await this.firstVideoRaw.locator('[data-id="video"] a').getAttribute('href');
         return href
     }
 
 
-   
 
+    
+    // TABS 
+    async clickShortsTab(){
+       await this.shortsTab.click();
+    }
 
+    async clickVideosTab(){
+        await this.videosTab.click();
+    }
 
+    async clickLiveTab(){
+        await this.liveTab.click();
+    }
 
+    async clickPlaylistTab(){
+        await this.playlistTab.click();
+    }
 
 }

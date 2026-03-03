@@ -8,7 +8,7 @@ import { AuthApi } from '../src/api/AuthApi';
 import { ProfilePage } from '../src/pages/account/ProfilePage';
 import { SecurityPage } from '../src/pages/account/SecurityPage';
 
-
+test.describe.configure({ mode: 'parallel' });
 
 // ACCOUNT PAGE
 
@@ -24,10 +24,11 @@ test.describe.serial('Change password', () => {
 
   test('Update password without verifying via email', async ({ page }) => {
     const authFlow = new AuthFlow(page);
-    await authFlow.loginSuccess(user.email, user.password);
     const sideBarPage = new SideBarPage(page);
-    await sideBarPage.clickSettingsAccount();
     const accountPage = new AccountPage(page);
+
+    await authFlow.loginSuccess(user.email, user.password);
+    await sideBarPage.clickSettingsAccount();
     await accountPage.changePassword(user.password, newPassword);
   });
 
@@ -124,13 +125,14 @@ test.describe('Change user Avatar', () => {
   
   test('Change user avatar and check new avatar is displayed', async ({ page, request }) => {
     const authApi = new AuthApi(request);
-    user = await authApi.createAndVerifyUser();
     const authFlow = new AuthFlow(page);
-    const password = process.env.USER_PASSWORD!;
-    await authFlow.loginSuccess(user.email, password);
     const sideBarPage = new SideBarPage(page);
-    await sideBarPage.clickSettingsProfile();
     const profilePage = new ProfilePage(page);
+    const password = process.env.USER_PASSWORD!;
+
+    user = await authApi.createAndVerifyUser();
+    await authFlow.loginSuccess(user.email, password);
+    await sideBarPage.clickSettingsProfile();
     await profilePage.uploadProfileAvatarAndConfirmNewAvatarDisplayed();
   })
 
@@ -145,13 +147,14 @@ test.describe.serial('Check 2FA', () => {
   
   test('Setup 2FA', async ({ page, request }) => {
     const registrationFlow = new RegistrationFlow(page, request);
+    const authFlow = new AuthFlow(page);
+    const sideBarPage = new SideBarPage(page);
+    const securityPage = new SecurityPage(page);
+
     await registrationFlow.openRegistrationPage();
     user = await registrationFlow.registerAndVerifyUserViaEmail();
-    const authFlow = new AuthFlow(page);
     await authFlow.loginSuccess(user.email, user.password);
-    const sideBarPage = new SideBarPage(page);
-    sideBarPage.clickSettingsSecurity();
-    const securityPage = new SecurityPage(page);
+    await sideBarPage.clickSettingsSecurity();
     await securityPage.setup2FA(user.email);
   })  
 
@@ -167,10 +170,11 @@ test.describe.serial('Check 2FA', () => {
 
   test('Disable 2FA - check login without 2FA', async ({ page }) => {
     const authFlow = new AuthFlow(page);
-    await authFlow.loginWith2FaSuccess(user.email, user.password, user.token);
     const sideBarPage = new SideBarPage(page);
-    sideBarPage.clickSettingsSecurity();
     const securityPage = new SecurityPage(page);
+
+    await authFlow.loginWith2FaSuccess(user.email, user.password, user.token);
+    await sideBarPage.clickSettingsSecurity();
     await securityPage.disable2FA(user.email);
     await authFlow.logout();  
     await authFlow.loginSuccess(user.email, user.password);
