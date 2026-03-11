@@ -11,72 +11,86 @@ import { StudioMembershipPage } from '../../src/pages/studio/StudioMembershipPag
 
 test.describe.configure({ mode: 'parallel' });
 
-test.describe.serial('Public video', () => {
+test('Public video', async ({ page, request }) => {
+    test.setTimeout(120_000);
     let user: { email: string, username: string };
-    let user2: { email: string };
     const videoName: string = Date.now().toString();
     let newUrl: string | null;
     let description: string;
-    const baseUrl = process.env.BASE_URL
+    const baseUrl = process.env.BASE_URL;
+    const password = process.env.USER_PASSWORD!;
 
-    test('Create user and fix channel privacy to public', async ({ page, request }) => {
-          const authApi = new AuthApi(request);
-          const authFlow = new AuthFlow(page);
-          const studioProfilePage = new StudioProfilePage(page);
-          user = await authApi.createAndVerifyUser();
-          const password = process.env.USER_PASSWORD!;
-          await authFlow.loginSuccess(user.email, password);
-          const sideBar = new SideBarPage(page);
-          await sideBar.clickStudioProfileChannel();
-          await studioProfilePage.changePrivacyToPublic();
-    })
-
-    test('Upload public video to channel and check video on studio page -> Available', async ({ page }) => {
-        const password = process.env.USER_PASSWORD!;
+    await test.step('Create user and fix channel privacy to public', async () => {
+        const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const uploadVideoFlow = new UploadVideoFlow(page);
-        const studioContentPage = new StudioContentPage(page)
+        const studioProfilePage = new StudioProfilePage(page);
+        const sideBar = new SideBarPage(page);
 
-        await authFlow.loginSuccess(user.email,password);
-        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4','5secVideo');
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
+        await sideBar.clickStudioProfileChannel();
+        await studioProfilePage.changePrivacyToPublic();
+    });
+
+    await test.step('Upload public video to channel and check video on studio page -> Available', async () => {
+        const uploadVideoFlow = new UploadVideoFlow(page);
+        const studioContentPage = new StudioContentPage(page);
+
+        let chunkError: string | null = null;
+        const chunkListener = (response: import('@playwright/test').Response) => {
+            if (response.url().includes('chunk') && response.status() === 500) {
+                chunkError = `Chunk upload failed with 500: ${response.url()}`;
+            }
+        };
+        page.on('response', chunkListener);
+
+        await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4', '5secVideo');
         description = await uploadVideoFlow.fillInReqFileds(videoName);
         await uploadVideoFlow.waitStatusSuccessfully();
+
+        page.off('response', chunkListener);
+        expect(chunkError, chunkError ?? '').toBeNull();
+
         await uploadVideoFlow.selectVisibility('public');
         await uploadVideoFlow.clickPublishBtn();
         await uploadVideoFlow.confirmVideoUploading('Public');
+
         newUrl = await studioContentPage.getFirstVideoUrl();
         if (!newUrl) {
             throw new Error('Video URL was not found');
         }
-    })
+    });
 
-    test('Check public video visibility on channel page -> Available', async({page})=>{
+    await test.step('Logout before anonymous checks', async () => {
+        const authFlow = new AuthFlow(page);
+        await authFlow.logout();
+    });
+
+    await test.step('Check public video visibility on channel page -> Available', async () => {
         const channelMainPage = new ChannelMainPage(page);
         const channelUrl = baseUrl + '/@' + user.username;
         await page.goto(channelUrl, { waitUntil: 'networkidle' });
         await channelMainPage.checkVideoIsExist(videoName);
-    })
+    });
 
-    test('Check public video as anonymous via direct link -> Available' , async ({ page }) => {
+    await test.step('Check public video as anonymous via direct link -> Available', async () => {
         await page.goto(newUrl!, { waitUntil: 'networkidle' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
         await expect(page.getByText(description)).toBeVisible({ timeout: 10_000 });
         await assertVideoIsPlaying(page);
-    })
+    });
 
-    test('Check public video as another user via direct link -> Available', async ({ page, request }) => {
+    await test.step('Check public video as another user via direct link -> Available', async () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        user2 = await authApi.createAndVerifyUser();
-        const password = process.env.USER_PASSWORD!;
+        const user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
 
         await page.goto(newUrl!, { waitUntil: 'networkidle' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
         await expect(page.getByText(description)).toBeVisible({ timeout: 10_000 });
         await assertVideoIsPlaying(page);
-    })
-
+    });
 })
 
 test.describe.serial('Private video', () => {
