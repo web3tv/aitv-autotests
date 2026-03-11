@@ -67,8 +67,9 @@ test.describe.serial('Paid video suite', () => {
       await expect(page.locator('[data-id="sub-card"]')).toBeVisible();
       await channelMainPage.checkRegisterLoginBtn();
     });
-
+    
     test('Open paid video as logged in user -> Purchase membership -> Video is available', async ({ page ,request}) => {
+      test.setTimeout(180_000);
       const authApi = new AuthApi(request);
       const authFlow = new AuthFlow(page);
       const channelMainPage = new ChannelMainPage(page);

@@ -39,7 +39,7 @@ export class UploadVideoPage {
     this.paidRadioBtn = page.getByRole('radio', { name: 'Paid' });
     
     // Name might be changed ---> Take a look
-    this.membershipBtn = page.getByRole('checkbox', { name: 'Subscription #1 1 week 49.' })
+    this.membershipBtn = page.getByRole('checkbox', { name: 'Subscription #1 1 week 0.' })
   }
 
 

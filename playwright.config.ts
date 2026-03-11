@@ -34,6 +34,15 @@ export default defineConfig({
   projects: [
 
     {
+      name: 'metamask',
+      testMatch: /walletRegistration\.spec\.ts$/,
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
+
+    {
       name: 'functional',
       testMatch: /^(?!.*visual).*\.spec\.ts$/,
       use: {
