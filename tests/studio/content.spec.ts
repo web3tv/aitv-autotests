@@ -210,7 +210,7 @@ test.describe.serial('Paid video', () => {
         await page.goto(videoUrl!, { waitUntil: 'networkidle' });
         await expect(page.locator('h3')).toContainText(membershipName);
         await expect(page.locator('body')).toContainText(membershipDescription);
-        await expect(page.locator('body')).toContainText('$49.991 week');
+        await expect(page.locator('body')).toContainText('$0.991 week');
         await channelMainPage.clickRegisterLoginBtn();
         await expect(page.locator('body')).toContainText('Please log in to your Web3.TV account using one of the login methods below');
     })
@@ -225,7 +225,7 @@ test.describe.serial('Paid video', () => {
         await page.goto(videoUrl!, { waitUntil: 'networkidle' });
         await expect(page.locator('h3')).toContainText(membershipName);
         await expect(page.locator('body')).toContainText(membershipDescription);
-        await expect(page.locator('body')).toContainText('$49.991 week');
+        await expect(page.locator('body')).toContainText('$0.991 week');
         await channelMainPage.clickButtonSubscribeNow();
         await expect(page).toHaveURL( /test\.pay\.hero\.io\/invoice\/currency-list(\?.*)?$/);
     })
