@@ -32,19 +32,24 @@ export class ProfilePage {
     async uploadProfileAvatarAndConfirmNewAvatarDisplayed(){
         const oldAvatarSrc = await this.profileAvatar.getAttribute('src');
         await this.uploadImageButton.setInputFiles('test-data/fixtures/photo/cat.jpg');
-        await expect(this.confirmButton).toBeEnabled();
+        await expect(this.confirmButton, 'Confirm button is not visible').toBeVisible();
+        await expect(this.confirmButton, 'Confirm button is not enabled').toBeEnabled();
         await this.confirmButton.click();
-        await this.submitButton.click();
-        await this.page.waitForResponse(res =>
+        await expect(this.submitButton, 'Submit button is not visible').toBeVisible();
+        await expect(this.submitButton, 'Submit button is not enabled').toBeEnabled();
+        const responsePromise = this.page.waitForResponse(res =>
             res.url().includes('/api/profile/update') &&
-            res.status() === 200
+            res.status() === 200,
+            { timeout: 30000 }
         );
+        await this.submitButton.click();
+        await responsePromise;
 
-        await this.page.reload({ waitUntil: 'networkidle' });
+        await this.page.reload({ waitUntil: 'domcontentloaded' });
         const newAvatarSrc = await this.profileAvatar.getAttribute('src');
-        await expect(this.profileAvatar).not.toHaveAttribute('src', oldAvatarSrc!);
+        await expect(this.profileAvatar, 'Avatar src should change after upload').not.toHaveAttribute('src', oldAvatarSrc!);
         const headerPage = new HeaderPage(this.page);
         await headerPage.clickUserIcon();
-        await expect(this.userAvatarInHeader).toHaveAttribute('src', newAvatarSrc!);
+        await expect(this.userAvatarInHeader, 'Header avatar should match new avatar src').toHaveAttribute('src', newAvatarSrc!);
     }
 }
