@@ -78,7 +78,7 @@ test('Paid video suite', async ({ page, request }) => {
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('.infinite-scroll-component')).toBeVisible();
         await expect(page.locator('[data-id="sub-card"]')).toBeVisible();
-        await channelMainPage.purhcaseMembershipFromMembershipPage();
+        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });

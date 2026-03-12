@@ -105,7 +105,14 @@ export class ChannelMainPage {
 
     // PAID VIDEO
 
-    async purhcaseMembershipFromMembershipPage(){
+    async purhcaseMembershipFromMembershipPageMockPayment(){
+        await this.clickButtonSubscribeNow();
+        const heroPay = new HeroPayPage(this.page);
+        await heroPay.mockPayment();
+        await expect(this.page.locator('body')).toContainText('Active');
+    }
+
+    async purhcaseMembershipFromMembershipPageTestNet(){
         await this.clickButtonSubscribeNow();
         const heroPay = new HeroPayPage(this.page);
         await heroPay.testnetPayment();

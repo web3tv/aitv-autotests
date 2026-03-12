@@ -10,7 +10,8 @@ export class HeroPayPage {
     }
 
     async mockPayment(){
-        await this.page.getByRole('link', { name: 'Tether USDT - TRON >' }).click();;
+        await this.page.getByRole('link', { name: 'Tether USDT - TRON >' }).click();
+        await this.page.getByRole('button', { name: 'I understand' }).click();
         const link = this.page.getByRole('link', { name: 'Mock Payment' });
         await link.evaluate(el => el.removeAttribute('target'));
         await link.click();
@@ -23,6 +24,7 @@ export class HeroPayPage {
         await this.page.waitForTimeout(1000);
         await Promise.all([
             this.page.waitForLoadState('networkidle'),
+            this.page.getByRole('button', { name: 'I understand' }).click(),
             this.page.getByRole('link', { name: 'Return to Merchant' }).click()
 
         ]);
