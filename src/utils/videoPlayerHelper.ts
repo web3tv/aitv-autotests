@@ -25,18 +25,19 @@ export async function assertVideoCurrentTimeMoves(page: Page, timeoutMs = 3000) 
     { timeout: timeoutMs }
   );
 
-  const isPlaying = await page.evaluate(async () => {
+  const start = await page.evaluate(() => {
     const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
-    if (!video) return false;
-
-    const start = video.currentTime;
-    await new Promise(res => setTimeout(res, 1200));
-    const end = video.currentTime;
-
-    return end > start;
+    return video ? video.currentTime : 0;
   });
 
-  if (!isPlaying) {
+  await page.waitForTimeout(1500);
+
+  const end = await page.evaluate(() => {
+    const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
+    return video ? video.currentTime : 0;
+  });
+
+  if (end <= start) {
     throw new Error('❌ Видео не проигрывается (currentTime не изменился)!');
   }
 }

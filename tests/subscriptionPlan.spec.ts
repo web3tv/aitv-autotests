@@ -7,7 +7,7 @@ import { UploadVideoFlow } from '../src/flows/UploadVideoFlow';
 import { StudioContentPage } from '../src/pages/studio/StudioContentPage';
 import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
 import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
-import { assertVideoIsPlaying } from '../src/utils/videoPlayerHelper';
+import { VideoPlayerPage } from '../src/pages/components/VideoPlayerPage';
 
 test('Paid video suite', async ({ page, request }) => {
     test.setTimeout(180_000);
@@ -80,8 +80,9 @@ test('Paid video suite', async ({ page, request }) => {
         await expect(page.locator('[data-id="sub-card"]')).toBeVisible();
         await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
 
+        const videoPlayer = new VideoPlayerPage(page);
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
-        await assertVideoIsPlaying(page);
+        await videoPlayer.assertPlayerVisible();
     });
 });
