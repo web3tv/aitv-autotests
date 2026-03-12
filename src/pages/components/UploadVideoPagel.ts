@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
+import * as fs from 'fs';
 
 export class UploadVideoPage {
   readonly page: Page;
@@ -43,8 +44,16 @@ export class UploadVideoPage {
   }
 
 
-  async uploadVideo(pathToFileURL:string){
-    await this.uploadVideoButton.setInputFiles(pathToFileURL);
+  async uploadVideo(pathToFileURL: string, mimeType?: string) {
+    if (mimeType) {
+      await this.uploadVideoButton.setInputFiles({
+        name: pathToFileURL.split('/').pop()!,
+        mimeType,
+        buffer: fs.readFileSync(pathToFileURL),
+      });
+    } else {
+      await this.uploadVideoButton.setInputFiles(pathToFileURL);
+    }
   }
 
   async uploadVideoThumb(pathToFileURL:string){

@@ -69,12 +69,12 @@ test('Public video', async ({ page, request }) => {
     await test.step('Check public video visibility on channel page -> Available', async () => {
         const channelMainPage = new ChannelMainPage(page);
         const channelUrl = baseUrl + '/@' + user.username;
-        await page.goto(channelUrl, { waitUntil: 'networkidle' });
+        await page.goto(channelUrl, { waitUntil: 'domcontentloaded' });
         await channelMainPage.checkVideoIsExist(videoName);
     });
 
     await test.step('Check public video as anonymous via direct link -> Available', async () => {
-        await page.goto(newUrl!, { waitUntil: 'networkidle' });
+        await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
         await expect(page.getByText(description)).toBeVisible({ timeout: 10_000 });
         await assertVideoIsPlaying(page);
@@ -86,7 +86,7 @@ test('Public video', async ({ page, request }) => {
         const user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
 
-        await page.goto(newUrl!, { waitUntil: 'networkidle' });
+        await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
         await expect(page.getByText(description)).toBeVisible({ timeout: 10_000 });
         await assertVideoIsPlaying(page);
@@ -150,13 +150,13 @@ test('Private video', async ({ page, request }) => {
     await test.step('Check private video visibility on channel page -> Not available', async () => {
         const channelMainPage = new ChannelMainPage(page);
         const channelUrl = baseUrl + '/@' + user.username;
-        await page.goto(channelUrl, { waitUntil: 'networkidle' });
+        await page.goto(channelUrl, { waitUntil: 'domcontentloaded' });
         await channelMainPage.checkPrivateVideoOnChannelPage();
     });
 
     await test.step('Check private video as anonymous via direct link -> Unavailable', async () => {
         const channelMainPage = new ChannelMainPage(page);
-        await page.goto(newUrl!, { waitUntil: 'networkidle' });
+        await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await channelMainPage.checkPrivateVideoViaDirectLink();
     });
 
@@ -166,7 +166,7 @@ test('Private video', async ({ page, request }) => {
         const channelMainPage = new ChannelMainPage(page);
         const user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
-        await page.goto(newUrl!, { waitUntil: 'networkidle' });
+        await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await channelMainPage.checkPrivateVideoViaDirectLink();
     });
 })
@@ -241,13 +241,13 @@ test('Paid video', async ({ page, request }) => {
     await test.step('Check paid video visibility on channel page -> Available', async () => {
         const channelMainPage = new ChannelMainPage(page);
         const channelUrl = baseUrl + '/@' + user.username;
-        await page.goto(channelUrl, { waitUntil: 'networkidle' });
+        await page.goto(channelUrl, { waitUntil: 'domcontentloaded' });
         await channelMainPage.checkPaidVideoAttributes();
     });
 
     await test.step('Check paid video as anonymous via direct link -> Unavailable', async () => {
         const channelMainPage = new ChannelMainPage(page);
-        await page.goto(videoUrl!, { waitUntil: 'networkidle' });
+        await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('h3')).toContainText(membershipName);
         await expect(page.locator('body')).toContainText(membershipDescription);
         await expect(page.locator('body')).toContainText('$0.991 week');
@@ -261,7 +261,7 @@ test('Paid video', async ({ page, request }) => {
         const channelMainPage = new ChannelMainPage(page);
         const user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
-        await page.goto(videoUrl!, { waitUntil: 'networkidle' });
+        await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('h3')).toContainText(membershipName);
         await expect(page.locator('body')).toContainText(membershipDescription);
         await expect(page.locator('body')).toContainText('$0.991 week');
@@ -328,12 +328,12 @@ test('Unlisted video', async ({ page, request }) => {
     await test.step('Check unlisted video visibility on channel page -> Not Available', async () => {
         const channelMainPage = new ChannelMainPage(page);
         const channelUrl = baseUrl + '/@' + user.username;
-        await page.goto(channelUrl, { waitUntil: 'networkidle' });
+        await page.goto(channelUrl, { waitUntil: 'domcontentloaded' });
         await channelMainPage.checkUnlistedVideoNotAvailable();
     });
 
     await test.step('Check unlisted video as anonymous via direct link -> Available', async () => {
-        await page.goto(videoUrl!, { waitUntil: 'networkidle' });
+        await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
         await expect(page.getByText(description)).toBeVisible({ timeout: 10_000 });
         await assertVideoIsPlaying(page);
@@ -345,7 +345,7 @@ test('Unlisted video', async ({ page, request }) => {
         const user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
 
-        await page.goto(videoUrl!, { waitUntil: 'networkidle' });
+        await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
         await expect(page.getByText(description)).toBeVisible({ timeout: 10_000 });
         await assertVideoIsPlaying(page);
@@ -437,12 +437,12 @@ test('Upload public short video', async ({ page, request }) => {
     await test.step('Check public short visibility on channel page -> Available', async () => {
         const channelMainPage = new ChannelMainPage(page);
         const channelUrl = baseUrl + '/@' + user.username;
-        await page.goto(channelUrl, { waitUntil: 'networkidle' });
+        await page.goto(channelUrl, { waitUntil: 'domcontentloaded' });
         await channelMainPage.checkShortsIsExist(videoName);
     });
 
     await test.step('Check public short as anonymous via direct link -> Available', async () => {
-        await page.goto(newUrl!, { waitUntil: 'networkidle' });
+        await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
     });
 
@@ -452,7 +452,7 @@ test('Upload public short video', async ({ page, request }) => {
         const user2 = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user2.email, password);
 
-        await page.goto(newUrl!, { waitUntil: 'networkidle' });
+        await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
     });
 })
