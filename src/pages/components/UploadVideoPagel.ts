@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
+import * as fs from 'fs';
 
 export class UploadVideoPage {
   readonly page: Page;
@@ -39,12 +40,20 @@ export class UploadVideoPage {
     this.paidRadioBtn = page.getByRole('radio', { name: 'Paid' });
     
     // Name might be changed ---> Take a look
-    this.membershipBtn = page.getByRole('checkbox', { name: 'Subscription #1 1 week 49.' })
+    this.membershipBtn = page.getByRole('checkbox', { name: 'Subscription #1 1 week 0.' })
   }
 
 
-  async uploadVideo(pathToFileURL:string){
-    await this.uploadVideoButton.setInputFiles(pathToFileURL);
+  async uploadVideo(pathToFileURL: string, mimeType?: string) {
+    if (mimeType) {
+      await this.uploadVideoButton.setInputFiles({
+        name: pathToFileURL.split('/').pop()!,
+        mimeType,
+        buffer: fs.readFileSync(pathToFileURL),
+      });
+    } else {
+      await this.uploadVideoButton.setInputFiles(pathToFileURL);
+    }
   }
 
   async uploadVideoThumb(pathToFileURL:string){

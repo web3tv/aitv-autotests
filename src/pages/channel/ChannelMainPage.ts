@@ -105,10 +105,26 @@ export class ChannelMainPage {
 
     // PAID VIDEO
 
-    async purhcaseMembershipFromMembershipPage(){
+    async purhcaseMembershipFromMembershipPageMockPayment(){
         await this.clickButtonSubscribeNow();
         const heroPay = new HeroPayPage(this.page);
         await heroPay.mockPayment();
+        await expect(this.page.locator('body')).toContainText('Active');
+    }
+
+    async purhcaseMembershipFromMembershipPageTestNet(){
+        await this.clickButtonSubscribeNow();
+        const heroPay = new HeroPayPage(this.page);
+        await heroPay.testnetPayment();
+
+        // Poll for Active status — blockchain confirmation may take time
+        const deadline = Date.now() + 120_000;
+        while (Date.now() < deadline) {
+            const body = await this.page.locator('body').innerText();
+            if (body.includes('Active') && !body.includes('Inactive')) break;
+            await this.page.reload({ waitUntil: 'networkidle' });
+            await this.page.waitForTimeout(15_000);
+        }
         await expect(this.page.locator('body')).toContainText('Active');
     }
 

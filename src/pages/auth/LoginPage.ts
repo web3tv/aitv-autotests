@@ -72,7 +72,7 @@ export class LoginPage {
   }
 
   async clickLoginBtn(){
-    await expect(this.loginBtn).toBeEnabled({ timeout: 15000 });
+    await expect(this.loginBtn, 'Login button should be enabled before clicking').toBeEnabled({ timeout: 15000 });
     await this.loginBtn.click();
   }
 

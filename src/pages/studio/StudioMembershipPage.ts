@@ -28,7 +28,7 @@ export class StudioMembershipPage {
     this.membershipDescriptionInput = page.getByRole('textbox', { name: 'What can users expect if they' });
     this.nextButton = page.getByRole('button', { name: 'Next' });
     this.priceInput = page.getByRole('textbox', { name: 'Enter or select price' });
-    this.priceOption = page.getByRole('menuitem', { name: '$49.99' });
+    this.priceOption = page.getByRole('menuitem', { name: '$0.99' });
     this.durationDropdown = page.getByText('Select Duration');
     this.durationOption = page.getByRole('option', { name: 'week' });
     this.form = page.locator('form');
@@ -56,7 +56,7 @@ export class StudioMembershipPage {
     await this.priceOption.click();
     await this.durationDropdown.click();
     await this.durationOption.click();
-    await expect(this.form).toContainText(`${membershipName}49.991 weekSubscribe Now!${membershipDescription}`);
+    await expect(this.form).toContainText(`${membershipName}0.991 weekSubscribe Now!${membershipDescription}`);
     await this.nextButton.click();
     await this.page.getByRole('button', { name: 'Create' }).click();
     await expect(this.successMessage).toBeVisible({ timeout: 30_000 });

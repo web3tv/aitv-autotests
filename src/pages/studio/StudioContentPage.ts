@@ -16,7 +16,9 @@ export class StudioContentPage {
     constructor(page: Page) {
         this.page = page;
 
-        this.firstVideoRaw = this.page.locator('.infinite-scroll-component').locator('div').first();
+        this.firstVideoRaw = this.page.locator('[data-id="video"]').first().locator('..');
+    
+
         this.shortsTab = this.page.locator('[data-id="shorts-tab"]');
         this.videosTab = this.page.locator('[data-id="videos-tab"]');
         this.liveTab = this.page.locator('[data-id="live-tab"]');
