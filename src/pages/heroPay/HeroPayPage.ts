@@ -31,11 +31,11 @@ export class HeroPayPage {
 
     async testnetPayment() {
         await this.page.getByRole('link', { name: 'Tether USDT - TRON >' }).click();
-        await this.page.waitForTimeout(2000);
 
         // Parse recipient address and amount from QR code title attribute
         // Format: "tron:{address}?amount={amount}"
         const qrImg = this.page.locator('img[title^="tron:"]');
+        await qrImg.waitFor({ state: 'visible', timeout: 15_000 });
         const titleAttr = await qrImg.getAttribute('title');
         if (!titleAttr) throw new Error('Could not find QR code with tron: title on Hero Pay page');
 
@@ -44,6 +44,10 @@ export class HeroPayPage {
 
         const toAddress = match[1];
         const amount = parseFloat(match[2]);
+
+        if (!/^T[A-Za-z0-9]{33}$/.test(toAddress)) {
+            throw new Error(`Invalid Tron address parsed from QR: "${toAddress}" (full title: "${titleAttr}")`);
+        }
 
         await sendUsdtOnNile(toAddress, amount);
 
