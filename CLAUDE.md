@@ -22,13 +22,13 @@ npx playwright test --grep "Success login as user" --project=functional
 **Run visual tests (desktop):**
 ```
 # Must be run inside Docker
-docker run --rm -v "$PWD:/app" pw-tests npx playwright test --project=visual-desktop-chromium
+docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
 ```
 
 **Run visual tests (mobile):**
 ```
 # Must be run inside Docker
-docker run --rm -v "$PWD:/app" pw-tests npx playwright test --project=visual-mobile-webkit
+docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
 ```
 
 **View test report:**
