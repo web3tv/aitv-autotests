@@ -11,7 +11,7 @@ npx playwright test --project=functional
 
 **Run a single test file:**
 ```
-npx playwright test tests/auth.spec.ts --project=functional
+npx playwright test tests/auth/auth.spec.ts --project=functional
 ```
 
 **Run a single test by name:**
@@ -49,7 +49,14 @@ Local config is loaded from `.env.dev` (not committed). Required variables:
 ### Layer structure
 
 ```
-tests/          — Playwright spec files (test entry points)
+tests/
+  auth/         — Authentication tests
+  user/         — Account settings tests
+  subscription/ — Subscription & paid content tests
+  hero/         — HERO integration tests
+  studio/       — Video upload, player, channel tests
+  validation/   — Input validation tests
+  visualSuite/  — Visual regression tests (Docker only)
 src/
   flows/        — High-level user journey orchestrators
   pages/        — Page Object Model classes

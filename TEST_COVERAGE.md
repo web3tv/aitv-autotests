@@ -1,6 +1,6 @@
 # Test Coverage
 
-## auth.spec.ts — Authentication
+## auth/auth.spec.ts — Authentication
 
 ### Login
 - Success login as user
@@ -18,7 +18,7 @@
 
 ---
 
-## user.spec.ts — Account Settings
+## user/user.spec.ts — Account Settings
 
 ### Change Password
 - Update without email verify → old works, new fails
@@ -39,7 +39,7 @@
 
 ---
 
-## subscriptionPlan.spec.ts — Subscription & Paid Content
+## subscription/subscriptionPlan.spec.ts — Subscription & Paid Content
 
 ### Paid Video Suite
 - Create user + set channel public
@@ -50,20 +50,54 @@
 
 ---
 
-## heroIntegration.spec.ts — HERO Integration
+## hero/heroIntegration.spec.ts — HERO Integration
 
 - Check hero icons
 
 ---
 
-## studio/content.spec.ts — Video Upload
+## studio/content.spec.ts — Video Upload & Visibility
 
-- Public video
-- Private video
-- Paid video
-- Unlisted video
-- Upload video >50mb workflow
-- Upload public short video (Shorts)
+### Public video
+- Upload public video → available on studio page
+- Channel page → available (anonymous)
+- Direct link → available (anonymous)
+- Direct link → available (another user)
+
+### Private video
+- Upload private video → available on studio page
+- Channel page → not available (anonymous)
+- Direct link → unavailable (anonymous)
+- Direct link → unavailable (another user)
+
+### Paid video
+- Create subscription plan
+- Upload paid video → available on studio page
+- Channel page → available (anonymous preview)
+- Direct link → unavailable (anonymous)
+- Direct link → unavailable (another user without subscription)
+
+### Unlisted video
+- Upload unlisted video → available on studio page
+- Channel page → not listed (anonymous)
+- Direct link → available (anonymous)
+- Direct link → available (another user)
+
+### Upload video >50mb workflow
+- Upload large video (chunk upload, 500 error check)
+
+### Shorts
+- Upload public short → available on studio page
+- Channel page → available (anonymous)
+- Direct link → available (anonymous)
+- Direct link → available (another user)
+
+---
+
+## studio/videoPlayer.spec.ts — Video Player Playback
+
+- Video player plays uploaded video (regular video, play + currentTime advances)
+- Video player plays uploaded short (shorts, play + currentTime advances)
 
 ---
 
