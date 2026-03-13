@@ -49,3 +49,55 @@ test('Video player plays uploaded video', async ({ page, request }) => {
         await videoPlayer.assertVideoIsPlaying();
     });
 });
+
+test('Video player plays uploaded short', async ({ page, request }) => {
+    test.setTimeout(180_000);
+    let shortUrl: string | null;
+    const videoName: string = Date.now().toString();
+    const password = process.env.USER_PASSWORD!;
+
+    await test.step('Create user and set channel privacy to public', async () => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const sideBar = new SideBarPage(page);
+        const studioProfilePage = new StudioProfilePage(page);
+
+        const user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, password);
+        await sideBar.clickStudioProfileChannel();
+        await studioProfilePage.changePrivacyToPublic();
+    });
+
+    await test.step('Upload public short', async () => {
+        const uploadVideoFlow = new UploadVideoFlow(page);
+        const studioContentPage = new StudioContentPage(page);
+
+        await uploadVideoFlow.uploadShort('test-data/fixtures/video/shortsVideo.MOV', 'shortsVideo');
+        await uploadVideoFlow.fillInReqFileds(videoName);
+        await uploadVideoFlow.waitStatusSuccessfully();
+        await uploadVideoFlow.selectVisibility('public');
+        await uploadVideoFlow.clickPublishBtn();
+        await uploadVideoFlow.confirmShortsUploading('Public');
+
+        shortUrl = await studioContentPage.getFirstVideoUrl();
+        if (!shortUrl) {
+            throw new Error('Short URL was not found');
+        }
+    });
+
+    await test.step('Logout and login as another user', async () => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+
+        await authFlow.logout();
+        const user2 = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user2.email, password);
+    });
+
+    await test.step('Open short and assert player is playing', async () => {
+        const videoPlayer = new VideoPlayerPage(page);
+
+        await page.goto(shortUrl!, { waitUntil: 'domcontentloaded' });
+        await videoPlayer.assertShortsIsPlaying();
+    });
+});

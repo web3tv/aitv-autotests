@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { HeaderPage } from "../pages/components/HeaderPage";
-import { UploadVideoPage } from "../pages/components/UploadVideoPagel";
+import { UploadVideoPage } from "../pages/components/UploadVideoPage";
 import { SideBarPage } from "../pages/components/SideBarPage";
 import { Page } from '@playwright/test';
 import { StudioContentPage } from "../pages/studio/StudioContentPage";
