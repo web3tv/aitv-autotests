@@ -6,6 +6,7 @@ import { expect } from '@playwright/test';
 import { Page } from '@playwright/test';
 import { MailTmHelper } from "../utils/mailTmHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
+import { injectEthereumMock, type WalletInfo } from "../utils/walletMock";
 
 
 export class AuthFlow {
@@ -24,7 +25,7 @@ export class AuthFlow {
     this.forgotPasswordPage = new ForgotPasswordPage(page);
   }
 
-  async loginSuccess (email:string,password:string,device?: 'mobile' | 'desktop') {
+  async loginSuccess (email:string,password:string,username:string,device?: 'mobile' | 'desktop') {
     await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.fillPasswordInput(password);
@@ -35,7 +36,7 @@ export class AuthFlow {
       await expect(this.loginPage.page.locator('[data-id="user-avatar"]')).toBeVisible();
     }
     else{
-      await expect(this.loginPage.page.locator('#profile-button')).toBeVisible();
+      await this.assertLoggedInAs(username);
     }
   }
 
@@ -69,7 +70,7 @@ export class AuthFlow {
     await expect(this.page.locator('body')).toContainText('Error code. Check your code on email and try again.');
   }
 
-  async loginWith2FaSuccess(email:string,password:string,token:string){
+  async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
     const mailTmHelper = new MailTmHelper(this.page.request);
     await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
@@ -91,7 +92,7 @@ export class AuthFlow {
             res.url().includes('/api/account/email-2fa/check') &&
             res.status() === 200
         );
-    await expect(this.loginPage.page.locator('#profile-button')).toBeVisible();
+    await this.assertLoggedInAs(username);
   }
 
   async submitForgotPasswordRequest(email: string) {
@@ -148,6 +149,106 @@ export class AuthFlow {
     await this.loginPage.removeFocusFromElement();
     await expect(this.loginPage.page.locator('form')).toContainText('Username not found. Try another one.');
     expect(this.loginPage.page.waitForURL('/login'));
+  }
+
+  /**
+   * Login via MetaMask wallet.
+   * Injects a mock window.ethereum provider with real signing, then performs the wallet login flow.
+   * Returns the wallet info (address, privateKey) for assertions or further use.
+   */
+  async walletLoginSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean }): Promise<WalletInfo> {
+    // Inject mock BEFORE navigating to the login page (skip if already injected in this page context)
+    const wallet = options?.skipInjection && options.wallet
+      ? options.wallet
+      : await injectEthereumMock(this.page, options?.wallet);
+
+    await this.loginPage.visitLoginPage();
+    await this.loginPage.clickWalletLoginBtn();
+    await this.loginPage.clickMetamaskOption();
+
+    // Wait for wallet auth to complete — backend verifies signature and redirects
+    // URL may include query params like ?showPopup=true
+    await this.page.waitForURL((url) => url.pathname === '/');
+    await this.page.waitForResponse(
+      (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
+      { timeout: 40_000 }
+    );
+
+    if (!options?.skipModalCheck) {
+      // Assert the "set up alternative login method" modal (only appears on first wallet login)
+      const addEmailModal = this.page.locator('[data-id="add-email-modal"]');
+      await expect(addEmailModal, 'Add email modal is not visible after wallet login').toBeVisible({ timeout: 10_000 });
+      await expect(addEmailModal, 'Add email modal text is incorrect').toContainText(
+        'To recover your profile and set up an alternative login method, you can add an email address and password in your account settings.'
+      );
+      await expect(this.page.getByRole('button', { name: 'Cancel' }), 'Cancel button is not visible').toBeVisible();
+      await expect(this.page.locator('[data-id="open-settings"]'), 'Open Settings button is not visible').toBeVisible();
+
+      // Dismiss modal
+      await this.page.getByRole('button', { name: 'Cancel' }).click();
+    }
+
+    await expect(this.headerPage.userIcon, 'Profile button is not visible').toBeVisible();
+
+    return wallet;
+  }
+
+  /**
+   * Register a new user via MetaMask wallet.
+   * Injects a mock window.ethereum provider, navigates to /register,
+   * fills username + checkbox, then connects wallet via MetaMask.
+   * Returns the wallet info and generated username.
+   */
+  async walletRegisterSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean }): Promise<{ wallet: WalletInfo; username: string }> {
+    // Inject mock BEFORE navigating to the register page (skip if already injected in this page context)
+    const wallet = options?.skipInjection && options.wallet
+      ? options.wallet
+      : await injectEthereumMock(this.page, options?.wallet);
+
+    await this.page.goto('/register');
+    await this.page.waitForLoadState('networkidle');
+
+    const username = await this.loginPage.fillUsernameInput();
+    await this.loginPage.clickCheckbox();
+    await this.loginPage.clickRegisterWalletBtn();
+    await this.loginPage.clickMetamaskOption();
+
+    // Wait for wallet auth to complete — backend verifies signature and redirects
+    await this.page.waitForURL((url) => url.pathname === '/');
+    await this.page.waitForResponse(
+      (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
+      { timeout: 40_000 }
+    );
+
+    // Assert the "set up alternative login method" modal
+    const addEmailModal = this.page.locator('[data-id="add-email-modal"]');
+    await expect(addEmailModal, 'Add email modal is not visible after wallet registration').toBeVisible({ timeout: 10_000 });
+    await expect(addEmailModal, 'Add email modal text is incorrect').toContainText(
+      'To recover your profile and set up an alternative login method, you can add an email address and password in your account settings.'
+    );
+    await expect(this.page.getByRole('button', { name: 'Cancel' }), 'Cancel button is not visible').toBeVisible();
+    await expect(this.page.locator('[data-id="open-settings"]'), 'Open Settings button is not visible').toBeVisible();
+
+    // Dismiss modal
+    await this.page.getByRole('button', { name: 'Cancel' }).click();
+
+    await this.assertLoggedInAs(username);
+
+    return { wallet, username };
+  }
+
+  /**
+   * Assert the currently logged-in user by opening the profile dropdown
+   * and verifying the @username displayed inside it.
+   */
+  async assertLoggedInAs(username: string) {
+    await expect(this.headerPage.userIcon, 'Profile button is not visible').toBeVisible();
+    await this.headerPage.clickUserIcon();
+    await expect(this.userDropdownPage.dropdown, 'Profile dropdown is not visible').toBeVisible();
+    await expect(this.userDropdownPage.dropdown, `Expected @${username} in profile dropdown`).toContainText(`@${username}`);
+    // Close dropdown to avoid blocking subsequent interactions
+    await this.page.keyboard.press('Escape');
+    await expect(this.userDropdownPage.dropdown).toBeHidden();
   }
 
   async logout(){

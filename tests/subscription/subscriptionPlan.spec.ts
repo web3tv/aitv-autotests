@@ -11,7 +11,7 @@ import { VideoPlayerPage } from '../src/pages/components/VideoPlayerPage';
 
 test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' }, { type: 'TC', description: 'PAID-002' }, { type: 'TC', description: 'PAID-003' }] }, async ({ page, request }) => {
     test.setTimeout(180_000);
-    let user: { email: string };
+    let user: { email: string, username: string };
     let videoUrl: string | null;
     const videoName: string = Date.now().toString();
     const membershipName = 'Subscription #1';
@@ -25,7 +25,7 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
         const sideBar = new SideBarPage(page);
 
         user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
         await sideBar.clickStudioProfileChannel();
         await studioProfilePage.changePrivacyToPublic();
     });
@@ -73,7 +73,7 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
         const channelMainPage = new ChannelMainPage(page);
 
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('.infinite-scroll-component')).toBeVisible();

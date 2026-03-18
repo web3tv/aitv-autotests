@@ -20,7 +20,7 @@ test('Video player plays uploaded video', { annotation: [{ type: 'TC', descripti
         const studioProfilePage = new StudioProfilePage(page);
 
         const user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
         await sideBar.clickStudioProfileChannel();
         await studioProfilePage.changePrivacyToPublic();
     });
@@ -63,7 +63,7 @@ test('Video player plays uploaded short', { annotation: [{ type: 'TC', descripti
         const studioProfilePage = new StudioProfilePage(page);
 
         const user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
         await sideBar.clickStudioProfileChannel();
         await studioProfilePage.changePrivacyToPublic();
     });
@@ -91,7 +91,7 @@ test('Video player plays uploaded short', { annotation: [{ type: 'TC', descripti
 
         await authFlow.logout();
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
     });
 
     await test.step('Open short and assert player is playing', async () => {

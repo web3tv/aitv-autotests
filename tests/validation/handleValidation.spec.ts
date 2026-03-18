@@ -14,7 +14,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const authFlow = new AuthFlow(page);
         const password = process.env.USER_PASSWORD!;
         const user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
     });
 
     test('1. Empty username → Username is required', async ({ page }) => {
@@ -135,7 +135,7 @@ test.describe('Handle validation on Create Channel Page', { annotation: [{ type:
         const password = process.env.USER_PASSWORD!;
 
         const user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
         await headerPage.clickUserIcon();
         await userDropdownPage.clickAddChannelBtn();
         await createChannelPage.clickStartSetup();

@@ -7,31 +7,35 @@
 
 ────────────────────────────────────────────────────────────────
 AUTH
-├── Login (email) — success                         [AUTO] tests/auth/auth.spec.ts           AUTH-001
-├── Login (email) — wrong password                  [AUTO] tests/auth/auth.spec.ts           AUTH-002
-├── Login (email) — wrong username                  [AUTO] tests/auth/auth.spec.ts           AUTH-003
-├── Logout                                          [AUTO] tests/auth/auth.spec.ts           AUTH-004
-├── Registration via email (UI)                     [AUTO] tests/auth/auth.spec.ts           AUTH-005
-├── Registration via API                            [AUTO] tests/auth/auth.spec.ts           AUTH-006
-├── Password reset — success                        [AUTO] tests/auth/auth.spec.ts           AUTH-007
-├── Password reset — password mismatch              [AUTO] tests/auth/auth.spec.ts           AUTH-008
-├── Login via Web3 wallet                           [MANUAL]                                 AUTH-009
-└── Login via Telegram                              [MANUAL]                                 AUTH-010
+├── Login (email) — success                         [AUTO] tests/auth/login.spec.ts          AUTH-001
+├── Login (email) — wrong password                  [AUTO] tests/auth/login.spec.ts          AUTH-002
+├── Login (email) — wrong username                  [AUTO] tests/auth/login.spec.ts          AUTH-003
+├── Logout                                          [AUTO] tests/auth/login.spec.ts          AUTH-004
+├── Registration via email (UI)                     [AUTO] tests/auth/registration.spec.ts   AUTH-005
+├── Registration via API                            [AUTO] tests/auth/registration.spec.ts   AUTH-006
+├── Password reset — success                        [AUTO] tests/auth/resetPassword.spec.ts  AUTH-007
+├── Password reset — password mismatch              [AUTO] tests/auth/resetPassword.spec.ts  AUTH-008
+├── Login via Web3 wallet                           [AUTO] tests/auth/wallet.spec.ts         AUTH-009
+├── Login via Telegram                              [MANUAL]                                 AUTH-010
+├── Add email to wallet account                     [AUTO] tests/auth/wallet.spec.ts         AUTH-011
+├── Registration via Web3 wallet                    [AUTO] tests/auth/wallet.spec.ts         AUTH-012
+├── Register + Login via same wallet                [AUTO] tests/auth/wallet.spec.ts         AUTH-013
+└── Wallet register + add email/password + login    [TODO]                                   AUTH-014
 
 ────────────────────────────────────────────────────────────────
 2FA
-├── Setup 2FA via email                             [AUTO] tests/user/user.spec.ts           2FA-001
-├── Login with correct 2FA code                     [AUTO] tests/user/user.spec.ts           2FA-002
-├── Login with wrong 2FA code                       [AUTO] tests/user/user.spec.ts           2FA-003
-└── Disable 2FA                                     [AUTO] tests/user/user.spec.ts           2FA-004
+├── Setup 2FA via email                             [AUTO] tests/auth/2fa.spec.ts            2FA-001
+├── Login with correct 2FA code                     [AUTO] tests/auth/2fa.spec.ts            2FA-002
+├── Login with wrong 2FA code                       [AUTO] tests/auth/2fa.spec.ts            2FA-003
+└── Disable 2FA                                     [AUTO] tests/auth/2fa.spec.ts            2FA-004
 
 ────────────────────────────────────────────────────────────────
 ACCOUNT SETTINGS (/account)
-├── Display email address                           [TODO]                                   ACCOUNT-001
-├── Edit email address — saved successfully         [AUTO] tests/user/user.spec.ts           ACCOUNT-002
-├── Change password — saved successfully            [AUTO] tests/user/user.spec.ts           ACCOUNT-003
-├── Display wallet address (read-only)              [TODO]                                   ACCOUNT-004
-└── Create password for wallet-registered user      [TODO]                                   ACCOUNT-005
+├── Edit email address — saved successfully         [AUTO] tests/user/user.spec.ts           ACCOUNT-001
+├── Change password — saved successfully            [AUTO] tests/user/user.spec.ts           ACCOUNT-002
+├── Display wallet address (read-only)              [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-003
+├── Create password for wallet-registered user      [TODO]                                   ACCOUNT-004
+└── Add wallet to email account                    [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-005
 
 ────────────────────────────────────────────────────────────────
 PROFILE SETTINGS (/profile)

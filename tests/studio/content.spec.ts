@@ -16,7 +16,7 @@ async function setupUserWithPublicChannel(page: Page, request: APIRequestContext
     const sideBar = new SideBarPage(page);
 
     const user = await authApi.createAndVerifyUser();
-    await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!);
+    await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     await sideBar.clickStudioProfileChannel();
     await studioProfilePage.changePrivacyToPublic();
     return user;
@@ -95,7 +95,7 @@ test('Public video', { annotation: [{ type: 'TC', description: 'UPLOAD-001' }, {
         const authFlow = new AuthFlow(page);
         const videoPlayer = new VideoPlayerPage(page);
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
 
         await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
@@ -159,7 +159,7 @@ test('Private video', { annotation: [{ type: 'TC', description: 'UPLOAD-002' }, 
         const authFlow = new AuthFlow(page);
         const channelMainPage = new ChannelMainPage(page);
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
         await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await channelMainPage.checkPrivateVideoViaDirectLink();
     });
@@ -237,7 +237,7 @@ test('Paid video', { annotation: [{ type: 'TC', description: 'UPLOAD-004' }, { t
         const authFlow = new AuthFlow(page);
         const channelMainPage = new ChannelMainPage(page);
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('h3')).toContainText(membershipName);
         await expect(page.locator('body')).toContainText(membershipDescription);
@@ -305,7 +305,7 @@ test('Unlisted video', { annotation: [{ type: 'TC', description: 'UPLOAD-003' },
         const authFlow = new AuthFlow(page);
         const videoPlayer = new VideoPlayerPage(page);
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
@@ -326,7 +326,7 @@ test('Upload video >50mb workflow', { annotation: { type: 'TC', description: 'UP
         const password = process.env.USER_PASSWORD!;
 
         user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
     });
 
     await test.step('Upload large video to channel and check video on studio page', async () => {
@@ -395,7 +395,7 @@ test('Upload public short video', { annotation: { type: 'TC', description: 'UPLO
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
 
         await page.goto(newUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });

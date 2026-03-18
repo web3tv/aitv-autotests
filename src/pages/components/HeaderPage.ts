@@ -11,6 +11,7 @@ export class HeaderPage {
   readonly heroCoins: Locator;
   readonly joinBtn: Locator;
 
+  readonly addWalletBtn: Locator;
   readonly userIcon: Locator;
 
   constructor(page: Page) {
@@ -26,6 +27,7 @@ export class HeaderPage {
     this.joinBtn = page.getByRole('button', { name: 'Join' });
     
 
+    this.addWalletBtn = page.locator('xpath=/html/body/div[1]/div[3]/button');
     this.userIcon = page.locator('#profile-button');
   }
 

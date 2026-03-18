@@ -5,12 +5,14 @@ export class UserDropdownPage {
     
     readonly page: Page;
 
+    readonly dropdown: Locator;
     readonly createChannelBtn: Locator;
     readonly logoutBtn: Locator;
 
     constructor(page: Page) {
         this.page = page;
 
+        this.dropdown = page.locator('[aria-labelledby="profile-button"]');
         this.createChannelBtn =  page.getByRole('link', { name: 'Add Channel' });
         this.logoutBtn = page.getByRole('menuitem', { name: 'Sign out' })
     }
