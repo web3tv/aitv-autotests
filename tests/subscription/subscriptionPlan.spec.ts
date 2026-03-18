@@ -9,7 +9,7 @@ import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
 import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
 import { VideoPlayerPage } from '../src/pages/components/VideoPlayerPage';
 
-test('Paid video suite', async ({ page, request }) => {
+test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' }, { type: 'TC', description: 'PAID-002' }, { type: 'TC', description: 'PAID-003' }] }, async ({ page, request }) => {
     test.setTimeout(180_000);
     let user: { email: string };
     let videoUrl: string | null;

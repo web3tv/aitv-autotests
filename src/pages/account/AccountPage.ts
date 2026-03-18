@@ -17,7 +17,8 @@ export class AccountPage {
     // Email inputs
     readonly newEmailInput: Locator;
     readonly emailPasswordInput: Locator;
-    readonly oldEmail: Locator;    
+    readonly oldEmail: Locator;
+    readonly displayedEmail: Locator;
 
     // Buttons
     readonly submitBtn: Locator;
@@ -41,12 +42,18 @@ export class AccountPage {
         this.newEmailInput = page.locator('input[name="newEmail"]');
         this.emailPasswordInput = page.getByRole('textbox', { name: 'Enter password' });
         this.oldEmail = page.getByTestId('account-page');
+        this.displayedEmail = page.locator('h3').filter({ hasText: 'Email Address' }).locator('~ p');
 
         // Submit button
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
 
         // Alert messages
         this.emailConfirmationAlert = page.getByRole('alert').filter({ hasText: 'Please check your email for' });
+    }
+
+    // DISPLAY ASSERTIONS
+    async assertDisplayedEmail(email: string): Promise<void> {
+        await expect(this.displayedEmail, 'Email address is not displayed correctly').toHaveText(email);
     }
 
     // CHANGE PASSWORD METHODS

@@ -1,18 +1,18 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../src/flows/AuthFlow';
-import { RegistrationFlow } from '../src/flows/RegistrationFlow';
-import { SideBarPage } from '../src/pages/components/SideBarPage';
-import { AccountPage } from '../src/pages/account/AccountPage';
-import { MailTmHelper } from '../src/utils/mailTmHelper';
-import { AuthApi } from '../src/api/AuthApi';
-import { ProfilePage } from '../src/pages/account/ProfilePage';
-import { SecurityPage } from '../src/pages/account/SecurityPage';
+import { AuthFlow } from '../../src/flows/AuthFlow';
+import { RegistrationFlow } from '../../src/flows/RegistrationFlow';
+import { SideBarPage } from '../../src/pages/components/SideBarPage';
+import { AccountPage } from '../../src/pages/account/AccountPage';
+import { MailTmHelper } from '../../src/utils/mailTmHelper';
+import { AuthApi } from '../../src/api/AuthApi';
+import { ProfilePage } from '../../src/pages/account/ProfilePage';
+import { SecurityPage } from '../../src/pages/account/SecurityPage';
 
 // test.describe.configure({ mode: 'parallel' });
 
 // ACCOUNT PAGE
 
-test('Change password', async ({ page, request }) => {
+test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-003' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
   const newPassword = 'NewPassword1@';
 
@@ -63,7 +63,7 @@ test('Change password', async ({ page, request }) => {
   });
 });
 
-test('Change email', async ({ page, request }) => {
+test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
   let newEmailToken: string;
   let newEmail: string;
@@ -86,6 +86,7 @@ test('Change email', async ({ page, request }) => {
     await sideBarPage.clickSettingsAccount();
     await mailTmHelper.createMailbox();
     newEmailToken = await mailTmHelper.getToken(newEmail, mailTmHelper['password']);
+    await accountPage.assertDisplayedEmail(user.email);
     await accountPage.changeEmail(user.email, newEmail, user.password);
     const messageId = await mailTmHelper.waitForMessage(newEmailToken, 'Email Verification');
     verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, newEmailToken);
@@ -124,7 +125,7 @@ test('Change email', async ({ page, request }) => {
 
 // PROFILE PAGE
 
-test('Change user avatar and check new avatar is displayed', async ({ page, request }) => {
+test('Change user avatar and check new avatar is displayed', { annotation: [{ type: 'TC', description: 'PROFILE-001' }, { type: 'TC', description: 'PROFILE-002' }] }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
@@ -141,7 +142,7 @@ test('Change user avatar and check new avatar is displayed', async ({ page, requ
 
 // SECURITY PAGE
 
-test('Check 2FA', async ({ page, request }) => {
+test('Check 2FA', { annotation: [{ type: 'TC', description: '2FA-001' }, { type: 'TC', description: '2FA-002' }, { type: 'TC', description: '2FA-003' }, { type: 'TC', description: '2FA-004' }] }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
 
   await test.step('Setup 2FA', async () => {
