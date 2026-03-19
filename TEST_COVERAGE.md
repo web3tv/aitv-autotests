@@ -20,7 +20,7 @@ AUTH
 ├── Add email to wallet account                     [AUTO] tests/auth/wallet.spec.ts         AUTH-011
 ├── Registration via Web3 wallet                    [AUTO] tests/auth/wallet.spec.ts         AUTH-012
 ├── Register + Login via same wallet                [AUTO] tests/auth/wallet.spec.ts         AUTH-013
-└── Wallet register + add email/password + login    [TODO]                                   AUTH-014
+└── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
 
 ────────────────────────────────────────────────────────────────
 2FA
@@ -34,7 +34,6 @@ ACCOUNT SETTINGS (/account)
 ├── Edit email address — saved successfully         [AUTO] tests/user/user.spec.ts           ACCOUNT-001
 ├── Change password — saved successfully            [AUTO] tests/user/user.spec.ts           ACCOUNT-002
 ├── Display wallet address (read-only)              [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-003
-├── Create password for wallet-registered user      [TODO]                                   ACCOUNT-004
 └── Add wallet to email account                    [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-005
 
 ────────────────────────────────────────────────────────────────
