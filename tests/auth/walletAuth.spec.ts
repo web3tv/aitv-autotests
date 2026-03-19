@@ -121,6 +121,4 @@ test.describe('Wallet auth tests', () => {
     });
   });
 
-  
-
 });
