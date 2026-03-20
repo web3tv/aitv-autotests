@@ -7,7 +7,7 @@ import { SideBarPage } from '../../src/pages/components/SideBarPage';
 import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
 import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
 
-test('Video player plays uploaded video', async ({ page, request }) => {
+test('Video player plays uploaded video', { annotation: [{ type: 'TC', description: 'PLAYER-001' }, { type: 'TC', description: 'PLAYER-002' }, { type: 'TC', description: 'PLAYER-003' }] }, async ({ page, request }) => {
     test.setTimeout(180_000);
     let videoUrl: string | null;
     const videoName: string = Date.now().toString();
@@ -20,7 +20,7 @@ test('Video player plays uploaded video', async ({ page, request }) => {
         const studioProfilePage = new StudioProfilePage(page);
 
         const user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
         await sideBar.clickStudioProfileChannel();
         await studioProfilePage.changePrivacyToPublic();
     });
@@ -50,7 +50,7 @@ test('Video player plays uploaded video', async ({ page, request }) => {
     });
 });
 
-test('Video player plays uploaded short', async ({ page, request }) => {
+test('Video player plays uploaded short', { annotation: [{ type: 'TC', description: 'SHORTS-001' }, { type: 'TC', description: 'SHORTS-002' }] }, async ({ page, request }) => {
     test.setTimeout(180_000);
     let shortUrl: string | null;
     const videoName: string = Date.now().toString();
@@ -63,7 +63,7 @@ test('Video player plays uploaded short', async ({ page, request }) => {
         const studioProfilePage = new StudioProfilePage(page);
 
         const user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
         await sideBar.clickStudioProfileChannel();
         await studioProfilePage.changePrivacyToPublic();
     });
@@ -91,7 +91,7 @@ test('Video player plays uploaded short', async ({ page, request }) => {
 
         await authFlow.logout();
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
     });
 
     await test.step('Open short and assert player is playing', async () => {

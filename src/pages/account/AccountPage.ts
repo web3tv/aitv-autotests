@@ -8,6 +8,7 @@ export class AccountPage {
     // Edit buttons
     readonly editPasswordBtn: Locator;
     readonly editEmailBtn: Locator;
+    readonly addEmailBtn: Locator;
 
     // Password inputs
     readonly oldPasswordInput: Locator;
@@ -17,7 +18,11 @@ export class AccountPage {
     // Email inputs
     readonly newEmailInput: Locator;
     readonly emailPasswordInput: Locator;
-    readonly oldEmail: Locator;    
+    readonly oldEmail: Locator;
+    readonly displayedEmail: Locator;
+
+    // Wallet
+    readonly walletAddress: Locator;
 
     // Buttons
     readonly submitBtn: Locator;
@@ -31,6 +36,7 @@ export class AccountPage {
         // Edit buttons
         this.editPasswordBtn = page.getByRole('button', { name: 'Edit' }).nth(1);
         this.editEmailBtn = page.getByRole('button', { name: 'Edit' }).first();
+        this.addEmailBtn = page.getByRole('button', { name: 'Add' });
 
         // Password input fields
         this.oldPasswordInput = page.locator('input[name="oldPassword"]');
@@ -41,12 +47,26 @@ export class AccountPage {
         this.newEmailInput = page.locator('input[name="newEmail"]');
         this.emailPasswordInput = page.getByRole('textbox', { name: 'Enter password' });
         this.oldEmail = page.getByTestId('account-page');
+        this.displayedEmail = page.locator('h3').filter({ hasText: 'Email Address' }).locator('~ p');
+
+        // Wallet
+        this.walletAddress = page.locator('h3').filter({ hasText: 'Wallet Used for Sign In' }).locator('~ p');
 
         // Submit button
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
 
         // Alert messages
         this.emailConfirmationAlert = page.getByRole('alert').filter({ hasText: 'Please check your email for' });
+    }
+
+    // DISPLAY ASSERTIONS
+    async assertDisplayedEmail(email: string): Promise<void> {
+        await expect(this.displayedEmail, 'Email address is not displayed correctly').toHaveText(email);
+    }
+
+    async assertDisplayedWalletAddress(address: string): Promise<void> {
+        await expect(this.walletAddress, 'Wallet address is not visible').toBeVisible();
+        await expect(this.walletAddress, 'Wallet address is not displayed correctly').toHaveText(address);
     }
 
     // CHANGE PASSWORD METHODS
@@ -86,6 +106,13 @@ export class AccountPage {
         await this.clickSubmitBtn();
         await expect(this.page.getByLabel('Edit Password')).toContainText('You are almost there!We\'ve sent you an email. Please confirm password change.');
         await this.page.getByRole('button').click();
+    }
+
+    // ADD EMAIL (wallet-only user)
+    async clickAddEmailBtn(): Promise<void> {
+        await expect(this.addEmailBtn, 'Add email button is not visible').toBeVisible();
+        await expect(this.addEmailBtn, 'Add email button is not enabled').toBeEnabled();
+        await this.addEmailBtn.click();
     }
 
     // CHANGE EMAIL METHODS

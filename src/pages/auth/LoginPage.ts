@@ -27,6 +27,13 @@ export class LoginPage {
   readonly registerEmailBtn: Locator;
   readonly telegramLoginBtn: Locator;
 
+  // Login page wallet/telegram buttons
+  readonly walletLoginBtn: Locator;
+
+  // Wallet selection modal
+  readonly metamaskOption: Locator;
+  readonly metamaskBrowserTab: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -48,6 +55,13 @@ export class LoginPage {
     this.registerWalletBtn = page.locator('[data-id="register-wallet"]');
     this.registerEmailBtn = page.locator('[data-id="register-email"]');
     this.telegramLoginBtn = page.locator('[data-id="telegram-login"]');
+
+    // Login page — wallet login button
+    this.walletLoginBtn = page.locator('[data-id="wallet-login"]');
+
+    // MetaMask option inside the wallet selection modal
+    this.metamaskOption = page.getByRole('button', { name: /metamask/i });
+    this.metamaskBrowserTab = page.getByRole('button', { name: /browser/i });
   }
 
   async visitLoginPage() {
@@ -147,6 +161,28 @@ export class LoginPage {
 
   async assertLowercased(expected: string) {
     await expect(this.usernameInput).toHaveValue(expected);
+  }
+
+  async clickWalletLoginBtn() {
+    await expect(this.walletLoginBtn, 'Wallet Login button is not visible').toBeVisible();
+    await expect(this.walletLoginBtn, 'Wallet Login button is not enabled').toBeEnabled();
+    await this.walletLoginBtn.click();
+  }
+
+  async clickRegisterWalletBtn() {
+    await expect(this.registerWalletBtn, 'Register Wallet button is not visible').toBeVisible();
+    await expect(this.registerWalletBtn, 'Register Wallet button is not enabled').toBeEnabled();
+    await this.registerWalletBtn.click();
+  }
+
+  async clickMetamaskOption() {
+    await expect(this.metamaskOption, 'MetaMask option is not visible in wallet modal').toBeVisible();
+    await this.metamaskOption.click();
+  }
+
+  async clickMetamaskBrowserTab() {
+    await expect(this.metamaskBrowserTab, 'MetaMask Browser tab is not visible').toBeVisible();
+    await this.metamaskBrowserTab.click();
   }
 
   async assertButtonsDisabled() {

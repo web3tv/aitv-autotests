@@ -4,7 +4,7 @@ import { MainPage } from '../../src/pages/components/MainPage';
 import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { AuthApi } from '../../src/api/AuthApi';
 
-test.describe('Username validation on registration page', () => {
+test.describe('Username validation on registration page', { annotation: [{ type: 'TC', description: 'VAL-001' }, { type: 'TC', description: 'VAL-002' }] }, () => {
   test.beforeEach(async ({ page }) => {
     const mainPage = new MainPage(page);
     const headerPage = new HeaderPage(page);

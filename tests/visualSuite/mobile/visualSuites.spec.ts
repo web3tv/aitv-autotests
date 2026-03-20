@@ -28,7 +28,7 @@ test.describe('Video page visual tests', () => {
         const authFlow = new AuthFlow(page);
         const login = process.env.USER_LOGIN_PUBLIC!;
         const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password,'mobile');
+        await authFlow.loginSuccess(login, password, login, 'mobile');
 
         await page.goto(videoUrl);
         await page.waitForLoadState('networkidle');
@@ -74,7 +74,7 @@ test.describe('Channel page visual tests', () => {
         const authFlow = new AuthFlow(page);
         const login = process.env.USER_LOGIN_PUBLIC!;
         const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password,'mobile');
+        await authFlow.loginSuccess(login, password, login, 'mobile');
         
         await page.goto(channelUrl);
         await page.waitForLoadState('networkidle');
@@ -113,7 +113,7 @@ test.describe('Mobile navigation buttons visual tests', () => {
         const authFlow = new AuthFlow(page);
         const login = process.env.USER_LOGIN_PUBLIC!;
         const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password,'mobile');
+        await authFlow.loginSuccess(login, password, login, 'mobile');
         
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {

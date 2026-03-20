@@ -5,6 +5,8 @@ export class StudioContentPage {
     readonly page: Page;
 
     readonly firstVideoRaw : Locator;
+    readonly firstVideoDescription: Locator;
+    readonly firstVideoVisibility: Locator;
     readonly shortsTab: Locator;
     readonly videosTab: Locator;
     readonly liveTab: Locator; 
@@ -16,8 +18,10 @@ export class StudioContentPage {
     constructor(page: Page) {
         this.page = page;
 
-        this.firstVideoRaw = this.page.locator('[data-id="video"]').first().locator('..');
-    
+        this.firstVideoRaw = this.page.locator('[data-id="video-row"]').first();
+        this.firstVideoDescription = this.firstVideoRaw.locator('[data-id="video"]');
+        this.firstVideoVisibility = this.firstVideoRaw.locator('[data-id="visibility"]');
+
 
         this.shortsTab = this.page.locator('[data-id="shorts-tab"]');
         this.videosTab = this.page.locator('[data-id="videos-tab"]');
@@ -26,10 +30,10 @@ export class StudioContentPage {
     }
 
     async checkVideoDescription(description: any){
-        await expect(this.firstVideoRaw.locator('[data-id="video"]')).toContainText(description);
+        await expect(this.firstVideoDescription).toContainText(description);
     }
     async checkVideoVisibility(visibility: any){
-        await expect(this.firstVideoRaw.locator('[data-id="visibility"]')).toContainText(visibility);
+        await expect(this.firstVideoVisibility).toContainText(visibility);
     }
 
 

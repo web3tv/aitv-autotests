@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../src/flows/AuthFlow';
-import { AuthApi } from "../src/api/AuthApi";
-import { SideBarPage } from '../src/pages/components/SideBarPage';
-import { StudioMembershipPage } from '../src/pages/studio/StudioMembershipPage';
-import { UploadVideoFlow } from '../src/flows/UploadVideoFlow';
-import { StudioContentPage } from '../src/pages/studio/StudioContentPage';
-import { StudioProfilePage } from '../src/pages/studio/StudioProfilePage';
-import { ChannelMainPage } from '../src/pages/channel/ChannelMainPage';
-import { VideoPlayerPage } from '../src/pages/components/VideoPlayerPage';
+import { AuthFlow } from '../../src/flows/AuthFlow';
+import { AuthApi } from "../../src/api/AuthApi";
+import { SideBarPage } from '../../src/pages/components/SideBarPage';
+import { StudioMembershipPage } from '../../src/pages/studio/StudioMembershipPage';
+import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
+import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
+import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
+import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
+import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
 
-test('Paid video suite', async ({ page, request }) => {
+test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' }, { type: 'TC', description: 'PAID-002' }, { type: 'TC', description: 'PAID-003' }] }, async ({ page, request }) => {
     test.setTimeout(180_000);
-    let user: { email: string };
+    let user: { email: string, username: string };
     let videoUrl: string | null;
     const videoName: string = Date.now().toString();
     const membershipName = 'Subscription #1';
@@ -25,7 +25,7 @@ test('Paid video suite', async ({ page, request }) => {
         const sideBar = new SideBarPage(page);
 
         user = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user.email, password);
+        await authFlow.loginSuccess(user.email, password, user.username);
         await sideBar.clickStudioProfileChannel();
         await studioProfilePage.changePrivacyToPublic();
     });
@@ -73,7 +73,7 @@ test('Paid video suite', async ({ page, request }) => {
         const channelMainPage = new ChannelMainPage(page);
 
         const user2 = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(user2.email, password);
+        await authFlow.loginSuccess(user2.email, password, user2.username);
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('.infinite-scroll-component')).toBeVisible();

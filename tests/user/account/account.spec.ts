@@ -1,18 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../src/flows/AuthFlow';
-import { RegistrationFlow } from '../src/flows/RegistrationFlow';
-import { SideBarPage } from '../src/pages/components/SideBarPage';
-import { AccountPage } from '../src/pages/account/AccountPage';
-import { MailTmHelper } from '../src/utils/mailTmHelper';
-import { AuthApi } from '../src/api/AuthApi';
-import { ProfilePage } from '../src/pages/account/ProfilePage';
-import { SecurityPage } from '../src/pages/account/SecurityPage';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { RegistrationFlow } from '../../../src/flows/RegistrationFlow';
+import { SideBarPage } from '../../../src/pages/components/SideBarPage';
+import { AccountPage } from '../../../src/pages/account/AccountPage';
+import { MailTmHelper } from '../../../src/utils/mailTmHelper';
 
-// test.describe.configure({ mode: 'parallel' });
-
-// ACCOUNT PAGE
-
-test('Change password', async ({ page, request }) => {
+test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
   const newPassword = 'NewPassword1@';
 
@@ -27,7 +20,7 @@ test('Change password', async ({ page, request }) => {
     const sideBarPage = new SideBarPage(page);
     const accountPage = new AccountPage(page);
 
-    await authFlow.loginSuccess(user.email, user.password);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
     await sideBarPage.clickSettingsAccount();
     await accountPage.changePassword(user.password, newPassword);
     await authFlow.logout();
@@ -35,7 +28,7 @@ test('Change password', async ({ page, request }) => {
 
   await test.step('Login with old password without verifying via email -> Success', async () => {
     const authFlow = new AuthFlow(page);
-    await authFlow.loginSuccess(user.email, user.password);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
     await authFlow.logout();
   });
 
@@ -59,11 +52,11 @@ test('Change password', async ({ page, request }) => {
 
   await test.step('Login with new password after verification via email -> Success', async () => {
     const authFlow = new AuthFlow(page);
-    await authFlow.loginSuccess(user.email, newPassword);
+    await authFlow.loginSuccess(user.email, newPassword, user.username);
   });
 });
 
-test('Change email', async ({ page, request }) => {
+test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
   let newEmailToken: string;
   let newEmail: string;
@@ -82,10 +75,11 @@ test('Change email', async ({ page, request }) => {
     const mailTmHelper = new MailTmHelper(request);
     newEmail = await mailTmHelper.generateEmail();
 
-    await authFlow.loginSuccess(user.email, user.password);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
     await sideBarPage.clickSettingsAccount();
     await mailTmHelper.createMailbox();
     newEmailToken = await mailTmHelper.getToken(newEmail, mailTmHelper['password']);
+    await accountPage.assertDisplayedEmail(user.email);
     await accountPage.changeEmail(user.email, newEmail, user.password);
     const messageId = await mailTmHelper.waitForMessage(newEmailToken, 'Email Verification');
     verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, newEmailToken);
@@ -94,7 +88,7 @@ test('Change email', async ({ page, request }) => {
 
   await test.step('Login with old email before verification -> Success', async () => {
     const authFlow = new AuthFlow(page);
-    await authFlow.loginSuccess(user.email, user.password);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
     await authFlow.logout();
   });
 
@@ -110,7 +104,7 @@ test('Change email', async ({ page, request }) => {
 
   await test.step('Login with NEW email after verification -> Success', async () => {
     const authFlow = new AuthFlow(page);
-    await authFlow.loginSuccess(newEmail, user.password);
+    await authFlow.loginSuccess(newEmail, user.password, user.username);
     await authFlow.logout();
   });
 
@@ -119,68 +113,3 @@ test('Change email', async ({ page, request }) => {
     await authFlow.loginFailed(user.email, user.password);
   });
 });
-
-
-
-// PROFILE PAGE
-
-test('Change user avatar and check new avatar is displayed', async ({ page, request }) => {
-  const authApi = new AuthApi(request);
-  const authFlow = new AuthFlow(page);
-  const sideBarPage = new SideBarPage(page);
-  const profilePage = new ProfilePage(page);
-  const password = process.env.USER_PASSWORD!;
-
-  const user = await authApi.createAndVerifyUser();
-  await authFlow.loginSuccess(user.email, password);
-  await sideBarPage.clickSettingsProfile();
-  await profilePage.uploadProfileAvatarAndConfirmNewAvatarDisplayed();
-});
-
-
-
-// SECURITY PAGE
-
-test('Check 2FA', async ({ page, request }) => {
-  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
-
-  await test.step('Setup 2FA', async () => {
-    const registrationFlow = new RegistrationFlow(page, request);
-    const authFlow = new AuthFlow(page);
-    const sideBarPage = new SideBarPage(page);
-    const securityPage = new SecurityPage(page);
-
-    await registrationFlow.openRegistrationPage();
-    user = await registrationFlow.registerAndVerifyUserViaEmail();
-    await authFlow.loginSuccess(user.email, user.password);
-    await sideBarPage.clickSettingsSecurity();
-    await securityPage.setup2FA(user.email);
-    await authFlow.logout();
-  });
-
-  await test.step('Login - insert incorrect 2FA code - Failed', async () => {
-    const authFlow = new AuthFlow(page);
-    await authFlow.loginWith2FaFailed(user.email, user.password);
-  });
-
-  await test.step('Login - insert correct 2FA code - Success', async () => {
-    const authFlow = new AuthFlow(page);
-    await authFlow.loginWith2FaSuccess(user.email, user.password, user.token);
-    await authFlow.logout();
-  });
-
-  await test.step('Disable 2FA - check login without 2FA', async () => {
-    const authFlow = new AuthFlow(page);
-    const sideBarPage = new SideBarPage(page);
-    const securityPage = new SecurityPage(page);
-
-    await authFlow.loginWith2FaSuccess(user.email, user.password, user.token);
-    await sideBarPage.clickSettingsSecurity();
-    await securityPage.disable2FA(user.email);
-    await authFlow.logout();
-    await authFlow.loginSuccess(user.email, user.password);
-  });
-});
-
-
-// TODO: Convert to NFT
