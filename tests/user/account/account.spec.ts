@@ -1,14 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { RegistrationFlow } from '../../src/flows/RegistrationFlow';
-import { SideBarPage } from '../../src/pages/components/SideBarPage';
-import { AccountPage } from '../../src/pages/account/AccountPage';
-import { MailTmHelper } from '../../src/utils/mailTmHelper';
-import { AuthApi } from '../../src/api/AuthApi';
-import { ProfilePage } from '../../src/pages/account/ProfilePage';
-
-
-// ACCOUNT PAGE
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { RegistrationFlow } from '../../../src/flows/RegistrationFlow';
+import { SideBarPage } from '../../../src/pages/components/SideBarPage';
+import { AccountPage } from '../../../src/pages/account/AccountPage';
+import { MailTmHelper } from '../../../src/utils/mailTmHelper';
 
 test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
@@ -118,23 +113,3 @@ test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } },
     await authFlow.loginFailed(user.email, user.password);
   });
 });
-
-
-
-// PROFILE PAGE
-
-test('Change user avatar and check new avatar is displayed', { annotation: [{ type: 'TC', description: 'PROFILE-001' }, { type: 'TC', description: 'PROFILE-002' }] }, async ({ page, request }) => {
-  const authApi = new AuthApi(request);
-  const authFlow = new AuthFlow(page);
-  const sideBarPage = new SideBarPage(page);
-  const profilePage = new ProfilePage(page);
-  const password = process.env.USER_PASSWORD!;
-
-  const user = await authApi.createAndVerifyUser();
-  await authFlow.loginSuccess(user.email, password, user.username);
-  await sideBarPage.clickSettingsProfile();
-  await profilePage.uploadProfileAvatarAndConfirmNewAvatarDisplayed();
-});
-
-
-// TODO: Convert to NFT

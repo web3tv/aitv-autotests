@@ -31,17 +31,19 @@ AUTH
 
 ────────────────────────────────────────────────────────────────
 ACCOUNT SETTINGS (/account)
-├── Edit email address — saved successfully         [AUTO] tests/user/user.spec.ts           ACCOUNT-001
-├── Change password — saved successfully            [AUTO] tests/user/user.spec.ts           ACCOUNT-002
+├── Edit email address — saved successfully         [AUTO] tests/user/account/account.spec.ts ACCOUNT-001
+├── Change password — saved successfully            [AUTO] tests/user/account/account.spec.ts ACCOUNT-002
 ├── Display wallet address (read-only)              [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-003
 └── Add wallet to email account                    [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-005
 
 ────────────────────────────────────────────────────────────────
 PROFILE SETTINGS (/profile)
-├── Upload profile avatar — saved successfully      [AUTO] tests/user/user.spec.ts           PROFILE-001
-├── Avatar displayed in header after upload         [AUTO] tests/user/user.spec.ts           PROFILE-002
-├── Edit biography — saved successfully             [TODO]                                   PROFILE-003
-└── Add/edit social links (FB, TW, IG, TikTok)     [TODO]                                   PROFILE-004
+├── Upload profile avatar — saved successfully      [AUTO] tests/user/profile/profile.spec.ts PROFILE-001
+├── Avatar displayed in header after upload         [AUTO] tests/user/profile/profile.spec.ts PROFILE-002
+├── Edit biography — saved successfully             [AUTO] tests/user/profile/profile.spec.ts PROFILE-003
+├── Add/edit social links (FB, TW, IG, TikTok)     [AUTO] tests/user/profile/profile.spec.ts PROFILE-004
+├── Biography max length validation (1000 chars)    [AUTO] tests/user/profile/profile.spec.ts PROFILE-005
+└── Social links max length validation (100 chars)  [AUTO] tests/user/profile/profile.spec.ts PROFILE-006
 
 ────────────────────────────────────────────────────────────────
 NOTIFICATIONS (/notifications)
