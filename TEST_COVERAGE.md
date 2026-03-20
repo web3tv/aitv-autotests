@@ -47,11 +47,11 @@ PROFILE SETTINGS (/profile)
 
 ────────────────────────────────────────────────────────────────
 NOTIFICATIONS (/notifications)
-├── Toggle on/off: Subscriptions                    [TODO]                                   NOTIF-001
-├── Toggle on/off: Paid Subscriptions               [TODO]                                   NOTIF-002
-├── Toggle on/off: Video via paid subscription      [TODO]                                   NOTIF-003
-├── Toggle on/off: Video via regular subscription   [TODO]                                   NOTIF-004
-└── Toggle on/off: Comments                         [TODO]                                   NOTIF-005
+├── Toggle all notification settings on/off         [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-001
+├── Notification on channel subscription            [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-002
+├── Notification on paid subscription purchase      [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-003
+├── Notification when subscribed channel uploads    [BLOCKED] test.fixme                                   NOTIF-004
+└── Notification on paid channel paid video upload  [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-005
 
 ────────────────────────────────────────────────────────────────
 CHANNELS
