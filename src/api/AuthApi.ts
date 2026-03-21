@@ -80,6 +80,47 @@ export class AuthApi {
         return tokenJson.access_token;
     }
 
+    async getUserToken(email: string, password: string) {
+        const verifier = crypto.randomBytes(32).toString("base64url");
+        const challenge = crypto
+            .createHash("sha256")
+            .update(verifier)
+            .digest("base64url");
+
+        const authorize = await this.request.post(
+            `${this.baseUrl}/auth/authorize?client_id=fa281fa9-ea9c-467e-a0f1-776876c3ad76` +
+            `&response_type=json&code_challenge=${challenge}&code_challenge_method=S256&scope=user`,
+            {
+            headers: { "Content-Type": "application/json" },
+            data: { username: email, password }
+            }
+        );
+
+        const authJson = await authorize.json();
+
+        if (!authJson.code) {
+            throw new Error("❌ User authorize failed: no auth code returned");
+        }
+
+        const tokenRes = await this.request.post(`${this.baseUrl}/auth/token`, {
+            headers: { "Content-Type": "application/json" },
+            data: {
+            grant_type: "authorization_code",
+            client_id: "fa281fa9-ea9c-467e-a0f1-776876c3ad76",
+            code: authJson.code,
+            code_verifier: verifier
+            }
+        });
+
+        const tokenJson = await tokenRes.json();
+
+        if (!tokenJson.access_token) {
+            throw new Error("❌ Failed to get user access_token");
+        }
+
+        return tokenJson.access_token;
+    }
+
     async verifyUser(id: string, email: string, adminToken: string) {
         const response = await this.request.patch(`${this.baseUrl}/admin/user/${id}`, {
         headers: {

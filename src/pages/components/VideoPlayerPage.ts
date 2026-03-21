@@ -26,11 +26,16 @@ export class VideoPlayerPage {
   }
 
   async assertShortsIsPlaying(): Promise<void> {
-    await expect(this.shortsPlayButton, 'Shorts play button is not visible').toBeVisible({ timeout: 10_000 });
-    await expect(this.shortsPlayButton, 'Shorts play button is not enabled').toBeEnabled();
-    await this.shortsPlayButton.click();
+    await expect(this.shortsVideoElement, 'Shorts video element is not visible').toBeVisible({ timeout: 15_000 });
 
-    await this.page.waitForSelector('.swiper-slide-active .vjs-playing', { timeout: 5_000 });
+    const alreadyPlaying = await this.page.locator('.swiper-slide-active .vjs-playing').isVisible();
+    if (!alreadyPlaying) {
+      await expect(this.shortsPlayButton, 'Shorts play button is not visible').toBeVisible({ timeout: 10_000 });
+      await expect(this.shortsPlayButton, 'Shorts play button is not enabled').toBeEnabled();
+      await this.shortsPlayButton.click();
+    }
+
+    await this.page.waitForSelector('.swiper-slide-active .vjs-playing', { timeout: 10_000 });
 
     await this.page.waitForFunction(
       () => {

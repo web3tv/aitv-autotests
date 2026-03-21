@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { AuthApi } from '../../../src/api/AuthApi';
+import { VideoApi } from '../../../src/api/VideoApi';
 import { SideBarPage } from '../../../src/pages/components/SideBarPage';
 import { StudioProfilePage } from '../../../src/pages/studio/StudioProfilePage';
 import { StudioMembershipPage } from '../../../src/pages/studio/StudioMembershipPage';
@@ -73,20 +74,18 @@ test('Verify default notification states and toggle settings', { annotation: { t
 test('Notification received on channel subscription', { annotation: { type: 'TC', description: 'NOTIF-002' } }, async ({ page, request }) => {
   test.setTimeout(360_000);
   const authApi = new AuthApi(request);
+  const videoApi = new VideoApi(request);
   const authFlow = new AuthFlow(page);
-  const sideBarPage = new SideBarPage(page);
-  const studioProfilePage = new StudioProfilePage(page);
   const notificationsPage = new NotificationsPage(page);
   const password = process.env.USER_PASSWORD!;
 
   const userB = await authApi.createAndVerifyUser();
   const userA = await authApi.createAndVerifyUser();
 
-  await test.step('Make User B channel public', async () => {
-    await authFlow.loginSuccess(userB.email, password, userB.username);
-    await sideBarPage.clickStudioProfileChannel();
-    await studioProfilePage.changePrivacyToPublic();
-    await authFlow.logout();
+  await test.step('Make User B channel public via API', async () => {
+    const tokenB = await authApi.getUserToken(userB.email, password);
+    const channelId = await videoApi.getChannelId(tokenB);
+    await videoApi.setChannelPublic(tokenB, channelId, userB.username);
   });
 
   await test.step('User A subscribes to User B channel via UI', async () => {
@@ -177,22 +176,20 @@ test('Notification received on paid subscription purchase', { annotation: { type
 });
 
 test.fixme('Notification received when subscribed channel uploads video', { annotation: { type: 'TC', description: 'NOTIF-004' } }, async ({ page, request }) => {
-  test.setTimeout(360_000);
+  test.setTimeout(180_000);
   const authApi = new AuthApi(request);
+  const videoApi = new VideoApi(request);
   const authFlow = new AuthFlow(page);
-  const sideBarPage = new SideBarPage(page);
-  const studioProfilePage = new StudioProfilePage(page);
   const notificationsPage = new NotificationsPage(page);
   const password = process.env.USER_PASSWORD!;
 
   const userB = await authApi.createAndVerifyUser();
   const userA = await authApi.createAndVerifyUser();
 
-  await test.step('User B: make channel public', async () => {
-    await authFlow.loginSuccess(userB.email, password, userB.username);
-    await sideBarPage.clickStudioProfileChannel();
-    await studioProfilePage.changePrivacyToPublic();
-    await authFlow.logout();
+  await test.step('Make User B channel public via API', async () => {
+    const tokenB = await authApi.getUserToken(userB.email, password);
+    const channelId = await videoApi.getChannelId(tokenB);
+    await videoApi.setChannelPublic(tokenB, channelId, userB.username);
   });
 
   await test.step('User A subscribes to User B channel', async () => {
@@ -214,17 +211,14 @@ test.fixme('Notification received when subscribed channel uploads video', { anno
 
   let videoTitle: string;
 
-  await test.step('User B uploads public video', async () => {
-    const uploadVideoFlow = new UploadVideoFlow(page);
-    await authFlow.loginSuccess(userB.email, password, userB.username);
-    await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4', '5secVideo');
-    await uploadVideoFlow.waitStatusSuccessfully();
+  await test.step('User B uploads public video via API', async () => {
     videoTitle = Date.now().toString();
-    await uploadVideoFlow.fillInReqFileds(videoTitle);
-    await uploadVideoFlow.selectVisibility('public');
-    await uploadVideoFlow.clickPublishBtn();
-    await uploadVideoFlow.confirmVideoUploading('Public');
-    await authFlow.logout();
+    const tokenB = await authApi.getUserToken(userB.email, password);
+    await videoApi.uploadVideo(tokenB, 'test-data/fixtures/video/5secVideo.mp4', {
+      title: videoTitle,
+      privacySetting: 'public',
+      waitForProcessing: true,
+    });
   });
 
   await test.step('User A receives video upload notification in bell', async () => {
