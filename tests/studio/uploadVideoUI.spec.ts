@@ -1,41 +1,13 @@
-import { test, expect, Page, APIRequestContext } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
 import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
 import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
 import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
 import { SideBarPage } from '../../src/pages/components/SideBarPage';
-import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { StudioMembershipPage } from '../../src/pages/studio/StudioMembershipPage';
-
-async function setupUserWithPublicChannel(page: Page, request: APIRequestContext): Promise<{ email: string, username: string }> {
-    const authApi = new AuthApi(request);
-    const authFlow = new AuthFlow(page);
-    const studioProfilePage = new StudioProfilePage(page);
-    const sideBar = new SideBarPage(page);
-
-    const user = await authApi.createAndVerifyUser();
-    await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
-    await sideBar.clickStudioProfileChannel();
-    await studioProfilePage.changePrivacyToPublic();
-    return user;
-}
-
-async function uploadWithChunkCheck(page: Page, uploadFn: () => Promise<void>): Promise<void> {
-    let chunkError: string | null = null;
-    const listener = (response: import('@playwright/test').Response) => {
-        if (response.url().includes('chunk') && response.status() === 500) {
-            chunkError = `Chunk upload failed with 500: ${response.url()}`;
-        }
-    };
-    page.on('response', listener);
-    await uploadFn();
-    page.off('response', listener);
-    expect(chunkError, chunkError ?? '').toBeNull();
-}
-
-// test.describe.configure({ mode: 'parallel' });
+import { setupUserWithPublicChannel, uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
 
 test('Public video', { annotation: [{ type: 'TC', description: 'UPLOAD-001' }, { type: 'TC', description: 'VIS-001' }, { type: 'TC', description: 'VIS-002' }] }, async ({ page, request }) => {
     test.setTimeout(120_000);

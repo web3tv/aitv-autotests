@@ -18,7 +18,7 @@ export class StudioContentPage {
     constructor(page: Page) {
         this.page = page;
 
-        this.firstVideoRaw = this.page.locator('[data-id="video-row"]').first();
+        this.firstVideoRaw = this.page.locator('[data-testid="video-row"]').first();
         this.firstVideoDescription = this.firstVideoRaw.locator('[data-id="video"]');
         this.firstVideoVisibility = this.firstVideoRaw.locator('[data-id="visibility"]');
 
