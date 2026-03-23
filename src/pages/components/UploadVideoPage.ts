@@ -39,8 +39,7 @@ export class UploadVideoPage {
     this.unlistedRadioBtn = page.getByRole('radio', { name: 'Unlisted' });
     this.paidRadioBtn = page.getByRole('radio', { name: 'Paid' });
     
-    // Name might be changed ---> Take a look
-    this.membershipBtn = page.getByRole('checkbox', { name: 'Subscription #1 1 week 0.' })
+    this.membershipBtn = page.getByRole('checkbox').first();
   }
 
 

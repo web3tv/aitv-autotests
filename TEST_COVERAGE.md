@@ -74,26 +74,30 @@ CHANNELS
 
 ────────────────────────────────────────────────────────────────
 VIDEO UPLOAD
-├── Upload horizontal video (public)                [AUTO] tests/studio/content.spec.ts      UPLOAD-001
-├── Upload horizontal video (private)               [AUTO] tests/studio/content.spec.ts      UPLOAD-002
-├── Upload horizontal video (unlisted)              [AUTO] tests/studio/content.spec.ts      UPLOAD-003
-├── Upload horizontal video (paid)                  [AUTO] tests/studio/content.spec.ts      UPLOAD-004
-├── Upload Shorts                                   [AUTO] tests/studio/content.spec.ts      UPLOAD-005
-├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/studio/content.spec.ts      UPLOAD-006
-├── Upload thumbnail manually                       [AUTO] tests/studio/content.spec.ts      UPLOAD-007
-├── AI autofill fields                              [TODO]                                   UPLOAD-008
-└── Required fields validation (title/desc/cat)     [TODO]                                   UPLOAD-009
+├── Upload horizontal video (public)                [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-001
+├── Upload horizontal video (private)               [TODO]                                      UPLOAD-002
+├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
+├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
+├── Upload Shorts                                   [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-005
+├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-006
+├── Upload thumbnail manually                       [AUTO] tests/studio/content.spec.ts         UPLOAD-007
+├── AI autofill fields                              [TODO]                                      UPLOAD-008
+└── Required fields validation (title/desc/cat)     [TODO]                                      UPLOAD-009
 
 ────────────────────────────────────────────────────────────────
 VIDEO VISIBILITY
-├── Public: visible to anonymous guest              [AUTO] tests/studio/content.spec.ts      VIS-001
-├── Public: visible to other registered user        [AUTO] tests/studio/content.spec.ts      VIS-002
-├── Private: not shown on channel page              [AUTO] tests/studio/content.spec.ts      VIS-003
-├── Private: blocked on direct link for others      [AUTO] tests/studio/content.spec.ts      VIS-004
-├── Unlisted: not shown on channel page             [AUTO] tests/studio/content.spec.ts      VIS-005
-├── Unlisted: accessible via direct link            [AUTO] tests/studio/content.spec.ts      VIS-006
-├── Paid: blocked without subscription              [AUTO] tests/studio/content.spec.ts      VIS-007
-└── Paid: accessible after subscription purchase    [AUTO] tests/studio/content.spec.ts      VIS-008
+├── Public: visible on channel page                 [AUTO] tests/studio/videoVisibility.spec.ts  VIS-001
+├── Public: visible to anonymous guest              [AUTO] tests/studio/videoVisibility.spec.ts  VIS-001
+├── Public: visible to other registered user        [AUTO] tests/studio/videoVisibility.spec.ts  VIS-002
+├── Private: not shown on channel page              [AUTO] tests/studio/videoVisibility.spec.ts  VIS-003
+├── Private: blocked on direct link (anonymous)     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-003
+├── Private: blocked on direct link (other user)    [AUTO] tests/studio/videoVisibility.spec.ts  VIS-004
+├── Unlisted: not shown on channel page             [AUTO] tests/studio/videoVisibility.spec.ts  VIS-005
+├── Unlisted: accessible via direct link (anon)     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-005
+├── Unlisted: accessible via direct link (user)     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-006
+├── Paid: badges on channel page                    [AUTO] tests/studio/videoVisibility.spec.ts  VIS-007
+├── Paid: paywall for anonymous                     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-007
+└── Paid: subscribe button for other user           [AUTO] tests/studio/videoVisibility.spec.ts  VIS-008
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Regular Player
@@ -114,9 +118,10 @@ VIDEO PLAYER — Shorts Player
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Embed Player
-├── Embed player: video plays                       [TODO]                                   EMBED-001
-├── Embed player: dubbing available                 [TODO]                                   EMBED-002
-└── Embed player: no hot-spots                      [TODO]                                   EMBED-003
+├── Embed player: video plays                       [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-001
+├── Embed player: short plays                       [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-002
+├── Embed player: dubbing available                 [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-003
+└── Embed player: no hot-spots                      [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-004
 
 ────────────────────────────────────────────────────────────────
 SUBSCRIPTIONS — Free (channel follow)
@@ -129,8 +134,9 @@ PAID SUBSCRIPTIONS
 ├── Create membership plan (owner)                  [AUTO] tests/subscription/subscriptionPlan.spec.ts  PAID-001
 ├── Purchase plan via Hero Pay (mock)               [AUTO] tests/subscription/subscriptionPlan.spec.ts  PAID-002
 ├── Access paid video after purchase                [AUTO] tests/subscription/subscriptionPlan.spec.ts  PAID-003
-├── Subscription expiry → access revoked            [TODO]                                   PAID-004
-└── View purchased subscriptions (/my-paid-subs)    [TODO]                                   PAID-005
+├── Create membership plan via UI (studio)           [TODO]                                   PAID-004
+├── Subscription expiry → access revoked            [TODO]                                   PAID-005
+└── View purchased subscriptions (/my-paid-subs)    [TODO]                                   PAID-006
 
 ────────────────────────────────────────────────────────────────
 PLAYLISTS

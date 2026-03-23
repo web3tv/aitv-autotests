@@ -9,7 +9,7 @@ interface CreatedSubscription {
 export class SubscriptionApi {
     constructor(
         private request: APIRequestContext,
-        private baseUrl = process.env.BASE_URL!
+        private apiUrl = process.env.API_URL!
     ) {}
 
     async createPaidSubscription(
@@ -20,35 +20,27 @@ export class SubscriptionApi {
             description?: string;
             price?: string;
             duration?: number;
-            currency?: string;
         } = {}
     ): Promise<CreatedSubscription> {
-        const title = options.title ?? "Subscription #1";
-
-        const tokensData = JSON.stringify({
-            token_type: "Bearer",
-            expires_in: 3600,
-            access_token: token,
-            refresh_token: "",
-            valid_until: Date.now() + 3600_000,
-        });
+        const now = Date.now();
+        const title = options.title ?? `Subscription ${new Date(now).toISOString()}`;
+        const description = options.description ?? `Subscription ${new Date(now + 1000).toISOString()}`;
 
         const response = await this.request.post(
-            `${this.baseUrl}/api/paid-subscriptions`,
+            `${this.apiUrl}/paid-subs`,
             {
                 headers: {
-                    Accept: "*/*",
-                    "Content-Type": "text/plain;charset=UTF-8",
-                    Cookie: `tokensData=${encodeURIComponent(tokensData)}`,
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                    Authorization: `Bearer ${token}`,
                 },
-                data: JSON.stringify({
+                data: {
                     title,
-                    description: options.description ?? "Test Description",
-                    price: options.price ?? "0.99",
+                    description,
+                    price: options.price ?? "100",
                     duration: options.duration ?? 7,
-                    currency: options.currency ?? "USD",
                     channelId,
-                }),
+                },
             }
         );
 
