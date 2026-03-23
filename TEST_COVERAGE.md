@@ -81,8 +81,10 @@ VIDEO UPLOAD
 ├── Upload Shorts                                   [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-005
 ├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-006
 ├── Upload thumbnail manually                       [AUTO] tests/studio/content.spec.ts         UPLOAD-007
-├── AI autofill fields                              [TODO]                                      UPLOAD-008
-└── Required fields validation (title/desc/cat)     [TODO]                                      UPLOAD-009
+├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
+├── Required fields validation (title/desc/cat)     [AUTO] tests/validation/uploadVideoValidation.spec.ts  UPLOAD-009
+├── Delete video during upload                      [TODO]                                      UPLOAD-010
+└── Save video as draft                             [TODO]                                      UPLOAD-011
 
 ────────────────────────────────────────────────────────────────
 VIDEO VISIBILITY
@@ -166,9 +168,21 @@ COMMENTS
 ────────────────────────────────────────────────────────────────
 STUDIO CONTENT PAGE
 ├── Tabs: Videos / Shorts / Live / Playlists        [TODO]                                   STUDIO-001
-├── Sort by column (Upload Date, Views, etc.)       [TODO]                                   STUDIO-002
-├── Filter videos                                   [TODO]                                   STUDIO-003
-└── Action menu: edit video                         [TODO]                                   STUDIO-004
+├── Sort by Uploading date (asc/desc)               [TODO]                                   STUDIO-002
+├── Sort by Publish date (asc/desc)                 [TODO]                                   STUDIO-003
+├── Sort by Most Views (asc/desc)                   [TODO]                                   STUDIO-004
+├── Sort by Most Comments (asc/desc)                [TODO]                                   STUDIO-005
+├── Sort by Visibility (asc/desc)                   [TODO]                                   STUDIO-006
+├── Sort by Title (asc/desc)                        [TODO]                                   STUDIO-007
+├── Filter by visibility: Public                    [TODO]                                   STUDIO-008
+├── Filter by visibility: Private                   [TODO]                                   STUDIO-009
+├── Filter by visibility: Paid                      [TODO]                                   STUDIO-010
+├── Filter by visibility: Unlisted                  [TODO]                                   STUDIO-011
+├── Filter by status: Published                     [TODO]                                   STUDIO-012
+├── Filter by status: Draft                         [TODO]                                   STUDIO-013
+├── Filter: multiple checkboxes combined            [TODO]                                   STUDIO-014
+├── Filter: Reset clears all filters                [TODO]                                   STUDIO-015
+└── Action menu: edit video                         [TODO]                                   STUDIO-016
 
 ────────────────────────────────────────────────────────────────
 HOME PAGE
@@ -194,9 +208,10 @@ VALIDATION
 ├── Handle — min/max length                         [AUTO] tests/validation/handleValidation.spec.ts    VAL-003
 ├── Handle — allowed characters (lowercase, no spaces) [AUTO] tests/validation/handleValidation.spec.ts VAL-004
 ├── Handle — uniqueness check                       [AUTO] tests/validation/handleValidation.spec.ts    VAL-005
-├── Video title — required field                    [TODO]                                   VAL-006
-├── Video description — required field              [TODO]                                   VAL-007
-├── Video category — required field                 [TODO]                                   VAL-008
+├── Video title — required field                    [AUTO] tests/validation/uploadVideoValidation.spec.ts  VAL-006
+├── Video description — required field              [AUTO] tests/validation/uploadVideoValidation.spec.ts  VAL-007
+├── Video category — required field                 [AUTO] tests/validation/uploadVideoValidation.spec.ts  VAL-008
+├── Video category — no error shown when empty      [BLOCKED] W3-2066                        VAL-008a
 ├── Channel name — max 32 chars                     [TODO]                                   VAL-009
 ├── Channel description — max 1000 chars            [TODO]                                   VAL-010
 ├── Channel short description — max 100 chars       [TODO]                                   VAL-011

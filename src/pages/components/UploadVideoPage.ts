@@ -60,10 +60,12 @@ export class UploadVideoPage {
   }
 
   async fillVideoTitle(name: any){
+    await expect(this.videoTitle, 'Video title input is not visible').toBeVisible();
     await this.videoTitle.fill(name);
   }
 
   async fillVideoDescription(description: string){
+    await expect(this.videoDescription, 'Video description input is not visible').toBeVisible();
     await this.videoDescription.fill(description);
   }
 
@@ -74,6 +76,8 @@ export class UploadVideoPage {
   }
 
   async clickNextBtn(){
+    await expect(this.nextBtn, 'Next button is not visible').toBeVisible();
+    await expect(this.nextBtn, 'Next button is not enabled').toBeEnabled();
     await this.nextBtn.click();
   }
 
@@ -113,6 +117,34 @@ export class UploadVideoPage {
   async clickMembershipCheckbox(){
     await expect(this.membershipBtn).toBeEnabled();
     await this.membershipBtn.check();
+  }
+
+  async assertNextBtnDisabled(){
+    await expect(this.nextBtn, 'Next button should be visible').toBeVisible();
+    await expect(this.nextBtn, 'Next button should be disabled').toBeDisabled();
+  }
+
+  async assertNextBtnEnabled(){
+    await expect(this.nextBtn, 'Next button should be visible').toBeVisible();
+    await expect(this.nextBtn, 'Next button should be enabled').toBeEnabled();
+  }
+
+  async assertError(text: string){
+    await expect(this.page.getByText(text), `Error "${text}" should be visible`).toBeVisible();
+  }
+
+  async clearVideoTitle(){
+    await expect(this.videoTitle, 'Video title input is not visible').toBeVisible();
+    await this.videoTitle.clear();
+  }
+
+  async clearVideoDescription(){
+    await expect(this.videoDescription, 'Video description input is not visible').toBeVisible();
+    await this.videoDescription.clear();
+  }
+
+  async blur(){
+    await this.page.locator('body').click();
   }
 
 }
