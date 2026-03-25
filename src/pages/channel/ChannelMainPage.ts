@@ -18,6 +18,7 @@ export class ChannelMainPage {
 
     // MEMBERSHIP
 
+    readonly subscriptionCard: Locator;
     readonly subscribeBtn: Locator;
     readonly registerLoginBtn: Locator;
 
@@ -32,6 +33,7 @@ export class ChannelMainPage {
 
 
         // MEMBERSHIP
+        this.subscriptionCard = page.locator('[data-id="sub-card"]');
         this.subscribeBtn = page.getByRole('button', { name: 'Subscribe Now!' });
         this.registerLoginBtn = page.getByRole('button', { name: 'Register/Login' });
     }
@@ -83,6 +85,10 @@ export class ChannelMainPage {
 
 
     // PAID VIDEO ON MEMBERSHIP PAGE
+
+    async assertSubscriptionCardVisible(): Promise<void> {
+        await expect(this.subscriptionCard, 'Subscription card is not visible').toBeVisible();
+    }
 
     async clickRegisterLoginBtn(){
         await this.checkRegisterLoginBtn();
