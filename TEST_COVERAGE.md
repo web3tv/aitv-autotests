@@ -139,9 +139,9 @@ PAID SUBSCRIPTIONS
 ├── Create membership plan via UI (studio)          [TODO]                                                PAID-004
 ├── Subscription expiry → access revoked            [TODO]                                                PAID-005
 ├── Active subscription on /my-paid-subs            [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-006
-├── Expired subscription on /my-paid-subs (mock)    [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-007
+├── Expired subscription on /my-paid-subs (mock)    [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-007  @needs-db-api
 ├── Pending payment status on /my-paid-subs         [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-008
-└── Expired payment status on /my-paid-subs (mock)  [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-009
+└── Expired payment status on /my-paid-subs (mock)  [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-009  @needs-db-api
 
 ────────────────────────────────────────────────────────────────
 PLAYLISTS
