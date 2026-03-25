@@ -31,6 +31,20 @@ export class HeroPayPage {
         await this.page.waitForTimeout(1000);
     }
 
+    async initiateMockPaymentWithoutConfirmation() {
+        await this.page.getByRole('link', { name: 'Tether USDT - TRON >' }).click();
+        await this.page.getByRole('button', { name: 'I understand' }).click();
+        const link = this.page.getByRole('link', { name: 'Mock Payment' });
+        await link.evaluate(el => el.removeAttribute('target'));
+        await link.click();
+        await this.page.waitForTimeout(1000);
+        await this.page.getByRole('button', { name: 'Submit' }).click();
+        await this.page.waitForTimeout(1000);
+        // Do NOT click "+1 Confirmation" — leave payment in Pending state
+        await this.page.evaluate(() => window.history.go(-2));
+        await this.page.waitForTimeout(1000);
+    }
+
     async testnetPayment() {
         await this.page.getByRole('link', { name: 'Tether USDT - TRON >' }).click();
 
