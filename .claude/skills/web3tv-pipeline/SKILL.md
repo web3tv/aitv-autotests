@@ -10,7 +10,26 @@ You are orchestrating a **6-phase test automation pipeline** for the **web3tv-au
 Each phase is a distinct step. Complete each phase fully before moving to the next.
 Some phases use the **Agent tool** for parallel research — this is explicitly noted.
 
-**IMPORTANT:** You MUST execute ALL 6 phases in order. Do NOT skip any phase.
+**IMPORTANT:** You MUST execute ALL phases (0 through 6) in order. Do NOT skip any phase.
+
+---
+
+## Phase 0 — Branch Setup
+
+**Goal:** Ensure all work happens on a dedicated branch from `main`.
+
+Launch the **branch-setup** agent (`.claude/agents/branch-setup.md`).
+Pass the task description (from the user's initial message) as context — the agent will generate a branch name from it.
+
+The agent will:
+1. Check the current branch
+2. If not on `main` — verify no uncommitted changes, switch to `main`, pull latest
+3. If on `main` — pull latest
+4. Create a new `test/<description>` branch and switch to it
+
+**If the agent reports uncommitted changes** — inform the user and ask how to proceed (commit, stash, or abort).
+
+After the branch is created, confirm the branch name to the user and proceed to Phase 1.
 
 ---
 
