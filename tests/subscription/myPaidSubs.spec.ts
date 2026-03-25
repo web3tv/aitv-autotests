@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { AuthApi } from '../../src/api/AuthApi';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { SideBarPage } from '../../src/pages/components/SideBarPage';
@@ -30,7 +30,7 @@ test('PAID-006: Active subscription displayed on /my-paid-subs', {
         const channelMainPage = new ChannelMainPage(page);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('[data-id="sub-card"]'), 'Subscription card is not visible').toBeVisible();
+        await channelMainPage.assertSubscriptionCardVisible();
         await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
     });
 
@@ -71,7 +71,7 @@ test('PAID-008: Pending payment status on /my-paid-subs', {
         const heroPayPage = new HeroPayPage(page);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('[data-id="sub-card"]'), 'Subscription card is not visible').toBeVisible();
+        await channelMainPage.assertSubscriptionCardVisible();
         await channelMainPage.clickButtonSubscribeNow();
         await heroPayPage.initiateMockPaymentWithoutConfirmation();
     });
@@ -110,7 +110,7 @@ test('PAID-007: Expired subscription displayed on /my-paid-subs (mock)', {
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('[data-id="sub-card"]'), 'Subscription card is not visible').toBeVisible();
+        await channelMainPage.assertSubscriptionCardVisible();
         await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
     });
 
@@ -166,7 +166,7 @@ test('PAID-009: Expired payment status on /my-paid-subs (mock)', {
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('[data-id="sub-card"]'), 'Subscription card is not visible').toBeVisible();
+        await channelMainPage.assertSubscriptionCardVisible();
         await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
     });
 
