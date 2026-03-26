@@ -133,15 +133,15 @@ SUBSCRIPTIONS — Free (channel follow)
 
 ────────────────────────────────────────────────────────────────
 PAID SUBSCRIPTIONS
-├── Create membership plan (owner)                  [AUTO] tests/subscription/subscriptionPlan.spec.ts    PAID-001
-├── Purchase plan via Hero Pay (mock)               [AUTO] tests/subscription/subscriptionPlan.spec.ts    PAID-002
-├── Access paid video after purchase                [AUTO] tests/subscription/subscriptionPlan.spec.ts    PAID-003
+├── Create membership plan (owner)                  [AUTO] tests/subscription/paidSubscription.spec.ts    PAID-001
+├── Purchase plan via Hero Pay (mock)               [AUTO] tests/subscription/paidSubscription.spec.ts    PAID-002
+├── Access paid video after purchase                [AUTO] tests/subscription/paidSubscription.spec.ts    PAID-003
 ├── Create membership plan via UI (studio)          [TODO]                                                PAID-004
-├── Subscription expiry → access revoked            [TODO]                                                PAID-005
-├── Active subscription on /my-paid-subs            [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-006
-├── Expired subscription on /my-paid-subs (mock)    [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-007  @needs-db-api
-├── Pending payment status on /my-paid-subs         [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-008
-└── Expired payment status on /my-paid-subs (mock)  [AUTO] tests/subscription/myPaidSubs.spec.ts          PAID-009  @needs-db-api
+├── Subscription expiry → access revoked + restore   [AUTO] tests/subscription/paidSubscription.spec.ts        PAID-005
+├── Active subscription on /my-paid-subs            [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-006
+├── Expired subscription on /my-paid-subs            [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-007
+├── Pending payment status on /my-paid-subs         [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-008
+└── Payment expired status on /my-paid-subs           [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-009
 
 ────────────────────────────────────────────────────────────────
 PLAYLISTS
