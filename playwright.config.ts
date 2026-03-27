@@ -44,7 +44,7 @@ export default defineConfig({
 
 
     // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" pw-tests npx playwright test --project=visual-desktop-chromium
+    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
     {
       name: 'visual-desktop-chromium',
       testMatch: /visualSuite\/desktop\/visualSuites\.spec\.ts$/,

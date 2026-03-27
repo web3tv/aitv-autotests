@@ -3,7 +3,11 @@ import { LoginPage } from '../../../src/pages/auth/LoginPage';
 
 const mainBaseUrl = process.env.BASE_URL || 'https://web3tv.dev';
 
-/** Login on main domain, then session cookie is shared across subdomains */
+/**
+ * Login on main domain (web3tv.dev), then navigate to studio domain (studio.web3tv.dev).
+ * Relies on session cookie being shared across subdomains (*.web3tv.dev).
+ * If cookies are scoped to web3tv.dev only, studio domain will not see the authenticated session.
+ */
 async function loginOnMainDomain(page: import('@playwright/test').Page) {
     const login = process.env.USER_LOGIN_PUBLIC!;
     const password = process.env.USER_PASSWORD!;

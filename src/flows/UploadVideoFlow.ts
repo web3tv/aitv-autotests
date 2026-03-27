@@ -141,10 +141,6 @@ export class UploadVideoFlow {
         
     }
 
-    async chooseMembership(){
-
-    }
-
     async clickPublishBtn(){
         await  this.uploadVideoPage.clickPublishbtn();
         await expect(this.uploadVideoPage.page.getByLabel('Upload Complete')).toContainText('Congratulations!Your video has been successfully uploaded.',{timeout:10_000});

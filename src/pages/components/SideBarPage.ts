@@ -68,7 +68,7 @@ export class SideBarPage {
     this.supportHelp                = page.locator('[data-id="Help"]');
     this.supportSendFeedback        = page.locator('[data-id="Send Feedback"]');
 
-    // FEEDBACK MODAL (примерный локатор)
+    // FEEDBACK MODAL
     this.sendFeedbackModal          = page.getByRole("dialog");
   }
 
@@ -227,13 +227,4 @@ export class SideBarPage {
     await expect(this.sendFeedbackModal).toBeVisible();
   }
 
-  // =========================
-  // UNIVERSAL METHOD
-  // =========================
-
-  async clickMenuItem(dataId: string) {
-    const item = this.page.locator(`[data-id="${dataId}"]`);
-    await expect(item).toBeVisible();
-    await item.click();
-  }
 }
