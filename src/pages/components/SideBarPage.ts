@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from "@playwright/test";
+import { ensureOnStudioDomain } from "../../utils/studioNavigation";
 
 export class SideBarPage {
   readonly page: Page;
@@ -121,58 +122,50 @@ export class SideBarPage {
   // STUDIO ACTIONS
   // =========================
 
-  /** Navigate to studio domain if not already there */
-  private async ensureOnStudioDomain() {
-    const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
-    if (!this.page.url().includes(new URL(studioUrl).hostname)) {
-      await this.page.goto(`${studioUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
-    }
-  }
-
   async clickStudioDashboard() {
-    await this.ensureOnStudioDomain();
+    await ensureOnStudioDomain(this.page);
     await expect(this.studioDashboard).toBeVisible();
     await this.studioDashboard.click();
     await expect(this.page).toHaveURL(/\/dashboard$/);
   }
 
   async clickStudioContent() {
-    await this.ensureOnStudioDomain();
+    await ensureOnStudioDomain(this.page);
     await expect(this.studioContent).toBeVisible();
     await this.studioContent.click();
     await expect(this.page).toHaveURL(/\/content$/);
   }
 
   async clickStudioAnalytics() {
-    await this.ensureOnStudioDomain();
+    await ensureOnStudioDomain(this.page);
     await expect(this.studioAnalytics).toBeVisible();
     await this.studioAnalytics.click();
     await expect(this.page).toHaveURL(/\/stats$/);
   }
 
   async clickStudioSubscriptions() {
-    await this.ensureOnStudioDomain();
+    await ensureOnStudioDomain(this.page);
     await expect(this.studioSubscriptions).toBeVisible();
     await this.studioSubscriptions.click();
     await expect(this.page).toHaveURL(/\/membership$/);
   }
 
   async clickStudioPlaylists() {
-    await this.ensureOnStudioDomain();
+    await ensureOnStudioDomain(this.page);
     await expect(this.studioPlaylists).toBeVisible();
     await this.studioPlaylists.click();
     await expect(this.page).toHaveURL(/\/playlists$/);
   }
 
   async clickStudioEditChannel() {
-    await this.ensureOnStudioDomain();
+    await ensureOnStudioDomain(this.page);
     await expect(this.studioEditChannel).toBeVisible();
     await this.studioEditChannel.click();
     await expect(this.page).toHaveURL(/\/channel$/);
   }
 
   async clickStudioSettings() {
-    await this.ensureOnStudioDomain();
+    await ensureOnStudioDomain(this.page);
     await expect(this.studioSettings).toBeVisible();
     await this.studioSettings.click();
     await expect(this.page).toHaveURL(/\/settings$/);

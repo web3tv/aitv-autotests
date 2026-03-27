@@ -25,32 +25,42 @@ test.describe('Studio SideBar visual tests', () => {
     });
 
     test('Studio SideBar menu for logged in user', async ({ page }) => {
-        await loginOnMainDomain(page);
-
-        await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('.sidebarNav')).toBeVisible();
-        await page.evaluate(async () => {
-            await document.fonts.ready;
+        await test.step('Login on main domain', async () => {
+            await loginOnMainDomain(page);
         });
-        await expect(page.locator('.sidebarNav')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
+
+        await test.step('Navigate to studio dashboard and verify sidebar screenshot', async () => {
+            await page.goto('/dashboard');
+            await page.waitForLoadState('networkidle');
+            await expect(page.locator('.sidebarNav')).toBeVisible();
+            await page.evaluate(async () => {
+                await document.fonts.ready;
+            });
+            await expect(page.locator('.sidebarNav')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
+        });
     });
 });
 
 test.describe('Studio Header visual tests', () => {
 
     test('Studio Header panel for logged in user', async ({ page }) => {
-        await loginOnMainDomain(page);
-
-        await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('[data-id="header"]')).toBeVisible();
-        await page.evaluate(async () => {
-            await document.fonts.ready;
+        await test.step('Login on main domain', async () => {
+            await loginOnMainDomain(page);
         });
-        await expect(page.locator('[data-id="header"]')).toHaveScreenshot({
-            mask: [
-                page.locator('#profile-button').first()
-            ],
-            maxDiffPixelRatio: 0.02
+
+        await test.step('Navigate to studio dashboard and verify header screenshot', async () => {
+            await page.goto('/dashboard');
+            await page.waitForLoadState('networkidle');
+            await expect(page.locator('[data-id="header"]')).toBeVisible();
+            await page.evaluate(async () => {
+                await document.fonts.ready;
+            });
+            await expect(page.locator('[data-id="header"]')).toHaveScreenshot({
+                mask: [
+                    page.locator('#profile-button')
+                ],
+                maxDiffPixelRatio: 0.02
+            });
         });
     });
 });
