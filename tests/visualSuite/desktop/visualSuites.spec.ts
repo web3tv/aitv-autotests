@@ -43,6 +43,7 @@ test.describe('Header panel visual tests', () => {
         });
         await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible();
         await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
         await expect(page.locator('[data-id="header"]')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
     });
 
