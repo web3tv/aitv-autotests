@@ -22,7 +22,7 @@ export class StudioMembershipPage {
     this.page = page;
     this.membershipTitle = page.getByRole('heading', { name: /membership/i });
     this.addMembershipButton = page.getByRole('button', { name: /add membership/i });
-    this.noMembershipPlansMessage = page.locator('h3');
+    this.noMembershipPlansMessage = page.getByRole('heading', { name: 'No Membership Plans Yet' });
     this.createPlanButton = page.getByRole('button', { name: 'Create plan' });
     this.membershipNameInput = page.getByRole('textbox', { name: 'ex. Crypto Trading' });
     this.membershipDescriptionInput = page.getByRole('textbox', { name: 'What can users expect if they' });
@@ -41,7 +41,8 @@ export class StudioMembershipPage {
   }
 
   async goto() {
-    await this.page.goto('/studio/membership');
+    const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
+    await this.page.goto(`${studioUrl}/membership`, { waitUntil: 'domcontentloaded' });
   }
 
   async addMembershipPlan(membershipName: string, membershipDescription: string) {

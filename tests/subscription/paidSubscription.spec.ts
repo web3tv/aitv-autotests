@@ -29,7 +29,7 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
 
         user = await authApi.createAndVerifyUser();
         await authFlow.loginSuccess(user.email, password, user.username);
-        await sideBar.clickStudioProfileChannel();
+        await sideBar.clickStudioEditChannel();
         await studioProfilePage.changePrivacyToPublic();
     });
 
@@ -37,7 +37,7 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
         const sideBar = new SideBarPage(page);
         const studioMembershipPage = new StudioMembershipPage(page);
 
-        await sideBar.clickStudioMemberships();
+        await sideBar.clickStudioSubscriptions();
         await studioMembershipPage.addMembershipPlan(membershipName, membershipDescription);
         await studioMembershipPage.checkAddedPlan(membershipName, membershipDescription);
     });

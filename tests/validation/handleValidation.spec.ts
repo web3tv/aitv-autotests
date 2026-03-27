@@ -21,7 +21,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
 
-        await sideBarPage.clickStudioProfileChannel();
+        await sideBarPage.clickStudioEditChannel();
         await studioProfilePage.clearHandleInput();
         await studioProfilePage.blur();
         await studioProfilePage.assertError('Handle is required');
@@ -32,7 +32,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
 
-        await sideBarPage.clickStudioProfileChannel();
+        await sideBarPage.clickStudioEditChannel();
         await studioProfilePage.clearHandleInput();
         await studioProfilePage.fillHandleName('abс');
         await studioProfilePage.blur();
@@ -48,7 +48,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
 
-        await sideBarPage.clickStudioProfileChannel();
+        await sideBarPage.clickStudioEditChannel();
         await studioProfilePage.clearHandleInput();
         await studioProfilePage.fillHandleName('hgjfkdlsffoepeoriefeferrerererrrw');
         await studioProfilePage.blur();
@@ -64,7 +64,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
 
-        await sideBarPage.clickStudioProfileChannel();
+        await sideBarPage.clickStudioEditChannel();
         await studioProfilePage.clearHandleInput();
         await studioProfilePage.fillHandleName('abcппкп');
         await studioProfilePage.blur();
@@ -76,7 +76,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
 
-        await sideBarPage.clickStudioProfileChannel();
+        await sideBarPage.clickStudioEditChannel();
         await studioProfilePage.clearHandleInput();
         await studioProfilePage.fillHandleName('abc def');
         await studioProfilePage.blur();
@@ -88,7 +88,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
 
-        await sideBarPage.clickStudioProfileChannel();
+        await sideBarPage.clickStudioEditChannel();
         await studioProfilePage.clearHandleInput();
         await studioProfilePage.fillHandleName('_abcdef');
         await studioProfilePage.blur();
@@ -104,7 +104,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
         
-        await sideBarPage.clickStudioProfileChannel();
+        await sideBarPage.clickStudioEditChannel();
         await studioProfilePage.clearHandleInput();
         await studioProfilePage.fillHandleName(username);
         await studioProfilePage.blur();
@@ -116,7 +116,7 @@ test.describe('Handle validation on Edit Channel Page', { annotation: [{ type: '
         const sideBarPage = new SideBarPage(page)
         const studioProfilePage = new StudioProfilePage(page);
 
-        await sideBarPage.clickStudioProfileChannel();
+        await sideBarPage.clickStudioEditChannel();
         await studioProfilePage.clearHandleInput();
         await studioProfilePage.fillHandleWithoutAssertToHaveValue('FewFWFTESTING');
         await studioProfilePage.blur();

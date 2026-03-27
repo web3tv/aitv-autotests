@@ -14,7 +14,7 @@ export async function setupUserWithPublicChannel(page: Page, request: APIRequest
 
     const user = await authApi.createAndVerifyUser();
     await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
-    await sideBar.clickStudioProfileChannel();
+    await sideBar.clickStudioEditChannel();
     await studioProfilePage.changePrivacyToPublic();
     return user;
 }

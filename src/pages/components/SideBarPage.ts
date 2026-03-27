@@ -15,8 +15,11 @@ export class SideBarPage {
   // STUDIO
   readonly studioDashboard: Locator;
   readonly studioContent: Locator;
-  readonly studioMemberships: Locator;
-  readonly studioProfileChannel: Locator;
+  readonly studioAnalytics: Locator;
+  readonly studioSubscriptions: Locator;
+  readonly studioPlaylists: Locator;
+  readonly studioEditChannel: Locator;
+  readonly studioSettings: Locator;
 
   // SETTINGS
   readonly settingsAccount: Locator;
@@ -46,8 +49,11 @@ export class SideBarPage {
     // STUDIO
     this.studioDashboard            = page.locator('[data-id="Dashboard"]');
     this.studioContent              = page.locator('[data-id="Content"]');
-    this.studioMemberships          = page.locator('[data-id="Memberships"]');
-    this.studioProfileChannel       = page.locator('[data-id="Profile & Channel"]');
+    this.studioAnalytics            = page.locator('[data-id="Analytics"]');
+    this.studioSubscriptions        = page.locator('[data-id="Memberships"]');
+    this.studioPlaylists            = page.locator('[data-id="Playlists"]');
+    this.studioEditChannel          = page.locator('[data-id="Edit channel"]');
+    this.studioSettings             = page.locator('[data-id="Settings"]');
 
     // SETTINGS
     this.settingsAccount            = page.locator('[data-id="Account"]');
@@ -115,28 +121,61 @@ export class SideBarPage {
   // STUDIO ACTIONS
   // =========================
 
+  /** Navigate to studio domain if not already there */
+  private async ensureOnStudioDomain() {
+    const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
+    if (!this.page.url().includes(new URL(studioUrl).hostname)) {
+      await this.page.goto(`${studioUrl}/dashboard`, { waitUntil: 'domcontentloaded' });
+    }
+  }
+
   async clickStudioDashboard() {
+    await this.ensureOnStudioDomain();
     await expect(this.studioDashboard).toBeVisible();
     await this.studioDashboard.click();
-    await expect(this.page).toHaveURL(/\/studio$/);
+    await expect(this.page).toHaveURL(/\/dashboard$/);
   }
 
   async clickStudioContent() {
+    await this.ensureOnStudioDomain();
     await expect(this.studioContent).toBeVisible();
     await this.studioContent.click();
-    await expect(this.page).toHaveURL(/\/studio\/content$/);
+    await expect(this.page).toHaveURL(/\/content$/);
   }
 
-  async clickStudioMemberships() {
-    await expect(this.studioMemberships).toBeVisible();
-    await this.studioMemberships.click();
-    await expect(this.page).toHaveURL(/\/studio\/membership$/);
+  async clickStudioAnalytics() {
+    await this.ensureOnStudioDomain();
+    await expect(this.studioAnalytics).toBeVisible();
+    await this.studioAnalytics.click();
+    await expect(this.page).toHaveURL(/\/stats$/);
   }
 
-  async clickStudioProfileChannel() {
-    await expect(this.studioProfileChannel).toBeVisible();
-    await this.studioProfileChannel.click();
-    await expect(this.page).toHaveURL(/\/studio\/profile$/);
+  async clickStudioSubscriptions() {
+    await this.ensureOnStudioDomain();
+    await expect(this.studioSubscriptions).toBeVisible();
+    await this.studioSubscriptions.click();
+    await expect(this.page).toHaveURL(/\/membership$/);
+  }
+
+  async clickStudioPlaylists() {
+    await this.ensureOnStudioDomain();
+    await expect(this.studioPlaylists).toBeVisible();
+    await this.studioPlaylists.click();
+    await expect(this.page).toHaveURL(/\/playlists$/);
+  }
+
+  async clickStudioEditChannel() {
+    await this.ensureOnStudioDomain();
+    await expect(this.studioEditChannel).toBeVisible();
+    await this.studioEditChannel.click();
+    await expect(this.page).toHaveURL(/\/channel$/);
+  }
+
+  async clickStudioSettings() {
+    await this.ensureOnStudioDomain();
+    await expect(this.studioSettings).toBeVisible();
+    await this.studioSettings.click();
+    await expect(this.page).toHaveURL(/\/settings$/);
   }
 
   // =========================

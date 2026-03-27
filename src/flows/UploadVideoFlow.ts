@@ -17,7 +17,16 @@ export class UploadVideoFlow {
         this.headerPage = new HeaderPage(page);
     }
 
+    /** Navigate to studio domain if not already there */
+    private async ensureOnStudioDomain() {
+        const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
+        if (!this.page.url().includes(new URL(studioUrl).hostname)) {
+            await this.page.goto(`${studioUrl}/studio`, { waitUntil: 'domcontentloaded' });
+        }
+    }
+
     async uploadVideo(pathToFileURL:string,videoName:string){
+        await this.ensureOnStudioDomain();
         await this.headerPage.clickAddVideoBtn();
         await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
@@ -36,6 +45,7 @@ export class UploadVideoFlow {
 
  
     async uploadShort(pathToFileURL:string,videoName:string){
+        await this.ensureOnStudioDomain();
         await this.headerPage.clickAddVideoBtn();
         await this.headerPage.clickNewShortBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Short' })).toBeVisible();

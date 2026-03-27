@@ -129,13 +129,13 @@ test('Notification received on paid subscription purchase', { annotation: { type
 
   await test.step('User B: make channel public', async () => {
     await authFlow.loginSuccess(userB.email, password, userB.username);
-    await sideBarPage.clickStudioProfileChannel();
+    await sideBarPage.clickStudioEditChannel();
     await studioProfilePage.changePrivacyToPublic();
   });
 
   await test.step('User B: create membership plan', async () => {
     const studioMembershipPage = new StudioMembershipPage(page);
-    await sideBarPage.clickStudioMemberships();
+    await sideBarPage.clickStudioSubscriptions();
     await studioMembershipPage.addMembershipPlan('Subscription #1', 'Test Description');
     await studioMembershipPage.checkAddedPlan('Subscription #1', 'Test Description');
   });
@@ -245,11 +245,11 @@ test('Notification received when paid channel uploads paid video', { annotation:
 
   await test.step('User B: make channel public + create membership plan', async () => {
     await authFlow.loginSuccess(userB.email, password, userB.username);
-    await sideBarPage.clickStudioProfileChannel();
+    await sideBarPage.clickStudioEditChannel();
     await studioProfilePage.changePrivacyToPublic();
 
     const studioMembershipPage = new StudioMembershipPage(page);
-    await sideBarPage.clickStudioMemberships();
+    await sideBarPage.clickStudioSubscriptions();
     await studioMembershipPage.addMembershipPlan('Subscription #1', 'Test Description');
     await studioMembershipPage.checkAddedPlan('Subscription #1', 'Test Description');
     await page.goto('/', { waitUntil: 'domcontentloaded' });
