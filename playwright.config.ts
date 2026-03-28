@@ -44,7 +44,7 @@ export default defineConfig({
 
 
     // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" pw-tests npx playwright test --project=visual-desktop-chromium
+    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
     {
       name: 'visual-desktop-chromium',
       testMatch: /visualSuite\/desktop\/visualSuites\.spec\.ts$/,
@@ -60,7 +60,23 @@ export default defineConfig({
     },
 
     // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" pw-tests npx playwright test --project=visual-mobile-chromium
+    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-studio-desktop-chromium
+    {
+      name: 'visual-studio-desktop-chromium',
+      testMatch: /visualSuite\/desktop\/studioVisualSuites\.spec\.ts$/,
+      fullyParallel: false,
+      use: {
+        browserName: 'chromium',
+        baseURL: process.env.STUDIO_URL,
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1,
+        colorScheme: 'light',
+        locale: 'en-US',
+      },
+    },
+
+    // RUN THIS PROJECT ONLY IN DOCKER!
+    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
     {
       name: 'visual-mobile-webkit',
       testMatch: /visualSuite\/mobile\/visualSuites\.spec\.ts$/,

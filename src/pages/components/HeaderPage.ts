@@ -32,14 +32,20 @@ export class HeaderPage {
   }
 
   async clickAddVideoBtn(){
+    await expect(this.addVideoBtn, 'Create button is not visible').toBeVisible();
+    await expect(this.addVideoBtn, 'Create button is not enabled').toBeEnabled();
     await this.addVideoBtn.click();
   }
 
   async clickNewVideoBtn(){
+    await expect(this.newVideoBtn, 'New video button is not visible').toBeVisible();
+    await expect(this.newVideoBtn, 'New video button is not enabled').toBeEnabled();
     await this.newVideoBtn.click();
   }
 
   async clickNewShortBtn(){
+    await expect(this.newShortBtn, 'New short button is not visible').toBeVisible();
+    await expect(this.newShortBtn, 'New short button is not enabled').toBeEnabled();
     await this.newShortBtn.click();
   }
 
@@ -58,7 +64,8 @@ export class HeaderPage {
   }
 
   async clickUserIcon(){
-    await expect(this.userIcon).toBeEnabled();
+    await expect(this.userIcon, 'User icon is not visible').toBeVisible();
+    await expect(this.userIcon, 'User icon is not enabled').toBeEnabled();
     await this.userIcon.click();
   }
   

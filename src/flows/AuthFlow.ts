@@ -254,6 +254,7 @@ export class AuthFlow {
   async logout(){
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();
-    await expect(this.loginPage.page).toHaveURL('/login');
+    await expect(this.page).toHaveURL('/');
+    await expect(this.headerPage.joinBtn, 'Join button should be visible after logout').toBeVisible();
   }
 }

@@ -4,6 +4,7 @@ import { UploadVideoPage } from "../pages/components/UploadVideoPage";
 import { SideBarPage } from "../pages/components/SideBarPage";
 import { Page } from '@playwright/test';
 import { StudioContentPage } from "../pages/studio/StudioContentPage";
+import { ensureOnStudioDomain } from "../utils/studioNavigation";
 
 export class UploadVideoFlow {
     private timestamp: string = '';
@@ -18,6 +19,7 @@ export class UploadVideoFlow {
     }
 
     async uploadVideo(pathToFileURL:string,videoName:string){
+        await ensureOnStudioDomain(this.page);
         await this.headerPage.clickAddVideoBtn();
         await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
@@ -36,6 +38,7 @@ export class UploadVideoFlow {
 
  
     async uploadShort(pathToFileURL:string,videoName:string){
+        await ensureOnStudioDomain(this.page);
         await this.headerPage.clickAddVideoBtn();
         await this.headerPage.clickNewShortBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Short' })).toBeVisible();
@@ -136,10 +139,6 @@ export class UploadVideoFlow {
             
         }
         
-    }
-
-    async chooseMembership(){
-
     }
 
     async clickPublishBtn(){

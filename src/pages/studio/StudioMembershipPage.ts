@@ -16,13 +16,14 @@ export class StudioMembershipPage {
   readonly form: Locator;
   readonly successMessage: Locator;
   readonly closeButton: Locator;
+  readonly createConfirmButton: Locator;
   readonly addedPlanRow: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.membershipTitle = page.getByRole('heading', { name: /membership/i });
     this.addMembershipButton = page.getByRole('button', { name: /add membership/i });
-    this.noMembershipPlansMessage = page.locator('h3');
+    this.noMembershipPlansMessage = page.getByRole('heading', { name: 'No Membership Plans Yet' });
     this.createPlanButton = page.getByRole('button', { name: 'Create plan' });
     this.membershipNameInput = page.getByRole('textbox', { name: 'ex. Crypto Trading' });
     this.membershipDescriptionInput = page.getByRole('textbox', { name: 'What can users expect if they' });
@@ -34,32 +35,65 @@ export class StudioMembershipPage {
     this.form = page.locator('form');
     this.successMessage = page.getByText('Congratulations!Your plan has');
     this.closeButton = page.getByRole('button', { name: 'Close' });
-
+    this.createConfirmButton = page.getByRole('button', { name: 'Create' });
 
     // STUDIO PAGE
     this.addedPlanRow = page.locator("[data-id='data-row']"); 
   }
 
   async goto() {
-    await this.page.goto('/studio/membership');
+    const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
+    await this.page.goto(`${studioUrl}/membership`, { waitUntil: 'domcontentloaded' });
   }
 
   async addMembershipPlan(membershipName: string, membershipDescription: string) {
     await expect(this.noMembershipPlansMessage).toContainText('No Membership Plans Yet 😓');
+
+    await expect(this.createPlanButton, 'Create plan button is not visible').toBeVisible();
+    await expect(this.createPlanButton, 'Create plan button is not enabled').toBeEnabled();
     await this.createPlanButton.click();
+
+    await expect(this.membershipNameInput, 'Membership name input is not visible').toBeVisible();
+    await expect(this.membershipNameInput, 'Membership name input is not enabled').toBeEnabled();
     await this.membershipNameInput.click();
     await this.membershipNameInput.fill(membershipName);
+
+    await expect(this.membershipDescriptionInput, 'Membership description input is not visible').toBeVisible();
+    await expect(this.membershipDescriptionInput, 'Membership description input is not enabled').toBeEnabled();
     await this.membershipDescriptionInput.click();
     await this.membershipDescriptionInput.fill(membershipDescription);
+
+    await expect(this.nextButton, 'Next button is not visible').toBeVisible();
+    await expect(this.nextButton, 'Next button is not enabled').toBeEnabled();
     await this.nextButton.click();
+
+    await expect(this.priceInput, 'Price input is not visible').toBeVisible();
+    await expect(this.priceInput, 'Price input is not enabled').toBeEnabled();
     await this.priceInput.click();
+
+    await expect(this.priceOption, 'Price option is not visible').toBeVisible();
     await this.priceOption.click();
+
+    await expect(this.durationDropdown, 'Duration dropdown is not visible').toBeVisible();
     await this.durationDropdown.click();
+
+    await expect(this.durationOption, 'Duration option is not visible').toBeVisible();
     await this.durationOption.click();
+
     await expect(this.form).toContainText(`${membershipName}0.991 weekSubscribe Now!${membershipDescription}`);
+
+    await expect(this.nextButton, 'Next button is not visible').toBeVisible();
+    await expect(this.nextButton, 'Next button is not enabled').toBeEnabled();
     await this.nextButton.click();
-    await this.page.getByRole('button', { name: 'Create' }).click();
+
+    await expect(this.createConfirmButton, 'Create confirm button is not visible').toBeVisible();
+    await expect(this.createConfirmButton, 'Create confirm button is not enabled').toBeEnabled();
+    await this.createConfirmButton.click();
+
     await expect(this.successMessage).toBeVisible({ timeout: 30_000 });
+
+    await expect(this.closeButton, 'Close button is not visible').toBeVisible();
+    await expect(this.closeButton, 'Close button is not enabled').toBeEnabled();
     await this.closeButton.click();
   }
 

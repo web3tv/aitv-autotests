@@ -57,7 +57,7 @@ test('Edit biography and verify persistence', { annotation: { type: 'TC', descri
   });
 });
 
-test.fixme('Add and edit social links and verify persistence', { annotation: { type: 'TC', description: 'PROFILE-004' } }, async ({ page, request }) => {
+test('Add and edit social links and verify persistence', { annotation: { type: 'TC', description: 'PROFILE-004' } }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
@@ -114,10 +114,6 @@ test.fixme('Add and edit social links and verify persistence', { annotation: { t
     expect(body.data.socials.tiktokUsername, 'TikTok should be empty').toBe('');
   });
 
-  // FIXME: Backend bug — GET /api/users/whoami returns profile.socials: {} even after successful save.
-  // Social links are saved correctly (POST /api/profile/update returns 200 with correct data),
-  // but whoami doesn't return them, so the frontend can't populate the fields on reload.
-  // Uncomment the step below when the bug is fixed.
   await test.step('Reload page — verify social links persisted in form fields', async () => {
     await page.reload({ waitUntil: 'domcontentloaded' });
     await profilePage.assertSocialLinkValue('facebook', '');

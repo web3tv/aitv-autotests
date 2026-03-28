@@ -149,7 +149,7 @@ test.describe('Paid video visibility', () => {
         await test.step('Open video page as anonymous and verify paywall', async () => {
             const channelMainPage = new ChannelMainPage(page);
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(page.locator('h3')).toContainText(setup.membershipName!);
+            await expect(page.getByRole('heading', { name: setup.membershipName! })).toBeVisible();
             await expect(page.locator('body')).toContainText(setup.membershipDescription!);
             await expect(page.locator('body')).toContainText('$0.991 week');
             await channelMainPage.clickRegisterLoginBtn();
@@ -168,7 +168,7 @@ test.describe('Paid video visibility', () => {
             await authFlow.loginSuccess(user2.email, password, user2.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(page.locator('h3')).toContainText(setup.membershipName!);
+            await expect(page.getByRole('heading', { name: setup.membershipName! })).toBeVisible();
             await expect(page.locator('body')).toContainText(setup.membershipDescription!);
             await expect(page.locator('body')).toContainText('$0.991 week');
             await channelMainPage.clickButtonSubscribeNow();

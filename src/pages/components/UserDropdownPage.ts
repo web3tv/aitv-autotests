@@ -18,14 +18,16 @@ export class UserDropdownPage {
     }
 
     async clickAddChannelBtn(){
-        await expect(this.createChannelBtn).toBeEnabled();
+        await expect(this.createChannelBtn, 'Add Channel button is not visible').toBeVisible();
+        await expect(this.createChannelBtn, 'Add Channel button is not enabled').toBeEnabled();
         await this.createChannelBtn.click();
         await this.page.waitForURL('**/create-channel');
         await expect(this.page.getByText('Create Your Web3.TV ChannelSet')).toBeVisible();
     }
-    
+
     async clickLogoutBtn(){
-        await expect(this.logoutBtn).toBeEnabled();
+        await expect(this.logoutBtn, 'Sign out button is not visible').toBeVisible();
+        await expect(this.logoutBtn, 'Sign out button is not enabled').toBeEnabled();
         await this.logoutBtn.click();
     }
 

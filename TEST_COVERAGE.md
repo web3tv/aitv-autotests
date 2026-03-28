@@ -4,6 +4,7 @@
   [AUTO]   — покрыто автотестом
   [TODO]   — не покрыто, нужно автоматизировать
   [MANUAL] — ручное тестирование (не автоматизируемо)
+  [BLOCKED] - ждет фикса
 
 ────────────────────────────────────────────────────────────────
 AUTH
@@ -145,11 +146,15 @@ PAID SUBSCRIPTIONS
 
 ────────────────────────────────────────────────────────────────
 PLAYLISTS
+  Main domain (/playlists) — shows only user's personal playlists
+  Studio domain (/playlists) — shows only the active channel's playlists
 ├── Create playlist                                 [TODO]                                   PLAYLIST-001
 ├── Add video to playlist                           [TODO]                                   PLAYLIST-002
 ├── Remove video from playlist                      [TODO]                                   PLAYLIST-003
 ├── Delete playlist                                 [TODO]                                   PLAYLIST-004
-└── Set playlist visibility (public/private)        [TODO]                                   PLAYLIST-005
+├── Set playlist visibility (public/private)        [TODO]                                   PLAYLIST-005
+├── Main domain: only user playlists shown          [TODO]                                   PLAYLIST-006
+└── Studio domain: only channel playlists shown     [TODO]                                   PLAYLIST-007
 
 ────────────────────────────────────────────────────────────────
 LIBRARY / HISTORY / WATCH LATER / LIKED
@@ -222,6 +227,26 @@ VALIDATION
 └── Social links — max 100 chars each               [TODO]                                   VAL-013
 
 ────────────────────────────────────────────────────────────────
+STUDIO DOMAIN (studio.web3tv.dev) — W3-1943
+  Studio separated to studio.web3tv.dev, main platform stays on web3tv.dev
+  Sidebar "Memberships" button will be renamed from "Subscriptions" later
+├── Studio sidebar: correct items for logged user   [TODO]                                   STUDIO-DOMAIN-001
+│   Dashboard, Content, Analytics, Memberships, Playlists, Edit channel, Settings, Send Feedback
+├── Main sidebar: no studio items for logged user   [TODO]                                   STUDIO-DOMAIN-002
+│   Home, Subscription, Library, History, Continue Watching, My playlists, Watch Later, Liked Videos
+├── Studio sidebar: hidden for anonymous user       [TODO]                                   STUDIO-DOMAIN-003
+├── Anonymous user on studio domain → redirect to main  [TODO]                               STUDIO-DOMAIN-004
+├── Upload button on main → redirect to studio      [TODO]                                   STUDIO-DOMAIN-005
+├── Search bar hidden on studio domain              [TODO]                                   STUDIO-DOMAIN-006
+├── Edit channel click → popup (Cancel/OK) to main  [TODO]                                   STUDIO-DOMAIN-007
+├── Non-studio pages on studio → redirect to main   [TODO]                                   STUDIO-DOMAIN-008
+├── Studio notifications: filtered types only       [TODO]                                   STUDIO-DOMAIN-009
+│   channel_subscription, paid_channel_subscription, comment_reply, ai_metadata_failed, ai_metadata_success
+├── Main domain notifications: all types shown      [TODO]                                   STUDIO-DOMAIN-010
+└── Logout redirects to baseUrl (main domain /)     [TODO]                                   STUDIO-DOMAIN-011
+
+────────────────────────────────────────────────────────────────
 VISUAL REGRESSION
-├── Desktop Chromium snapshot                       [MANUAL] Docker only                     VISUAL-001
-└── Mobile iPhone 15 WebKit snapshot               [MANUAL] Docker only                     VISUAL-002
+├── Desktop Chromium: main domain (9 tests)         [AUTO] Docker only                       VISUAL-001
+├── Desktop Chromium: studio domain (2 tests)       [AUTO] Docker only                       VISUAL-002
+└── Mobile iPhone 15 WebKit (6 tests)               [AUTO] Docker only                       VISUAL-003
