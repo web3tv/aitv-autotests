@@ -74,6 +74,14 @@ CHANNELS
 └── Mint NFT for channel (testnet)                  [MANUAL]                                 CHANNEL-016
 
 ────────────────────────────────────────────────────────────────
+NFT
+  Wallet user registers, opens Studio Settings → NFT section, converts channel
+  via HeroPay mock payment, verifies minting status and NFT details (ERC 721,
+  token contract, explorer link)
+├── Convert channel to NFT via mock payment                [AUTO] tests/studio/nftConversion.spec.ts  NFT-001
+└── Email user without wallet sees add wallet popup       [AUTO] tests/studio/nftConversion.spec.ts  NFT-002
+
+────────────────────────────────────────────────────────────────
 VIDEO UPLOAD
 ├── Upload horizontal video (public)                [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-001
 ├── Upload horizontal video (private)               [TODO]                                      UPLOAD-002
