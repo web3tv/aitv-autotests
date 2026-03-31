@@ -1,52 +1,125 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 import { sendUsdtOnNile } from '../../utils/tronNilePayment';
 
 export class HeroPayPage {
 
     readonly page: Page;
 
+    // Currency selection
+    readonly tetherLink: Locator;
+
+    // Contact Information form (for wallet users without email)
+    readonly emailInput: Locator;
+    readonly consentCheckbox: Locator;
+    readonly submitBtn: Locator;
+
+    // Payment flow
+    readonly iUnderstandBtn: Locator;
+    readonly mockPaymentLink: Locator;
+    readonly confirmationLink: Locator;
+    readonly returnToMerchantLink: Locator;
+
     constructor(page: Page) {
         this.page = page;
+
+        this.tetherLink = page.getByRole('link', { name: /Tether.*USDT.*TRON/ });
+        this.emailInput = page.locator('#email');
+        this.consentCheckbox = page.locator('#consent');
+        this.submitBtn = page.getByRole('button', { name: 'Submit' });
+        this.iUnderstandBtn = page.getByRole('button', { name: 'I understand' });
+        this.mockPaymentLink = page.getByRole('link', { name: 'Mock Payment' });
+        this.confirmationLink = page.getByRole('link', { name: '+1 Confirmation' });
+        this.returnToMerchantLink = page.getByRole('link', { name: 'Return to Merchant' });
+    }
+
+    async mockPaymentWithEmail(email: string){
+        await expect(this.tetherLink, 'Tether USDT link is not visible').toBeVisible();
+        await this.tetherLink.click();
+
+        // Contact Information form — required for wallet users without email
+        await expect(this.emailInput, 'Email input is not visible').toBeVisible();
+        await this.emailInput.fill(email);
+        await expect(this.consentCheckbox, 'Consent checkbox is not visible').toBeVisible();
+        await this.consentCheckbox.check();
+        await expect(this.submitBtn, 'Submit button is not visible').toBeVisible();
+        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
+        await this.submitBtn.click();
+
+        await expect(this.iUnderstandBtn, 'I understand button is not visible').toBeVisible();
+        await this.iUnderstandBtn.click();
+
+        await expect(this.mockPaymentLink, 'Mock Payment link is not visible').toBeVisible();
+        await this.mockPaymentLink.evaluate(el => el.removeAttribute('target'));
+        await this.mockPaymentLink.click();
+
+        await expect(this.submitBtn, 'Submit button is not visible').toBeVisible();
+        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
+        await this.submitBtn.click();
+
+        await expect(this.confirmationLink, '+1 Confirmation link is not visible').toBeVisible();
+        await this.confirmationLink.click();
+
+        await this.page.evaluate(() => window.history.go(-3));
+
+        await expect(this.iUnderstandBtn, 'I understand button is not visible').toBeVisible();
+        await this.iUnderstandBtn.click();
+
+        await expect(this.returnToMerchantLink, 'Return to Merchant link is not visible').toBeVisible();
+        await this.returnToMerchantLink.click();
+        await this.page.waitForLoadState('domcontentloaded');
     }
 
     async mockPayment(){
-        await this.page.getByRole('link', { name: 'Tether USDT - TRON >' }).click();
-        await this.page.getByRole('button', { name: 'I understand' }).click();
-        const link = this.page.getByRole('link', { name: 'Mock Payment' });
-        await link.evaluate(el => el.removeAttribute('target'));
-        await link.click();
-        await this.page.waitForTimeout(1000);
-        await this.page.getByRole('button', { name: 'Submit' }).click();
-        await this.page.waitForTimeout(1000);
-        await this.page.getByRole('link', { name: '+1 Confirmation' }).click();
-        await this.page.waitForTimeout(1000);
-        await this.page.evaluate(() => window.history.go(-3));
-        await this.page.waitForTimeout(1000);
-        await Promise.all([
-            this.page.waitForLoadState('networkidle'),
-            this.page.getByRole('button', { name: 'I understand' }).click(),
-            this.page.getByRole('link', { name: 'Return to Merchant' }).click()
+        await expect(this.tetherLink, 'Tether USDT link is not visible').toBeVisible();
+        await this.tetherLink.click();
 
-        ]);
-        await this.page.waitForTimeout(1000);
+        await expect(this.iUnderstandBtn, 'I understand button is not visible').toBeVisible();
+        await this.iUnderstandBtn.click();
+
+        await expect(this.mockPaymentLink, 'Mock Payment link is not visible').toBeVisible();
+        await this.mockPaymentLink.evaluate(el => el.removeAttribute('target'));
+        await this.mockPaymentLink.click();
+
+        await expect(this.submitBtn, 'Submit button is not visible').toBeVisible();
+        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
+        await this.submitBtn.click();
+
+        await expect(this.confirmationLink, '+1 Confirmation link is not visible').toBeVisible();
+        await this.confirmationLink.click();
+
+        await this.page.evaluate(() => window.history.go(-3));
+
+        await expect(this.iUnderstandBtn, 'I understand button is not visible').toBeVisible();
+        await this.iUnderstandBtn.click();
+
+        await expect(this.returnToMerchantLink, 'Return to Merchant link is not visible').toBeVisible();
+        await this.returnToMerchantLink.click();
+        await this.page.waitForLoadState('domcontentloaded');
     }
 
     async initiateMockPaymentWithoutConfirmation() {
-        await this.page.getByRole('link', { name: 'Tether USDT - TRON >' }).click();
-        await this.page.getByRole('button', { name: 'I understand' }).click();
-        const link = this.page.getByRole('link', { name: 'Mock Payment' });
-        await link.evaluate(el => el.removeAttribute('target'));
-        await link.click();
-        await this.page.waitForTimeout(1000);
-        await this.page.getByRole('button', { name: 'Submit' }).click();
-        await this.page.waitForTimeout(1000);
+        await expect(this.tetherLink, 'Tether USDT link is not visible').toBeVisible();
+        await this.tetherLink.click();
+
+        await expect(this.iUnderstandBtn, 'I understand button is not visible').toBeVisible();
+        await this.iUnderstandBtn.click();
+
+        await expect(this.mockPaymentLink, 'Mock Payment link is not visible').toBeVisible();
+        await this.mockPaymentLink.evaluate(el => el.removeAttribute('target'));
+        await this.mockPaymentLink.click();
+
+        await expect(this.submitBtn, 'Submit button is not visible').toBeVisible();
+        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
+        await this.submitBtn.click();
+
         // Do NOT click "+1 Confirmation" — leave payment in Pending state
         await this.page.evaluate(() => window.history.go(-2));
         await this.page.waitForTimeout(1000);
     }
 
     async testnetPayment() {
-        await this.page.getByRole('link', { name: 'Tether USDT - TRON >' }).click();
+        await expect(this.tetherLink, 'Tether USDT link is not visible').toBeVisible();
+        await this.tetherLink.click();
 
         // Parse recipient address and amount from QR code title attribute
         // Format: "tron:{address}?amount={amount}"
@@ -68,14 +141,9 @@ export class HeroPayPage {
         await sendUsdtOnNile(toAddress, amount);
 
         // Wait for Hero Pay to detect the payment and show "Return to Merchant"
-        const returnLink = this.page.getByRole('link', { name: 'Return to Merchant' });
-        await returnLink.waitFor({ state: 'visible', timeout: 120_000 });
-
-        await Promise.all([
-            this.page.waitForLoadState('networkidle'),
-            returnLink.click(),
-        ]);
-        await this.page.waitForTimeout(1000);
+        await expect(this.returnToMerchantLink, 'Return to Merchant link is not visible').toBeVisible({ timeout: 120_000 });
+        await this.returnToMerchantLink.click();
+        await this.page.waitForLoadState('domcontentloaded');
     }
 
 }

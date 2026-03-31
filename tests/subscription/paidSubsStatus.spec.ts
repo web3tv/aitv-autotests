@@ -74,6 +74,7 @@ test('PAID-008: Pending payment status on /my-paid-subs', {
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
         await channelMainPage.assertSubscriptionCardVisible();
         await channelMainPage.clickButtonSubscribeNow();
+        await channelMainPage.clickPayWith();
         await heroPayPage.initiateMockPaymentWithoutConfirmation();
     });
 

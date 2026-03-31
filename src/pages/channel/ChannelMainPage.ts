@@ -21,6 +21,7 @@ export class ChannelMainPage {
     readonly subscriptionCard: Locator;
     readonly subscribeBtn: Locator;
     readonly registerLoginBtn: Locator;
+    readonly payWithBtn: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -36,6 +37,7 @@ export class ChannelMainPage {
         this.subscriptionCard = page.locator('[data-id="sub-card"]');
         this.subscribeBtn = page.getByRole('button', { name: 'Subscribe Now!' });
         this.registerLoginBtn = page.getByRole('button', { name: 'Register/Login' });
+        this.payWithBtn = page.getByRole('button', { name: /Pay With/ });
     }
 
 
@@ -111,8 +113,16 @@ export class ChannelMainPage {
 
     // PAID VIDEO
 
+    async clickPayWith(){
+        await expect(this.payWithBtn, 'Pay With button is not visible').toBeVisible();
+        await expect(this.payWithBtn, 'Pay With button is not enabled').toBeEnabled();
+        await this.payWithBtn.click();
+        await this.page.waitForURL(/pay\.hero\.io/, { timeout: 30_000 });
+    }
+
     async purhcaseMembershipFromMembershipPageMockPayment(){
         await this.clickButtonSubscribeNow();
+        await this.clickPayWith();
         const heroPay = new HeroPayPage(this.page);
         await heroPay.mockPayment();
         await expect(this.page.locator('body')).toContainText('Active');
@@ -120,6 +130,7 @@ export class ChannelMainPage {
 
     async purhcaseMembershipFromMembershipPageTestNet(){
         await this.clickButtonSubscribeNow();
+        await this.clickPayWith();
         const heroPay = new HeroPayPage(this.page);
         await heroPay.testnetPayment();
 
@@ -128,7 +139,7 @@ export class ChannelMainPage {
         while (Date.now() < deadline) {
             const body = await this.page.locator('body').innerText();
             if (body.includes('Active') && !body.includes('Inactive')) break;
-            await this.page.reload({ waitUntil: 'networkidle' });
+            await this.page.reload({ waitUntil: 'domcontentloaded' });
             await this.page.waitForTimeout(15_000);
         }
         await expect(this.page.locator('body')).toContainText('Active');
