@@ -105,3 +105,59 @@ await loginPage.registerWalletBtn.click();
 ```
 
 Apply this pattern consistently in all Page Object methods and Flow steps. The message should name the element and describe the failure (e.g. `'Submit button is not enabled'`, `'Email input is not visible'`).
+
+**TC annotation convention:**
+Each test must have a TC ID in `annotation`, **not** in the test name. One TC ID = one `test()`.
+
+```typescript
+// WRONG — ID duplicated in name
+test('STUDIO-017: Search filters videos by title', {
+    annotation: { type: 'TC', description: 'STUDIO-017' },
+}, ...)
+
+// CORRECT — ID only in annotation
+test('Search filters videos by title', {
+    annotation: { type: 'TC', description: 'STUDIO-017' },
+}, ...)
+```
+
+**Wrap logical steps in `test.step()`:**
+Every test must use `test.step()` for each logical phase (setup, action, assertion).
+
+```typescript
+test('My test', async ({ page }) => {
+    await test.step('Create user and login', async () => { ... });
+    await test.step('Navigate to page', async () => { ... });
+    await test.step('Verify result', async () => { ... });
+});
+```
+
+**Independent user per test:**
+Each `test()` creates its own user via `AuthApi.createAndVerifyUser()`. Never share users or state between tests.
+
+**`waitForResponse` before trigger action:**
+Register `page.waitForResponse` **before** the action that triggers the request, otherwise it's a race condition.
+
+```typescript
+// WRONG — response may fire before waitForResponse is registered
+await sideBar.clickStudioContent();
+await page.waitForResponse(r => r.url().includes('/api/videos') && r.status() === 200);
+
+// CORRECT
+const responsePromise = page.waitForResponse(
+    r => r.url().includes('/api/videos') && r.status() === 200,
+    { timeout: 15000 }
+);
+await sideBar.clickStudioContent();
+await responsePromise;
+```
+
+**Never use `waitUntil: 'networkidle'` on video pages:**
+Video pages continuously send network requests (streaming, player). Use `domcontentloaded` instead:
+
+```typescript
+await page.goto(url, { waitUntil: 'domcontentloaded' });
+```
+
+**Page Object locators — constructor only:**
+All locators must be defined in the constructor. Never create locators inline in methods.
