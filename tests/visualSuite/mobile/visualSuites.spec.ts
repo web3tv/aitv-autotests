@@ -49,7 +49,8 @@ test.describe('Mobile visual tests', () => {
         await expect(page).toHaveScreenshot({
             mask: [
                 page.locator('[data-id="recommended-videos"]'),
-                page.locator('[aria-label="Video Player"]')
+                page.locator('[aria-label="Video Player"]'),
+                page.locator('[data-id="name"]')
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -67,7 +68,8 @@ test.describe('Mobile visual tests', () => {
         await expect(page).toHaveScreenshot({
             mask: [
                 page.locator('[data-id="recommended-videos"]'),
-                page.locator('[aria-label="Video Player"]')
+                page.locator('[aria-label="Video Player"]'),
+                page.locator('[data-id="name"]')
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -88,7 +90,8 @@ test.describe('Mobile visual tests', () => {
                 page.locator('[data-id="video"]'),
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')
+                page.locator('[data-id="subscribers"]'),
+                page.locator('[data-id="name"]')
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -110,7 +113,8 @@ test.describe('Mobile visual tests', () => {
                 page.locator('[data-id="video"]'),
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')
+                page.locator('[data-id="subscribers"]'),
+                page.locator('[data-id="name"]')
             ],
             maxDiffPixelRatio: 0.02
         });
