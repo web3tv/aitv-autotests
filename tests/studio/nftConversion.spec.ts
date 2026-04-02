@@ -7,7 +7,7 @@ import { HeroPayPage } from '../../src/pages/heroPay/HeroPayPage';
 
 test('Convert channel to NFT via mock payment',
     { annotation: { type: 'TC', description: 'NFT-001' } },
-    async ({ page }) => {
+    async ({ page, request }) => {
         test.setTimeout(300_000);
 
         const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
@@ -44,6 +44,28 @@ test('Convert channel to NFT via mock payment',
         await test.step('Wait for NFT minted and verify NFT details', async () => {
             await settingsPage.waitForNftMinted();
             await settingsPage.assertNftDetailsVisible();
+        });
+
+        await test.step('Verify NFT metadata JSON contains all required fields', async () => {
+            const tokenId = await settingsPage.getTokenIdFromExplorerLink();
+            const metadataUrl = `http://nft.web3tv.dev/m/${tokenId}`;
+
+            const response = await request.get(metadataUrl);
+            expect(response.ok(), `NFT metadata request failed: ${response.status()}`).toBeTruthy();
+
+            const metadata = await response.json();
+
+            expect(metadata.name, 'NFT metadata: name is missing').toBeTruthy();
+            expect(metadata.description, 'NFT metadata: description is missing').toBeTruthy();
+            expect(metadata.image, 'NFT metadata: image is missing').toBeTruthy();
+            expect(metadata.external_url, 'NFT metadata: external_url is missing').toBeTruthy();
+            expect(metadata.collection_name, 'NFT metadata: collection_name is missing').toBeTruthy();
+            expect(metadata.collection_description, 'NFT metadata: collection_description is missing').toBeTruthy();
+            expect(metadata.attributes, 'NFT metadata: attributes is missing').toBeTruthy();
+            expect(Array.isArray(metadata.attributes), 'NFT metadata: attributes is not an array').toBeTruthy();
+            expect(metadata.attributes.length, 'NFT metadata: attributes is empty').toBeGreaterThan(0);
+            expect(metadata.attributes[0].trait_type, 'NFT metadata: trait_type is missing').toBe('Platform');
+            expect(metadata.attributes[0].value, 'NFT metadata: trait value is missing').toBe('Web3.tv');
         });
     }
 );
