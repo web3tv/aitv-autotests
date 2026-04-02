@@ -135,4 +135,17 @@ export class StudioSettingsPage {
         await expect(this.tokenContract, 'Token Contract is not visible').toBeVisible();
         await expect(this.explorerLink, 'Explorer link is not visible').toBeVisible();
     }
+
+    async getTokenIdFromExplorerLink(): Promise<string> {
+        await expect(this.explorerLink, 'Explorer link is not visible').toBeVisible();
+        const href = await this.explorerLink.getAttribute('href');
+        if (!href) throw new Error('Explorer link has no href');
+        // Format: https://sepolia.etherscan.io/nft/{contract}/{tokenId}
+        const parts = href.split('/');
+        const tokenId = parts[parts.length - 1];
+        if (!tokenId || !/^\d+$/.test(tokenId)) {
+            throw new Error(`Cannot extract token ID from explorer link: ${href}`);
+        }
+        return tokenId;
+    }
 }
