@@ -198,7 +198,10 @@ STUDIO CONTENT PAGE
 ├── Filter by status: Draft                         [TODO]                                   STUDIO-013
 ├── Filter: multiple checkboxes combined            [TODO]                                   STUDIO-014
 ├── Filter: Reset clears all filters                [TODO]                                   STUDIO-015
-└── Action menu: edit video                         [TODO]                                   STUDIO-016
+├── Action menu: edit video                         [TODO]                                   STUDIO-016
+├── Search filters videos by title                  [AUTO] tests/studio/studioSearch.spec.ts STUDIO-017
+├── Search does NOT match by description            [AUTO] tests/studio/studioSearch.spec.ts STUDIO-018
+└── Search filters shorts by title                  [AUTO] tests/studio/studioSearch.spec.ts STUDIO-019
 
 ────────────────────────────────────────────────────────────────
 HOME PAGE
