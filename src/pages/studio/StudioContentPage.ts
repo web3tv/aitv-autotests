@@ -9,11 +9,10 @@ export class StudioContentPage {
     readonly firstVideoVisibility: Locator;
     readonly shortsTab: Locator;
     readonly videosTab: Locator;
-    readonly liveTab: Locator; 
+    readonly liveTab: Locator;
     readonly playlistTab: Locator;
-
-
-
+    readonly searchInput: Locator;
+    readonly videoRows: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -27,6 +26,9 @@ export class StudioContentPage {
         this.videosTab = this.page.locator('[data-id="videos-tab"]');
         this.liveTab = this.page.locator('[data-id="live-tab"]');
         this.playlistTab = this.page.locator('[data-id="playlist-tab"]');
+
+        this.searchInput = this.page.locator('[data-testid="studioSearchInput"]');
+        this.videoRows = this.page.locator('[data-testid="video-row"]');
     }
 
     async checkVideoDescription(description: any){
@@ -63,4 +65,28 @@ export class StudioContentPage {
         await this.playlistTab.click();
     }
 
+    async searchByText(text: string) {
+        await expect(this.searchInput, 'Search input is not visible').toBeVisible();
+        await expect(this.searchInput, 'Search input is not enabled').toBeEnabled();
+        await this.searchInput.fill(text);
+    }
+
+    async clearSearch() {
+        await expect(this.searchInput, 'Search input is not visible').toBeVisible();
+        await expect(this.searchInput, 'Search input is not enabled').toBeEnabled();
+        await this.searchInput.fill('');
+    }
+
+    async getVideoRowsCount(): Promise<number> {
+        return await this.videoRows.count();
+    }
+
+    async assertVideoRowContainsTitle(title: string) {
+        const row = this.videoRows.filter({ hasText: title });
+        await expect(row.first(), `Video row with title "${title}" is not visible`).toBeVisible();
+    }
+
+    async assertNoVideoRows() {
+        await expect(this.videoRows.first()).not.toBeVisible({ timeout: 5000 });
+    }
 }
