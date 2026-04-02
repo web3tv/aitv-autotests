@@ -1,21 +1,52 @@
-
-import { test, expect } from '@playwright/test';
+import { test, expect, request as playwrightRequest } from '@playwright/test';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { VideoApi } from '../../../src/api/VideoApi';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 
+test.describe('Mobile visual tests', () => {
 
-test.describe('Video page visual tests', () => {
-    const videoUrl = process.env.VIDEO_FREE_URL!;
+    let userEmail: string;
+    let password: string;
+    let username: string;
+    let videoUrl: string;
+    let channelUrl: string;
+
+    test.beforeAll(async () => {
+        const requestContext = await playwrightRequest.newContext();
+        const authApi = new AuthApi(requestContext);
+        const videoApi = new VideoApi(requestContext);
+        password = process.env.USER_PASSWORD!;
+        const baseUrl = process.env.BASE_URL!;
+
+        const user = await authApi.createAndVerifyUser();
+        userEmail = user.email;
+        username = user.username;
+
+        const token = await authApi.getUserToken(user.email, password);
+        const channelId = await videoApi.getChannelId(token);
+        await videoApi.setChannelPublic(token, channelId, user.username);
+
+        const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
+            title: `Visual_${Date.now()}`,
+            description: 'Visual test video',
+            privacySetting: 'public',
+            waitForProcessing: true,
+        });
+        videoUrl = video.videoPlayerFeUrl;
+        channelUrl = `${baseUrl}/@${user.username}`;
+
+        await requestContext.dispose();
+    });
+
+    // ── Video page ──
 
     test('Video page for anonymous user', async ({ page }) => {
-        await page.goto(videoUrl);
-        await page.waitForLoadState('networkidle');
+        await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
         await expect(page.locator('h1')).toBeVisible();
-        await expect(page.getByRole('link', { name: 'user_with_public_videos Channel 0 Subscribers' })).toBeVisible();
         await expect(page).toHaveScreenshot({
-            // fullPage: true,
             mask: [
                 page.locator('[data-id="recommended-videos"]'),
                 page.locator('[aria-label="Video Player"]')
@@ -23,22 +54,17 @@ test.describe('Video page visual tests', () => {
             maxDiffPixelRatio: 0.02
         });
     });
-    
+
     test('Video page for logged in user', async ({ page }) => {
         const authFlow = new AuthFlow(page);
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password, login, 'mobile');
+        await authFlow.loginSuccess(userEmail, password, username, 'mobile');
 
-        await page.goto(videoUrl);
-        await page.waitForLoadState('networkidle');
+        await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
         await expect(page.locator('h1')).toBeVisible();
-        await expect(page.getByRole('link', { name: 'user_with_public_videos Channel 0 Subscribers' })).toBeVisible();
         await expect(page).toHaveScreenshot({
-            // fullPage: true,
             mask: [
                 page.locator('[data-id="recommended-videos"]'),
                 page.locator('[aria-label="Video Player"]')
@@ -46,10 +72,8 @@ test.describe('Video page visual tests', () => {
             maxDiffPixelRatio: 0.02
         });
     });
-})
 
-test.describe('Channel page visual tests', () => {
-    const channelUrl = process.env.USER_CHANNEL_PUBLIC_URL!;
+    // ── Channel page ──
 
     test('Channel page for anonymous user', async ({ page }) => {
         await page.goto(channelUrl);
@@ -64,7 +88,7 @@ test.describe('Channel page visual tests', () => {
                 page.locator('[data-id="video"]'),
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')            
+                page.locator('[data-id="subscribers"]')
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -72,10 +96,8 @@ test.describe('Channel page visual tests', () => {
 
     test('Channel page for logged in user', async ({ page }) => {
         const authFlow = new AuthFlow(page);
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password, login, 'mobile');
-        
+        await authFlow.loginSuccess(userEmail, password, username, 'mobile');
+
         await page.goto(channelUrl);
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
@@ -88,15 +110,13 @@ test.describe('Channel page visual tests', () => {
                 page.locator('[data-id="video"]'),
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')            
+                page.locator('[data-id="subscribers"]')
             ],
             maxDiffPixelRatio: 0.02
         });
     });
 
-})
-
-test.describe('Mobile navigation buttons visual tests', () => {
+    // ── Mobile navigation buttons ──
 
     test('Mobile navigation buttonse for anonymous user', async ({ page }) => {
         await page.goto('/');
@@ -106,22 +126,20 @@ test.describe('Mobile navigation buttons visual tests', () => {
         });
         await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible({timeout:10_000});
         await expect(page.getByText('HomeShortsYou')).toBeVisible({timeout:10_000});
-        await expect(page.getByText('HomeShortsYou')).toHaveScreenshot({maxDiffPixelRatio: 0.02});  
+        await expect(page.getByText('HomeShortsYou')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
     });
 
     test('Mobile navigation buttons for logged in user', async ({ page }) => {
         const authFlow = new AuthFlow(page);
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password, login, 'mobile');
-        
+        await authFlow.loginSuccess(userEmail, password, username, 'mobile');
+
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
         await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible({timeout:10_000});
         await expect(page.getByText('HomeShortsYou')).toBeVisible({timeout:10_000});
-        await expect(page.getByText('HomeShortsYou')).toHaveScreenshot({maxDiffPixelRatio: 0.02}); 
+        await expect(page.getByText('HomeShortsYou')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
     });
 
 })

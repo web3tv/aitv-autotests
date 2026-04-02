@@ -1,70 +1,167 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, request as playwrightRequest } from '@playwright/test';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { VideoApi } from '../../../src/api/VideoApi';
 import { LoginPage } from '../../../src/pages/auth/LoginPage';
 
 const mainBaseUrl = process.env.BASE_URL || 'https://web3tv.dev';
 
-/**
- * Login on main domain (web3tv.dev), then navigate to studio domain (studio.web3tv.dev).
- * Relies on session cookie being shared across subdomains (*.web3tv.dev).
- * If cookies are scoped to web3tv.dev only, studio domain will not see the authenticated session.
- */
-async function loginOnMainDomain(page: import('@playwright/test').Page) {
-    const login = process.env.USER_LOGIN_PUBLIC!;
-    const password = process.env.USER_PASSWORD!;
+async function loginOnMainDomain(page: import('@playwright/test').Page, email: string, password: string) {
     const loginPage = new LoginPage(page);
 
     await page.goto(`${mainBaseUrl}/login`);
     await page.waitForLoadState('networkidle');
-    await loginPage.fillEmailInput(login);
+    await loginPage.fillEmailInput(email);
     await loginPage.fillPasswordInput(password);
     await loginPage.clickLoginBtn();
     await page.waitForURL(`${mainBaseUrl}/`);
     await page.waitForResponse(resp => resp.url().includes('/api/users/whoami') && resp.status() === 200, { timeout: 40_000 });
 }
 
-test.describe('Studio SideBar visual tests', () => {
+test.describe('Studio visual tests', () => {
 
-    test.use({
-        viewport: { width: 2560, height: 2000 },
+    let userEmail: string;
+    let password: string;
+
+    test.beforeAll(async () => {
+        const requestContext = await playwrightRequest.newContext();
+        const authApi = new AuthApi(requestContext);
+        const videoApi = new VideoApi(requestContext);
+        password = process.env.USER_PASSWORD!;
+
+        const user = await authApi.createAndVerifyUser();
+        userEmail = user.email;
+
+        const token = await authApi.getUserToken(user.email, password);
+        const channelId = await videoApi.getChannelId(token);
+        await videoApi.setChannelPublic(token, channelId, user.username);
+
+        await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
+            title: `Visual_${Date.now()}`,
+            description: 'Visual test video',
+            privacySetting: 'public',
+            waitForProcessing: true,
+        });
+
+        await requestContext.dispose();
     });
+
+    // ── SideBar ──
 
     test('Studio SideBar menu for logged in user', async ({ page }) => {
-        await test.step('Login on main domain', async () => {
-            await loginOnMainDomain(page);
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/dashboard');
+        await page.waitForLoadState('networkidle');
+        await expect(page.locator('.sidebarNav')).toBeVisible();
+        await page.evaluate(async () => {
+            await document.fonts.ready;
         });
-
-        await test.step('Navigate to studio dashboard and verify sidebar screenshot', async () => {
-            await page.goto('/dashboard');
-            await page.waitForLoadState('networkidle');
-            await expect(page.locator('.sidebarNav')).toBeVisible();
-            await page.evaluate(async () => {
-                await document.fonts.ready;
-            });
-            await expect(page.locator('.sidebarNav')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
-        });
+        await expect(page.locator('.sidebarNav')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
     });
-});
 
-test.describe('Studio Header visual tests', () => {
+    // ── Header ──
 
     test('Studio Header panel for logged in user', async ({ page }) => {
-        await test.step('Login on main domain', async () => {
-            await loginOnMainDomain(page);
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/dashboard');
+        await page.waitForLoadState('networkidle');
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await page.evaluate(async () => {
+            await document.fonts.ready;
         });
+        await expect(page.locator('[data-id="header"]')).toHaveScreenshot({
+            mask: [
+                page.locator('#profile-button')
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
 
-        await test.step('Navigate to studio dashboard and verify header screenshot', async () => {
-            await page.goto('/dashboard');
-            await page.waitForLoadState('networkidle');
-            await expect(page.locator('[data-id="header"]')).toBeVisible();
-            await page.evaluate(async () => {
-                await document.fonts.ready;
-            });
-            await expect(page.locator('[data-id="header"]')).toHaveScreenshot({
-                mask: [
-                    page.locator('#profile-button')
-                ],
-                maxDiffPixelRatio: 0.02
-            });
+    // ── Studio pages ──
+
+    test('Studio Dashboard for logged in user', async ({ page }) => {
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/dashboard');
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page).toHaveScreenshot({
+            mask: [
+                page.locator('#profile-button'),
+                page.locator('[data-id="analytics-data"]'),
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
+
+    test('Studio Content page for logged in user', async ({ page }) => {
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/content');
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page).toHaveScreenshot({
+            mask: [
+                page.locator('#profile-button'),
+                page.locator('[data-testid="video-row"]'),
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
+
+    test('Studio Settings page for logged in user', async ({ page }) => {
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/settings');
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page).toHaveScreenshot({
+            mask: [
+                page.locator('#profile-button'),
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
+
+    test('Studio Edit Channel page for logged in user', async ({ page }) => {
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/channel');
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page).toHaveScreenshot({
+            mask: [
+                page.locator('#profile-button'),
+                page.locator('[data-id="avatar"]'),
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
+
+    test('Studio Playlists page for logged in user', async ({ page }) => {
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/playlists');
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page).toHaveScreenshot({
+            mask: [
+                page.locator('#profile-button'),
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
+
+    test('Studio Membership page for logged in user', async ({ page }) => {
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/membership');
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page).toHaveScreenshot({
+            mask: [
+                page.locator('#profile-button'),
+            ],
+            maxDiffPixelRatio: 0.02
         });
     });
 });

@@ -1,13 +1,46 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, request as playwrightRequest } from '@playwright/test';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { VideoApi } from '../../../src/api/VideoApi';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 
+test.describe('Main domain visual tests', () => {
 
+    test.use({ viewport: { width: 2560, height: 2000 } });
 
-test.describe('SideBar menu visual tests', () => {
+    let userEmail: string;
+    let password: string;
+    let username: string;
+    let videoUrl: string;
+    let channelUrl: string;
 
-    test.use({
-        viewport: { width: 2560, height: 2000 },
+    test.beforeAll(async () => {
+        const requestContext = await playwrightRequest.newContext();
+        const authApi = new AuthApi(requestContext);
+        const videoApi = new VideoApi(requestContext);
+        password = process.env.USER_PASSWORD!;
+        const baseUrl = process.env.BASE_URL!;
+
+        const user = await authApi.createAndVerifyUser();
+        userEmail = user.email;
+        username = user.username;
+
+        const token = await authApi.getUserToken(user.email, password);
+        const channelId = await videoApi.getChannelId(token);
+        await videoApi.setChannelPublic(token, channelId, user.username);
+
+        const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
+            title: `Visual_${Date.now()}`,
+            description: 'Visual test video',
+            privacySetting: 'public',
+            waitForProcessing: true,
+        });
+        videoUrl = video.videoPlayerFeUrl;
+        channelUrl = `${baseUrl}/@${user.username}`;
+
+        await requestContext.dispose();
     });
+
+    // ── SideBar ──
 
     test('SideBar menu for anonymous user', async ({ page }) => {
         await page.goto('/');
@@ -21,19 +54,15 @@ test.describe('SideBar menu visual tests', () => {
 
     test('SideBar menu for logged in user', async ({ page }) => {
         const authFlow = new AuthFlow(page);
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password, login);
+        await authFlow.loginSuccess(userEmail, password, username);
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
         await expect(page.locator('.sidebarNav')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
     });
-})
 
-test.describe('Header panel visual tests', () => {
-
+    // ── Header ──
 
     test('Header panel for anonymous user', async ({ page }) => {
         await page.goto('/');
@@ -49,9 +78,7 @@ test.describe('Header panel visual tests', () => {
 
     test('Header panel for logged in user', async ({ page }) => {
         const authFlow = new AuthFlow(page);
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password, login);
+        await authFlow.loginSuccess(userEmail, password, username);
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
             await document.fonts.ready;
@@ -63,21 +90,32 @@ test.describe('Header panel visual tests', () => {
             ],
             maxDiffPixelRatio: 0.02
         });
-       
     });
-})
 
-test.describe('Video page visual tests', () => {
-    const videoUrl = process.env.VIDEO_FREE_URL!;
-
-    test('Video page for anonymous user', async ({ page }) => {
-        await page.goto(videoUrl);
+    test('Header panel for wallet user', async ({ page }) => {
+        const authFlow = new AuthFlow(page);
+        await authFlow.walletRegisterSuccess();
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page.locator('[data-id="header"]')).toHaveScreenshot({
+            mask: [
+                page.locator('[id="profile-button"]')
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
+
+    // ── Video page ──
+
+    test('Video page for anonymous user', async ({ page }) => {
+        await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        await page.evaluate(async () => {
+            await document.fonts.ready;
+        });
         await expect(page.locator('h1')).toBeVisible();
-        await expect(page.getByRole('link', { name: 'user_with_public_videos Channel 0 Subscribers' })).toBeVisible();
         await expect(page).toHaveScreenshot({
             fullPage: true,
             mask: [
@@ -90,17 +128,13 @@ test.describe('Video page visual tests', () => {
 
     test('Video page for logged in user', async ({ page }) => {
         const authFlow = new AuthFlow(page);
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password, login);
+        await authFlow.loginSuccess(userEmail, password, username);
 
-        await page.goto(videoUrl);
-        await page.waitForLoadState('networkidle');
+        await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
         await expect(page.locator('h1')).toBeVisible();
-        await expect(page.getByRole('link', { name: 'user_with_public_videos Channel 0 Subscribers' })).toBeVisible();
         await expect(page).toHaveScreenshot({
             fullPage: true,
             mask: [
@@ -109,12 +143,9 @@ test.describe('Video page visual tests', () => {
             ],
             maxDiffPixelRatio: 0.02
         });
-       
     });
-})
 
-test.describe('Channel page visual tests', () => {
-    const channelUrl = process.env.USER_CHANNEL_PUBLIC_URL!;
+    // ── Channel page ──
 
     test('Channel page for anonymous user', async ({ page }) => {
         await page.goto(channelUrl);
@@ -129,7 +160,7 @@ test.describe('Channel page visual tests', () => {
                 page.locator('[data-id="video"]'),
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')            
+                page.locator('[data-id="subscribers"]')
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -137,10 +168,8 @@ test.describe('Channel page visual tests', () => {
 
     test('Channel page for logged in user', async ({ page }) => {
         const authFlow = new AuthFlow(page);
-        const login = process.env.USER_LOGIN_PUBLIC!;
-        const password = process.env.USER_PASSWORD!;
-        await authFlow.loginSuccess(login, password, login);
-        
+        await authFlow.loginSuccess(userEmail, password, username);
+
         await page.goto(channelUrl);
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
@@ -153,7 +182,7 @@ test.describe('Channel page visual tests', () => {
                 page.locator('[data-id="video"]'),
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')            
+                page.locator('[data-id="subscribers"]')
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -173,7 +202,7 @@ test.describe('Channel page visual tests', () => {
                 page.locator('[data-id="video"]'),
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')            
+                page.locator('[data-id="subscribers"]')
             ],
             maxDiffPixelRatio: 0.02
         });
