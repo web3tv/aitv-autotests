@@ -82,6 +82,8 @@ export class VideoApi {
         const filename = path.basename(filePath);
         const ext = path.extname(filePath).toLowerCase();
         const mimeType = ext === ".mov" ? "video/quicktime" : "video/mp4";
+        const fileBuffer = fs.readFileSync(filePath);
+        const checksum = crypto.createHash("sha256").update(fileBuffer).digest("hex");
 
         const response = await this.request.post(`${this.baseUrl}/videos/`, {
             headers: {
@@ -94,6 +96,7 @@ export class VideoApi {
                 filename,
                 size: stats.size,
                 mimeType,
+                checksum,
             },
         });
 
@@ -122,6 +125,11 @@ export class VideoApi {
             .update(fileBuffer)
             .digest("hex");
 
+        const sha256Hash = crypto
+            .createHash("sha256")
+            .update(fileBuffer)
+            .digest("hex");
+
         const MAX_CHUNK_SIZE = 52428800; // 50MB
         const contentRange = `bytes 0-${size}/${size}/${MAX_CHUNK_SIZE}`;
 
@@ -133,6 +141,7 @@ export class VideoApi {
                     "Content-Type": "application/octet-stream",
                     "Content-Range": contentRange,
                     "Content-MD5": md5Hash,
+                    "Content-Checksum": sha256Hash,
                     Authorization: `Bearer ${token}`,
                 },
                 data: fileBuffer,

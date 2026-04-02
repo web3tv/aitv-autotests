@@ -5,7 +5,7 @@ import { SideBarPage } from '../../src/pages/components/SideBarPage';
 import { StudioSettingsPage } from '../../src/pages/studio/StudioSettingsPage';
 import { HeroPayPage } from '../../src/pages/heroPay/HeroPayPage';
 
-test('NFT-001: Convert channel to NFT via mock payment',
+test('Convert channel to NFT via mock payment',
     { annotation: { type: 'TC', description: 'NFT-001' } },
     async ({ page }) => {
         test.setTimeout(300_000);
@@ -48,7 +48,7 @@ test('NFT-001: Convert channel to NFT via mock payment',
     }
 );
 
-test('NFT-002: Email user without wallet sees add wallet popup on Convert to NFT',
+test('Email user without wallet sees add wallet popup on Convert to NFT',
     { annotation: { type: 'TC', description: 'NFT-002' } },
     async ({ page, request }) => {
         test.setTimeout(60_000);
