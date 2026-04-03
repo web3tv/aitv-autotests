@@ -169,3 +169,42 @@ test('PAID-009: Payment expired status on /my-paid-subs', {
         await myPaidSubsPage.assertStatus('Payment expired');
     });
 });
+
+test('Payment failed', async ({ page, request }) => {
+    test.setTimeout(180_000);
+
+    let setup: VideoSetupResult;
+    let buyerUser: { id: string; email: string; username: string };
+    const password = process.env.USER_PASSWORD!;
+
+    await test.step('Setup owner with public channel, paid plan and video via API', async () => {
+        setup = await setupVideoViaApi(request, { privacySetting: 'paid' });
+    });
+
+    await test.step('Create buyer, login and purchase subscription', async () => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const channelMainPage = new ChannelMainPage(page);
+
+        buyerUser = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
+
+        await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+        await channelMainPage.assertSubscriptionCardVisible();
+        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+    });
+
+    await test.step('Expire transaction in DB and verify Payment expired status on UI', async () => {
+        const db = new DatabaseHelper();
+        const myPaidSubsPage = new MyPaidSubsPage(page);
+
+        await db.connect();
+        await db.invalidateTransaction(buyerUser.email);
+        await db.disconnect();
+
+        await page.goto('/my-paid-subs', { waitUntil: 'domcontentloaded' });
+        await myPaidSubsPage.assertPageLoaded();
+        await myPaidSubsPage.assertSubscriptionVisible();
+        await myPaidSubsPage.assertStatus('Payment invalid');
+    });
+})

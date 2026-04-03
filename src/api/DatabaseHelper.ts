@@ -45,4 +45,11 @@ export class DatabaseHelper {
             ['expired', email]
         );
     }
+
+    async invalidateTransaction(email: string): Promise<void> {
+        await this.query(
+            'UPDATE paid_subscription_subscribers SET transaction_status = ?, start_date = NULL, expired_at = NULL WHERE user_id = (SELECT id FROM users WHERE email = ?)',
+            ['invalid', email]
+        );
+    }
 }
