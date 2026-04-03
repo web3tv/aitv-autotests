@@ -61,6 +61,30 @@ test('Upload short video', { annotation: { type: 'TC', description: 'UPLOAD-005'
     });
 });
 
+test('Publish video while still processing', { annotation: { type: 'TC', description: 'UPLOAD-007' } }, async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const videoName: string = Date.now().toString();
+
+    await test.step('Create user and fix channel privacy to public', async () => {
+        await setupUserWithPublicChannel(page, request);
+    });
+
+    await test.step('Upload video, fill fields and publish without waiting for completed status', async () => {
+        const uploadVideoFlow = new UploadVideoFlow(page);
+        const studioContentPage = new StudioContentPage(page);
+
+        await uploadWithChunkCheck(page, async () => {
+            await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4', '5secVideo');
+            await uploadVideoFlow.fillInReqFileds(videoName);
+        });
+
+        await uploadVideoFlow.selectVisibility('public');
+        await uploadVideoFlow.clickPublishBtn();
+        await uploadVideoFlow.confirmVideoUploading('Public');
+        await studioContentPage.checkVideoStatus('processing');
+    });
+});
+
 test('Upload video >50mb workflow', { annotation: { type: 'TC', description: 'UPLOAD-006' } }, async ({ page, request }) => {
     test.setTimeout(270_000);
     const videoName: string = Date.now().toString();
