@@ -2,6 +2,7 @@ import { test, expect, request as playwrightRequest } from '@playwright/test';
 import { AuthApi } from '../../../src/api/AuthApi';
 import { VideoApi } from '../../../src/api/VideoApi';
 import { LoginPage } from '../../../src/pages/auth/LoginPage';
+import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
 
 const mainBaseUrl = process.env.BASE_URL || 'https://web3tv.dev';
 
@@ -93,9 +94,30 @@ test.describe('Studio visual tests', () => {
         });
     });
 
-    test('Studio Content page for logged in user', async ({ page }) => {
+    test('Studio Content page(videos) for logged in user', async ({ page }) => {
         await loginOnMainDomain(page, userEmail, password);
         await page.goto('/content');
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await expect(page.locator('[data-id="header"]')).toBeVisible();
+        await expect(page).toHaveScreenshot({
+            mask: [
+                page.locator('#profile-button'),
+                page.locator('[data-testid="video-row"]'),
+            ],
+            maxDiffPixelRatio: 0.02
+        });
+    });
+
+    test('Studio Content page(shorts) for logged in user', async ({ page }) => {
+        const studioContent = new StudioContentPage(page);
+        await loginOnMainDomain(page, userEmail, password);
+        await page.goto('/content');
+        await page.waitForLoadState('networkidle');
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await expect(studioContent.shortsTab, 'Shorts tab is not visible').toBeVisible();
+        await expect(studioContent.shortsTab, 'Shorts tab is not enabled').toBeEnabled();
+        await studioContent.clickShortsTab();
         await page.waitForLoadState('networkidle');
         await page.evaluate(async () => { await document.fonts.ready; });
         await expect(page.locator('[data-id="header"]')).toBeVisible();
