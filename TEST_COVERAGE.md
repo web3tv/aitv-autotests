@@ -93,7 +93,9 @@ VIDEO UPLOAD
 ├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
 ├── Required fields validation (title/desc/cat)     [AUTO] tests/validation/uploadVideoValidation.spec.ts  UPLOAD-009
 ├── Delete video during upload                      [TODO]                                      UPLOAD-010
-└── Save video as draft                             [TODO]                                      UPLOAD-011
+├── Save video as draft                             [TODO]                                      UPLOAD-011
+├── Select auto-generated thumbnail                 [AUTO] tests/studio/content.spec.ts         UPLOAD-012
+└── Publish video while still processing            [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-013
 
 ────────────────────────────────────────────────────────────────
 VIDEO VISIBILITY

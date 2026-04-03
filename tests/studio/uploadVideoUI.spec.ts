@@ -61,7 +61,7 @@ test('Upload short video', { annotation: { type: 'TC', description: 'UPLOAD-005'
     });
 });
 
-test('Publish video while still processing', { annotation: { type: 'TC', description: 'UPLOAD-007' } }, async ({ page, request }) => {
+test('Publish video while still processing', { annotation: { type: 'TC', description: 'UPLOAD-013' } }, async ({ page, request }) => {
     test.setTimeout(120_000);
     const videoName: string = Date.now().toString();
 
