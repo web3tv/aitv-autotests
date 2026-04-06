@@ -107,9 +107,9 @@ export class ChannelMainPage {
         await expect(this.registerLoginBtn).toBeVisible();
     }
     
-    // async checkButtonSubscribeNow(){
-    //     await expect(this.subscribeBtn).toBeVisible();
-    // }
+    async checkButtonSubscribeNow(){
+        await expect(this.subscribeBtn).toBeVisible();
+    }
 
 
     // PAID VIDEO

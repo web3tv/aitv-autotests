@@ -85,7 +85,7 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
 
         const videoPlayer = new VideoPlayerPage(page);
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
-        await expect(page.getByText(videoName)).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByRole('heading', { name: videoName })).toBeVisible({ timeout: 10_000 });
         await videoPlayer.assertPlayerVisible();
     });
 });
@@ -120,7 +120,7 @@ test('Subscription expiry revokes access, re-purchase restores it', {
         const videoPlayer = new VideoPlayerPage(page);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await expect(page.getByText(setup.videoName)).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByRole('heading', { name: setup.videoName })).toBeVisible({ timeout: 10_000 });
         await videoPlayer.assertPlayerVisible();
     });
 
@@ -159,7 +159,7 @@ test('Subscription expiry revokes access, re-purchase restores it', {
         const videoPlayer = new VideoPlayerPage(page);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await expect(page.getByText(setup.videoName)).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByRole('heading', { name: setup.videoName })).toBeVisible({ timeout: 10_000 });
         await videoPlayer.assertPlayerVisible();
     });
 });
