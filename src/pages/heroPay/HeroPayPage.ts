@@ -117,6 +117,44 @@ export class HeroPayPage {
         await this.page.waitForTimeout(1000);
     }
 
+    async testnetPaymentWithEmail(email: string) {
+        await expect(this.tetherLink, 'Tether USDT link is not visible').toBeVisible();
+        await this.tetherLink.click();
+
+        // Contact Information form — required for wallet users without email
+        await expect(this.emailInput, 'Email input is not visible').toBeVisible();
+        await this.emailInput.fill(email);
+        await expect(this.consentCheckbox, 'Consent checkbox is not visible').toBeVisible();
+        await this.consentCheckbox.check();
+        await expect(this.submitBtn, 'Submit button is not visible').toBeVisible();
+        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
+        await this.submitBtn.click();
+
+        // Parse recipient address and amount from QR code title attribute
+        // Format: "tron:{address}?amount={amount}"
+        const qrImg = this.page.locator('img[title^="tron:"]');
+        await qrImg.waitFor({ state: 'visible', timeout: 15_000 });
+        const titleAttr = await qrImg.getAttribute('title');
+        if (!titleAttr) throw new Error('Could not find QR code with tron: title on Hero Pay page');
+
+        const match = titleAttr.match(/tron:([^?]+)\?amount=([0-9.]+)/);
+        if (!match) throw new Error(`Could not parse tron address/amount from: ${titleAttr}`);
+
+        const toAddress = match[1];
+        const amount = parseFloat(match[2]);
+
+        if (!/^T[A-Za-z0-9]{33}$/.test(toAddress)) {
+            throw new Error(`Invalid Tron address parsed from QR: "${toAddress}" (full title: "${titleAttr}")`);
+        }
+
+        await sendUsdtOnNile(toAddress, amount);
+
+        // Wait for Hero Pay to detect the payment and show "Return to Merchant"
+        await expect(this.returnToMerchantLink, 'Return to Merchant link is not visible').toBeVisible({ timeout: 120_000 });
+        await this.returnToMerchantLink.click();
+        await this.page.waitForLoadState('domcontentloaded');
+    }
+
     async testnetPayment() {
         await expect(this.tetherLink, 'Tether USDT link is not visible').toBeVisible();
         await this.tetherLink.click();

@@ -33,7 +33,7 @@ test('Convert channel to NFT via mock payment',
         await test.step('Click Pay With and complete mock payment via HeroPay', async () => {
             await settingsPage.clickPayWith();
             await page.waitForURL(/pay\.hero\.io/, { timeout: 30_000 });
-            await heroPayPage.mockPaymentWithEmail(`nft_test_${Date.now()}@test.com`);
+            await heroPayPage.testnetPaymentWithEmail(`nft_test_${Date.now()}@test.com`);
         });
 
         await test.step('Verify Minting Your NFT status', async () => {

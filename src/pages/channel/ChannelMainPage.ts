@@ -88,8 +88,10 @@ export class ChannelMainPage {
 
     // PAID VIDEO ON MEMBERSHIP PAGE
 
-    async assertSubscriptionCardVisible(): Promise<void> {
+    async assertSubscriptionCardVisible(name: string, description: string): Promise<void> {
         await expect(this.subscriptionCard, 'Subscription card is not visible').toBeVisible();
+        await expect(this.subscriptionCard, 'Subscription card does not contain membership name').toContainText(name);
+        await expect(this.subscriptionCard, 'Subscription card does not contain membership description').toContainText(description);
     }
 
     async clickRegisterLoginBtn(){
@@ -121,12 +123,15 @@ export class ChannelMainPage {
         await this.page.waitForURL(/pay\.hero\.io/, { timeout: 30_000 });
     }
 
+    async assertSubscriptionStatus(expectedStatus: string): Promise<void> {
+        await expect(this.page.locator('body'), `Expected subscription status "${expectedStatus}" not found`).toContainText(expectedStatus);
+    }
+
     async purhcaseMembershipFromMembershipPageMockPayment(){
         await this.clickButtonSubscribeNow();
         await this.clickPayWith();
         const heroPay = new HeroPayPage(this.page);
         await heroPay.mockPayment();
-        await expect(this.page.locator('body')).toContainText('Active');
     }
 
     async purhcaseMembershipFromMembershipPageTestNet(){
@@ -143,7 +148,6 @@ export class ChannelMainPage {
             await this.page.reload({ waitUntil: 'domcontentloaded' });
             await this.page.waitForTimeout(15_000);
         }
-        await expect(this.page.locator('body')).toContainText('Active');
     }
 
     async checkPaidVideoAttributes(){

@@ -164,7 +164,8 @@ test('Notification received on paid subscription purchase', { annotation: { type
     await expect(page.locator('[data-id="sub-card"]'), 'Subscription card is not visible').toBeVisible();
 
     const channelMainPage = new ChannelMainPage(page);
-    await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+    await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+    await channelMainPage.assertSubscriptionStatus('Active');
     await authFlow.logout();
   });
 
@@ -278,7 +279,8 @@ test('Notification received when paid channel uploads paid video', { annotation:
     await expect(page.locator('[data-id="sub-card"]'), 'Subscription card is not visible').toBeVisible();
 
     const channelMainPage = new ChannelMainPage(page);
-    await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+    await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+    await channelMainPage.assertSubscriptionStatus('Active');
     await authFlow.logout();
   });
 

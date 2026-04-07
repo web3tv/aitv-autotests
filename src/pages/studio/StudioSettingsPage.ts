@@ -111,8 +111,19 @@ export class StudioSettingsPage {
         await expect(this.addWalletContinueBtn, 'Continue button is not visible').toBeVisible();
     }
 
-    async assertMintingStatus() {
-        await expect(this.mintingStatus, 'Minting Your NFT status is not visible').toBeVisible({ timeout: 30_000 });
+    async assertMintingStatus(timeoutMs = 60_000) {
+        const pollInterval = 5_000;
+        const deadline = Date.now() + timeoutMs;
+
+        while (Date.now() < deadline) {
+            const isVisible = await this.mintingStatus.isVisible().catch(() => false);
+            if (isVisible) return;
+
+            await this.page.reload({ waitUntil: 'domcontentloaded' });
+            await this.page.waitForTimeout(pollInterval);
+        }
+
+        await expect(this.mintingStatus, 'Minting Your NFT status is not visible').toBeVisible();
     }
 
     async waitForNftMinted(timeoutMs = 180_000) {

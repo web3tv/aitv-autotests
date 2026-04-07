@@ -8,7 +8,7 @@ import { HeroPayPage } from '../../src/pages/heroPay/HeroPayPage';
 import { MyPaidSubsPage } from '../../src/pages/account/MyPaidSubsPage';
 import { setupVideoViaApi, VideoSetupResult } from '../../src/utils/studioTestHelpers';
 
-test('PAID-006: Active subscription displayed on /my-paid-subs', {
+test('Active subscription displayed on /my-paid-subs', {
     annotation: [{ type: 'TC', description: 'PAID-006' }],
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
@@ -31,8 +31,9 @@ test('PAID-006: Active subscription displayed on /my-paid-subs', {
         const channelMainPage = new ChannelMainPage(page);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await channelMainPage.assertSubscriptionCardVisible();
-        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+        await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
+        await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+        await channelMainPage.assertSubscriptionStatus('Active');
     });
 
     await test.step('Navigate to /my-paid-subs and verify Active status', async () => {
@@ -48,34 +49,39 @@ test('PAID-006: Active subscription displayed on /my-paid-subs', {
     });
 });
 
-test('PAID-008: Pending payment status on /my-paid-subs', {
+test('Pending payment status on /my-paid-subs', {
     annotation: [{ type: 'TC', description: 'PAID-008' }],
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
 
     let setup: VideoSetupResult;
+    let buyerUser: { id: string; email: string; username: string };
     const password = process.env.USER_PASSWORD!;
 
     await test.step('Setup owner with public channel, paid plan and video via API', async () => {
         setup = await setupVideoViaApi(request, { privacySetting: 'paid' });
     });
 
-    await test.step('Create buyer user and login', async () => {
+    await test.step('Create buyer, login and purchase subscription', async () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const buyerUser = await authApi.createAndVerifyUser();
-        await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
-    });
-
-    await test.step('Navigate to paid video and initiate payment without confirmation', async () => {
         const channelMainPage = new ChannelMainPage(page);
-        const heroPayPage = new HeroPayPage(page);
+
+        buyerUser = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await channelMainPage.assertSubscriptionCardVisible();
-        await channelMainPage.clickButtonSubscribeNow();
-        await channelMainPage.clickPayWith();
-        await heroPayPage.initiateMockPaymentWithoutConfirmation();
+        await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
+        await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+        await channelMainPage.assertSubscriptionStatus('Active');
+    });
+
+    await test.step('Set pending payment status in DB', async () => {
+        const db = new DatabaseHelper();
+
+        await db.connect();
+        await db.setPendingPayment(buyerUser.email);
+        await db.disconnect();
     });
 
     await test.step('Navigate to /my-paid-subs and verify Pending payment status', async () => {
@@ -88,7 +94,7 @@ test('PAID-008: Pending payment status on /my-paid-subs', {
     });
 });
 
-test('PAID-007: Expired subscription displayed on /my-paid-subs', {
+test('Expired subscription displayed on /my-paid-subs', {
     annotation: [{ type: 'TC', description: 'PAID-007' }],
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
@@ -110,8 +116,9 @@ test('PAID-007: Expired subscription displayed on /my-paid-subs', {
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await channelMainPage.assertSubscriptionCardVisible();
-        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+        await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
+        await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+        await channelMainPage.assertSubscriptionStatus('Active');
     });
 
     await test.step('Expire subscription in DB and verify Expired status on UI', async () => {
@@ -129,7 +136,7 @@ test('PAID-007: Expired subscription displayed on /my-paid-subs', {
     });
 });
 
-test('PAID-009: Payment expired status on /my-paid-subs', {
+test('Payment expired status on /my-paid-subs', {
     annotation: [{ type: 'TC', description: 'PAID-009' }],
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
@@ -151,8 +158,9 @@ test('PAID-009: Payment expired status on /my-paid-subs', {
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await channelMainPage.assertSubscriptionCardVisible();
-        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+        await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
+        await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+        await channelMainPage.assertSubscriptionStatus('Active');
     });
 
     await test.step('Expire transaction in DB and verify Payment expired status on UI', async () => {
@@ -190,8 +198,9 @@ test('Payment failed', async ({ page, request }) => {
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await channelMainPage.assertSubscriptionCardVisible();
-        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+        await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
+        await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+        await channelMainPage.assertSubscriptionStatus('Active');
     });
 
     await test.step('Expire transaction in DB and verify Payment expired status on UI', async () => {

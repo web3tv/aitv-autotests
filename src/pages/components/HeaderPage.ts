@@ -27,7 +27,7 @@ export class HeaderPage {
     this.joinBtn = page.getByRole('button', { name: 'Join' });
     
 
-    this.addWalletBtn = page.locator('xpath=/html/body/div[1]/div[3]/button');
+    this.addWalletBtn = page.locator('button:has(svg[viewBox="0 0 15 14"])').first();
     this.userIcon = page.locator('#profile-button');
   }
 
