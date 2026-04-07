@@ -112,10 +112,12 @@ test.describe('Main domain visual tests', () => {
 
     test('Video page for anonymous user', async ({ page }) => {
         await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        await expect(page.locator('h1')).toBeVisible({ timeout: 15_000 });
+        await expect(page.getByRole('button', { name: 'Share' })).toBeVisible({ timeout: 10_000 });
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
-        await expect(page.locator('h1')).toBeVisible();
+        await page.waitForTimeout(1000);
         await expect(page).toHaveScreenshot({
             fullPage: true,
             mask: [
@@ -131,10 +133,12 @@ test.describe('Main domain visual tests', () => {
         await authFlow.loginSuccess(userEmail, password, username);
 
         await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        await expect(page.locator('h1')).toBeVisible({ timeout: 15_000 });
+        await expect(page.getByRole('button', { name: 'Share' })).toBeVisible({ timeout: 10_000 });
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
-        await expect(page.locator('h1')).toBeVisible();
+        await page.waitForTimeout(1000);
         await expect(page).toHaveScreenshot({
             fullPage: true,
             mask: [
