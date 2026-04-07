@@ -42,15 +42,22 @@ test.describe('Mobile visual tests', () => {
 
     test('Video page for anonymous user', async ({ page }) => {
         await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
         await expect(page.locator('h1')).toBeVisible();
+        await page.waitForTimeout(3000);
         await expect(page).toHaveScreenshot({
             mask: [
                 page.locator('[data-id="recommended-videos"]'),
                 page.locator('[aria-label="Video Player"]'),
-                page.locator('[data-id="name"]')
+                // page.locator('[data-id="name"]'),
+                // page.locator('[data-id="avatar"]'),
+                // page.locator('[data-id="subscribers"]'),
+                // page.locator('[data-id="count"]'),
+                // page.locator('h1'),
+                // page.getByText(/^@/)
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -61,15 +68,22 @@ test.describe('Mobile visual tests', () => {
         await authFlow.loginSuccess(userEmail, password, username, 'mobile');
 
         await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        await page.waitForLoadState('networkidle');
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
         await expect(page.locator('h1')).toBeVisible();
+        await page.waitForTimeout(1000);
         await expect(page).toHaveScreenshot({
             mask: [
                 page.locator('[data-id="recommended-videos"]'),
                 page.locator('[aria-label="Video Player"]'),
-                page.locator('[data-id="name"]')
+                // page.locator('[data-id="name"]'),
+                // page.locator('[data-id="avatar"]'),
+                // page.locator('[data-id="subscribers"]'),
+                // page.locator('[data-id="count"]'),
+                // page.locator('h1'),
+                // page.getByText(/^@/)
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -84,6 +98,8 @@ test.describe('Mobile visual tests', () => {
             await document.fonts.ready;
         });
         await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
+        await expect(page.getByRole('button', { name: 'Subscribe' })).toBeVisible();
+        await page.waitForTimeout(2000);
         await expect(page).toHaveScreenshot({
             fullPage: false,
             mask: [
@@ -91,7 +107,8 @@ test.describe('Mobile visual tests', () => {
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
                 page.locator('[data-id="subscribers"]'),
-                page.locator('[data-id="name"]')
+                // page.locator('[data-id="name"]'),
+                // page.getByText(/^@/)
             ],
             maxDiffPixelRatio: 0.02
         });
@@ -107,6 +124,8 @@ test.describe('Mobile visual tests', () => {
             await document.fonts.ready;
         });
         await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
+        await expect(page.getByRole('button', { name: 'Edit channel' })).toBeVisible();
+        await page.waitForTimeout(2000);
         await expect(page).toHaveScreenshot({
             fullPage: false,
             mask: [
@@ -114,7 +133,8 @@ test.describe('Mobile visual tests', () => {
                 page.locator('[data-id="avatar"]'),
                 page.locator('[data-id="count"]'),
                 page.locator('[data-id="subscribers"]'),
-                page.locator('[data-id="name"]')
+                // page.locator('[data-id="name"]'),
+                // page.getByText(/^@/)
             ],
             maxDiffPixelRatio: 0.02
         });

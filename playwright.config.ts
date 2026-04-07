@@ -68,7 +68,7 @@ export default defineConfig({
       use: {
         browserName: 'chromium',
         baseURL: process.env.STUDIO_URL,
-        viewport: { width: 1920, height: 1080 },
+        viewport: { width: 2560, height: 2000 },
         deviceScaleFactor: 1,
         colorScheme: 'light',
         locale: 'en-US',
@@ -83,7 +83,7 @@ export default defineConfig({
       fullyParallel: false,
       // workers: 1,
       use: {
-         ...devices['iPhone 15']
+         ...devices['iPhone 15 Pro Max']
       },
     },
 

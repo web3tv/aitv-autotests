@@ -13,7 +13,7 @@ export class DataGenerator {
 
   // username = буквы + 4 цифры
   static generateUsername() {
-    const letters = this.randomString(8);
+    const letters = this.randomString(5);
     const numbers = Math.floor(Math.random() * 10000);
     return `${letters}${numbers}`;
   }
