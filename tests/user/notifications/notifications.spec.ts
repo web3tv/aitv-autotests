@@ -161,10 +161,11 @@ test('Notification received on paid subscription purchase', { annotation: { type
   await test.step('User A: purchase paid subscription via mock payment', async () => {
     await authFlow.loginSuccess(userA.email, password, userA.username);
     await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-id="sub-card"]'), 'Subscription card is not visible').toBeVisible();
-
     const channelMainPage = new ChannelMainPage(page);
-    await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+    await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
+
+    await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+    await channelMainPage.assertSubscriptionStatus('Active');
     await authFlow.logout();
   });
 
@@ -275,10 +276,11 @@ test('Notification received when paid channel uploads paid video', { annotation:
   await test.step('User A: purchase paid subscription', async () => {
     await authFlow.loginSuccess(userA.email, password, userA.username);
     await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('[data-id="sub-card"]'), 'Subscription card is not visible').toBeVisible();
-
     const channelMainPage = new ChannelMainPage(page);
-    await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+    await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
+
+    await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+    await channelMainPage.assertSubscriptionStatus('Active');
     await authFlow.logout();
   });
 

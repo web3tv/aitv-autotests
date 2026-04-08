@@ -24,7 +24,7 @@ test.describe('Public video visibility', () => {
         await test.step('Open video page as anonymous and verify content', async () => {
             const videoPlayer = new VideoPlayerPage(page);
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(page.getByText(setup.videoName)).toBeVisible({ timeout: 10_000 });
+            await expect(page.locator('h1', { hasText: setup.videoName })).toBeVisible({ timeout: 10_000 });
             await expect(page.getByText(setup.description)).toBeVisible({ timeout: 10_000 });
             await videoPlayer.assertPlayerVisible();
         });
@@ -41,7 +41,7 @@ test.describe('Public video visibility', () => {
             await authFlow.loginSuccess(user2.email, password, user2.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(page.getByText(setup.videoName)).toBeVisible({ timeout: 10_000 });
+            await expect(page.locator('h1', { hasText: setup.videoName })).toBeVisible({ timeout: 10_000 });
             await expect(page.getByText(setup.description)).toBeVisible({ timeout: 10_000 });
             await videoPlayer.assertPlayerVisible();
         });
@@ -106,7 +106,7 @@ test.describe('Unlisted video visibility', () => {
         await test.step('Open video page as anonymous and verify content', async () => {
             const videoPlayer = new VideoPlayerPage(page);
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(page.getByText(setup.videoName)).toBeVisible({ timeout: 10_000 });
+            await expect(page.locator('h1', { hasText: setup.videoName })).toBeVisible({ timeout: 10_000 });
             await expect(page.getByText(setup.description)).toBeVisible({ timeout: 10_000 });
             await videoPlayer.assertPlayerVisible();
         });
@@ -123,7 +123,7 @@ test.describe('Unlisted video visibility', () => {
             await authFlow.loginSuccess(user2.email, password, user2.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(page.getByText(setup.videoName)).toBeVisible({ timeout: 10_000 });
+            await expect(page.locator('h1', { hasText: setup.videoName })).toBeVisible({ timeout: 10_000 });
             await expect(page.getByText(setup.description)).toBeVisible({ timeout: 10_000 });
             await videoPlayer.assertPlayerVisible();
         });
@@ -172,7 +172,7 @@ test.describe('Paid video visibility', () => {
             await expect(page.locator('body')).toContainText(setup.membershipDescription!);
             await expect(page.locator('body')).toContainText('$0.991 week');
             await channelMainPage.clickButtonSubscribeNow();
-            channelMainPage.clickPayWith()
+            await channelMainPage.clickPayWith();
             await expect(page).toHaveURL(/test\.pay\.hero\.io\/invoice\/currency-list(\?.*)?$/);
         });
     });

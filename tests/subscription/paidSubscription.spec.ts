@@ -66,7 +66,7 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
         await authFlow.logout();
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('.infinite-scroll-component')).toBeVisible();
-        await expect(page.locator('[data-id="sub-card"]')).toBeVisible();
+        await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
         await channelMainPage.checkRegisterLoginBtn();
     });
 
@@ -80,8 +80,9 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('.infinite-scroll-component')).toBeVisible();
-        await expect(page.locator('[data-id="sub-card"]')).toBeVisible();
-        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+        await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
+        await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+        await channelMainPage.assertSubscriptionStatus('Active');
 
         const videoPlayer = new VideoPlayerPage(page);
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
@@ -112,8 +113,9 @@ test('Subscription expiry revokes access, re-purchase restores it', {
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await channelMainPage.assertSubscriptionCardVisible();
-        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+        await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
+        await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+        await channelMainPage.assertSubscriptionStatus('Active');
     });
 
     await test.step('Verify paid video is accessible after purchase', async () => {
@@ -136,14 +138,15 @@ test('Subscription expiry revokes access, re-purchase restores it', {
         const channelMainPage = new ChannelMainPage(page);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-        await channelMainPage.assertSubscriptionCardVisible();
+        await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
         await channelMainPage.checkButtonSubscribeNow();
     });
 
     await test.step('Re-purchase subscription via mock payment', async () => {
         const channelMainPage = new ChannelMainPage(page);
 
-        await channelMainPage.purhcaseMembershipFromMembershipPageMockPayment();
+        await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
+        await channelMainPage.assertSubscriptionStatus('Active');
     });
 
     await test.step('Verify subscription status is Active on /my-paid-subs', async () => {
