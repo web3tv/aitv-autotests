@@ -172,7 +172,7 @@ test.describe('Paid video visibility', () => {
             await expect(page.locator('body')).toContainText(setup.membershipDescription!);
             await expect(page.locator('body')).toContainText('$0.991 week');
             await channelMainPage.clickButtonSubscribeNow();
-            channelMainPage.clickPayWith()
+            await channelMainPage.clickPayWith();
             await expect(page).toHaveURL(/test\.pay\.hero\.io\/invoice\/currency-list(\?.*)?$/);
         });
     });
