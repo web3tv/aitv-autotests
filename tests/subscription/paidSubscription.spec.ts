@@ -66,7 +66,7 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
         await authFlow.logout();
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('.infinite-scroll-component')).toBeVisible();
-        await expect(page.locator('[data-id="sub-card"]')).toBeVisible();
+        await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
         await channelMainPage.checkRegisterLoginBtn();
     });
 
@@ -80,7 +80,7 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await expect(page.locator('.infinite-scroll-component')).toBeVisible();
-        await expect(page.locator('[data-id="sub-card"]')).toBeVisible();
+        await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
         await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
         await channelMainPage.assertSubscriptionStatus('Active');
 
