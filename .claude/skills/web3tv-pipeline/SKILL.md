@@ -66,13 +66,23 @@ Confirm understanding with the user.
 
 **Goal:** Understand how the feature is implemented in backend and frontend.
 
-### Step 0 — Pull latest code
+### Step 0 — Switch to the task branch and pull latest code
 
+Before analyzing, switch to the **task branch** (not main) in both repositories — this is the branch with the actual changes being tested.
+
+Ask the user for the branch name if not obvious from the Jira task. Common patterns:
+- `feature/W3-2114` or `feat/W3-2114`
+- Branch name from Jira issue key
+
+Then run:
 ```bash
-git -C /Users/maksimpopov/Desktop/web3tv-api-symfony pull
-git -C /Users/maksimpopov/Desktop/web3tv-main_app-nextjs pull
+git -C /Users/maksimpopov/Desktop/web3tv-api-symfony fetch && git -C /Users/maksimpopov/Desktop/web3tv-api-symfony checkout <branch> && git -C /Users/maksimpopov/Desktop/web3tv-api-symfony pull
+git -C /Users/maksimpopov/Desktop/web3tv-main_app-nextjs fetch && git -C /Users/maksimpopov/Desktop/web3tv-main_app-nextjs checkout <branch> && git -C /Users/maksimpopov/Desktop/web3tv-main_app-nextjs pull
 ```
-Run both in parallel. If a repo is unavailable, skip and note it.
+
+Run both in parallel. If a branch doesn't exist in one repo (e.g., FE-only task), use `main` for that repo. If a repo is unavailable, skip and note it.
+
+**IMPORTANT:** After the pipeline completes, switch both repos back to `main` to avoid leaving them on a feature branch.
 
 ### Step 1 — Launch codebase-analyzer agent
 

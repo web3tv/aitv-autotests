@@ -12,6 +12,7 @@ You receive:
 - **Feature name / description** — what to look for
 - **Keywords** — API endpoints, entity names, page routes, component names
 - **Scope** — "backend", "frontend", or "both"
+- **Branch** — which git branch to analyze (the orchestrator will have already checked out the correct branch before launching this agent)
 
 ## Repository Paths
 

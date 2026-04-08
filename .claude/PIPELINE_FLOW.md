@@ -5,7 +5,7 @@ Phase 0    Branch Setup              — creates test/<name> branch from main
      │
 Phase 1    Jira Analysis             — jira-reader agent parses task
      │
-Phase 2    Code Analysis             — codebase-analyzer (Symfony + Next.js)
+Phase 2    Code Analysis             — checkout task branch + codebase-analyzer (Symfony + Next.js)
      │
 Phase 3    Test Design               — clarifying questions + test cases + ASCII diagrams
      │
