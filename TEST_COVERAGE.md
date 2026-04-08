@@ -155,6 +155,17 @@ PAID SUBSCRIPTIONS
 └── Payment expired status on /my-paid-subs           [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-009
 
 ────────────────────────────────────────────────────────────────
+AUTH POPUP ("Almost there!")
+  Shown when anonymous user tries to subscribe or access paid content.
+  Replaces old "Register/Login" redirect — now shows inline popup with
+  "Create account" and "Login" buttons.
+├── Anonymous user sees Subscribe Now button on membership page  [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-007
+├── Clicking Subscribe Now shows auth popup (Create account + Login)  [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-008
+├── Auth popup: Create account button → navigates to register   [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-009
+├── Auth popup: Login button → navigates to login page          [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-010
+└── Auth popup: closes when clicking close button               [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-011
+
+────────────────────────────────────────────────────────────────
 PLAYLISTS
   Main domain (/playlists) — shows only user's personal playlists
   Studio domain (/playlists) — shows only the active channel's playlists
