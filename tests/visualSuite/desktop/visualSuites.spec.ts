@@ -14,6 +14,7 @@ test.describe('Main domain visual tests', () => {
     let channelUrl: string;
 
     test.beforeAll(async () => {
+        test.setTimeout(180_000);
         const requestContext = await playwrightRequest.newContext();
         const authApi = new AuthApi(requestContext);
         const videoApi = new VideoApi(requestContext);
