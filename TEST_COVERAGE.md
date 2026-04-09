@@ -1,22 +1,27 @@
 ## TEST COVERAGE — web3.tv
 
 Статусы:
-  [AUTO]   — покрыто автотестом
-  [TODO]   — не покрыто, нужно автоматизировать
-  [MANUAL] — ручное тестирование (не автоматизируемо)
-  [BLOCKED] - ждет фикса
+  [AUTO]     — покрыто автотестом
+  [CRITICAL] — входит в critical suite (smoke перед деплоем), tag: @critical
+  [TODO]     — не покрыто, нужно автоматизировать
+  [MANUAL]   — ручное тестирование (не автоматизируемо)
+  [BLOCKED]  — ждет фикса
+
+Запуск:
+  npm run test:critical    — только @critical тесты (smoke)
+  npm run test:regression  — все функциональные тесты
 
 ────────────────────────────────────────────────────────────────
 AUTH
-├── Login (email) — success                         [AUTO] tests/auth/login.spec.ts          AUTH-001
+├── Login (email) — success                         [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-001
 ├── Login (email) — wrong password                  [AUTO] tests/auth/login.spec.ts          AUTH-002
 ├── Login (email) — wrong username                  [AUTO] tests/auth/login.spec.ts          AUTH-003
-├── Logout                                          [AUTO] tests/auth/login.spec.ts          AUTH-004
-├── Registration via email (UI)                     [AUTO] tests/auth/registration.spec.ts   AUTH-005
-├── Registration via API                            [AUTO] tests/auth/registration.spec.ts   AUTH-006
+├── Logout                                          [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-004
+├── Registration via email (UI)                     [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-005
+├── Registration via API                            [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-006
 ├── Password reset — success                        [AUTO] tests/auth/resetPassword.spec.ts  AUTH-007
 ├── Password reset — password mismatch              [AUTO] tests/auth/resetPassword.spec.ts  AUTH-008
-├── Login via Web3 wallet                           [AUTO] tests/auth/wallet.spec.ts         AUTH-009
+├── Login via Web3 wallet                           [AUTO][CRITICAL] tests/auth/walletAuth.spec.ts  AUTH-009
 ├── Login via Telegram                              [MANUAL]                                 AUTH-010
 ├── Add email to wallet account                     [AUTO] tests/auth/wallet.spec.ts         AUTH-011
 ├── Registration via Web3 wallet                    [AUTO] tests/auth/wallet.spec.ts         AUTH-012
@@ -39,8 +44,8 @@ ACCOUNT SETTINGS (/account)
 
 ────────────────────────────────────────────────────────────────
 PROFILE SETTINGS (/profile)
-├── Upload profile avatar — saved successfully      [AUTO] tests/user/profile/profile.spec.ts PROFILE-001
-├── Avatar displayed in header after upload         [AUTO] tests/user/profile/profile.spec.ts PROFILE-002
+├── Upload profile avatar — saved successfully      [AUTO][CRITICAL] tests/user/profile/profile.spec.ts PROFILE-001
+├── Avatar displayed in header after upload         [AUTO][CRITICAL] tests/user/profile/profile.spec.ts PROFILE-002
 ├── Edit biography — saved successfully             [AUTO] tests/user/profile/profile.spec.ts PROFILE-003
 ├── Add/edit social links (FB, TW, IG, TikTok)     [AUTO] tests/user/profile/profile.spec.ts PROFILE-004
 ├── Biography max length validation (1000 chars)    [AUTO] tests/user/profile/profile.spec.ts PROFILE-005
@@ -71,7 +76,7 @@ CHANNELS
 ├── Delete channel                                  [TODO]                                   CHANNEL-013
 ├── Set Highlight video                             [TODO]                                   CHANNEL-014
 ├── Import video via external URL (Video Importer)  [TODO]                                   CHANNEL-015
-├── Set default video description in channel settings — saved successfully  [AUTO] tests/studio/channel.spec.ts  CHANNEL-017
+├── Set default video description in channel settings — saved successfully  [AUTO][CRITICAL] tests/studio/channel.spec.ts  CHANNEL-017
 ├── Default description auto-fills description field when opening upload popup  [AUTO] tests/studio/channel.spec.ts  CHANNEL-018
 ├── Override pre-filled description — video saved with custom description  [AUTO] tests/studio/channel.spec.ts  CHANNEL-019
 └── Clear default description — upload popup opens with empty description  [AUTO] tests/studio/channel.spec.ts  CHANNEL-020
@@ -86,7 +91,7 @@ NFT
 
 ────────────────────────────────────────────────────────────────
 VIDEO UPLOAD
-├── Upload horizontal video (public)                [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-001
+├── Upload horizontal video (public)                [AUTO][CRITICAL] tests/studio/uploadVideoUI.spec.ts   UPLOAD-001
 ├── Upload horizontal video (private)               [TODO]                                      UPLOAD-002
 ├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
 ├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
@@ -102,8 +107,8 @@ VIDEO UPLOAD
 
 ────────────────────────────────────────────────────────────────
 VIDEO VISIBILITY
-├── Public: visible on channel page                 [AUTO] tests/studio/videoVisibility.spec.ts  VIS-001
-├── Public: visible to anonymous guest              [AUTO] tests/studio/videoVisibility.spec.ts  VIS-001
+├── Public: visible on channel page                 [AUTO][CRITICAL] tests/studio/videoVisibility.spec.ts  VIS-001
+├── Public: visible to anonymous guest              [AUTO][CRITICAL] tests/studio/videoVisibility.spec.ts  VIS-001
 ├── Public: visible to other registered user        [AUTO] tests/studio/videoVisibility.spec.ts  VIS-002
 ├── Private: not shown on channel page              [AUTO] tests/studio/videoVisibility.spec.ts  VIS-003
 ├── Private: blocked on direct link (anonymous)     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-003
@@ -117,9 +122,9 @@ VIDEO VISIBILITY
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Regular Player
-├── Play / pause                                    [AUTO] tests/studio/videoPlayer.spec.ts  PLAYER-001
-├── currentTime advances while playing              [AUTO] tests/studio/videoPlayer.spec.ts  PLAYER-002
-├── Progress bar advances while playing             [AUTO] tests/studio/videoPlayer.spec.ts  PLAYER-003
+├── Play / pause                                    [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-001
+├── currentTime advances while playing              [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-002
+├── Progress bar advances while playing             [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-003
 ├── Dubbing available for video <1 min              [TODO]                                   PLAYER-004
 ├── Dubbing: switch language                        [TODO]                                   PLAYER-005
 ├── Hot-spots: owner sets hot-spot area             [TODO]                                   PLAYER-006
@@ -134,7 +139,7 @@ VIDEO PLAYER — Shorts Player
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Embed Player
-├── Embed player: video plays                       [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-001
+├── Embed player: video plays                       [AUTO][CRITICAL] tests/studio/embedPlayer.spec.ts   EMBED-001
 ├── Embed player: short plays                       [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-002
 ├── Embed player: dubbing available                 [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-003
 └── Embed player: no hot-spots                      [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-004
@@ -147,9 +152,9 @@ SUBSCRIPTIONS — Free (channel follow)
 
 ────────────────────────────────────────────────────────────────
 PAID SUBSCRIPTIONS
-├── Create membership plan (owner)                  [AUTO] tests/subscription/paidSubscription.spec.ts    PAID-001
-├── Purchase plan via Hero Pay (mock)               [AUTO] tests/subscription/paidSubscription.spec.ts    PAID-002
-├── Access paid video after purchase                [AUTO] tests/subscription/paidSubscription.spec.ts    PAID-003
+├── Create membership plan (owner)                  [AUTO][CRITICAL] tests/subscription/paidSubscription.spec.ts    PAID-001
+├── Purchase plan via Hero Pay (mock)               [AUTO][CRITICAL] tests/subscription/paidSubscription.spec.ts    PAID-002
+├── Access paid video after purchase                [AUTO][CRITICAL] tests/subscription/paidSubscription.spec.ts    PAID-003
 ├── Create membership plan via UI (studio)          [TODO]                                                PAID-004
 ├── Subscription expiry → access revoked + restore   [AUTO] tests/subscription/paidSubscription.spec.ts        PAID-005
 ├── Active subscription on /my-paid-subs            [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-006

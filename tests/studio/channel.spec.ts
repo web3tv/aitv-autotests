@@ -32,7 +32,7 @@ const VIDEO_PATH = 'test-data/fixtures/video/5secVideo.mp4';
 const THUMB_PATH = 'test-data/fixtures/photo/cat.jpg';
 
 test('Set default video description in channel settings — saved successfully',
-    { annotation: { type: 'TC', description: 'CHANNEL-017' } },
+    { tag: '@critical', annotation: { type: 'TC', description: 'CHANNEL-017' } },
     async ({ page, request }) => {
         test.setTimeout(60_000);
 

@@ -5,7 +5,7 @@ import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { setupUserWithPublicChannel, uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
 
-test('Upload video', { annotation: { type: 'TC', description: 'UPLOAD-001' } }, async ({ page, request }) => {
+test('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 'UPLOAD-001' } }, async ({ page, request }) => {
     test.setTimeout(120_000);
     let user: { email: string, username: string };
     const videoName: string = Date.now().toString();

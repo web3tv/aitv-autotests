@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test:dev": "playwright test --config=playwright.config.ts"
+    "test:dev": "playwright test --config=playwright.config.ts",
+    "test:critical": "playwright test --project=functional --grep @critical",
+    "test:regression": "playwright test --project=functional"
   },
   "keywords": [],
   "author": "",

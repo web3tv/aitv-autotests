@@ -9,7 +9,7 @@ import { SecurityPage } from '../../src/pages/account/SecurityPage';
 
 test.describe('Login tests', () => {
 
-  test('Success login as user', { annotation: { type: 'TC', description: 'AUTH-001' } }, async ({ page,request }) => {
+  test('Success login as user', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-001' } }, async ({ page,request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     const password = process.env.USER_PASSWORD!;
@@ -17,7 +17,7 @@ test.describe('Login tests', () => {
     await authFlow.loginSuccess(user.email, password, user.username);
   });
 
-  test('Success logout', { annotation: { type: 'TC', description: 'AUTH-004' } }, async ({ page,request }) => {
+  test('Success logout', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-004' } }, async ({ page,request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     const password = process.env.USER_PASSWORD!;
@@ -46,7 +46,7 @@ test.describe('Login tests', () => {
 
 test.describe('Registration tests', () => {
 
-  test('Register user via Email', { annotation: { type: 'TC', description: 'AUTH-005' } }, async ({ page, request }) => {
+  test('Register user via Email', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-005' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const registrationFlow = new RegistrationFlow(page, request);
 
@@ -55,7 +55,7 @@ test.describe('Registration tests', () => {
     await authFlow.loginSuccess(email, password, username);
   });
 
-  test('Register and verify user via API', { annotation: { type: 'TC', description: 'AUTH-006' } }, async ({ page,request }) => {
+  test('Register and verify user via API', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-006' } }, async ({ page,request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     const password = process.env.USER_PASSWORD!;

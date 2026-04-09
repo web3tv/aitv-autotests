@@ -39,7 +39,7 @@ test.describe('Wallet auth tests', () => {
     });
   });
 
-  test('Login via Web3 wallet (MetaMask)', { annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page }) => {
+  test('Login via Web3 wallet (MetaMask)', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
     await authFlow.walletLoginSuccess();
   });
