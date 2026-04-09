@@ -73,6 +73,41 @@ export class VideoApi {
         }
     }
 
+    async setDefaultVideoDescription(
+        token: string,
+        channelId: string,
+        handle: string,
+        defaultVideoDescription: string
+    ): Promise<void> {
+        const response = await this.request.put(
+            `${this.baseUrl}/channels/${channelId}`,
+            {
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                data: {
+                    name: `${handle} Channel`,
+                    handle,
+                    description: "",
+                    descriptionShort: "",
+                    privacySettings: "public",
+                    isDefault: true,
+                    backgroundPictureId: null,
+                    defaultVideoDescription,
+                },
+            }
+        );
+
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to set default video description: ${response.status()} ${body}`
+            );
+        }
+    }
+
     private async initUpload(
         token: string,
         channelId: string,

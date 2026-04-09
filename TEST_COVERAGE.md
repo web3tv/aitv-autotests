@@ -71,7 +71,10 @@ CHANNELS
 ├── Delete channel                                  [TODO]                                   CHANNEL-013
 ├── Set Highlight video                             [TODO]                                   CHANNEL-014
 ├── Import video via external URL (Video Importer)  [TODO]                                   CHANNEL-015
-└── Mint NFT for channel (testnet)                  [MANUAL]                                 CHANNEL-016
+├── Set default video description in channel settings — saved successfully  [AUTO] tests/studio/channel.spec.ts  CHANNEL-017
+├── Default description auto-fills description field when opening upload popup  [AUTO] tests/studio/channel.spec.ts  CHANNEL-018
+├── Override pre-filled description — video saved with custom description  [AUTO] tests/studio/channel.spec.ts  CHANNEL-019
+└── Clear default description — upload popup opens with empty description  [AUTO] tests/studio/channel.spec.ts  CHANNEL-020
 
 ────────────────────────────────────────────────────────────────
 NFT

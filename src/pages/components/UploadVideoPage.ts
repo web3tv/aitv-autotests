@@ -20,6 +20,7 @@ export class UploadVideoPage {
   readonly paidRadioBtn: Locator;
 
   readonly membershipBtn: Locator;
+  readonly descriptionEditor: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -28,6 +29,7 @@ export class UploadVideoPage {
     this.videoTitle = page.getByRole('textbox', { name: 'e.g. Why you should buy' });
     this.uploadVideoThumbnail = page.locator('input[data-id="upload-image"]');
     this.videoDescription = page.locator('.ql-editor');
+    this.descriptionEditor = page.getByRole('dialog').locator('[data-id="description"] .ql-editor');
     this.videoCategoryDropdown = page.getByRole('button', { name: 'Open' });
     this.videoCategory = page.getByRole('option', { name: 'Chain Abstraction' });
     
@@ -145,6 +147,16 @@ export class UploadVideoPage {
 
   async blur(){
     await this.page.locator('body').click();
+  }
+
+  async assertDescriptionContains(expectedText: string) {
+    await expect(this.descriptionEditor, 'Video description editor is not visible').toBeVisible();
+    await expect(this.descriptionEditor, `Video description does not contain "${expectedText}"`).toContainText(expectedText);
+  }
+
+  async assertDescriptionDoesNotContain(text: string) {
+    await expect(this.descriptionEditor, 'Video description editor is not visible').toBeVisible();
+    await expect(this.descriptionEditor, `Video description unexpectedly contains "${text}"`).not.toContainText(text);
   }
 
 }
