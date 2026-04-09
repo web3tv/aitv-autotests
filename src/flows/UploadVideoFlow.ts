@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { HeaderPage } from "../pages/components/HeaderPage";
 import { UploadVideoPage } from "../pages/components/UploadVideoPage";
-import { SideBarPage } from "../pages/components/SideBarPage";
+
 import { Page } from '@playwright/test';
 import { StudioContentPage } from "../pages/studio/StudioContentPage";
 import { ensureOnStudioDomain } from "../utils/studioNavigation";
@@ -150,18 +150,28 @@ export class UploadVideoFlow {
 
 
     async confirmVideoUploading(visibility: any){
-        const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
         const studioContentPage = new StudioContentPage(this.uploadVideoPage.page)
-        await sideBarPage.clickStudioContent();
-        
+        const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
+        const responsePromise = this.page.waitForResponse(
+            r => r.url().includes('/api/videos/studio-videos') && r.status() === 200,
+            { timeout: 15000 }
+        );
+        await this.page.goto(`${studioUrl}/content`, { waitUntil: 'domcontentloaded' });
+        await responsePromise;
+
         await studioContentPage.checkVideoDescription(this.timestamp);
         await studioContentPage.checkVideoVisibility(visibility)
     }
 
-    async confirmShortsUploading(visibility: any){  
-        const sideBarPage = new SideBarPage(this.uploadVideoPage.page)
+    async confirmShortsUploading(visibility: any){
         const studioContentPage = new StudioContentPage(this.uploadVideoPage.page)
-        await sideBarPage.clickStudioContent();
+        const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
+        const responsePromise = this.page.waitForResponse(
+            r => r.url().includes('/api/videos/studio-videos') && r.status() === 200,
+            { timeout: 15000 }
+        );
+        await this.page.goto(`${studioUrl}/content`, { waitUntil: 'domcontentloaded' });
+        await responsePromise;
         await studioContentPage.clickShortsTab();
         await studioContentPage.checkVideoDescription(this.timestamp);
         await studioContentPage.checkVideoVisibility(visibility)
