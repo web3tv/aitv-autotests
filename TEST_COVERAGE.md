@@ -71,7 +71,10 @@ CHANNELS
 ├── Delete channel                                  [TODO]                                   CHANNEL-013
 ├── Set Highlight video                             [TODO]                                   CHANNEL-014
 ├── Import video via external URL (Video Importer)  [TODO]                                   CHANNEL-015
-└── Mint NFT for channel (testnet)                  [MANUAL]                                 CHANNEL-016
+├── Set default video description in channel settings — saved successfully  [AUTO] tests/studio/channel.spec.ts  CHANNEL-017
+├── Default description auto-fills description field when opening upload popup  [AUTO] tests/studio/channel.spec.ts  CHANNEL-018
+├── Override pre-filled description — video saved with custom description  [AUTO] tests/studio/channel.spec.ts  CHANNEL-019
+└── Clear default description — upload popup opens with empty description  [AUTO] tests/studio/channel.spec.ts  CHANNEL-020
 
 ────────────────────────────────────────────────────────────────
 NFT
@@ -153,6 +156,17 @@ PAID SUBSCRIPTIONS
 ├── Expired subscription on /my-paid-subs            [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-007
 ├── Pending payment status on /my-paid-subs         [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-008
 └── Payment expired status on /my-paid-subs           [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-009
+
+────────────────────────────────────────────────────────────────
+AUTH POPUP ("Almost there!")
+  Shown when anonymous user tries to subscribe or access paid content.
+  Replaces old "Register/Login" redirect — now shows inline popup with
+  "Create account" and "Login" buttons.
+├── Anonymous user sees Subscribe Now button on membership page  [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-007
+├── Clicking Subscribe Now shows auth popup (Create account + Login)  [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-008
+├── Auth popup: Create account button → navigates to register   [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-009
+├── Auth popup: Login button → navigates to login page          [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-010
+└── Auth popup: closes when clicking close button               [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-011
 
 ────────────────────────────────────────────────────────────────
 PLAYLISTS

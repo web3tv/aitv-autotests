@@ -18,7 +18,7 @@ export class HeaderPage {
     this.page = page;
     
     this.addVideoBtn = page.getByRole('button', { name: 'Create' });
-    this.newVideoBtn = page.getByText('New video');
+    this.newVideoBtn = page.getByTestId('new-video-button');
     this.newShortBtn = page.getByText('New short');
     this.liveBtn = page.getByText('Live');
 

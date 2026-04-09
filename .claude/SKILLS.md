@@ -1,46 +1,37 @@
 # Skills & Agents
 
-## Skills (slash-commands)
+## Global Skills (available in all projects)
 
-### `/web3tv-pipeline` — Full Test Automation Pipeline
-The main orchestrator. Takes a Jira link or text description and runs the full cycle:
+| Skill | Location | Description |
+|-------|----------|-------------|
+| `/pipeline` | `~/.claude/commands/pipeline/` | Universal test automation pipeline (11 phases) |
+| `/jira` | `~/.claude/commands/jira/` | Create Jira issues via REST API |
+| `/planner` | `~/.claude/commands/planner/` | Personal task planner |
+| `/project-manager` | `~/.claude/commands/project-manager/` | Requirements analysis (Russian) |
+
+## Pipeline Phases (`/pipeline`)
 
 ```
 Phase 0    Branch Setup            — creates test/<name> branch from main
 Phase 1    Jira Analysis           — parses Jira task or text description
-Phase 2    Code Analysis           — codebase-analyzer (Symfony + Next.js)
+Phase 2    Code Analysis           — checkout task branch + analyze source repos
 Phase 3    Test Design             — clarifying questions + test cases + ASCII diagrams
-Phase 4    Autotests Mapping       — test-analyzer + TEST_COVERAGE.md mapping
+Phase 4    Autotests Mapping       — analyze existing tests + coverage mapping
 Phase 5    Approval                — consolidated plan for user approval
 Phase 6    MCP Smoke Check         — basic functionality via MCP Playwright (optional)
 Phase 7    MCP Edge Cases Check    — edge cases via MCP Playwright (optional)
-Phase 8    Code Writing            — POM → Flow → spec + run tests
+Phase 8    Code Writing            — page objects → flows → spec + run tests
 Phase 9    Code Review             — code-reviewer agent
-Phase 10   Coverage Update         — updates TEST_COVERAGE.md
+Phase 10   Coverage Update         — update coverage documentation
 ```
 
-Pause points: Phase 3 (clarifying questions), Phase 5 (approval), Phase 6-7 (select checks or skip).
+The pipeline reads project-specific conventions from CLAUDE.md and uses agents from `.claude/agents/` if they exist.
 
 See `.claude/PIPELINE_FLOW.md` for the visual flow diagram.
 
-**Usage:** `/web3tv-pipeline` then provide a Jira link or feature description.
+## Project Agents (this project only)
 
----
-
-### `/jira` — Create Jira Issues
-Creates Bug, Task, or Story in Jira Cloud via REST API.
-
-- Translates summary/description to English
-- Sets parent from `JIRA_PARENT_KEY`
-- Credentials from `~/.claude/.env`
-
-**Usage:** `/jira Bug: login page crashes on empty email` or `/jira` for interactive mode.
-
----
-
-## Agents (used by pipeline internally)
-
-Agents are sub-processes launched by `/web3tv-pipeline`. They are not invoked directly.
+Agents are sub-processes launched by `/pipeline`. They are defined per-project in `.claude/agents/`.
 
 | Agent | File | Phase | Purpose |
 |-------|------|-------|---------|
