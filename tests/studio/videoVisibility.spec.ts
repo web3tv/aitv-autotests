@@ -12,7 +12,7 @@ test.describe('Public video visibility', () => {
         setup = await setupVideoViaApi(request, { privacySetting: 'public' });
     });
 
-    test('Public video visible on channel page', { annotation: { type: 'TC', description: 'VIS-001' } }, async ({ page }) => {
+    test('Public video visible on channel page', { tag: '@critical', annotation: { type: 'TC', description: 'VIS-001' } }, async ({ page }) => {
         await test.step('Open channel page and verify video is displayed', async () => {
             const channelMainPage = new ChannelMainPage(page);
             await page.goto(setup.channelUrl, { waitUntil: 'domcontentloaded' });
@@ -20,7 +20,7 @@ test.describe('Public video visibility', () => {
         });
     });
 
-    test('Anonymous user can view public video via direct link', { annotation: { type: 'TC', description: 'VIS-001' } }, async ({ page }) => {
+    test('Anonymous user can view public video via direct link', { tag: '@critical', annotation: { type: 'TC', description: 'VIS-001' } }, async ({ page }) => {
         await test.step('Open video page as anonymous and verify content', async () => {
             const videoPlayer = new VideoPlayerPage(page);
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });

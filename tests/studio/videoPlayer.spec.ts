@@ -4,7 +4,7 @@ import { VideoApi } from '../../src/api/VideoApi';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
 
-test('Video player plays uploaded video', { annotation: [{ type: 'TC', description: 'PLAYER-001' }, { type: 'TC', description: 'PLAYER-002' }, { type: 'TC', description: 'PLAYER-003' }] }, async ({ page, request }) => {
+test('Video player plays uploaded video', { tag: '@critical', annotation: [{ type: 'TC', description: 'PLAYER-001' }, { type: 'TC', description: 'PLAYER-002' }, { type: 'TC', description: 'PLAYER-003' }] }, async ({ page, request }) => {
     test.setTimeout(120_000);
     const videoName: string = Date.now().toString();
     const password = process.env.USER_PASSWORD!;
