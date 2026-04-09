@@ -87,6 +87,52 @@ test.describe('Wallet auth tests', () => {
     });
   });
 
+  test.fixme('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
+    const authFlow = new AuthFlow(page);
+    const accountPage = new AccountPage(page);
+
+    await test.step('Login via wallet', async () => {
+      await authFlow.walletLoginSuccess();
+    });
+
+    await test.step('Add first email without verification', async () => {
+      const mailTmHelper = new MailTmHelper(request);
+      const firstEmail = await mailTmHelper.generateEmail();
+      await mailTmHelper.createMailbox();
+
+      await page.goto('/account', { waitUntil: 'domcontentloaded' });
+      await accountPage.clickAddEmailBtn();
+      const addEmailInput = page.getByRole('textbox', { name: 'Enter email' });
+      await expect(addEmailInput, 'Add email input is not visible').toBeVisible();
+      await addEmailInput.fill(firstEmail);
+      await accountPage.clickSubmitBtn();
+    });
+
+    await test.step('Add second email immediately without verifying first', async () => {
+      const mailTmHelper2 = new MailTmHelper(request);
+      const secondEmail = await mailTmHelper2.generateEmail();
+      await mailTmHelper2.createMailbox();
+
+      await accountPage.clickAddEmailBtn();
+      const addEmailInput = page.getByRole('textbox', { name: 'Enter email' });
+      await expect(addEmailInput, 'Add email input is not visible').toBeVisible();
+      await addEmailInput.fill(secondEmail);
+      await accountPage.clickSubmitBtn();
+    });
+
+    await test.step('Verify second email and confirm it is active', async () => {
+      const mailTmHelper2 = new MailTmHelper(request);
+      const secondEmail = await mailTmHelper2.generateEmail();
+      await mailTmHelper2.createMailbox();
+      const mailToken = await mailTmHelper2.getToken(secondEmail, mailTmHelper2['password']);
+
+      const messageId = await mailTmHelper2.waitForMessage(mailToken, 'Email Verification');
+      const verificationUrl = await mailTmHelper2.extractVerificationUrl(messageId, mailToken);
+      await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
+    });
+  });
+
   test('Add email to wallet account', { annotation: { type: 'TC', description: 'AUTH-011' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);

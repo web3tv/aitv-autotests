@@ -56,6 +56,150 @@ test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' }
   });
 });
 
+test.fixme('Change password twice in one session', { annotation: { type: 'TC', description: 'ACCOUNT-006' } }, async ({ page, request }) => {
+  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+  const firstNewPassword = 'FirstNew1@@';
+  const secondNewPassword = 'SecondNew1@@';
+
+  await test.step('Create user', async () => {
+    const registrationFlow = new RegistrationFlow(page, request);
+    await registrationFlow.openRegistrationPage();
+    user = await registrationFlow.registerAndVerifyUserViaEmail();
+  });
+
+  await test.step('Login and navigate to account settings', async () => {
+    const authFlow = new AuthFlow(page);
+    const sideBarPage = new SideBarPage(page);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
+    await sideBarPage.clickSettingsAccount();
+  });
+
+  await test.step('Change password first time', async () => {
+    const accountPage = new AccountPage(page);
+    await accountPage.changePassword(user.password, firstNewPassword);
+  });
+
+  const beforeSecondChange = Date.now();
+
+  await test.step('Change password second time immediately', async () => {
+    const accountPage = new AccountPage(page);
+    await accountPage.changePassword(user.password, secondNewPassword);
+  });
+
+  await test.step('Verify first password change via email', async () => {
+    const mailTmHelper = new MailTmHelper(request);
+    const messageId = await mailTmHelper.waitForMessage(user.token, 'Password Verification');
+    const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, user.token);
+    await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
+  });
+
+  await test.step('Verify second password change via email', async () => {
+    const mailTmHelper = new MailTmHelper(request);
+    const messageId = await mailTmHelper.waitForMessage(user.token, 'Password Verification', 10, 3000, beforeSecondChange);
+    const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, user.token);
+    await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
+  });
+
+  await test.step('Login with second new password -> Success', async () => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(user.email, secondNewPassword, user.username);
+    await authFlow.logout();
+  });
+
+  await test.step('Login with first new password -> Error', async () => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginFailed(user.email, firstNewPassword);
+  });
+});
+
+test.fixme('Change email without verification then change password', { annotation: { type: 'TC', description: 'ACCOUNT-007' } }, async ({ page, request }) => {
+  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+  const newPassword = 'NewPassword1@@';
+
+  await test.step('Create user', async () => {
+    const registrationFlow = new RegistrationFlow(page, request);
+    await registrationFlow.openRegistrationPage();
+    user = await registrationFlow.registerAndVerifyUserViaEmail();
+  });
+
+  await test.step('Login and navigate to account settings', async () => {
+    const authFlow = new AuthFlow(page);
+    const sideBarPage = new SideBarPage(page);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
+    await sideBarPage.clickSettingsAccount();
+  });
+
+  await test.step('Change email without verification', async () => {
+    const accountPage = new AccountPage(page);
+    const mailTmHelper = new MailTmHelper(request);
+    const newEmail = await mailTmHelper.generateEmail();
+    await mailTmHelper.createMailbox();
+    await accountPage.changeEmail(user.email, newEmail, user.password);
+  });
+
+  await test.step('Change password immediately after unverified email change', async () => {
+    const accountPage = new AccountPage(page);
+    await accountPage.changePassword(user.password, newPassword);
+  });
+
+  await test.step('Verify password change via email and login with new password', async () => {
+    const mailTmHelper = new MailTmHelper(request);
+    const authFlow = new AuthFlow(page);
+    const messageId = await mailTmHelper.waitForMessage(user.token, 'Password Verification');
+    const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, user.token);
+    await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
+    await authFlow.loginSuccess(user.email, newPassword, user.username);
+  });
+});
+
+test.fixme('Change email twice without verification', { annotation: { type: 'TC', description: 'ACCOUNT-008' } }, async ({ page, request }) => {
+  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+
+  await test.step('Create user', async () => {
+    const registrationFlow = new RegistrationFlow(page, request);
+    await registrationFlow.openRegistrationPage();
+    user = await registrationFlow.registerAndVerifyUserViaEmail();
+  });
+
+  await test.step('Login and navigate to account settings', async () => {
+    const authFlow = new AuthFlow(page);
+    const sideBarPage = new SideBarPage(page);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
+    await sideBarPage.clickSettingsAccount();
+  });
+
+  await test.step('Change email first time without verification', async () => {
+    const accountPage = new AccountPage(page);
+    const mailTmHelper = new MailTmHelper(request);
+    const firstNewEmail = await mailTmHelper.generateEmail();
+    await mailTmHelper.createMailbox();
+    await accountPage.changeEmail(user.email, firstNewEmail, user.password);
+  });
+
+  await test.step('Change email second time immediately', async () => {
+    const accountPage = new AccountPage(page);
+    const mailTmHelper = new MailTmHelper(request);
+    const secondNewEmail = await mailTmHelper.generateEmail();
+    await mailTmHelper.createMailbox();
+    await accountPage.changeEmail(user.email, secondNewEmail, user.password);
+  });
+
+  await test.step('Verify second email change and login', async () => {
+    const mailTmHelper = new MailTmHelper(request);
+    const authFlow = new AuthFlow(page);
+    const secondNewEmail = mailTmHelper['email'];
+    const secondNewToken = mailTmHelper['token'];
+    const messageId = await mailTmHelper.waitForMessage(secondNewToken, 'Email Verification');
+    const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, secondNewToken);
+    await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
+    await authFlow.loginSuccess(secondNewEmail, user.password, user.username);
+  });
+});
+
 test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
   let newEmailToken: string;

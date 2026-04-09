@@ -251,6 +251,86 @@ export class AuthFlow {
     await expect(this.userDropdownPage.dropdown).toBeHidden();
   }
 
+  /**
+   * Login via Telegram with API-level mock.
+   * Intercepts the Telegram OAuth redirect, social login API, and whoami
+   * to simulate a successful Telegram login without real Telegram credentials.
+   */
+  async telegramLoginSuccess(user: { email: string; username: string }): Promise<void> {
+    const baseUrl = process.env.BASE_URL!;
+
+    // Mock: intercept Telegram OAuth redirect → return page that redirects to callback with mock token
+    await this.page.route('**/oauth.telegram.org/**', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/html',
+        body: `<html><script>window.location.href = "${baseUrl}/login#tgAuthResult=mock_tg_token";</script></html>`,
+      });
+    });
+
+    // Flag to enable whoami mock only after social login succeeds
+    let authenticated = false;
+
+    // Mock: intercept social login API → return success and enable whoami mock
+    await this.page.route('**/auth/login/social', async route => {
+      if (route.request().method() === 'POST') {
+        authenticated = true;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: true,
+            data: { cookie: 'mock_session', requiredEmail2fa: false, success: true },
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    // Mock: intercept whoami → return user data only after authentication
+    await this.page.route('**/users/whoami', async route => {
+      if (authenticated) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: true,
+            data: {
+              id: 'mock-tg-user-id',
+              username: user.username,
+              email: user.email,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              profile: {
+                biography: '',
+                socials: { facebookUrl: '', twitterUsername: '', instagramUsername: '', tiktokUsername: '' },
+              },
+              thumbnails: null,
+              isEmailAuthEnabled: false,
+              state: 'verified',
+              hasAccessKey: false,
+              hasVerifiedEmail: true,
+              roles: ['ROLE_USER_VERIFIED'],
+              channel: { id: 'mock-channel-id', name: user.username, handleName: user.username },
+            },
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    await this.loginPage.visitLoginPage();
+    await expect(this.loginPage.telegramLoginBtn, 'Telegram login button is not visible').toBeVisible();
+    await expect(this.loginPage.telegramLoginBtn, 'Telegram login button is not enabled').toBeEnabled();
+    await this.loginPage.telegramLoginBtn.click();
+
+    // Wait for the mock redirect chain: Telegram → callback → socialAuth → router.push('/')
+    await this.page.waitForURL((url) => url.pathname === '/', { timeout: 30_000 });
+    await expect(this.headerPage.userIcon, 'Profile button is not visible after Telegram login').toBeVisible({ timeout: 15_000 });
+  }
+
   async logout(){
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();

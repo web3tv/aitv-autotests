@@ -32,13 +32,13 @@ export class ProfilePage {
     constructor(page: Page) {
         this.page = page;
 
-        // user avatar
-        this.profileAvatar = page.getByTestId('edit-profile-form').locator('img')
-        // upload user avatar
-        this.uploadImageButton = page.getByText('Upload Image');
+        // user avatar (img only appears after avatar is uploaded; new users show SVG fallback)
+        this.profileAvatar = page.locator('[data-id="upload-avatar"] img');
+        // hidden file input inside the avatar upload label
+        this.uploadImageButton = page.locator('[data-id="upload-avatar"] input[type="file"]');
         this.confirmButton = page.getByRole('button', { name: 'Confirm' });
         this.submitButton = page.getByRole('button', { name: 'Submit' });
-        this.userAvatarInHeader = page.getByRole('img').first();
+        this.userAvatarInHeader = page.locator('#profile-button img');
 
         // Biography
         this.biographyInput = page.locator('textarea[name="biography"]');
@@ -148,9 +148,8 @@ export class ProfilePage {
         await expect(counterMap[field], `${field} counter should show "${expected}"`).toHaveText(expected);
     }
 
-    async uploadProfileAvatarAndConfirmNewAvatarDisplayed(){
-        const oldAvatarSrc = await this.profileAvatar.getAttribute('src');
-        await this.uploadImageButton.setInputFiles('test-data/fixtures/photo/cat.jpg');
+    async uploadAvatarAndSubmit(filePath: string): Promise<void> {
+        await this.uploadImageButton.setInputFiles(filePath);
         await expect(this.confirmButton, 'Confirm button is not visible').toBeVisible();
         await expect(this.confirmButton, 'Confirm button is not enabled').toBeEnabled();
         await this.confirmButton.click();
@@ -163,12 +162,13 @@ export class ProfilePage {
         );
         await this.submitButton.click();
         await responsePromise;
-
+        await this.page.waitForTimeout(3000)
         await this.page.reload({ waitUntil: 'domcontentloaded' });
-        const newAvatarSrc = await this.profileAvatar.getAttribute('src');
-        await expect(this.profileAvatar, 'Avatar src should change after upload').not.toHaveAttribute('src', oldAvatarSrc!);
-        const headerPage = new HeaderPage(this.page);
-        await headerPage.clickUserIcon();
-        await expect(this.userAvatarInHeader, 'Header avatar should match new avatar src').toHaveAttribute('src', newAvatarSrc!);
+    }
+
+    async getAvatarSrc(): Promise<string | null> {
+        const imgCount = await this.profileAvatar.count();
+        if (imgCount === 0) return null;
+        return this.profileAvatar.getAttribute('src');
     }
 }

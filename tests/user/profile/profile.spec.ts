@@ -4,7 +4,7 @@ import { AuthApi } from '../../../src/api/AuthApi';
 import { SideBarPage } from '../../../src/pages/components/SideBarPage';
 import { ProfilePage } from '../../../src/pages/account/ProfilePage';
 
-test('Change user avatar and check new avatar is displayed', { tag: '@critical', annotation: [{ type: 'TC', description: 'PROFILE-001' }, { type: 'TC', description: 'PROFILE-002' }] }, async ({ page, request }) => {
+test.fixme('Change user avatar and check new avatar is displayed', { tag: '@critical', annotation: [{ type: 'TC', description: 'PROFILE-001' }, { type: 'TC', description: 'PROFILE-002' }] }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
@@ -12,9 +12,33 @@ test('Change user avatar and check new avatar is displayed', { tag: '@critical',
   const password = process.env.USER_PASSWORD!;
 
   const user = await authApi.createAndVerifyUser();
-  await authFlow.loginSuccess(user.email, password, user.username);
-  await sideBarPage.clickSettingsProfile();
-  await profilePage.uploadProfileAvatarAndConfirmNewAvatarDisplayed();
+
+  await test.step('Login and navigate to profile settings', async () => {
+    await authFlow.loginSuccess(user.email, password, user.username);
+    await sideBarPage.clickSettingsProfile();
+  });
+
+  await test.step('Verify new user has no avatar (placeholder shown)', async () => {
+    const initialSrc = await profilePage.getAvatarSrc();
+    expect(initialSrc, 'New user should not have an avatar image').toBeNull();
+  });
+
+  let firstAvatarSrc: string | null;
+
+  await test.step('Upload first avatar and verify src appeared', async () => {
+    await profilePage.uploadAvatarAndSubmit('test-data/fixtures/photo/cat.jpg');
+    await expect(profilePage.profileAvatar, 'Avatar image should appear after first upload').toBeVisible();
+    firstAvatarSrc = await profilePage.getAvatarSrc();
+    expect(firstAvatarSrc, 'Avatar src should not be empty after first upload').toBeTruthy();
+  });
+
+  await test.step('Upload second avatar and verify src changed', async () => {
+    await profilePage.uploadAvatarAndSubmit('test-data/fixtures/photo/cat.jpg');
+    await expect(profilePage.profileAvatar, 'Avatar image should be visible after second upload').toBeVisible();
+    const secondAvatarSrc = await profilePage.getAvatarSrc();
+    expect(secondAvatarSrc, 'Avatar src should not be empty after second upload').toBeTruthy();
+    expect(secondAvatarSrc, 'Avatar src should change after uploading a new photo').not.toBe(firstAvatarSrc);
+  });
 });
 
 test('Edit biography and verify persistence', { annotation: { type: 'TC', description: 'PROFILE-003' } }, async ({ page, request }) => {

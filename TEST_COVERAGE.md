@@ -22,11 +22,12 @@ AUTH
 ├── Password reset — success                        [AUTO] tests/auth/resetPassword.spec.ts  AUTH-007
 ├── Password reset — password mismatch              [AUTO] tests/auth/resetPassword.spec.ts  AUTH-008
 ├── Login via Web3 wallet                           [AUTO][CRITICAL] tests/auth/walletAuth.spec.ts  AUTH-009
-├── Login via Telegram                              [MANUAL]                                 AUTH-010
+├── Login via Telegram (mocked OAuth)               [AUTO] tests/auth/telegramAuth.spec.ts   AUTH-015
 ├── Add email to wallet account                     [AUTO] tests/auth/wallet.spec.ts         AUTH-011
 ├── Registration via Web3 wallet                    [AUTO] tests/auth/wallet.spec.ts         AUTH-012
 ├── Register + Login via same wallet                [AUTO] tests/auth/wallet.spec.ts         AUTH-013
-└── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
+├── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
+└── Add email to wallet twice without verification  [BLOCKED] test.fixme                     AUTH-016
 
 ────────────────────────────────────────────────────────────────
 2FA
@@ -40,12 +41,15 @@ ACCOUNT SETTINGS (/account)
 ├── Edit email address — saved successfully         [AUTO] tests/user/account/account.spec.ts ACCOUNT-001
 ├── Change password — saved successfully            [AUTO] tests/user/account/account.spec.ts ACCOUNT-002
 ├── Display wallet address (read-only)              [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-003
-└── Add wallet to email account                    [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-005
+├── Add wallet to email account                     [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-005
+├── Change password twice in one session            [BLOCKED] test.fixme                      ACCOUNT-006
+├── Change email then change password (unverified)  [BLOCKED] test.fixme                      ACCOUNT-007
+└── Change email twice without verification         [BLOCKED] test.fixme                      ACCOUNT-008
 
 ────────────────────────────────────────────────────────────────
 PROFILE SETTINGS (/profile)
-├── Upload profile avatar — saved successfully      [AUTO][CRITICAL] tests/user/profile/profile.spec.ts PROFILE-001
-├── Avatar displayed in header after upload         [AUTO][CRITICAL] tests/user/profile/profile.spec.ts PROFILE-002
+├── Upload profile avatar — saved successfully      [BLOCKED] W3-2082 (CDN migration)        PROFILE-001
+├── Avatar displayed in header after upload         [BLOCKED] W3-2082 (CDN migration)        PROFILE-002
 ├── Edit biography — saved successfully             [AUTO] tests/user/profile/profile.spec.ts PROFILE-003
 ├── Add/edit social links (FB, TW, IG, TikTok)     [AUTO] tests/user/profile/profile.spec.ts PROFILE-004
 ├── Biography max length validation (1000 chars)    [AUTO] tests/user/profile/profile.spec.ts PROFILE-005
