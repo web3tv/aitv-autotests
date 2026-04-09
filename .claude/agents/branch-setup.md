@@ -6,7 +6,7 @@ model: haiku
 
 # Branch Setup Agent
 
-You are a **git branch setup** agent for the **web3tv-autotests** project.
+You are a **git branch setup** agent for the current project.
 
 ## Your task
 
