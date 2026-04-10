@@ -11,10 +11,46 @@ interface UploadedVideo {
 }
 
 export class VideoApi {
+    private defaultCategoryIdCache: number | null = null;
+
     constructor(
         private request: APIRequestContext,
         private baseUrl = process.env.API_URL!
     ) {}
+
+    async getDefaultCategoryId(): Promise<number> {
+        if (this.defaultCategoryIdCache !== null) {
+            return this.defaultCategoryIdCache;
+        }
+
+        const response = await this.request.get(
+            `${this.baseUrl}/videos/categories/`,
+            { headers: { Accept: "application/json" } }
+        );
+
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to fetch video categories: ${response.status()} ${body}`
+            );
+        }
+
+        const json = await response.json();
+        const items = json?.items ?? json?.data?.items ?? [];
+        const chainAbstraction = items.find(
+            (c: { slug?: string }) => c?.slug === "chain-abstraction"
+        );
+        const picked = chainAbstraction ?? items[0];
+
+        if (!picked?.id) {
+            throw new Error(
+                "No video categories available from /videos/categories/"
+            );
+        }
+
+        this.defaultCategoryIdCache = picked.id as number;
+        return this.defaultCategoryIdCache;
+    }
 
     async getChannelId(token: string): Promise<string> {
         const response = await this.request.get(`${this.baseUrl}/channels`, {
@@ -220,7 +256,7 @@ export class VideoApi {
         const multipart: Record<string, string> = {};
         if (options.title) multipart.title = options.title;
         if (options.description) multipart.description = options.description;
-        const catId = options.categoryId ?? 183; // default: AI
+        const catId = options.categoryId ?? (await this.getDefaultCategoryId());
         multipart["categoryIds[0]"] = String(catId);
         if (options.privacySetting) multipart.privacySetting = options.privacySetting;
 
@@ -256,7 +292,7 @@ export class VideoApi {
             valid_until: Date.now() + 3600_000,
         });
 
-        const catId = String(meta.categoryId ?? 183);
+        const catId = String(meta.categoryId ?? (await this.getDefaultCategoryId()));
         const boundary = "----PlaywrightFormBoundary" + Date.now();
         const fields: Record<string, string> = {
             title: meta.title,

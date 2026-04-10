@@ -34,7 +34,7 @@ export async function uploadWithChunkCheck(page: Page, uploadFn: () => Promise<v
 }
 
 export interface VideoSetupResult {
-    user: { email: string; username: string };
+    user: { id: string; email: string; username: string };
     token: string;
     channelId: string;
     videoUrl: string;
@@ -50,7 +50,7 @@ export async function setupVideoViaApi(
     request: APIRequestContext,
     options: {
         privacySetting: 'public' | 'private' | 'unlisted' | 'paid';
-        subscriptionOptions?: { title: string; description: string; price: string; duration: number };
+        subscriptionOptions?: { title: string; description: string; price: string; duration?: number };
     }
 ): Promise<VideoSetupResult> {
     const authApi = new AuthApi(request);
@@ -76,7 +76,6 @@ export async function setupVideoViaApi(
             title: `Subscription ${videoName}`,
             description: `Description ${videoName}`,
             price: '0.99',
-            duration: 7,
         };
         membershipName = subOpts.title;
         membershipDescription = subOpts.description;

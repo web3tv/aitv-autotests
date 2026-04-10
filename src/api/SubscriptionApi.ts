@@ -18,8 +18,11 @@ export class SubscriptionApi {
         options: {
             title?: string;
             description?: string;
+            contentDetails?: string | null;
             price?: string;
+            currency?: string;
             duration?: number;
+            parentSubscriptionId?: string | null;
         } = {}
     ): Promise<CreatedSubscription> {
         const now = Date.now();
@@ -37,8 +40,11 @@ export class SubscriptionApi {
                 data: {
                     title,
                     description,
+                    contentDetails: options.contentDetails ?? null,
+                    duration: options.duration ?? 30,
                     price: options.price ?? "100",
-                    duration: options.duration ?? 7,
+                    currency: options.currency ?? "USD",
+                    parentSubscriptionId: options.parentSubscriptionId ?? null,
                     channelId,
                 },
             }
@@ -60,5 +66,71 @@ export class SubscriptionApi {
         }
 
         return { id: json.id, title, channelId };
+    }
+
+    async getMySubscriptions(
+        token: string,
+        options: { userId?: string; maxResults?: number; mine?: boolean } = {}
+    ): Promise<any> {
+        const params: Record<string, string | number | boolean> = {
+            maxResults: options.maxResults ?? 50,
+            mine: options.mine ?? true,
+        };
+        if (options.userId) params.userId = options.userId;
+
+        const response = await this.request.get(`${this.apiUrl}/paid-subs/my`, {
+            headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            params,
+        });
+
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to GET /paid-subs/my: ${response.status()} ${body}`
+            );
+        }
+
+        return response.json();
+    }
+
+    async listPaidSubsByChannel(token: string, channelId: string): Promise<any> {
+        const response = await this.request.get(`${this.apiUrl}/paid-subs`, {
+            headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            params: { channelId },
+        });
+
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to GET /paid-subs?channelId=${channelId}: ${response.status()} ${body}`
+            );
+        }
+
+        return response.json();
+    }
+
+    async listPaidSubsByCreator(token: string, creatorId: string): Promise<any> {
+        const response = await this.request.get(`${this.apiUrl}/paid-subs`, {
+            headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            params: { creatorId },
+        });
+
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to GET /paid-subs?creatorId=${creatorId}: ${response.status()} ${body}`
+            );
+        }
+
+        return response.json();
     }
 }
