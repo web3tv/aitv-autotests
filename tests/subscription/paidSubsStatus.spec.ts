@@ -1,5 +1,6 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { AuthApi } from '../../src/api/AuthApi';
+import { SubscriptionApi } from '../../src/api/SubscriptionApi';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { DatabaseHelper } from '../../src/api/DatabaseHelper';
 import { SideBarPage } from '../../src/pages/components/SideBarPage';
@@ -13,17 +14,22 @@ test('Active subscription displayed on /my-paid-subs', {
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
 
+    const authApi = new AuthApi(request);
+    const subscriptionApi = new SubscriptionApi(request);
+
     let setup: VideoSetupResult;
+    let buyerUser: { id: string; email: string; username: string };
+    let buyerToken: string;
     const password = process.env.USER_PASSWORD!;
 
     await test.step('Setup owner with public channel, paid plan and video via API', async () => {
         setup = await setupVideoViaApi(request, { privacySetting: 'paid' });
     });
 
-    await test.step('Create buyer user and login', async () => {
-        const authApi = new AuthApi(request);
+    await test.step('Create buyer user, get API token and login via UI', async () => {
         const authFlow = new AuthFlow(page);
-        const buyerUser = await authApi.createAndVerifyUser();
+        buyerUser = await authApi.createAndVerifyUser();
+        buyerToken = await authApi.getUserToken(buyerUser.email, password);
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
     });
 
@@ -46,6 +52,19 @@ test('Active subscription displayed on /my-paid-subs', {
         await myPaidSubsPage.assertStatus('Active');
         await myPaidSubsPage.assertChannelName(setup.user.username);
         await myPaidSubsPage.assertSubscriptionName(setup.membershipName!);
+    });
+
+    await test.step('Verify /paid-subs/my response contains thumbnails field in user object', async () => {
+        const mySubs = await subscriptionApi.getMySubscriptions(buyerToken, { userId: buyerUser.id });
+        const items = mySubs.items ?? mySubs.data?.items ?? mySubs;
+        expect(Array.isArray(items), '/paid-subs/my response is not an array').toBe(true);
+        expect(items.length, 'expected at least one subscription in /paid-subs/my').toBeGreaterThan(0);
+
+        const subItem = items[0];
+        expect(subItem.user, 'user object is missing in /paid-subs/my item').toBeDefined();
+        expect(subItem.user, 'user.id is missing').toHaveProperty('id');
+        expect(subItem.user, 'user.username is missing').toHaveProperty('username');
+        expect(subItem.user, 'user.thumbnails key must be present (can be null)').toHaveProperty('thumbnails');
     });
 });
 
@@ -214,6 +233,6 @@ test('Payment failed', async ({ page, request }) => {
         await page.goto('/my-paid-subs', { waitUntil: 'domcontentloaded' });
         await myPaidSubsPage.assertPageLoaded();
         await myPaidSubsPage.assertSubscriptionVisible();
-        await myPaidSubsPage.assertStatus('Payment invalid');
+        await myPaidSubsPage.assertStatus('Payment failed');
     });
 })
