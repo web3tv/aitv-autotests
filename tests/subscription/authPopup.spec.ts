@@ -126,3 +126,27 @@ test.describe('Authorization popup on paid subscription', () => {
         });
     });
 });
+
+test.describe('Authorization popup on free subscription', () => {
+    test('Anonymous user clicking Subscribe on channel sees auth popup', {
+        annotation: { type: 'TC', description: 'AUTH-POP-012' },
+    }, async ({ page, request }) => {
+        const setup = await setupVideoViaApi(request, { privacySetting: 'public' });
+        const channelMainPage = new ChannelMainPage(page);
+        const authPopup = new AuthPopupPage(page);
+
+        await test.step('Open public channel page as anonymous', async () => {
+            await page.goto(setup.channelUrl, { waitUntil: 'domcontentloaded' });
+        });
+
+        await test.step('Click free Subscribe button', async () => {
+            await expect(channelMainPage.channelSubscribeBtn, 'Subscribe button is not visible').toBeVisible();
+            await expect(channelMainPage.channelSubscribeBtn, 'Subscribe button is not enabled').toBeEnabled();
+            await channelMainPage.channelSubscribeBtn.click();
+        });
+
+        await test.step('Verify auth popup appears', async () => {
+            await authPopup.assertPopupVisible();
+        });
+    });
+});
