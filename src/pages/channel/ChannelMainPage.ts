@@ -20,6 +20,7 @@ export class ChannelMainPage {
 
     readonly subscriptionCard: Locator;
     readonly subscribeBtn: Locator;
+    readonly channelSubscribeBtn: Locator;
     readonly registerLoginBtn: Locator;
     readonly payWithBtn: Locator;
 
@@ -36,6 +37,7 @@ export class ChannelMainPage {
         // MEMBERSHIP
         this.subscriptionCard = page.locator('[data-id="sub-card"]');
         this.subscribeBtn = page.getByRole('button', { name: 'Subscribe Now!' });
+        this.channelSubscribeBtn = page.getByRole('button', { name: 'Subscribe', exact: true });
         this.registerLoginBtn = page.getByRole('button', { name: 'Register/Login' });
         this.payWithBtn = page.getByRole('button', { name: /Pay With/ });
     }
