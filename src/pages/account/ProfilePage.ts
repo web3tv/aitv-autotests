@@ -155,15 +155,12 @@ export class ProfilePage {
         await this.confirmButton.click();
         await expect(this.submitButton, 'Submit button is not visible').toBeVisible();
         await expect(this.submitButton, 'Submit button is not enabled').toBeEnabled();
-        const responsePromise = this.page.waitForResponse(res =>
-            res.url().includes('/api/profile/update') &&
-            res.status() === 200,
+        const responsePromise = this.page.waitForResponse(
+            res => res.url().includes('/api/profile/update') && res.status() === 200,
             { timeout: 30000 }
         );
         await this.submitButton.click();
         await responsePromise;
-        await this.page.waitForTimeout(3000)
-        await this.page.reload({ waitUntil: 'domcontentloaded' });
     }
 
     async getAvatarSrc(): Promise<string | null> {
