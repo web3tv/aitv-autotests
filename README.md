@@ -18,6 +18,20 @@ USER_PASSWORD=Admin1@@
 
 Admin user setup: create user with handle `adminuser` and assign `ROLE_ADMIN`.
 
+### Switching between environments
+
+By default tests load `.env.dev`. To run against another environment, put its variables into a separate file (e.g. `.env.dev2`) and pass its path via `ENV_FILE`:
+
+```bash
+# dev (default)
+npx playwright test --project=functional
+
+# dev2
+ENV_FILE=.env.dev2 npx playwright test --project=functional
+```
+
+Works with any Playwright flags (single file, `--grep`, etc.). All `.env.*` files are gitignored.
+
 ## Running Tests
 
 ### Critical (smoke) — before each deploy
