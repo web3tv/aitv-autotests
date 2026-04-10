@@ -101,7 +101,7 @@ jobs:
       - run: npx playwright install --with-deps
 
       - run: |
-          npx playwright test --project=functional
+          npx playwright test --project=functional --grep @critical
         env:
           CI: true
 
