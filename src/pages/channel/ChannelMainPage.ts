@@ -129,6 +129,11 @@ export class ChannelMainPage {
         await expect(this.page.locator('body'), `Expected subscription status "${expectedStatus}" not found`).toContainText(expectedStatus);
     }
 
+    async initiatePurchaseWithoutPayment(){
+        await this.clickButtonSubscribeNow();
+        await this.clickPayWith();
+    }
+
     async purhcaseMembershipFromMembershipPageMockPayment(){
         await this.clickButtonSubscribeNow();
         await this.clickPayWith();

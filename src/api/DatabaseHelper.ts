@@ -32,10 +32,17 @@ export class DatabaseHelper {
         return rows as T;
     }
 
+    async setActiveSubscription(email: string): Promise<void> {
+        await this.query(
+            'UPDATE paid_subscription_subscribers SET transaction_status = ?, start_date = NOW(), expired_at = DATE_ADD(NOW(), INTERVAL 30 DAY) WHERE user_id = (SELECT id FROM users WHERE email = ?)',
+            ['confirmed', email]
+        );
+    }
+
     async expireSubscription(email: string): Promise<void> {
         await this.query(
-            'UPDATE paid_subscription_subscribers SET expired_at = DATE_SUB(expired_at, INTERVAL 1 YEAR) WHERE user_id = (SELECT id FROM users WHERE email = ?)',
-            [email]
+            'UPDATE paid_subscription_subscribers SET transaction_status = ?, start_date = DATE_SUB(NOW(), INTERVAL 60 DAY), expired_at = DATE_SUB(NOW(), INTERVAL 1 DAY) WHERE user_id = (SELECT id FROM users WHERE email = ?)',
+            ['confirmed', email]
         );
     }
 
