@@ -297,7 +297,7 @@ ANALYTICS (studio.web3tv.dev/analytics) — W3-881
 ├── topContent includes video links                            [TODO] W3-2449 (BE task)               ANALY-003
 ├── Non-owner access → 403                                     [TODO]                                  ANALY-004
 ├── Unauthenticated access → 401                               [TODO]                                  ANALY-005
-└── Channel with no videos — empty state                       [TODO]                                  ANALY-006
+└── Channel with no videos — empty state                       [AUTO] tests/studio/analytics.spec.ts  ANALY-006
 
 ────────────────────────────────────────────────────────────────
 VISUAL REGRESSION

@@ -36,6 +36,9 @@ export class StudioAnalyticsPage {
     readonly topContentHeader: Locator;
     readonly topContentRows: Locator;
 
+    // Empty state
+    readonly emptyStateMessage: Locator;
+
     constructor(page: Page) {
         this.page = page;
 
@@ -72,6 +75,9 @@ export class StudioAnalyticsPage {
         // Top Content table
         this.topContentHeader = page.locator('p').filter({ hasText: 'Top Content' });
         this.topContentRows = page.locator('p').filter({ hasText: 'Top Content' }).locator('..').locator('> div').filter({ has: page.locator('img') });
+
+        // Empty state
+        this.emptyStateMessage = page.getByText("It's a bit empty here", { exact: false });
     }
 
     async navigateToAnalytics(): Promise<void> {

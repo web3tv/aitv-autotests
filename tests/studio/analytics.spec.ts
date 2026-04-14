@@ -222,3 +222,56 @@ test('Analytics page displays seeded statistics', {
         expect(chartViewsTotal, 'Chart views total should include all seeded views').toBe(TOTAL_VIEWS);
     });
 });
+
+test('Analytics page shows empty state for user without statistics', {
+    annotation: { type: 'TC', description: 'ANALY-006' },
+}, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const analyticsPage = new StudioAnalyticsPage(page);
+
+    let ownerEmail: string;
+    let ownerUsername: string;
+
+    await test.step('Create fresh user and login', async () => {
+        const owner = await authApi.createAndVerifyUser();
+        ownerEmail = owner.email;
+        ownerUsername = owner.username;
+
+        await page.goto('/');
+        await authFlow.loginSuccess(ownerEmail, process.env.USER_PASSWORD!, ownerUsername);
+    });
+
+    await test.step('Navigate to analytics', async () => {
+        await analyticsPage.navigateToAnalytics();
+    });
+
+    await test.step('Verify summary cards show labels but no data', async () => {
+        await expect(analyticsPage.viewsLabel, 'Views label is not visible').toBeVisible();
+        await expect(analyticsPage.subscribersLabel, 'Subscribers label is not visible').toBeVisible();
+    });
+
+    await test.step('Verify engagement shows 0 likes', async () => {
+        await expect(analyticsPage.engagementTitle, 'Engagement title is not visible').toBeVisible();
+        const likesText = await analyticsPage.getEngagementLikesText();
+        const likesNum = Number(likesText.replace(/[^\d]/g, ''));
+        expect(likesNum, 'Engagement 48h likes should be 0').toBe(0);
+    });
+
+    await test.step('Verify empty state message is displayed', async () => {
+        await expect(analyticsPage.emptyStateMessage, 'Empty state message is not visible').toBeVisible();
+    });
+
+    await test.step('Verify no charts rendered', async () => {
+        const chartsCount = await page.locator('.recharts-wrapper').count();
+        expect(chartsCount, 'No charts should be rendered for empty user').toBe(0);
+    });
+
+    await test.step('Verify no latest video section', async () => {
+        await expect(analyticsPage.latestVideoSection, 'Latest video section should not exist').toBeHidden();
+    });
+
+    await test.step('Verify no top content table', async () => {
+        await expect(analyticsPage.topContentHeader, 'Top Content should not exist').toBeHidden();
+    });
+});
