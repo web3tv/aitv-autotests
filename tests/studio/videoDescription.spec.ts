@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { AuthApi } from '../../src/api/AuthApi';
-import { VideoApi } from '../../src/api/VideoApi';
+import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
+import { setupVideoViaApi } from '../../src/utils/studioTestHelpers';
 
 const PARAGRAPHS = [
     'First paragraph of the video description',
@@ -18,35 +18,20 @@ test('Video description preserves empty paragraphs on video page', {
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
 
-    const authApi = new AuthApi(request);
-    const videoApi = new VideoApi(request);
-
+    const videoPlayerPage = new VideoPlayerPage(page);
     let videoPageUrl: string;
-    const videoTitle = `ParagraphTest_${Date.now()}`;
 
     await test.step('Create user with public channel and upload video with multi-paragraph description', async () => {
-        const user = await authApi.createAndVerifyUser();
-        const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
-        const channelId = await videoApi.getChannelId(token);
-        await videoApi.setChannelPublic(token, channelId, user.username);
-
-        const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
-            title: videoTitle,
-            description: DESCRIPTION_HTML,
+        const setup = await setupVideoViaApi(request, {
             privacySetting: 'public',
-            waitForProcessing: true,
+            description: DESCRIPTION_HTML,
         });
-
-        videoPageUrl = video.videoPlayerFeUrl;
+        videoPageUrl = setup.videoUrl;
     });
 
     await test.step('Navigate to video page and expand description', async () => {
         await page.goto(videoPageUrl, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('h1', { hasText: videoTitle })).toBeVisible({ timeout: 15_000 });
-
-        const showMoreBtn = page.getByText('Show more', { exact: true });
-        await expect(showMoreBtn, '"Show more" button should be visible').toBeVisible({ timeout: 10_000 });
-        await showMoreBtn.click();
+        await videoPlayerPage.expandDescription();
     });
 
     await test.step('Verify each paragraph is displayed separately', async () => {
@@ -59,10 +44,12 @@ test('Video description preserves empty paragraphs on video page', {
     });
 
     await test.step('Verify description has paragraph structure with empty separators', async () => {
-        const descriptionContainer = page.getByText('Show less', { exact: true }).locator('..').locator('> div').first();
+        const descriptionContainer = videoPlayerPage.getDescriptionContainer();
+        await expect(descriptionContainer, 'Description container should be visible').toBeVisible();
         const paragraphCount = await descriptionContainer.locator('p').count();
 
-        // 3 content paragraphs + 2 empty spacer <p></p> = at least 5
-        expect(paragraphCount, 'Description should have separate <p> elements with spacers').toBeGreaterThanOrEqual(PARAGRAPHS.length + (PARAGRAPHS.length - 1));
+        // 3 content paragraphs + 2 empty spacer <p></p> = 5 elements
+        const expectedMinCount = PARAGRAPHS.length * 2 - 1;
+        expect(paragraphCount, `Description should have at least ${expectedMinCount} <p> elements (content + spacers)`).toBeGreaterThanOrEqual(expectedMinCount);
     });
 });

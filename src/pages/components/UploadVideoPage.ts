@@ -71,18 +71,6 @@ export class UploadVideoPage {
     await this.videoDescription.fill(description);
   }
 
-  async fillVideoDescriptionWithParagraphs(paragraphs: string[]): Promise<void> {
-    await expect(this.videoDescription, 'Video description input is not visible').toBeVisible();
-    await this.videoDescription.click();
-    for (let i = 0; i < paragraphs.length; i++) {
-      await this.page.keyboard.type(paragraphs[i]);
-      if (i < paragraphs.length - 1) {
-        await this.page.keyboard.press('Enter');
-        await this.page.keyboard.press('Enter');
-      }
-    }
-  }
-
   async selectVideoCategory(){
     await this.videoCategoryDropdown.click();
     await this.videoCategory.click();
