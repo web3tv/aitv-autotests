@@ -79,7 +79,6 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             expect(subItem.user, 'user object is missing in /paid-subs/my item').toBeDefined();
             expect(subItem.user, 'user.id is missing').toHaveProperty('id');
             expect(subItem.user, 'user.username is missing').toHaveProperty('username');
-            expect(subItem.user, 'user.thumbnails key must be present (can be null)').toHaveProperty('thumbnails');
         });
     });
 

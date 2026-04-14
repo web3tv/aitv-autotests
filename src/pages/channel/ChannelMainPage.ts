@@ -36,9 +36,9 @@ export class ChannelMainPage {
 
         // MEMBERSHIP
         this.subscriptionCard = page.locator('[data-id="sub-card"]');
-        this.subscribeBtn = page.getByRole('button', { name: 'Subscribe Now!' });
+        this.subscribeBtn = this.subscriptionCard.getByRole('button', { name: 'Join' });
         this.channelSubscribeBtn = page.getByRole('button', { name: 'Subscribe', exact: true });
-        this.registerLoginBtn = page.getByRole('button', { name: 'Register/Login' });
+        this.registerLoginBtn = page.getByRole('button', { name: 'Login' });
         this.payWithBtn = page.getByRole('button', { name: /Pay With/ });
     }
 

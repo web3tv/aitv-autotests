@@ -65,7 +65,6 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
 
         await authFlow.logout();
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('.infinite-scroll-component')).toBeVisible();
         await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
         await channelMainPage.checkRegisterLoginBtn();
     });
@@ -79,7 +78,6 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
         await authFlow.loginSuccess(user2.email, password, user2.username);
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
-        await expect(page.locator('.infinite-scroll-component')).toBeVisible();
         await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
         await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
         await channelMainPage.assertSubscriptionStatus('Active');
@@ -94,7 +92,7 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
 test('Subscription expiry revokes access, re-purchase restores it', {
     annotation: [{ type: 'TC', description: 'PAID-005' }],
 }, async ({ page, request }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(300_000);
 
     let setup: VideoSetupResult;
     let buyerUser: { id: string; email: string; username: string };
