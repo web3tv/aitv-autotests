@@ -282,6 +282,24 @@ STUDIO DOMAIN (studio.web3tv.dev) — W3-1943
 └── Logout redirects to baseUrl (main domain /)     [TODO]                                   STUDIO-DOMAIN-011
 
 ────────────────────────────────────────────────────────────────
+ANALYTICS (studio.web3tv.dev/analytics) — W3-881
+  Channel owner views analytics dashboard with seeded statistics.
+  Data seeded via DB: views, likes, comments, subscribers across multiple days.
+├── Summary cards: Views and Subscribers displayed             [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Charts: main chart (views) and engagement chart visible    [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Chart switch: click Subscribers card → subscribers chart   [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Engagement (48h): likes count matches seeded data          [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Latest Uploaded Content: title, views, likes, comments     [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Top Content: uploaded video present in table               [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Period: Last 7 days — chart data + newSubscribers filtered [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Period: Last 28 days — chart data includes all views       [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Summary for selected period (not lifetime)                 [TODO] W3-2449 (BE task)               ANALY-002
+├── topContent includes video links                            [TODO] W3-2449 (BE task)               ANALY-003
+├── Non-owner access → 403                                     [TODO]                                  ANALY-004
+├── Unauthenticated access → 401                               [TODO]                                  ANALY-005
+└── Channel with no videos — empty state                       [TODO]                                  ANALY-006
+
+────────────────────────────────────────────────────────────────
 VISUAL REGRESSION
 ├── Desktop Chromium: main domain (9 tests)         [AUTO] Docker only                       VISUAL-001
 ├── Desktop Chromium: studio domain (2 tests)       [AUTO] Docker only                       VISUAL-002

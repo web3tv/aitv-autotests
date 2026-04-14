@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, expect, Response } from '@playwright/test';
 
 export class StudioAnalyticsPage {
     readonly page: Page;
@@ -6,8 +6,10 @@ export class StudioAnalyticsPage {
     // Summary cards
     readonly viewsLabel: Locator;
     readonly viewsCount: Locator;
+    readonly viewsCard: Locator;
     readonly subscribersLabel: Locator;
     readonly subscribersCount: Locator;
+    readonly subscribersCard: Locator;
 
     // Period selector
     readonly periodSelector: Locator;
@@ -40,9 +42,11 @@ export class StudioAnalyticsPage {
         // Summary cards — find label P then sibling count P via parent
         this.viewsLabel = page.locator('p').filter({ hasText: /^\s*Views\s*$/ }).first();
         this.viewsCount = this.viewsLabel.locator('xpath=following-sibling::p[1]');
+        this.viewsCard = this.viewsLabel.locator('..');
 
         this.subscribersLabel = page.locator('p').filter({ hasText: /^\s*Subscribers\s*$/ }).first();
         this.subscribersCount = this.subscribersLabel.locator('xpath=following-sibling::p[1]');
+        this.subscribersCard = this.subscribersLabel.locator('..');
 
         // Period selector — the clickable area with date range and period type
         this.periodSelector = page.locator('[data-testid="KeyboardArrowDownIcon"]').locator('..');
@@ -72,8 +76,12 @@ export class StudioAnalyticsPage {
 
     async navigateToAnalytics(): Promise<void> {
         const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
+        const analyticsLoaded = this.page.waitForResponse(
+            r => r.url().includes('/analytics') && !r.url().includes('analytics-chart') && r.url().includes('from=') && r.status() === 200,
+            { timeout: 15000 }
+        );
         await this.page.goto(`${studioUrl}/analytics`, { waitUntil: 'domcontentloaded' });
-        await this.page.waitForTimeout(2000);
+        await analyticsLoaded;
     }
 
     async assertViewsVisible(): Promise<void> {
@@ -108,29 +116,25 @@ export class StudioAnalyticsPage {
         await expect(this.engagementChart, 'Engagement chart is not visible').toBeVisible();
     }
 
-    /**
-     * Click Views summary card to switch chart to views metric.
-     * Data may be cached — chart API call is not guaranteed.
-     */
     async switchChartToViews(): Promise<void> {
-        const viewsCard = this.viewsLabel.locator('..');
-        await expect(viewsCard, 'Views card is not visible').toBeVisible();
-        await viewsCard.click();
+        await expect(this.viewsCard, 'Views card is not visible').toBeVisible();
+        await expect(this.viewsCard, 'Views card is not enabled').toBeEnabled();
+        await this.viewsCard.click();
     }
 
     /**
      * Click Subscribers summary card to switch chart to subscribers metric.
      * Returns a promise for the chart API response.
      */
-    async switchChartToSubscribers(): Promise<Promise<any>> {
+    async switchChartToSubscribers(): Promise<Response> {
         const chartResponse = this.page.waitForResponse(
             r => r.url().includes('analytics-chart') && r.url().includes('metric=subscribers') && r.status() === 200,
             { timeout: 15000 }
         );
-        const subsCard = this.subscribersLabel.locator('..');
-        await expect(subsCard, 'Subscribers card is not visible').toBeVisible();
-        await subsCard.click();
-        return chartResponse;
+        await expect(this.subscribersCard, 'Subscribers card is not visible').toBeVisible();
+        await expect(this.subscribersCard, 'Subscribers card is not enabled').toBeEnabled();
+        await this.subscribersCard.click();
+        return await chartResponse;
     }
 
     async assertTopContentVisible(): Promise<void> {
@@ -184,7 +188,7 @@ export class StudioAnalyticsPage {
      * Open period dropdown and select a period option by text.
      * Returns promises for analytics + chart API responses.
      */
-    async selectPeriod(periodText: string): Promise<{ analyticsResponse: Promise<any>; chartResponse: Promise<any> }> {
+    async selectPeriod(periodText: string): Promise<{ analyticsResponse: Promise<Response>; chartResponse: Promise<Response> }> {
         const analyticsResponse = this.page.waitForResponse(
             r => r.url().includes('/analytics') && !r.url().includes('analytics-chart') && r.url().includes('from=') && r.status() === 200,
             { timeout: 15000 }
@@ -195,25 +199,23 @@ export class StudioAnalyticsPage {
         );
 
         await expect(this.periodSelector, 'Period selector is not visible').toBeVisible();
+        await expect(this.periodSelector, 'Period selector is not enabled').toBeEnabled();
         await this.periodSelector.click();
-        await this.page.locator(`text=${periodText}`).first().click();
+
+        const periodOption = this.page.getByText(periodText, { exact: true });
+        await expect(periodOption, `Period option "${periodText}" is not visible`).toBeVisible();
+        await periodOption.click();
 
         return { analyticsResponse, chartResponse };
     }
 
-    /**
-     * Wait for and parse analytics API response JSON.
-     */
-    async parseAnalyticsResponse(responsePromise: Promise<any>): Promise<AnalyticsData> {
+    async parseAnalyticsResponse(responsePromise: Promise<Response>): Promise<AnalyticsData> {
         const response = await responsePromise;
         const json = await response.json();
         return json.data as AnalyticsData;
     }
 
-    /**
-     * Wait for and parse chart API response JSON.
-     */
-    async parseChartResponse(responsePromise: Promise<any>): Promise<ChartData> {
+    async parseChartResponse(responsePromise: Promise<Response>): Promise<ChartData> {
         const response = await responsePromise;
         const json = await response.json();
         return json.data as ChartData;
