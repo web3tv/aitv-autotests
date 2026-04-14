@@ -50,6 +50,7 @@ export async function setupVideoViaApi(
     request: APIRequestContext,
     options: {
         privacySetting: 'public' | 'private' | 'unlisted' | 'paid';
+        description?: string;
         subscriptionOptions?: { title: string; description: string; price: string; duration?: number };
     }
 ): Promise<VideoSetupResult> {
@@ -64,7 +65,7 @@ export async function setupVideoViaApi(
     await videoApi.setChannelPublic(token, channelId, user.username);
 
     const videoName = Date.now().toString();
-    const description = (Date.now() + 1).toString();
+    const description = options.description ?? (Date.now() + 1).toString();
 
     let subId: string | undefined;
     let membershipName: string | undefined;

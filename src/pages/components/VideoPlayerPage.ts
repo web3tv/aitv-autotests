@@ -7,12 +7,29 @@ export class VideoPlayerPage {
   readonly shortsPlayButton: Locator;
   readonly shortsVideoElement: Locator;
 
+  // Video description
+  readonly showMoreBtn: Locator;
+  readonly showLessBtn: Locator;
+
   constructor(page: Page) {
     this.page = page;
     this.videoElement = page.locator('video.vjs-tech');
     this.playButton = page.locator('.vjs-big-play-button');
     this.shortsPlayButton = page.locator('.swiper-slide-active .vjs-big-play-button');
     this.shortsVideoElement = page.locator('.swiper-slide-active video.vjs-tech');
+
+    this.showMoreBtn = page.getByText('Show more', { exact: true });
+    this.showLessBtn = page.getByText('Show less', { exact: true });
+  }
+
+  async expandDescription(): Promise<void> {
+    await expect(this.showMoreBtn, '"Show more" button is not visible').toBeVisible({ timeout: 10_000 });
+    await expect(this.showMoreBtn, '"Show more" button is not enabled').toBeEnabled();
+    await this.showMoreBtn.click();
+  }
+
+  getDescriptionContainer(): Locator {
+    return this.showLessBtn.locator('..').locator('> div').first();
   }
 
   async assertPlayerVisible(): Promise<void> {
