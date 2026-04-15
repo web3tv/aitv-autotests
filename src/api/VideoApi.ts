@@ -452,4 +452,76 @@ export class VideoApi {
 
         return { id, title, channelId, videoPlayerFeUrl };
     }
+
+    async getNotifications(token: string): Promise<any[]> {
+        const response = await this.request.get(
+            `${this.baseUrl}/user/notifications/on-platform`,
+            {
+                headers: {
+                    Accept: "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to get notifications: ${response.status()} ${body}`
+            );
+        }
+
+        const json = await response.json();
+        return json?.items ?? json?.data?.items ?? [];
+    }
+
+    async getVideoById(
+        videoId: string,
+        token: string
+    ): Promise<any> {
+        const response = await this.request.get(
+            `${this.baseUrl}/videos/`,
+            {
+                headers: {
+                    Accept: "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                params: { id: videoId },
+            }
+        );
+
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to get video ${videoId}: ${response.status()} ${body}`
+            );
+        }
+
+        const json = await response.json();
+        return json?.items?.[0];
+    }
+
+    async waitForChapters(
+        videoId: string,
+        token: string,
+        maxAttempts = 36,
+        intervalMs = 10_000
+    ): Promise<Array<{ startTime: number; title: string }>> {
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            const videoItem = await this.getVideoById(videoId, token);
+            const chapters = videoItem?.chapters;
+
+            if (Array.isArray(chapters) && chapters.length > 0) {
+                return chapters;
+            }
+
+            if (attempt < maxAttempts) {
+                await new Promise((r) => setTimeout(r, intervalMs));
+            }
+        }
+
+        throw new Error(
+            `Chapters for video ${videoId} not generated after ${maxAttempts} attempts (${(maxAttempts * intervalMs) / 1000}s)`
+        );
+    }
 }
