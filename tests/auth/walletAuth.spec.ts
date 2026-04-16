@@ -44,6 +44,30 @@ test.describe('Wallet auth tests', () => {
     await authFlow.walletLoginSuccess();
   });
 
+  test('Login via Connect wallet button in header', { annotation: { type: 'TC', description: 'AUTH-017' } }, async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    let wallet: import('../../src/utils/walletMock').WalletInfo;
+    let username: string;
+
+    await test.step('Register a new wallet user', async () => {
+      const result = await authFlow.walletRegisterSuccess();
+      wallet = result.wallet;
+      username = result.username;
+    });
+
+    await test.step('Logout', async () => {
+      await authFlow.logout();
+    });
+
+    await test.step('Login via Connect wallet button in header', async () => {
+      await authFlow.walletLoginViaHeaderSuccess({ skipInjection: true, wallet, skipModalCheck: true });
+    });
+
+    await test.step('Verify logged in as the same user', async () => {
+      await authFlow.assertLoggedInAs(username);
+    });
+  });
+
   test('Display wallet address on account page', { annotation: { type: 'TC', description: 'ACCOUNT-003' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);

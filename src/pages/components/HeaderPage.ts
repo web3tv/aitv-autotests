@@ -12,11 +12,12 @@ export class HeaderPage {
   readonly joinBtn: Locator;
 
   readonly addWalletBtn: Locator;
+  readonly connectWalletBtn: Locator;
   readonly userIcon: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    
+
     this.addVideoBtn = page.getByRole('button', { name: 'Create' });
     this.newVideoBtn = page.getByTestId('new-video-button');
     this.newShortBtn = page.getByText('New short');
@@ -25,9 +26,10 @@ export class HeaderPage {
     this.heroCoins = page.locator('[data-id="coins"]');
 
     this.joinBtn = page.getByRole('button', { name: 'Join' });
-    
+
 
     this.addWalletBtn = page.locator('button:has(svg[viewBox="0 0 15 14"])').first();
+    this.connectWalletBtn = page.getByRole('button', { name: 'Connect wallet' });
     this.userIcon = page.locator('#profile-button');
   }
 
