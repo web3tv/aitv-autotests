@@ -91,6 +91,7 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo, wallet
                   (_, i) => String.fromCharCode(parseInt(hexMsg.slice(2 + i * 2, 4 + i * 2), 16))
                 ).join('')
               : hexMsg;
+            console.log(`[SIWE:${provider.name}] ${msg}`);
             return (window as any).__ethSignMessage(msg);
           }
 

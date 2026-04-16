@@ -8,6 +8,28 @@ const wallets: { type: EvmWalletType; label: string; tc: string; envPrefix: stri
   { type: 'binance-wallet', label: 'Binance Wallet', tc: 'PROD-006', envPrefix: 'PROD_WALLET_BINANCE' },
 ];
 
+test('Register user via Hero Wallet', { annotation: { type: 'TC', description: 'PROD-007' } }, async ({ page }) => {
+  const authFlow = new AuthFlow(page);
+  let siweMessage = '';
+
+  page.on('console', msg => {
+    const text = msg.text();
+    if (text.startsWith('[SIWE:')) {
+      siweMessage = text.replace(/^\[SIWE:[^\]]+\]\s*/, '');
+    }
+  });
+
+  await test.step('Register with a new Hero Wallet', async () => {
+    await authFlow.walletRegisterSuccess({ walletType: 'hero-wallet' });
+  });
+
+  await test.step('Print SIWE request', async () => {
+    console.log('\n=== SIWE Message (Hero Wallet) ===');
+    console.log(siweMessage);
+    console.log('==================================\n');
+  });
+});
+
 for (const w of wallets) {
   test(`Login via ${w.label}`, { annotation: { type: 'TC', description: w.tc } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
