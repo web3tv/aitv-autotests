@@ -331,6 +331,45 @@ export class AuthFlow {
     await expect(this.headerPage.userIcon, 'Profile button is not visible after Telegram login').toBeVisible({ timeout: 15_000 });
   }
 
+  /**
+   * Login via MetaMask wallet using the "Connect wallet" button in the header (main page).
+   * Same as walletLoginSuccess but enters the flow from the header instead of /login page.
+   */
+  async walletLoginViaHeaderSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean }): Promise<WalletInfo> {
+    const wallet = options?.skipInjection && options.wallet
+      ? options.wallet
+      : await injectEthereumMock(this.page, options?.wallet);
+
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(this.headerPage.connectWalletBtn, 'Connect wallet button is not visible in header').toBeVisible();
+    await expect(this.headerPage.connectWalletBtn, 'Connect wallet button is not enabled in header').toBeEnabled();
+
+    // Register waitForResponse BEFORE the action that triggers the request
+    const whoamiPromise = this.page.waitForResponse(
+      (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
+      { timeout: 40_000 }
+    );
+    await this.headerPage.connectWalletBtn.click();
+    await this.loginPage.clickMetamaskOption();
+    await whoamiPromise;
+
+    if (!options?.skipModalCheck) {
+      const addEmailModal = this.page.locator('[data-id="add-email-modal"]');
+      await expect(addEmailModal, 'Add email modal is not visible after wallet login').toBeVisible({ timeout: 10_000 });
+      await expect(addEmailModal, 'Add email modal text is incorrect').toContainText(
+        'To recover your profile and set up an alternative login method, you can add an email address and password in your account settings.'
+      );
+      await expect(this.page.getByRole('button', { name: 'Cancel' }), 'Cancel button is not visible').toBeVisible();
+      await expect(this.page.locator('[data-id="open-settings"]'), 'Open Settings button is not visible').toBeVisible();
+
+      await this.page.getByRole('button', { name: 'Cancel' }).click();
+    }
+
+    await expect(this.headerPage.userIcon, 'Profile button is not visible').toBeVisible();
+
+    return wallet;
+  }
+
   async logout(){
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();
