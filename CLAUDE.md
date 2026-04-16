@@ -31,6 +31,16 @@ docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
 ```
 
+**Setup production accounts (run once):**
+```
+ENV_FILE=.env.prod npx playwright test tests/production/setup.spec.ts --project=production
+```
+
+**Run production smoke tests:**
+```
+ENV_FILE=.env.prod npx playwright test --project=production
+```
+
 **View test report:**
 ```
 npx playwright show-report
@@ -86,6 +96,7 @@ test-data/
 
 **Playwright projects:**
 - `functional` — all non-visual specs, Chromium 1920×1080
+- `production` — smoke tests for prod, Chromium 1920×1080
 - `visual-desktop-chromium` — desktop visual regression, Docker only
 - `visual-mobile-webkit` — mobile visual regression (iPhone 15), Docker only
 

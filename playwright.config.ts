@@ -36,13 +36,22 @@ export default defineConfig({
 
     {
       name: 'functional',
-      testMatch: /^(?!.*visual).*\.spec\.ts$/,
+      testMatch: /^(?!.*visual)(?!.*production).*\.spec\.ts$/,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
       },
     },
 
+
+    {
+      name: 'production',
+      testDir: './tests/production',
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
 
     // RUN THIS PROJECT ONLY IN DOCKER!
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium

@@ -6,7 +6,7 @@ import { expect } from '@playwright/test';
 import { Page } from '@playwright/test';
 import { MailTmHelper } from "../utils/mailTmHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
-import { injectEthereumMock, type WalletInfo } from "../utils/walletMock";
+import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
 
 
 export class AuthFlow {
@@ -156,15 +156,16 @@ export class AuthFlow {
    * Injects a mock window.ethereum provider with real signing, then performs the wallet login flow.
    * Returns the wallet info (address, privateKey) for assertions or further use.
    */
-  async walletLoginSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean }): Promise<WalletInfo> {
+  async walletLoginSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
+    const walletType = options?.walletType ?? 'metamask';
     // Inject mock BEFORE navigating to the login page (skip if already injected in this page context)
     const wallet = options?.skipInjection && options.wallet
       ? options.wallet
-      : await injectEthereumMock(this.page, options?.wallet);
+      : await injectEthereumMock(this.page, options?.wallet, walletType);
 
     await this.loginPage.visitLoginPage();
     await this.loginPage.clickWalletLoginBtn();
-    await this.loginPage.clickMetamaskOption();
+    await this.loginPage.clickWalletOption(walletType);
 
     // Wait for wallet auth to complete — backend verifies signature and redirects
     // URL may include query params like ?showPopup=true
@@ -199,11 +200,12 @@ export class AuthFlow {
    * fills username + checkbox, then connects wallet via MetaMask.
    * Returns the wallet info and generated username.
    */
-  async walletRegisterSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean }): Promise<{ wallet: WalletInfo; username: string }> {
+  async walletRegisterSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<{ wallet: WalletInfo; username: string }> {
+    const walletType = options?.walletType ?? 'metamask';
     // Inject mock BEFORE navigating to the register page (skip if already injected in this page context)
     const wallet = options?.skipInjection && options.wallet
       ? options.wallet
-      : await injectEthereumMock(this.page, options?.wallet);
+      : await injectEthereumMock(this.page, options?.wallet, walletType);
 
     await this.page.goto('/register');
     await this.page.waitForLoadState('networkidle');
@@ -211,7 +213,7 @@ export class AuthFlow {
     const username = await this.loginPage.fillUsernameInput();
     await this.loginPage.clickCheckbox();
     await this.loginPage.clickRegisterWalletBtn();
-    await this.loginPage.clickMetamaskOption();
+    await this.loginPage.clickWalletOption(walletType);
 
     // Wait for wallet auth to complete — backend verifies signature and redirects
     await this.page.waitForURL((url) => url.pathname === '/');
@@ -335,10 +337,11 @@ export class AuthFlow {
    * Login via MetaMask wallet using the "Connect wallet" button in the header (main page).
    * Same as walletLoginSuccess but enters the flow from the header instead of /login page.
    */
-  async walletLoginViaHeaderSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean }): Promise<WalletInfo> {
+  async walletLoginViaHeaderSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
+    const walletType = options?.walletType ?? 'metamask';
     const wallet = options?.skipInjection && options.wallet
       ? options.wallet
-      : await injectEthereumMock(this.page, options?.wallet);
+      : await injectEthereumMock(this.page, options?.wallet, walletType);
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(this.headerPage.connectWalletBtn, 'Connect wallet button is not visible in header').toBeVisible();
@@ -350,7 +353,7 @@ export class AuthFlow {
       { timeout: 40_000 }
     );
     await this.headerPage.connectWalletBtn.click();
-    await this.loginPage.clickMetamaskOption();
+    await this.loginPage.clickWalletOption(walletType);
     await whoamiPromise;
 
     if (!options?.skipModalCheck) {

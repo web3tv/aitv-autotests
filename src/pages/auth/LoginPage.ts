@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
+import type { EvmWalletType } from '../../utils/walletMock';
 
 
 export class LoginPage {
@@ -30,8 +31,11 @@ export class LoginPage {
   // Login page wallet/telegram buttons
   readonly walletLoginBtn: Locator;
 
-  // Wallet selection modal
+  // Wallet selection modal (Reown)
   readonly metamaskOption: Locator;
+  readonly heroWalletOption: Locator;
+  readonly binanceWalletOption: Locator;
+  readonly trustWalletOption: Locator;
   readonly metamaskBrowserTab: Locator;
 
   constructor(page: Page) {
@@ -59,8 +63,11 @@ export class LoginPage {
     // Login page — wallet login button
     this.walletLoginBtn = page.locator('[data-id="wallet-login"]');
 
-    // MetaMask option inside the wallet selection modal
-    this.metamaskOption = page.getByRole('button', { name: /metamask/i });
+    // Wallet options inside the Reown wallet selection modal (target injected/INSTALLED by testId)
+    this.metamaskOption = page.getByTestId('wallet-selector-io.metamask');
+    this.heroWalletOption = page.getByTestId('wallet-selector-app.aspect.herowallet');
+    this.binanceWalletOption = page.getByTestId('wallet-selector-com.binance.w3w');
+    this.trustWalletOption = page.getByTestId('wallet-selector-com.trustwallet.app');
     this.metamaskBrowserTab = page.getByRole('button', { name: /browser/i });
   }
 
@@ -183,6 +190,18 @@ export class LoginPage {
   async clickMetamaskBrowserTab() {
     await expect(this.metamaskBrowserTab, 'MetaMask Browser tab is not visible').toBeVisible();
     await this.metamaskBrowserTab.click();
+  }
+
+  async clickWalletOption(walletType: EvmWalletType) {
+    const locatorMap: Record<EvmWalletType, Locator> = {
+      'metamask': this.metamaskOption,
+      'hero-wallet': this.heroWalletOption,
+      'binance-wallet': this.binanceWalletOption,
+      'trust-wallet': this.trustWalletOption,
+    };
+    const option = locatorMap[walletType];
+    await expect(option, `${walletType} option is not visible in wallet modal`).toBeVisible();
+    await option.click();
   }
 
   async assertButtonsDisabled() {

@@ -6,14 +6,52 @@ export interface WalletInfo {
   privateKey: string;
 }
 
+export type EvmWalletType = 'metamask' | 'hero-wallet' | 'binance-wallet' | 'trust-wallet';
+
+interface WalletProviderInfo {
+  uuid: string;
+  name: string;
+  rdns: string;
+  flags: Record<string, boolean>;
+}
+
+const WALLET_PROVIDERS: Record<EvmWalletType, WalletProviderInfo> = {
+  'metamask': {
+    uuid: 'mock-metamask-uuid',
+    name: 'MetaMask',
+    rdns: 'io.metamask',
+    flags: { isMetaMask: true },
+  },
+  'hero-wallet': {
+    uuid: 'mock-herowallet-uuid',
+    name: 'Hero Wallet',
+    rdns: 'app.aspect.herowallet',
+    flags: {},
+  },
+  'binance-wallet': {
+    uuid: 'mock-binance-uuid',
+    name: 'Binance Wallet',
+    rdns: 'com.binance.w3w',
+    flags: { isBinance: true },
+  },
+  'trust-wallet': {
+    uuid: 'mock-trust-uuid',
+    name: 'Trust Wallet',
+    rdns: 'com.trustwallet.app',
+    flags: { isTrust: true, isTrustWallet: true },
+  },
+};
+
 /**
- * Injects a custom `window.ethereum` provider into the page that behaves like MetaMask.
+ * Injects a custom `window.ethereum` provider into the page.
  * Uses a real ethers.js wallet for cryptographically valid signatures.
+ * Supports different wallet types via EIP-6963 announcement.
  *
- * Must be called BEFORE page.goto() so the dApp detects MetaMask on load.
+ * Must be called BEFORE page.goto() so the dApp detects the wallet on load.
  */
-export async function injectEthereumMock(page: Page, wallet?: WalletInfo): Promise<WalletInfo> {
+export async function injectEthereumMock(page: Page, wallet?: WalletInfo, walletType: EvmWalletType = 'metamask'): Promise<WalletInfo> {
   const w = wallet ?? generateWallet();
+  const providerInfo = WALLET_PROVIDERS[walletType];
 
   // Expose a Node.js signing function to the browser context.
   // The browser mock calls this for personal_sign — the signature is real.
@@ -23,15 +61,15 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo): Promi
   });
 
   // Inject window.ethereum mock before any page script runs
-  await page.addInitScript((address: string) => {
+  await page.addInitScript(({ address, provider }: { address: string; provider: WalletProviderInfo }) => {
     const listeners: Record<string, Array<(...args: unknown[]) => void>> = {};
 
-    (window as any).ethereum = {
-      isMetaMask: true,
+    const ethProvider: Record<string, unknown> = {
       isConnected: () => true,
       chainId: '0x1',
       networkVersion: '1',
       selectedAddress: address,
+      ...provider.flags,
 
       request: async ({ method, params }: { method: string; params?: unknown[] }) => {
         switch (method) {
@@ -46,9 +84,7 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo): Promi
             return '1';
 
           case 'personal_sign': {
-            // params[0] = hex-encoded message, params[1] = address
             const hexMsg = (params as string[])[0];
-            // Convert hex to UTF-8 string for ethers signMessage
             const msg = hexMsg.startsWith('0x')
               ? Array.from(
                   { length: (hexMsg.length - 2) / 2 },
@@ -79,7 +115,7 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo): Promi
             return '0x5208';
 
           default:
-            console.warn(`[EthereumMock] Unhandled method: ${method}`);
+            console.warn(`[EthereumMock:${provider.name}] Unhandled method: ${method}`);
             return null;
         }
       },
@@ -104,15 +140,17 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo): Promi
       },
     };
 
+    (window as any).ethereum = ethProvider;
+
     // EIP-6963: announce provider immediately and also respond to future requests
     const announceDetail = {
       info: {
-        uuid: 'mock-metamask-uuid',
-        name: 'MetaMask',
+        uuid: provider.uuid,
+        name: provider.name,
         icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
-        rdns: 'io.metamask',
+        rdns: provider.rdns,
       },
-      provider: (window as any).ethereum,
+      provider: ethProvider,
     };
 
     const announce = () => {
@@ -121,14 +159,12 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo): Promi
       );
     };
 
-    // Announce immediately on page load
     announce();
 
-    // Re-announce whenever the dApp requests providers (e.g. when wallet modal opens)
     window.addEventListener('eip6963:requestProvider', () => {
       announce();
     });
-  }, w.address);
+  }, { address: w.address, provider: providerInfo });
 
   return w;
 }
