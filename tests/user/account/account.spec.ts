@@ -157,6 +157,10 @@ test.fixme('Change email without verification then change password', { annotatio
 
 test.fixme('Change email twice without verification', { annotation: { type: 'TC', description: 'ACCOUNT-008' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+  let firstNewEmail: string;
+  let firstVerificationUrl: string;
+  let secondNewEmail: string;
+  let secondNewToken: string;
 
   await test.step('Create user', async () => {
     const registrationFlow = new RegistrationFlow(page, request);
@@ -171,27 +175,38 @@ test.fixme('Change email twice without verification', { annotation: { type: 'TC'
     await sideBarPage.clickSettingsAccount();
   });
 
-  await test.step('Change email first time without verification', async () => {
+  await test.step('Change email first time and get verification link', async () => {
     const accountPage = new AccountPage(page);
     const mailTmHelper = new MailTmHelper(request);
-    const firstNewEmail = await mailTmHelper.generateEmail();
+    firstNewEmail = await mailTmHelper.generateEmail();
     await mailTmHelper.createMailbox();
+    const firstNewToken = await mailTmHelper.getToken(firstNewEmail, mailTmHelper['password']);
     await accountPage.changeEmail(user.email, firstNewEmail, user.password);
+    const messageId = await mailTmHelper.waitForMessage(firstNewToken, 'Email Verification');
+    firstVerificationUrl = await mailTmHelper.extractVerificationUrl(messageId, firstNewToken);
+    await expect(accountPage.emailConfirmationAlert, 'First email change toast did not disappear').toBeHidden({ timeout: 10_000 });
   });
 
   await test.step('Change email second time immediately', async () => {
     const accountPage = new AccountPage(page);
     const mailTmHelper = new MailTmHelper(request);
-    const secondNewEmail = await mailTmHelper.generateEmail();
+    secondNewEmail = await mailTmHelper.generateEmail();
     await mailTmHelper.createMailbox();
+    secondNewToken = await mailTmHelper.getToken(secondNewEmail, mailTmHelper['password']);
     await accountPage.changeEmail(user.email, secondNewEmail, user.password);
   });
 
-  await test.step('Verify second email change and login', async () => {
+  await test.step('First verification link is invalid and email not assigned', async () => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.logout();
+    await page.goto(firstVerificationUrl, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/This verification link has expired or is no longer valid/i)).toBeVisible({ timeout: 10_000 });
+    await authFlow.loginFailed(firstNewEmail, user.password);
+  });
+
+  await test.step('Verify second email and login with new email', async () => {
     const mailTmHelper = new MailTmHelper(request);
     const authFlow = new AuthFlow(page);
-    const secondNewEmail = mailTmHelper['email'];
-    const secondNewToken = mailTmHelper['token'];
     const messageId = await mailTmHelper.waitForMessage(secondNewToken, 'Email Verification');
     const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, secondNewToken);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
