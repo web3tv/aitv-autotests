@@ -23,9 +23,37 @@ AUTH
 ├── Password reset — password mismatch              [AUTO] tests/auth/resetPassword.spec.ts  AUTH-008
 ├── Login via Web3 wallet                           [AUTO][CRITICAL] tests/auth/walletAuth.spec.ts  AUTH-009
 ├── Login via Telegram (mocked OAuth)               [AUTO] tests/auth/telegramAuth.spec.ts   AUTH-015
-├── Add email to wallet account                     [AUTO] tests/auth/wallet.spec.ts         AUTH-011
-├── Registration via Web3 wallet                    [AUTO] tests/auth/wallet.spec.ts         AUTH-012
-├── Register + Login via same wallet                [AUTO] tests/auth/wallet.spec.ts         AUTH-013
+├── Add email to wallet account                     [AUTO] tests/auth/walletAuth.spec.ts     AUTH-011
+├── Registration via Web3 wallet                    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-012
+├── Register + Login via same wallet                [AUTO] tests/auth/walletAuth.spec.ts     AUTH-013
+├── Login via header button — existing MetaMask     [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-HEADER-EXISTING
+├── Login via login page — new MetaMask wallet      [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-LOGIN-NEW
+├── Register and login via MetaMask                 [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-metamask
+├── Register and login via Hero Wallet              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-hero-wallet
+├── Register and login via Binance Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-binance-wallet
+├── Register and login via Trust Wallet             [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-trust-wallet
+├── Register and login via SafePal                  [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-safepal
+├── Register and login via Fireblocks               [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-fireblocks
+├── Register and login via OKX Wallet               [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-okx-wallet
+├── Register and login via TokenPocket              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-tokenpocket
+├── Register and login via Bitget Wallet            [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-bitget-wallet
+├── Register and login via Uniswap Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-uniswap-wallet
+├── Register and login via Ledger Live              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-ledger-live
+├── Register and login via Zerion                   [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-zerion
+├── Register and login via Best Wallet              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-best-wallet
+├── Register and login via Crypto.com Onchain       [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-crypto-com
+├── Register and login via Bifrost Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-bifrost-wallet
+├── Register and login via xPortal                  [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-xportal
+├── Register and login via Bitcoin.com Wallet       [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-bitcoin-com
+├── Register and login via 1inch Wallet             [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-1inch-wallet
+├── Register and login via Trezor Suite             [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-trezor-suite
+├── Register and login via Blockchain.com           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-blockchain-com
+├── Register and login via imToken                  [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-imtoken
+├── Register and login via BitPay Wallet            [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-bitpay-wallet
+├── Register and login via Gemini                   [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-gemini
+├── Register and login via Arculus Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-arculus-wallet
+├── Register and login via Ctrl Wallet              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-ctrl-wallet
+├── Register and login via Ronin Wallet             [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-ronin-wallet
 ├── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
 └── Add email to wallet twice without verification  [BLOCKED] test.fixme                     AUTH-016
 
