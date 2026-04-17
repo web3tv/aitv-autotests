@@ -41,7 +41,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps
 
-      - run: npx playwright test --project=functional --tag "@critical"
+      - run: npx playwright test --project=functional --grep @critical
         env:
           CI: true
 
@@ -100,7 +100,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps
 
-      - run: npx playwright test --project=functional --tag "not @db" --tag "not @critical"
+      - run: npx playwright test --project=functional --grep-invert "@db|@critical"
         env:
           CI: true
 
