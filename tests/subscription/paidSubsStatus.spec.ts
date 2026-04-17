@@ -23,6 +23,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     });
 
     test('Active subscription displayed on /my-paid-subs', {
+        tag: '@db',
         annotation: [{ type: 'TC', description: 'PAID-006' }],
     }, async ({ page, request }) => {
         test.setTimeout(180_000);
@@ -111,6 +112,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     });
 
     test('Expired subscription displayed on /my-paid-subs', {
+        tag: '@db',
         annotation: [{ type: 'TC', description: 'PAID-007' }],
     }, async ({ page, request }) => {
         test.setTimeout(180_000);
@@ -146,6 +148,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     });
 
     test('Payment expired status on /my-paid-subs', {
+        tag: '@db',
         annotation: [{ type: 'TC', description: 'PAID-009' }],
     }, async ({ page, request }) => {
         test.setTimeout(180_000);
@@ -180,7 +183,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
         });
     });
 
-    test('Payment failed status on /my-paid-subs', async ({ page, request }) => {
+    test('Payment failed status on /my-paid-subs', { tag: '@db' }, async ({ page, request }) => {
         test.setTimeout(180_000);
 
         let buyerUser: { id: string; email: string; username: string };

@@ -22,6 +22,7 @@ const SUBSCRIBERS_WITHIN_7_DAYS = 4; // day 0, 2, 4, 6 — day 10 falls outside
 const HELPER_USER_COUNT = 8;
 
 test('Analytics page displays seeded statistics', {
+    tag: '@db',
     annotation: { type: 'TC', description: 'ANALY-001' },
 }, async ({ page, request }) => {
     const authApi = new AuthApi(request);

@@ -36,13 +36,22 @@ export default defineConfig({
 
     {
       name: 'functional',
-      testMatch: /^(?!.*visual)(?!.*production).*\.spec\.ts$/,
+      testMatch: /^(?!.*visual)(?!.*production)(?!.*smoke).*\.spec\.ts$/,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
       },
     },
 
+
+    {
+      name: 'smoke',
+      testDir: './tests/smoke',
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
 
     {
       name: 'production',

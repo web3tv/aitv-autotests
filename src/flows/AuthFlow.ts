@@ -165,7 +165,14 @@ export class AuthFlow {
 
     await this.loginPage.visitLoginPage();
     await this.loginPage.clickWalletLoginBtn();
+
+    const siweResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/siwe-login'),
+      { timeout: 15_000 }
+    );
     await this.loginPage.clickWalletOption(walletType);
+    const siweRes = await siweResponse;
+    expect(siweRes.status(), `SIWE login returned ${siweRes.status()}`).toBe(200);
 
     // Wait for wallet auth to complete — backend verifies signature and redirects
     // URL may include query params like ?showPopup=true

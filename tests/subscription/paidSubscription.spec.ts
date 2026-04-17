@@ -90,6 +90,7 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
 });
 
 test('Subscription expiry revokes access, re-purchase restores it', {
+    tag: '@db',
     annotation: [{ type: 'TC', description: 'PAID-005' }],
 }, async ({ page, request }) => {
     test.setTimeout(300_000);

@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
-import type { EvmWalletType } from '../../utils/walletMock';
+import { type EvmWalletType, getWalletRdns } from '../../utils/walletMock';
 
 
 export class LoginPage {
@@ -193,13 +193,8 @@ export class LoginPage {
   }
 
   async clickWalletOption(walletType: EvmWalletType) {
-    const locatorMap: Record<EvmWalletType, Locator> = {
-      'metamask': this.metamaskOption,
-      'hero-wallet': this.heroWalletOption,
-      'binance-wallet': this.binanceWalletOption,
-      'trust-wallet': this.trustWalletOption,
-    };
-    const option = locatorMap[walletType];
+    const rdns = getWalletRdns(walletType);
+    const option = this.page.getByTestId(`wallet-selector-${rdns}`);
     await expect(option, `${walletType} option is not visible in wallet modal`).toBeVisible();
     await option.click();
   }

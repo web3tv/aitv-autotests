@@ -5,8 +5,10 @@ import { AccountPage } from '../../src/pages/account/AccountPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { LoginPage } from '../../src/pages/auth/LoginPage';
-import { injectEthereumMock } from '../../src/utils/walletMock';
+import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletInfo } from '../../src/utils/walletMock';
 
+
+test.describe.configure({ mode: 'parallel' });
 
 test.describe('Wallet auth tests', () => {
 
@@ -83,6 +85,67 @@ test.describe('Wallet auth tests', () => {
       await accountPage.assertDisplayedWalletAddress(walletAddress);
     });
   });
+
+  test('Login via header button — existing MetaMask account', { annotation: { type: 'TC', description: 'SMOKE-WALLET-HEADER-EXISTING' } }, async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+    let wallet: WalletInfo;
+
+    await test.step('Register wallet account', async () => {
+      const result = await authFlow.walletRegisterSuccess({ walletType: 'metamask' });
+      wallet = result.wallet;
+    });
+
+    await test.step('Logout', async () => {
+      await authFlow.logout();
+    });
+
+    await test.step('Login via header with existing wallet — verify siwe-login returns 200', async () => {
+      const siweResponse = page.waitForResponse(
+        r => r.url().includes('/api/auth/siwe-login'),
+        { timeout: 15_000 }
+      );
+      await authFlow.walletLoginViaHeaderSuccess({ walletType: 'metamask', wallet, skipInjection: true, skipModalCheck: true });
+      const res = await siweResponse;
+      expect(res.status(), `SIWE login returned ${res.status()}`).toBe(200);
+    });
+  });
+
+  test('Login via login page — new MetaMask wallet', { annotation: { type: 'TC', description: 'SMOKE-WALLET-LOGIN-NEW' } }, async ({ page }) => {
+    const authFlow = new AuthFlow(page);
+
+    await test.step('Login with brand-new wallet — verify siwe-login returns 200', async () => {
+      await authFlow.walletLoginSuccess({ walletType: 'metamask' });
+    });
+  });
+
+  const wallets = (Object.keys(WALLET_PROVIDERS) as EvmWalletType[]).map(type => ({
+    type,
+    label: WALLET_PROVIDERS[type].name,
+  }));
+
+  for (const w of wallets) {
+    test(`Register and login via ${w.label}`, { annotation: { type: 'TC', description: `SMOKE-WALLET-${w.type}` } }, async ({ page }) => {
+      const authFlow = new AuthFlow(page);
+      let wallet: WalletInfo;
+
+      await test.step('Register wallet account', async () => {
+        const result = await authFlow.walletRegisterSuccess({ walletType: w.type });
+        wallet = result.wallet;
+      });
+
+      await test.step('Logout', async () => {
+        await authFlow.logout();
+      });
+
+      await test.step('Login with registered wallet — verify siwe-login returns 200', async () => {
+        await authFlow.walletLoginSuccess({ walletType: w.type, wallet, skipInjection: true, skipModalCheck: true });
+      });
+    });
+  }
+
+});
+
+test.describe('Wallet and email tests',()=>{
 
   test('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
     const authApi = new AuthApi(request);
@@ -190,5 +253,4 @@ test.describe('Wallet auth tests', () => {
       await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
     });
   });
-
-});
+})

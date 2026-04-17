@@ -6,8 +6,6 @@ export interface WalletInfo {
   privateKey: string;
 }
 
-export type EvmWalletType = 'metamask' | 'hero-wallet' | 'binance-wallet' | 'trust-wallet';
-
 interface WalletProviderInfo {
   uuid: string;
   name: string;
@@ -15,7 +13,12 @@ interface WalletProviderInfo {
   flags: Record<string, boolean>;
 }
 
-const WALLET_PROVIDERS: Record<EvmWalletType, WalletProviderInfo> = {
+/**
+ * All supported EVM wallet types.
+ * Keys are used as `EvmWalletType`, values contain EIP-6963 provider info.
+ */
+export const WALLET_PROVIDERS = {
+  // --- Original 4 wallets ---
   'metamask': {
     uuid: 'mock-metamask-uuid',
     name: 'MetaMask',
@@ -40,7 +43,157 @@ const WALLET_PROVIDERS: Record<EvmWalletType, WalletProviderInfo> = {
     rdns: 'com.trustwallet.app',
     flags: { isTrust: true, isTrustWallet: true },
   },
-};
+
+  // --- WalletConnect certified wallets ---
+  'safepal': {
+    uuid: 'mock-safepal-uuid',
+    name: 'SafePal',
+    rdns: 'app.safepal',
+    flags: { isSafePal: true },
+  },
+  'fireblocks': {
+    uuid: 'mock-fireblocks-uuid',
+    name: 'Fireblocks',
+    rdns: 'com.fireblocks',
+    flags: {},
+  },
+  'okx-wallet': {
+    uuid: 'mock-okx-uuid',
+    name: 'OKX Wallet',
+    rdns: 'com.okex.wallet',
+    flags: { isOKExWallet: true },
+  },
+  'tokenpocket': {
+    uuid: 'mock-tokenpocket-uuid',
+    name: 'TokenPocket',
+    rdns: 'pro.tokenpocket',
+    flags: { isTokenPocket: true },
+  },
+  'bitget-wallet': {
+    uuid: 'mock-bitget-uuid',
+    name: 'Bitget Wallet',
+    rdns: 'com.bitget.web3',
+    flags: { isBitKeep: true },
+  },
+  'uniswap-wallet': {
+    uuid: 'mock-uniswap-uuid',
+    name: 'Uniswap Wallet',
+    rdns: 'org.uniswap',
+    flags: {},
+  },
+  'ledger-live': {
+    uuid: 'mock-ledger-uuid',
+    name: 'Ledger Live',
+    rdns: 'com.ledger.live',
+    flags: { isLedger: true },
+  },
+  'zerion': {
+    uuid: 'mock-zerion-uuid',
+    name: 'Zerion',
+    rdns: 'io.zerion.wallet',
+    flags: { isZerion: true },
+  },
+  'best-wallet': {
+    uuid: 'mock-bestwallet-uuid',
+    name: 'Best Wallet',
+    rdns: 'io.bestwallet',
+    flags: {},
+  },
+  'crypto-com': {
+    uuid: 'mock-cryptocom-uuid',
+    name: 'Crypto.com Onchain',
+    rdns: 'com.crypto.wallet',
+    flags: {},
+  },
+  'bifrost-wallet': {
+    uuid: 'mock-bifrost-uuid',
+    name: 'Bifrost Wallet',
+    rdns: 'io.bifrostwallet',
+    flags: {},
+  },
+  'xportal': {
+    uuid: 'mock-xportal-uuid',
+    name: 'xPortal',
+    rdns: 'com.multiversx.xportal',
+    flags: {},
+  },
+  'bitcoin-com': {
+    uuid: 'mock-bitcoincom-uuid',
+    name: 'Bitcoin.com Wallet',
+    rdns: 'com.bitcoin.wallet',
+    flags: {},
+  },
+  '1inch-wallet': {
+    uuid: 'mock-1inch-uuid',
+    name: '1inch Wallet',
+    rdns: 'io.1inch.wallet',
+    flags: { isOneInch: true },
+  },
+  'trezor-suite': {
+    uuid: 'mock-trezor-uuid',
+    name: 'Trezor Suite',
+    rdns: 'io.trezor.suite',
+    flags: {},
+  },
+  'blockchain-com': {
+    uuid: 'mock-blockchaincom-uuid',
+    name: 'Blockchain.com',
+    rdns: 'com.blockchain.wallet',
+    flags: {},
+  },
+  'imtoken': {
+    uuid: 'mock-imtoken-uuid',
+    name: 'imToken',
+    rdns: 'im.token.app',
+    flags: { isImToken: true },
+  },
+  'bitpay-wallet': {
+    uuid: 'mock-bitpay-uuid',
+    name: 'BitPay Wallet',
+    rdns: 'com.bitpay.wallet',
+    flags: {},
+  },
+  'gemini': {
+    uuid: 'mock-gemini-uuid',
+    name: 'Gemini',
+    rdns: 'com.gemini.wallet',
+    flags: {},
+  },
+  'arculus-wallet': {
+    uuid: 'mock-arculus-uuid',
+    name: 'Arculus Wallet',
+    rdns: 'com.arculus.wallet',
+    flags: {},
+  },
+  'ctrl-wallet': {
+    uuid: 'mock-ctrl-uuid',
+    name: 'Ctrl Wallet',
+    rdns: 'app.ctrl',
+    flags: {},
+  },
+  'ronin-wallet': {
+    uuid: 'mock-ronin-uuid',
+    name: 'Ronin Wallet',
+    rdns: 'com.roninchain.wallet',
+    flags: { isRonin: true },
+  },
+  'safe': {
+    uuid: 'mock-safe-uuid',
+    name: 'Safe',
+    rdns: 'io.gnosis.safe',
+    flags: {},
+  },
+} as const satisfies Record<string, WalletProviderInfo>;
+
+export type EvmWalletType = keyof typeof WALLET_PROVIDERS;
+
+/**
+ * Returns the RDNS identifier for a given wallet type.
+ * Used by LoginPage to construct the `wallet-selector-{rdns}` testId.
+ */
+export function getWalletRdns(walletType: EvmWalletType): string {
+  return WALLET_PROVIDERS[walletType].rdns;
+}
 
 /**
  * Injects a custom `window.ethereum` provider into the page.
