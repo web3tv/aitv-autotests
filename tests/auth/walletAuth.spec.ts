@@ -12,12 +12,12 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('Wallet auth tests', () => {
 
-  test('Register user via Web3 wallet (MetaMask)', { annotation: { type: 'TC', description: 'AUTH-012' } }, async ({ page }) => {
+  test('Register user via wallet (MetaMask) -> Success', { annotation: { type: 'TC', description: 'AUTH-012' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
     await authFlow.walletRegisterSuccess();
   });
 
-  test('Register via wallet, then login with the same wallet', { annotation: { type: 'TC', description: 'AUTH-013' } }, async ({ page }) => {
+  test('Login as existing wallet -> Success login', { annotation: { type: 'TC', description: 'AUTH-013' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
     let wallet: import('../../src/utils/walletMock').WalletInfo;
     let username: string;
@@ -41,52 +41,12 @@ test.describe('Wallet auth tests', () => {
     });
   });
 
-  test('Login via Web3 wallet (MetaMask)', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page }) => {
+  test('Login via not existing wallet -> siwe-register -> Success login', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
-    await authFlow.walletLoginSuccess();
+    await authFlow.walletAutoRegisterOnLogin();
   });
 
-  test('Login via Connect wallet button in header', { annotation: { type: 'TC', description: 'AUTH-017' } }, async ({ page }) => {
-    const authFlow = new AuthFlow(page);
-    let wallet: import('../../src/utils/walletMock').WalletInfo;
-    let username: string;
-
-    await test.step('Register a new wallet user', async () => {
-      const result = await authFlow.walletRegisterSuccess();
-      wallet = result.wallet;
-      username = result.username;
-    });
-
-    await test.step('Logout', async () => {
-      await authFlow.logout();
-    });
-
-    await test.step('Login via Connect wallet button in header', async () => {
-      await authFlow.walletLoginViaHeaderSuccess({ skipInjection: true, wallet, skipModalCheck: true });
-    });
-
-    await test.step('Verify logged in as the same user', async () => {
-      await authFlow.assertLoggedInAs(username);
-    });
-  });
-
-  test('Display wallet address on account page', { annotation: { type: 'TC', description: 'ACCOUNT-003' } }, async ({ page }) => {
-    const authFlow = new AuthFlow(page);
-    const accountPage = new AccountPage(page);
-    let walletAddress: string;
-
-    await test.step('Register via wallet', async () => {
-      const result = await authFlow.walletRegisterSuccess();
-      walletAddress = result.wallet.address;
-    });
-
-    await test.step('Navigate to account page and verify wallet address', async () => {
-      await page.goto('/account', { waitUntil: 'domcontentloaded' });
-      await accountPage.assertDisplayedWalletAddress(walletAddress);
-    });
-  });
-
-  test('Login via header button — existing MetaMask account', { annotation: { type: 'TC', description: 'SMOKE-WALLET-HEADER-EXISTING' } }, async ({ page }) => {
+  test('Login via Connect wallet button as existing wallet -> Success login', { annotation: { type: 'TC', description: 'AUTH-17' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
     let wallet: WalletInfo;
 
@@ -108,40 +68,24 @@ test.describe('Wallet auth tests', () => {
       const res = await siweResponse;
       expect(res.status(), `SIWE login returned ${res.status()}`).toBe(200);
     });
+    
   });
 
-  test('Login via login page — new MetaMask wallet', { annotation: { type: 'TC', description: 'SMOKE-WALLET-LOGIN-NEW' } }, async ({ page }) => {
+  test('Display wallet address on account page', { annotation: { type: 'TC', description: 'ACCOUNT-003' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
+    const accountPage = new AccountPage(page);
+    let walletAddress: string;
 
-    await test.step('Login with brand-new wallet — verify siwe-login returns 200', async () => {
-      await authFlow.walletLoginSuccess({ walletType: 'metamask' });
+    await test.step('Register via wallet', async () => {
+      const result = await authFlow.walletRegisterSuccess();
+      walletAddress = result.wallet.address;
+    });
+
+    await test.step('Navigate to account page and verify wallet address', async () => {
+      await page.goto('/account', { waitUntil: 'domcontentloaded' });
+      await accountPage.assertDisplayedWalletAddress(walletAddress);
     });
   });
-
-  const wallets = (Object.keys(WALLET_PROVIDERS) as EvmWalletType[]).map(type => ({
-    type,
-    label: WALLET_PROVIDERS[type].name,
-  }));
-
-  for (const w of wallets) {
-    test(`Register and login via ${w.label}`, { annotation: { type: 'TC', description: `SMOKE-WALLET-${w.type}` } }, async ({ page }) => {
-      const authFlow = new AuthFlow(page);
-      let wallet: WalletInfo;
-
-      await test.step('Register wallet account', async () => {
-        const result = await authFlow.walletRegisterSuccess({ walletType: w.type });
-        wallet = result.wallet;
-      });
-
-      await test.step('Logout', async () => {
-        await authFlow.logout();
-      });
-
-      await test.step('Login with registered wallet — verify siwe-login returns 200', async () => {
-        await authFlow.walletLoginSuccess({ walletType: w.type, wallet, skipInjection: true, skipModalCheck: true });
-      });
-    });
-  }
 
 });
 
@@ -174,12 +118,12 @@ test.describe('Wallet and email tests',()=>{
     });
   });
 
-  test.fixme('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
+  test('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
 
     await test.step('Login via wallet', async () => {
-      await authFlow.walletLoginSuccess();
+      await authFlow.walletAutoRegisterOnLogin();
     });
 
     await test.step('Add first email without verification', async () => {
@@ -200,6 +144,7 @@ test.describe('Wallet and email tests',()=>{
       const secondEmail = await mailTmHelper2.generateEmail();
       await mailTmHelper2.createMailbox();
 
+      await page.waitForTimeout(5000)
       await accountPage.clickAddEmailBtn();
       const addEmailInput = page.getByRole('textbox', { name: 'Enter email' });
       await expect(addEmailInput, 'Add email input is not visible').toBeVisible();
@@ -234,7 +179,7 @@ test.describe('Wallet and email tests',()=>{
     });
 
     await test.step('Login via wallet', async () => {
-      await authFlow.walletLoginSuccess();
+      await authFlow.walletAutoRegisterOnLogin();
     });
 
     await test.step('Navigate to account settings and add email', async () => {
@@ -254,3 +199,33 @@ test.describe('Wallet and email tests',()=>{
     });
   });
 })
+
+
+test.describe('Check all wallets login',()=>{
+
+  const wallets = (Object.keys(WALLET_PROVIDERS) as EvmWalletType[]).map(type => ({
+    type,
+    label: WALLET_PROVIDERS[type].name,
+  }));
+
+  for (const w of wallets) {
+    test(`Register and login via ${w.label}`, { annotation: { type: 'TC', description: `SMOKE-WALLET-${w.type}` } }, async ({ page }) => {
+      const authFlow = new AuthFlow(page);
+      let wallet: WalletInfo;
+
+      await test.step('Register wallet account', async () => {
+        const result = await authFlow.walletRegisterSuccess({ walletType: w.type });
+        wallet = result.wallet;
+      });
+
+      await test.step('Logout', async () => {
+        await authFlow.logout();
+      });
+
+      await test.step('Login with registered wallet — verify siwe-login returns 200', async () => {
+        await authFlow.walletLoginSuccess({ walletType: w.type, wallet, skipInjection: true, skipModalCheck: true });
+      });
+    });
+  }
+
+});
