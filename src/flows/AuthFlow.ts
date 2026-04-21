@@ -202,6 +202,49 @@ export class AuthFlow {
   }
 
   /**
+   * Auto-register a new user via wallet on the LOGIN page.
+   * Flow: siwe-login returns 400 (user not found) → frontend auto-calls siwe-register (201).
+   * Returns the wallet info for assertions or further use.
+   */
+  async walletAutoRegisterOnLogin(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
+    const walletType = options?.walletType ?? 'metamask';
+    const wallet = options?.skipInjection && options.wallet
+      ? options.wallet
+      : await injectEthereumMock(this.page, options?.wallet, walletType);
+
+    await this.loginPage.visitLoginPage();
+    await this.loginPage.clickWalletLoginBtn();
+
+    // Register both promises BEFORE the click to avoid race conditions
+    const siweLoginResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/siwe-login'),
+      { timeout: 15_000 }
+    );
+    const siweRegisterResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/siwe-register'),
+      { timeout: 15_000 }
+    );
+
+    await this.loginPage.clickWalletOption(walletType);
+
+    const loginRes = await siweLoginResponse;
+    expect(loginRes.status(), `Expected siwe-login to return 400 for unregistered wallet, got ${loginRes.status()}`).toBe(400);
+
+    const registerRes = await siweRegisterResponse;
+    expect(registerRes.status(), `siwe-register failed with ${registerRes.status()}`).toBe(201);
+
+    await this.page.waitForURL((url) => url.pathname === '/');
+    // await this.page.waitForResponse(
+    //   (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
+    //   { timeout: 40_000 }
+    // );
+
+    await expect(this.headerPage.userIcon, 'Profile button is not visible after auto-register via login').toBeVisible();
+
+    return wallet;
+  }
+
+  /**
    * Register a new user via MetaMask wallet.
    * Injects a mock window.ethereum provider, navigates to /register,
    * fills username + checkbox, then connects wallet via MetaMask.

@@ -43,19 +43,9 @@ export default defineConfig({
       },
     },
 
-
     {
-      name: 'smoke',
-      testDir: './tests/smoke',
-      use: {
-        browserName: 'chromium',
-        viewport: { width: 1920, height: 1080 },
-      },
-    },
-
-    {
-      name: 'production',
-      testDir: './tests/production',
+      name: 'prodSmoke',
+      testMatch: /production\/(?!setup).*\.spec\.ts$/,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
@@ -105,46 +95,5 @@ export default defineConfig({
          ...devices['iPhone 15 Pro Max']
       },
     },
-
-    
-  // {
-    //   name: 'functional',
-    //   testMatch: /^(?!.*visual).*\.spec\.ts$/,
-    //   use: { 
-    //     ...devices['Desktop Chrome'],
-    //     viewport: { width: 1920, height: 1080 }
-    //   },
-    // },
-
-    
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
-  ],
+  ]
 });
