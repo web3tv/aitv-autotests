@@ -37,6 +37,7 @@ export interface VideoSetupResult {
     user: { id: string; email: string; username: string };
     token: string;
     channelId: string;
+    videoId: string;
     videoUrl: string;
     videoName: string;
     description: string;
@@ -96,6 +97,7 @@ export async function setupVideoViaApi(
         user,
         token,
         channelId,
+        videoId: video.id,
         videoUrl: video.videoPlayerFeUrl,
         videoName,
         description,

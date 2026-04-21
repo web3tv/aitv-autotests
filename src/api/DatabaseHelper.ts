@@ -233,4 +233,11 @@ export class DatabaseHelper {
             [count, channelHexId]
         );
     }
+
+    async setChaptersEnabled(videoHexId: string, enabled: boolean): Promise<void> {
+        await this.query(
+            'UPDATE videos SET chapters_enabled = ? WHERE id = UNHEX(?)',
+            [enabled ? 1 : 0, videoHexId]
+        );
+    }
 }
