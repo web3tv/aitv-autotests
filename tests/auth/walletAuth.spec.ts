@@ -121,15 +121,18 @@ test.describe('Wallet and email tests',()=>{
   test('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
+    let firstVerificationUrl: string;
+    let secondVerificationUrl: string;
 
     await test.step('Login via wallet', async () => {
       await authFlow.walletAutoRegisterOnLogin();
     });
 
-    await test.step('Add first email without verification', async () => {
-      const mailTmHelper = new MailTmHelper(request);
-      const firstEmail = await mailTmHelper.generateEmail();
-      await mailTmHelper.createMailbox();
+    await test.step('Add first email and save verification URL', async () => {
+      const mailHelper1 = new MailTmHelper(request);
+      const firstEmail = await mailHelper1.generateEmail();
+      await mailHelper1.createMailbox();
+      const firstToken = await mailHelper1.getToken(firstEmail, mailHelper1['password']);
 
       await page.goto('/account', { waitUntil: 'domcontentloaded' });
       await accountPage.clickAddEmailBtn();
@@ -137,31 +140,35 @@ test.describe('Wallet and email tests',()=>{
       await expect(addEmailInput, 'Add email input is not visible').toBeVisible();
       await addEmailInput.fill(firstEmail);
       await accountPage.clickSubmitBtn();
+
+      const messageId = await mailHelper1.waitForMessage(firstToken, 'Email Verification');
+      firstVerificationUrl = await mailHelper1.extractVerificationUrl(messageId, firstToken);
     });
 
-    await test.step('Add second email immediately without verifying first', async () => {
-      const mailTmHelper2 = new MailTmHelper(request);
-      const secondEmail = await mailTmHelper2.generateEmail();
-      await mailTmHelper2.createMailbox();
+    await test.step('Add second email and save verification URL', async () => {
+      const mailHelper2 = new MailTmHelper(request);
+      const secondEmail = await mailHelper2.generateEmail();
+      await mailHelper2.createMailbox();
+      const secondToken = await mailHelper2.getToken(secondEmail, mailHelper2['password']);
 
-      await page.waitForTimeout(5000)
       await accountPage.clickAddEmailBtn();
       const addEmailInput = page.getByRole('textbox', { name: 'Enter email' });
       await expect(addEmailInput, 'Add email input is not visible').toBeVisible();
       await addEmailInput.fill(secondEmail);
       await accountPage.clickSubmitBtn();
+
+      const messageId = await mailHelper2.waitForMessage(secondToken, 'Email Verification');
+      secondVerificationUrl = await mailHelper2.extractVerificationUrl(messageId, secondToken);
     });
 
-    await test.step('Verify second email and confirm it is active', async () => {
-      const mailTmHelper2 = new MailTmHelper(request);
-      const secondEmail = await mailTmHelper2.generateEmail();
-      await mailTmHelper2.createMailbox();
-      const mailToken = await mailTmHelper2.getToken(secondEmail, mailTmHelper2['password']);
-
-      const messageId = await mailTmHelper2.waitForMessage(mailToken, 'Email Verification');
-      const verificationUrl = await mailTmHelper2.extractVerificationUrl(messageId, mailToken);
-      await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+    await test.step('Verify second email — expect success', async () => {
+      await page.goto(secondVerificationUrl, { waitUntil: 'domcontentloaded' });
       await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
+    });
+
+    await test.step('Visit first verification link — expect expired error', async () => {
+      await page.goto(firstVerificationUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByText(/This verification link has expired or is no longer valid/i)).toBeVisible({ timeout: 10_000 });
     });
   });
 

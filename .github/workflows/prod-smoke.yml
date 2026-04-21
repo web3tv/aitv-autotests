@@ -1,0 +1,50 @@
+name: Production Smoke Tests (Nightly)
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # каждую ночь в 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  prod-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write .env.prod
+        env:
+          PROD_ENV_FILE: ${{ secrets.PROD_ENV_FILE }}
+        run: printf "%s\n" "$PROD_ENV_FILE" > .env.prod
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Run production smoke tests
+        run: ENV_FILE=.env.prod npx playwright test --project=prodSmoke
+        env:
+          CI: true
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-smoke-report
+          path: playwright-report
+
+      - name: Send Slack notification
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            --data "{\"message\":\"Prod Smoke: $STATUS\n$RUN_URL\"}" \
+            "$WEBHOOK"
