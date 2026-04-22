@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 
-if (!process.env.CI) {
+if (process.env.ENV_FILE || !process.env.CI) {
   const envFile = process.env.ENV_FILE || '.env.dev';
   dotenv.config({ path: envFile, quiet: true });
 }
@@ -36,7 +36,7 @@ export default defineConfig({
 
     {
       name: 'functional',
-      testMatch: /^(?!.*visual)(?!.*production)(?!.*smoke).*\.spec\.ts$/,
+      testMatch: /^(?!.*visual)(?!.*production).*\.spec\.ts$/,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
