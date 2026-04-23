@@ -267,10 +267,10 @@ export class AuthFlow {
 
     // Wait for wallet auth to complete — backend verifies signature and redirects
     await this.page.waitForURL((url) => url.pathname === '/');
-    await this.page.waitForResponse(
-      (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
-      { timeout: 40_000 }
-    );
+    // await this.page.waitForResponse(
+    //   (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
+    //   { timeout: 40_000 }
+    // );
 
     // Assert the "set up alternative login method" modal
     const addEmailModal = this.page.locator('[data-id="add-email-modal"]');

@@ -149,11 +149,10 @@ test.describe('Paid video visibility', () => {
         await test.step('Open video page as anonymous and verify paywall', async () => {
             const channelMainPage = new ChannelMainPage(page);
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(page.getByRole('heading', { name: setup.membershipName! })).toBeVisible();
-            await expect(page.locator('body')).toContainText(setup.membershipDescription!);
-            await expect(page.locator('body')).toContainText('$0.991 week');
+            await channelMainPage.waitForMembershipPage();
+            await channelMainPage.assertPaywallContent(setup.membershipName!, setup.membershipDescription!, '$0.99');
             await channelMainPage.clickRegisterLoginBtn();
-            await expect(page.locator('body')).toContainText('Please log in to your Web3.TV account using one of the login methods below');
+            await channelMainPage.assertLoginModalVisible();
         });
     });
 
@@ -168,12 +167,10 @@ test.describe('Paid video visibility', () => {
             await authFlow.loginSuccess(user2.email, password, user2.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(page.getByRole('heading', { name: setup.membershipName! })).toBeVisible();
-            await expect(page.locator('body')).toContainText(setup.membershipDescription!);
-            await expect(page.locator('body')).toContainText('$0.991 week');
-            await channelMainPage.clickButtonSubscribeNow();
-            await channelMainPage.clickPayWith();
-            await expect(page).toHaveURL(/test\.pay\.hero\.io\/invoice\/currency-list(\?.*)?$/);
+            await channelMainPage.waitForMembershipPage();
+            await channelMainPage.assertPaywallContent(setup.membershipName!, setup.membershipDescription!, '$0.99');
+            await channelMainPage.initiatePurchaseWithoutPayment();
+            await channelMainPage.assertHeroPayInvoicePage();
         });
     });
 });

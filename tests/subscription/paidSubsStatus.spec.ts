@@ -45,6 +45,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             const channelMainPage = new ChannelMainPage(page);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+            await channelMainPage.waitForMembershipPage();
             await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
             await channelMainPage.initiatePurchaseWithoutPayment();
         });
@@ -97,6 +98,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+            await channelMainPage.waitForMembershipPage();
             await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
             await channelMainPage.initiatePurchaseWithoutPayment();
         });
@@ -128,6 +130,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+            await channelMainPage.waitForMembershipPage();
             await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
             await channelMainPage.initiatePurchaseWithoutPayment();
         });
@@ -164,6 +167,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+            await channelMainPage.waitForMembershipPage();
             await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
             await channelMainPage.initiatePurchaseWithoutPayment();
         });
@@ -197,6 +201,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+            await channelMainPage.waitForMembershipPage();
             await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
             await channelMainPage.initiatePurchaseWithoutPayment();
         });

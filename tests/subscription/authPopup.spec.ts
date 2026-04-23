@@ -17,6 +17,7 @@ test.describe('Authorization popup on paid subscription', () => {
 
         await test.step('Open paid video page as anonymous', async () => {
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+            await channelMainPage.waitForMembershipPage();
         });
 
         await test.step('Verify subscription card is visible with correct details', async () => {
@@ -24,8 +25,7 @@ test.describe('Authorization popup on paid subscription', () => {
         });
 
         await test.step('Verify Subscribe Now button is visible for anonymous user', async () => {
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not visible').toBeVisible();
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not enabled').toBeEnabled();
+            await channelMainPage.checkButtonSubscribeNow();
         });
     });
 
@@ -37,12 +37,11 @@ test.describe('Authorization popup on paid subscription', () => {
 
         await test.step('Open paid video page as anonymous', async () => {
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+            await channelMainPage.waitForMembershipPage();
         });
 
         await test.step('Click Subscribe Now button', async () => {
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not visible').toBeVisible();
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not enabled').toBeEnabled();
-            await channelMainPage.subscribeBtn.click();
+            await channelMainPage.clickButtonSubscribeNow();
         });
 
         await test.step('Verify auth popup appears with correct content', async () => {
@@ -66,9 +65,8 @@ test.describe('Authorization popup on paid subscription', () => {
 
         await test.step('Open paid video page and click Subscribe Now', async () => {
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not visible').toBeVisible();
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not enabled').toBeEnabled();
-            await channelMainPage.subscribeBtn.click();
+            await channelMainPage.waitForMembershipPage();
+            await channelMainPage.clickButtonSubscribeNow();
         });
 
         await test.step('Click Create account and verify navigation to register', async () => {
@@ -86,9 +84,8 @@ test.describe('Authorization popup on paid subscription', () => {
 
         await test.step('Open paid video page and click Subscribe Now', async () => {
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not visible').toBeVisible();
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not enabled').toBeEnabled();
-            await channelMainPage.subscribeBtn.click();
+            await channelMainPage.waitForMembershipPage();
+            await channelMainPage.clickButtonSubscribeNow();
         });
 
         await test.step('Click Login and verify navigation to login page', async () => {
@@ -106,9 +103,8 @@ test.describe('Authorization popup on paid subscription', () => {
 
         await test.step('Open paid video page and click Subscribe Now', async () => {
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not visible').toBeVisible();
-            await expect(channelMainPage.subscribeBtn, 'Subscribe Now button is not enabled').toBeEnabled();
-            await channelMainPage.subscribeBtn.click();
+            await channelMainPage.waitForMembershipPage();
+            await channelMainPage.clickButtonSubscribeNow();
         });
 
         await test.step('Verify popup is open', async () => {

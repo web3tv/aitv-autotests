@@ -19,6 +19,9 @@ export class ChannelMainPage {
     // MEMBERSHIP
 
     readonly subscriptionCard: Locator;
+    readonly subscriptionTitle: Locator;
+    readonly subscriptionPrice: Locator;
+    readonly subscriptionDescription: Locator;
     readonly subscribeBtn: Locator;
     readonly channelSubscribeBtn: Locator;
     readonly registerLoginBtn: Locator;
@@ -36,6 +39,9 @@ export class ChannelMainPage {
 
         // MEMBERSHIP
         this.subscriptionCard = page.locator('[data-id="sub-card"]');
+        this.subscriptionTitle = page.locator('[data-id="sub-title"]');
+        this.subscriptionPrice = page.locator('[data-id="sub-price"]');
+        this.subscriptionDescription = page.locator('[data-id="sub-description"]');
         this.subscribeBtn = this.subscriptionCard.getByRole('button', { name: 'Join' });
         this.channelSubscribeBtn = page.getByRole('button', { name: 'Subscribe', exact: true });
         this.registerLoginBtn = page.getByRole('button', { name: 'Login' });
@@ -112,7 +118,8 @@ export class ChannelMainPage {
     }
     
     async checkButtonSubscribeNow(){
-        await expect(this.subscribeBtn).toBeVisible();
+        await expect(this.subscribeBtn, 'Subscribe Now button is not visible').toBeVisible();
+        await expect(this.subscribeBtn, 'Subscribe Now button is not enabled').toBeEnabled();
     }
 
 
@@ -171,5 +178,27 @@ export class ChannelMainPage {
         await expect(this.lockedBadge).toBeVisible();
     }
 
+    async waitForMembershipPage(): Promise<void> {
+        await this.page.waitForURL(/membership/, { timeout: 15000 });
+        await expect(this.subscriptionCard, 'Subscription card is not visible').toBeVisible({ timeout: 15000 });
+    }
+
+    async assertPaywallContent(name: string, description: string, price: string): Promise<void> {
+        await expect(this.subscriptionTitle, 'Subscription title is not visible').toBeVisible();
+        await expect(this.subscriptionTitle, `Subscription title does not contain "${name}"`).toContainText(name);
+        await expect(this.subscriptionDescription, `Subscription description does not contain "${description}"`).toContainText(description);
+        await expect(this.subscriptionPrice, `Subscription price does not contain "${price}"`).toContainText(price);
+    }
+
+    async assertLoginModalVisible(): Promise<void> {
+        await expect(
+            this.page.locator('body'),
+            'Login modal message is not visible'
+        ).toContainText('Please log in to your Web3.TV account using one of the login methods below');
+    }
+
+    async assertHeroPayInvoicePage(): Promise<void> {
+        await expect(this.page, 'Not redirected to Hero Pay invoice page').toHaveURL(/test\.pay\.hero\.io\/invoice\/currency-list(\?.*)?$/);
+    }
 
 }
