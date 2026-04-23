@@ -162,8 +162,7 @@ test('Notification received on paid subscription purchase', { annotation: { type
     await authFlow.loginSuccess(userA.email, password, userA.username);
     await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
     const channelMainPage = new ChannelMainPage(page);
-    await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
-
+    await channelMainPage.waitForMembershipPage();
     await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
     await channelMainPage.assertSubscriptionStatus('Active');
     await authFlow.logout();
@@ -277,8 +276,7 @@ test('Notification received when paid channel uploads paid video', { annotation:
     await authFlow.loginSuccess(userA.email, password, userA.username);
     await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
     const channelMainPage = new ChannelMainPage(page);
-    await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
-
+    await channelMainPage.waitForMembershipPage();
     await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
     await channelMainPage.assertSubscriptionStatus('Active');
     await authFlow.logout();

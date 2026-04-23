@@ -65,7 +65,7 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
 
         await authFlow.logout();
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
-        await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
+        await channelMainPage.waitForMembershipPage();
         await channelMainPage.checkRegisterLoginBtn();
     });
 
@@ -78,7 +78,7 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
         await authFlow.loginSuccess(user2.email, password, user2.username);
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
-        await expect(channelMainPage.subscriptionCard, 'Subscription card is not visible').toBeVisible();
+        await channelMainPage.waitForMembershipPage();
         await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
         await channelMainPage.assertSubscriptionStatus('Active');
 
@@ -112,6 +112,7 @@ test('Subscription expiry revokes access, re-purchase restores it', {
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+        await channelMainPage.waitForMembershipPage();
         await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
         await channelMainPage.purhcaseMembershipFromMembershipPageTestNet();
         await channelMainPage.assertSubscriptionStatus('Active');
@@ -137,6 +138,7 @@ test('Subscription expiry revokes access, re-purchase restores it', {
         const channelMainPage = new ChannelMainPage(page);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
+        await channelMainPage.waitForMembershipPage();
         await channelMainPage.assertSubscriptionCardVisible(setup.membershipName!, setup.membershipDescription!);
         await channelMainPage.checkButtonSubscribeNow();
     });
