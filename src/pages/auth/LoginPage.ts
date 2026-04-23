@@ -63,8 +63,7 @@ export class LoginPage {
     // Login page — wallet login button
     this.walletLoginBtn = page.locator('[data-id="wallet-login"]');
 
-    // Wallet options inside the Reown wallet selection modal
-    // Using wallet-selector-{rdns} testid — only present when wallet is detected as INSTALLED via EIP-6963
+    // Wallet options inside the Reown wallet selection modal (target injected/INSTALLED by testId)
     this.metamaskOption = page.getByTestId('wallet-selector-io.metamask');
     this.heroWalletOption = page.getByTestId('wallet-selector-app.aspect.herowallet');
     this.binanceWalletOption = page.getByTestId('wallet-selector-com.binance.w3w');
@@ -73,7 +72,8 @@ export class LoginPage {
   }
 
   async visitLoginPage() {
-    await this.page.goto('/login', { waitUntil: 'domcontentloaded' });
+    await this.page.goto('/login');
+    await this.page.waitForLoadState('networkidle');
   }
 
   async fillEmailInput(email:string){
@@ -183,7 +183,7 @@ export class LoginPage {
   }
 
   async clickMetamaskOption() {
-    await expect(this.metamaskOption, 'MetaMask option is not visible in wallet modal').toBeVisible({ timeout: 20_000 });
+    await expect(this.metamaskOption, 'MetaMask option is not visible in wallet modal').toBeVisible();
     await this.metamaskOption.click();
   }
 
@@ -194,22 +194,9 @@ export class LoginPage {
 
   async clickWalletOption(walletType: EvmWalletType) {
     const rdns = getWalletRdns(walletType);
-    const installedOption = this.page.getByTestId(`wallet-selector-${rdns}`);
-    const rdnsOption = this.page.locator(`[rdnsid="${rdns}"]`);
-
-    // Wait for the wallet list to render (rdnsid present on ALL wallet items regardless of install state)
-    await expect(rdnsOption, `${walletType} option is not visible in wallet modal`).toBeVisible({ timeout: 20_000 });
-
-    // Re-announce EIP-6963 provider now that AppKit's modal is fully rendered and listening
-    await this.page.evaluate(() => {
-      if (typeof (window as any).__eip6963Announce === 'function') {
-        (window as any).__eip6963Announce();
-      }
-    });
-
-    // Wait for AppKit to update wallet state and show INSTALLED badge
-    await expect(installedOption, `${walletType} did not appear as INSTALLED after EIP-6963 re-announce`).toBeVisible({ timeout: 20_000 });
-    await installedOption.click();
+    const option = this.page.getByTestId(`wallet-selector-${rdns}`);
+    await expect(option, `${walletType} option is not visible in wallet modal`).toBeVisible();
+    await option.click();
   }
 
   async assertButtonsDisabled() {

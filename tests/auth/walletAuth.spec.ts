@@ -208,7 +208,7 @@ test.describe('Wallet and email tests',()=>{
 })
 
 
-test.describe.skip('Check all wallets login',()=>{
+test.describe('Check all wallets login',()=>{
 
   const wallets = (Object.keys(WALLET_PROVIDERS) as EvmWalletType[]).map(type => ({
     type,
@@ -216,7 +216,7 @@ test.describe.skip('Check all wallets login',()=>{
   }));
 
   for (const w of wallets) {
-    test(`Register via  ${w.label}`, { annotation: { type: 'TC', description: `SMOKE-WALLET-${w.type}` } }, async ({ page }) => {
+    test(`Register and login via ${w.label}`, { annotation: { type: 'TC', description: `SMOKE-WALLET-${w.type}` } }, async ({ page }) => {
       const authFlow = new AuthFlow(page);
       let wallet: WalletInfo;
 
@@ -225,6 +225,13 @@ test.describe.skip('Check all wallets login',()=>{
         wallet = result.wallet;
       });
 
+      await test.step('Logout', async () => {
+        await authFlow.logout();
+      });
+
+      await test.step('Login with registered wallet — verify siwe-login returns 200', async () => {
+        await authFlow.walletLoginSuccess({ walletType: w.type, wallet, skipInjection: true, skipModalCheck: true });
+      });
     });
   }
 

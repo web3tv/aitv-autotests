@@ -208,16 +208,10 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo, wallet
 
   // Expose a Node.js signing function to the browser context.
   // The browser mock calls this for personal_sign — the signature is real.
-  // Wrapped in try-catch: exposeFunction throws if called twice on the same page,
-  // but we always re-run addInitScript to re-announce on subsequent navigations.
-  try {
-    await page.exposeFunction('__ethSignMessage', async (message: string) => {
-      const signer = new Wallet(w.privateKey);
-      return signer.signMessage(message);
-    });
-  } catch {
-    // Already registered — ignore, the function is still active
-  }
+  await page.exposeFunction('__ethSignMessage', async (message: string) => {
+    const signer = new Wallet(w.privateKey);
+    return signer.signMessage(message);
+  });
 
   // Inject window.ethereum mock before any page script runs
   await page.addInitScript(({ address, provider }: { address: string; provider: WalletProviderInfo }) => {
@@ -302,17 +296,16 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo, wallet
 
     (window as any).ethereum = ethProvider;
 
-    // EIP-6963: detail MUST be frozen per spec — Reown AppKit validates Object.isFrozen(detail)
-    // and silently ignores non-frozen announcements
-    const announceDetail = Object.freeze({
-      info: Object.freeze({
+    // EIP-6963: announce provider immediately and also respond to future requests
+    const announceDetail = {
+      info: {
         uuid: provider.uuid,
         name: provider.name,
         icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
         rdns: provider.rdns,
-      }),
+      },
       provider: ethProvider,
-    });
+    };
 
     const announce = () => {
       window.dispatchEvent(
@@ -320,35 +313,11 @@ export async function injectEthereumMock(page: Page, wallet?: WalletInfo, wallet
       );
     };
 
-    // Always update the global announce pointer so Playwright can trigger the latest closure.
-    (window as any).__eip6963Announce = announce;
-
     announce();
 
-    // Guard against duplicate listener registration when addInitScript is called multiple times
-    // on the same page (e.g. injectEthereumMock called twice for register then login steps).
-    // Each flag is reset on every page load (window is fresh), so only the first script instance
-    // registers listeners — subsequent identical scripts skip to avoid double-firing.
-    if (!(window as any).__eip6963ListenersAdded) {
-      (window as any).__eip6963ListenersAdded = true;
-
-      // Re-announce on eip6963:requestProvider (standard EIP-6963 handshake)
-      window.addEventListener('eip6963:requestProvider', () => {
-        (window as any).__eip6963Announce();
-      });
-
-      // Re-announce after DOMContentLoaded and at staggered intervals —
-      // AppKit (Reown) initializes asynchronously via React useEffect (SSR + hydration),
-      // so we announce repeatedly until it starts listening.
-      window.addEventListener('DOMContentLoaded', () => {
-        (window as any).__eip6963Announce();
-        setTimeout(() => (window as any).__eip6963Announce(), 100);
-        setTimeout(() => (window as any).__eip6963Announce(), 500);
-        setTimeout(() => (window as any).__eip6963Announce(), 1000);
-        setTimeout(() => (window as any).__eip6963Announce(), 2000);
-        setTimeout(() => (window as any).__eip6963Announce(), 3000);
-      });
-    }
+    window.addEventListener('eip6963:requestProvider', () => {
+      announce();
+    });
   }, { address: w.address, provider: providerInfo });
 
   return w;
