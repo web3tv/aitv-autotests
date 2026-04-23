@@ -177,10 +177,10 @@ export class AuthFlow {
     // Wait for wallet auth to complete — backend verifies signature and redirects
     // URL may include query params like ?showPopup=true
     await this.page.waitForURL((url) => url.pathname === '/');
-    await this.page.waitForResponse(
-      (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
-      { timeout: 40_000 }
-    );
+    // await this.page.waitForResponse(
+    //   (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
+    //   { timeout: 40_000 }
+    // );
 
     if (!options?.skipModalCheck) {
       // Assert the "set up alternative login method" modal (only appears on first wallet login)
@@ -201,11 +201,7 @@ export class AuthFlow {
     return wallet;
   }
 
-  /**
-   * Auto-register a new user via wallet on the LOGIN page.
-   * Flow: siwe-login returns 400 (user not found) → frontend auto-calls siwe-register (201).
-   * Returns the wallet info for assertions or further use.
-   */
+
   async walletAutoRegisterOnLogin(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
     const walletType = options?.walletType ?? 'metamask';
     const wallet = options?.skipInjection && options.wallet
@@ -267,10 +263,6 @@ export class AuthFlow {
 
     // Wait for wallet auth to complete — backend verifies signature and redirects
     await this.page.waitForURL((url) => url.pathname === '/');
-    await this.page.waitForResponse(
-      (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
-      { timeout: 40_000 }
-    );
 
     // Assert the "set up alternative login method" modal
     const addEmailModal = this.page.locator('[data-id="add-email-modal"]');

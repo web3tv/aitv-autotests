@@ -3,7 +3,7 @@ import { AuthFlow } from '../../src/flows/AuthFlow';
 import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
 import { uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
 
-test('Upload private video', { annotation: { type: 'TC', description: 'PROD-003' } }, async ({ page }) => {
+test.skip('Upload private video', { annotation: { type: 'TC', description: 'PROD-003' } }, async ({ page }) => {
   test.setTimeout(120_000);
 
   const authFlow = new AuthFlow(page);

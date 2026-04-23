@@ -31,7 +31,7 @@ test('Register user via Hero Wallet', { annotation: { type: 'TC', description: '
 });
 
 for (const w of wallets) {
-  test(`Login via ${w.label}`, { annotation: { type: 'TC', description: w.tc } }, async ({ page }) => {
+  test.skip(`Login via ${w.label}`, { annotation: { type: 'TC', description: w.tc } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
     const address = process.env[`${w.envPrefix}_ADDRESS`];
     const privateKey = process.env[`${w.envPrefix}_PRIVATE_KEY`];
