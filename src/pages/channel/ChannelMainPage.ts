@@ -128,7 +128,8 @@ export class ChannelMainPage {
     async clickPayWith(){
         await expect(this.payWithBtn, 'Pay With button is not visible').toBeVisible();
         await expect(this.payWithBtn, 'Pay With button is not enabled').toBeEnabled();
-        await this.payWithBtn.click();
+        // force: true — после клика "Join" оверлей модалки может перехватывать pointer events
+        await this.payWithBtn.click({ force: true });
         await this.page.waitForURL(/pay\.hero\.io/, { timeout: 30_000 });
     }
 
