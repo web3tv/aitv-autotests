@@ -52,6 +52,7 @@ export async function setupVideoViaApi(
     options: {
         privacySetting: 'public' | 'private' | 'unlisted' | 'paid';
         description?: string;
+        contentType?: 'video' | 'short';
         subscriptionOptions?: { title: string; description: string; price: string; duration?: number };
     }
 ): Promise<VideoSetupResult> {
@@ -85,10 +86,16 @@ export async function setupVideoViaApi(
         subId = sub.id;
     }
 
-    const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
+    const contentType = options.contentType ?? 'video';
+    const filePath = contentType === 'short'
+        ? 'test-data/fixtures/video/shortsVideo.mp4'
+        : 'test-data/fixtures/video/5secVideo.mp4';
+
+    const video = await videoApi.uploadVideo(token, filePath, {
         title: videoName,
         description,
         privacySetting: options.privacySetting,
+        contentType,
         subId,
         waitForProcessing: true,
     });

@@ -276,7 +276,7 @@ export class AuthFlow {
     // Dismiss modal
     await this.page.getByRole('button', { name: 'Cancel' }).click();
 
-    await this.assertLoggedInAs(username);
+    await this.assertLoggedInAs(wallet.address);
 
     return { wallet, username };
   }
@@ -286,10 +286,14 @@ export class AuthFlow {
    * and verifying the @username displayed inside it.
    */
   async assertLoggedInAs(username: string) {
+    const isWallet = username.startsWith('0x');
+    const displayValue = isWallet
+      ? `${username.slice(0, 4)}...${username.slice(-4)}`
+      : `@${username}`;
     await expect(this.headerPage.userIcon, 'Profile button is not visible').toBeVisible();
     await this.headerPage.clickUserIcon();
     await expect(this.userDropdownPage.dropdown, 'Profile dropdown is not visible').toBeVisible();
-    await expect(this.userDropdownPage.dropdown, `Expected @${username} in profile dropdown`).toContainText(`@${username}`);
+    await expect(this.userDropdownPage.dropdown, `Expected ${displayValue} in profile dropdown`).toContainText(displayValue);
     // Close dropdown to avoid blocking subsequent interactions
     await this.page.keyboard.press('Escape');
     await expect(this.userDropdownPage.dropdown).toBeHidden();
