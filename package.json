@@ -1,26 +1,11 @@
 {
-  "name": "web3tv-autotests",
+  "name": "autotests",
   "version": "1.0.0",
-  "main": "index.js",
+  "workspaces": ["web3tv", "aitv"],
   "scripts": {
-    "test:dev": "playwright test --config=playwright.config.ts",
-    "test:critical": "playwright test --project=functional --grep @critical",
-    "test:regression": "playwright test --project=functional"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "@synthetixio/synpress": "^4.1.2",
-    "@types/node": "^24.10.1",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "dotenv": "^17.2.3",
-    "ethers": "^6.16.0",
-    "mysql2": "^3.20.0",
-    "tronweb": "^6.2.2"
+    "test:web3tv": "playwright test --config=web3tv/playwright.config.ts --project=functional",
+    "test:aitv": "playwright test --config=aitv/playwright.config.ts --project=functional",
+    "test:all": "npm run test:web3tv && npm run test:aitv",
+    "test:critical": "playwright test --config=web3tv/playwright.config.ts --project=functional --grep @critical"
   }
 }

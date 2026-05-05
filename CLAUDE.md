@@ -4,51 +4,63 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-**Run all functional tests:**
+All commands run from the **repo root**. Dependencies are installed at root via npm workspaces.
+
+**Install dependencies (once):**
 ```
-npx playwright test --project=functional
+npm install
+```
+
+**Run all functional tests (web3tv):**
+```
+npx playwright test --config=web3tv/playwright.config.ts --project=functional
 ```
 
 **Run a single test file:**
 ```
-npx playwright test tests/auth/auth.spec.ts --project=functional
+npx playwright test --config=web3tv/playwright.config.ts web3tv/tests/auth/emailAuth.spec.ts --project=functional
 ```
 
 **Run a single test by name:**
 ```
-npx playwright test --grep "Success login as user" --project=functional
+npx playwright test --config=web3tv/playwright.config.ts --grep "Success login as user" --project=functional
 ```
 
 **Run visual tests (desktop):**
 ```
-# Must be run inside Docker
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
+# Must be run inside Docker (from repo root)
+docker run --rm -v "$PWD:/app" -w /app test bash -c "npm ci && npx playwright test --config=web3tv/playwright.config.ts --project=visual-desktop-chromium"
 ```
 
 **Run visual tests (mobile):**
 ```
-# Must be run inside Docker
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
+# Must be run inside Docker (from repo root)
+docker run --rm -v "$PWD:/app" -w /app test bash -c "npm ci && npx playwright test --config=web3tv/playwright.config.ts --project=visual-mobile-webkit"
 ```
 
 **Setup production accounts (run once):**
 ```
-ENV_FILE=.env.prod npx playwright test tests/production/setup.spec.ts --project=production
+ENV_FILE=.env.prod npx playwright test --config=web3tv/playwright.config.ts web3tv/tests/production/setup.spec.ts --project=prodSmoke
 ```
 
 **Run production smoke tests:**
 ```
-ENV_FILE=.env.prod npx playwright test --project=production
+ENV_FILE=.env.prod npx playwright test --config=web3tv/playwright.config.ts --project=prodSmoke
 ```
 
 **View test report:**
 ```
-npx playwright show-report
+npx playwright show-report web3tv/playwright-report
+```
+
+**Run aitv functional tests:**
+```
+npx playwright test --config=aitv/playwright.config.ts --project=functional
 ```
 
 ## Environment Setup
 
-Local config is loaded from `.env.dev` (not committed). Required variables:
+Local config is loaded from `web3tv/.env.dev` (not committed). Required variables:
 - `BASE_URL` — frontend URL (e.g. `https://web3tv.dev`)
 - `API_URL` — backend API base URL
 - `USER_LOGIN_ADMIN` — admin username for API-based user verification
@@ -59,15 +71,22 @@ Local config is loaded from `.env.dev` (not committed). Required variables:
 ### Layer structure
 
 ```
-tests/
-  auth/         — Authentication tests
-  user/         — Account settings tests
-  subscription/ — Subscription & paid content tests
-  hero/         — HERO integration tests
-  studio/       — Video upload, player, channel tests
-  validation/   — Input validation tests
-  visualSuite/  — Visual regression tests (Docker only)
-src/
+web3tv/
+  tests/
+    auth/         — Authentication tests
+    user/         — Account settings tests
+    subscription/ — Subscription & paid content tests
+    hero/         — HERO integration tests
+    studio/       — Video upload, player, channel tests
+    validation/   — Input validation tests
+    visualSuite/  — Visual regression tests (Docker only)
+  playwright.config.ts
+  package.json
+aitv/
+  tests/          — Mirror of web3tv/tests/ (EITV assertions)
+  playwright.config.ts
+  package.json
+src/             — Shared: flows, pages, api, utils
   flows/        — High-level user journey orchestrators
   pages/        — Page Object Model classes
     auth/       — Login, Register, Forgot/Reset password pages
@@ -96,7 +115,7 @@ test-data/
 
 **Playwright projects:**
 - `functional` — all non-visual specs, Chromium 1920×1080
-- `production` — smoke tests for prod, Chromium 1920×1080
+- `prodSmoke` — smoke tests for prod, Chromium 1920×1080
 - `visual-desktop-chromium` — desktop visual regression, Docker only
 - `visual-mobile-webkit` — mobile visual regression (iPhone 15), Docker only
 
