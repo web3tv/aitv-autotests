@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: cat .env.dev >> $GITHUB_ENV
+      - run: cat web3tv/.env.dev >> $GITHUB_ENV
 
       - uses: actions/setup-node@v4
         with:
@@ -39,9 +39,10 @@ jobs:
           rm -f wg0.conf
 
       - run: npm ci
+
       - run: npx playwright install --with-deps
 
-      - run: npx playwright test --project=functional --grep @critical
+      - run: npx playwright test --config=web3tv/playwright.config.ts --project=functional --grep @critical
         env:
           CI: true
 
@@ -52,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: critical-report
-          path: playwright-report
+          path: web3tv/playwright-report
 
       - name: Send Slack notification
         if: always()
@@ -75,12 +76,14 @@ jobs:
   #   steps:
   #     - uses: actions/checkout@v4
 
-  #     - run: cat .env.dev >> $GITHUB_ENV
+  #     - run: cat web3tv/.env.dev >> $GITHUB_ENV
 
   #     - uses: actions/setup-node@v4
   #       with:
   #         node-version: 20
   #         cache: npm
+
+  #     - run: npm ci
 
   #     - name: Install WireGuard
   #       run: |
@@ -97,10 +100,9 @@ jobs:
   #         sudo ip route replace 10.3.0.0/16 dev wg0
   #         rm -f wg0.conf
 
-  #     - run: npm ci
   #     - run: npx playwright install --with-deps
 
-  #     - run: npx playwright test --project=functional --grep-invert "@db|@critical"
+  #     - run: npx playwright test --config=web3tv/playwright.config.ts --project=functional --grep-invert "@db|@critical"
   #       env:
   #         CI: true
 
@@ -111,7 +113,7 @@ jobs:
   #       uses: actions/upload-artifact@v4
   #       with:
   #         name: functional-report
-  #         path: playwright-report
+  #         path: web3tv/playwright-report
 
   #     - name: Send Slack notification
   #       if: always()
@@ -153,12 +155,12 @@ jobs:
         run: |
           docker run --rm \
             --network host \
-            --env-file .env.dev \
+            --env-file web3tv/.env.dev \
             -e CI=true \
             -v "${{ github.workspace }}:/app" \
             -w /app \
             mcr.microsoft.com/playwright:v1.57.0-jammy \
-            bash -lc "npm ci --include=dev && npx playwright test --project=visual-desktop-chromium --project=visual-mobile-webkit"
+            bash -lc "npm ci && npx playwright test --config=web3tv/playwright.config.ts --project=visual-desktop-chromium --project=visual-mobile-webkit"
 
       - name: Disconnect VPN
         if: always()
@@ -169,7 +171,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: visual-tests-report
-          path: playwright-report
+          path: web3tv/playwright-report
 
       - name: Send Slack notification
         if: always()

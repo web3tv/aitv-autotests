@@ -1,11 +1,16 @@
 
 # Playwright
-node_modules/
-/test-results/
-/playwright-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Per-project node_modules / reports / results
+web3tv/node_modules/
+web3tv/playwright-report/
+web3tv/test-results/
+aitv/node_modules/
+aitv/playwright-report/
+aitv/test-results/
 
 # Env files (local, not committed)
 .env.*
