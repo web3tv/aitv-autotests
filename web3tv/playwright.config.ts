@@ -1,14 +1,18 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
+import path from 'path';
 
 if (process.env.ENV_FILE || !process.env.CI) {
   const envFile = process.env.ENV_FILE || '.env.dev';
-  dotenv.config({ path: envFile, quiet: true });
+  dotenv.config({ path: path.resolve(__dirname, envFile), quiet: true });
 }
 
+// Normalize CWD to repo root so test-data/ runtime paths resolve correctly
+process.chdir(path.resolve(__dirname, '..'));
 
 export default defineConfig({
   testDir: './tests',
+  outputDir: path.resolve(__dirname, 'test-results'),
   expect: {
     timeout: 10_000,
   },
@@ -19,19 +23,19 @@ export default defineConfig({
   reporter: process.env.CI
   ? [
       ['list'],
-      ['html', { open: 'never', outputFolder: 'playwright-report' }],
+      ['html', { open: 'never', outputFolder: path.resolve(__dirname, 'playwright-report') }],
     ]
   : [
       ['list'],
-      ['html', { open: 'always', outputFolder: 'playwright-report' }],
+      ['html', { open: 'always', outputFolder: path.resolve(__dirname, 'playwright-report') }],
     ],
   use: {
     baseURL: process.env.BASE_URL,
-    trace: 'retain-on-failure',    
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',   
+    video: 'retain-on-failure',
   },
-  
+
   projects: [
 
     {
@@ -58,7 +62,6 @@ export default defineConfig({
       name: 'visual-desktop-chromium',
       testMatch: /visualSuite\/desktop\/visualSuites\.spec\.ts$/,
       fullyParallel: false,
-      // workers: 1,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
@@ -90,7 +93,6 @@ export default defineConfig({
       name: 'visual-mobile-webkit',
       testMatch: /visualSuite\/mobile\/visualSuites\.spec\.ts$/,
       fullyParallel: false,
-      // workers: 1,
       use: {
          ...devices['iPhone 15 Pro Max']
       },

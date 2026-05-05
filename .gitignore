@@ -1,11 +1,17 @@
 
-# Playwright
+# node_modules (all locations)
 node_modules/
+
+# Playwright artifacts
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+web3tv/playwright-report/
+web3tv/test-results/
+aitv/playwright-report/
+aitv/test-results/
 
 # Env files (local, not committed)
 .env.*

@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {},
+  "include": ["tests/**/*.ts", "../src/**/*.ts", "playwright.config.ts"],
+  "exclude": ["node_modules"]
+}
