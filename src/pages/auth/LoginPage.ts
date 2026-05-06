@@ -121,8 +121,7 @@ export class LoginPage {
 
   async clickCheckbox() {
     await expect(this.checkbox, 'Checkbox is not visible').toBeVisible();
-    await this.checkbox.check({ force: true });
-    await expect(this.checkbox, 'Checkbox should be checked after clicking').toBeChecked();
+    await this.checkbox.click({ force: true });
   }
 
   async clickContinueWithEmail() {

@@ -12,5 +12,7 @@
     "types": ["node"],
     "lib": ["ES2022", "DOM"],
     "ignoreDeprecations": "5.0"
-  }
+  },
+  "include": ["tests/**/*.ts", "src/**/*.ts", "playwright.config.ts"],
+  "exclude": ["node_modules"]
 }
