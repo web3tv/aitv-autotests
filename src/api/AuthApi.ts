@@ -6,11 +6,12 @@ import * as crypto from "node:crypto";
 export class AuthApi {
     constructor(
     private request: APIRequestContext,
-    private baseUrl = process.env.API_URL
+    private baseUrl = process.env.API_URL,
+    private emailDomain = process.env.EMAIL_DOMAIN ?? "web3tv.com"
     ) {}
 
     async createUser() {
-        const { username, email } = DataGenerator.generateEmail("web3tv.com");
+        const { username, email } = DataGenerator.generateEmail(this.emailDomain);
 
         const response = await this.request.post(`${this.baseUrl}/user/`, {
         headers: { "Content-Type": "application/json" },

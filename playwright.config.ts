@@ -35,8 +35,16 @@ export default defineConfig({
   projects: [
 
     {
+      name: 'aitv',
+      testMatch: /ai\.tv\/.*\.spec\.ts$/,
+      use: {
+        browserName: 'chromium',
+      },
+    },
+
+    {
       name: 'functional',
-      testMatch: /^(?!.*visual)(?!.*production).*\.spec\.ts$/,
+      testMatch: /^(?!.*visual)(?!.*production)(?!.*ai\.tv).*\.spec\.ts$/,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },

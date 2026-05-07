@@ -251,14 +251,16 @@ export class VideoApi {
             description?: string;
             categoryId?: number;
             privacySetting?: "public" | "private" | "paid" | "unlisted";
+            publishedAt?: string;
         }
     ): Promise<void> {
         const multipart: Record<string, string> = {};
-        if (options.title) multipart.title = options.title;
-        if (options.description) multipart.description = options.description;
+        multipart.title = options.title ?? `Video_${Date.now()}`;
+        multipart.description = options.description ?? `${Date.now()}`;
         const catId = options.categoryId ?? (await this.getDefaultCategoryId());
         multipart["categoryIds[0]"] = String(catId);
         if (options.privacySetting) multipart.privacySetting = options.privacySetting;
+        if (options.publishedAt) multipart.publishedAt = options.publishedAt;
 
         const response = await this.request.post(
             `${this.baseUrl}/videos/${videoId}`,
