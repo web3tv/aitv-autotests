@@ -423,6 +423,7 @@ export class AuthFlow {
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();
     await expect(this.page).toHaveURL('/');
-    await expect(this.headerPage.joinBtn, 'Join button should be visible after logout').toBeVisible();
+    await expect(this.headerPage.loginBtn, 'Login button should be visible after logout').toBeVisible();
+    await expect(this.headerPage.signUpBtn, 'Sign Up button should be visible after logout').toBeVisible();
   }
 }

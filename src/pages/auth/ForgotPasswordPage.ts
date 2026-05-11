@@ -11,7 +11,7 @@ export class ForgotPasswordPage {
   constructor(page: Page) {
     this.page = page;
     this.forgotPasswordLink = page.getByRole('link', { name: 'Forgot Password?' });
-    this.titleText = page.getByText('Enter your Web3.TV username');
+    this.titleText = page.getByText('Enter your Ai.tv username');
     this.emailInput = page.getByRole('textbox', { name: 'Enter email address' });
     this.submitBtn = page.getByRole('button', { name: 'Submit' });
   }

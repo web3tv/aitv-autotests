@@ -5,7 +5,8 @@
   "scripts": {
     "test:dev": "playwright test --config=playwright.config.ts",
     "test:critical": "playwright test --project=functional --grep @critical",
-    "test:regression": "playwright test --project=functional"
+    "test:regression": "playwright test --project=functional",
+    "delete-user": "npx ts-node scripts/deleteUser.ts"
   },
   "keywords": [],
   "author": "",

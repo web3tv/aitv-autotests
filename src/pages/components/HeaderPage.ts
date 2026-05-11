@@ -14,6 +14,8 @@ export class HeaderPage {
   readonly addWalletBtn: Locator;
   readonly connectWalletBtn: Locator;
   readonly userIcon: Locator;
+  readonly loginBtn: Locator;
+  readonly signUpBtn: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -30,7 +32,9 @@ export class HeaderPage {
 
     this.addWalletBtn = page.locator('button:has(svg[viewBox="0 0 15 14"])').first();
     this.connectWalletBtn = page.getByRole('button', { name: 'Connect wallet' });
-    this.userIcon = page.locator('#profile-button');
+    this.userIcon = page.locator('#aitv-profile-button');
+    this.loginBtn = page.getByRole('link', { name: 'Login' });
+    this.signUpBtn = page.getByRole('link', { name: 'Sign Up' });
   }
 
   async clickAddVideoBtn(){
