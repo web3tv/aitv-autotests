@@ -36,14 +36,12 @@ test('Analytics page displays seeded statistics', {
     let ownerUsername: string;
     const helperEmails: string[] = [];
 
-    await test.step('Create owner user with public channel and upload video', async () => {
+    await test.step('Create owner user and upload video', async () => {
         const owner = await authApi.createAndVerifyUser();
         ownerEmail = owner.email;
         ownerUsername = owner.username;
 
         const token = await authApi.getUserToken(owner.email, process.env.USER_PASSWORD!);
-        const channelId = await videoApi.getChannelId(token);
-        await videoApi.setChannelPublic(token, channelId, owner.username);
 
         videoTitle = `AnalyticsTest_${Date.now()}`;
         await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {

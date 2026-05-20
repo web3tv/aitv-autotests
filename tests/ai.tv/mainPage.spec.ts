@@ -40,7 +40,6 @@ async function setupPublicChannel(
     const user = await authApi.createAndVerifyUser();
     const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
     const channelId = await videoApi.getChannelId(token);
-    await videoApi.setChannelPublic(token, channelId, user.username);
     return { token, channelId };
 }
 

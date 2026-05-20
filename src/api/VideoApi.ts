@@ -76,37 +76,29 @@ export class VideoApi {
         return channelId;
     }
 
-    async setChannelPublic(
-        token: string,
-        channelId: string,
-        handle: string
-    ): Promise<void> {
-        const response = await this.request.put(
-            `${this.baseUrl}/channels/${channelId}`,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                data: {
-                    name: `${handle} Channel`,
-                    handle,
-                    description: "",
-                    descriptionShort: "",
-                    privacySettings: "public",
-                    isDefault: true,
-                    backgroundPictureId: null,
-                },
-            }
-        );
+    async getChannelInfo(token: string): Promise<{ id: string; name: string; handle: string }> {
+        const response = await this.request.get(`${this.baseUrl}/channels`, {
+            headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            params: { mine: "true", maxResults: "50" },
+        });
 
         if (!response.ok()) {
             const body = await response.text();
-            throw new Error(
-                `Failed to set channel public: ${response.status()} ${body}`
-            );
+            throw new Error(`Failed to get channels: ${response.status()} ${body}`);
         }
+
+        const json = await response.json();
+        const channel = json?.data?.items?.[0] ?? json?.items?.[0];
+
+        if (!channel) {
+            throw new Error("No channel found for user");
+        }
+
+        const handleStr = typeof channel.handle === 'string' ? channel.handle : channel.handle?.name;
+        return { id: channel.id, name: channel.name, handle: handleStr };
     }
 
     async setDefaultVideoDescription(
@@ -124,7 +116,7 @@ export class VideoApi {
                     Authorization: `Bearer ${token}`,
                 },
                 data: {
-                    name: `${handle} Channel`,
+                    name: handle,
                     handle,
                     description: "",
                     descriptionShort: "",

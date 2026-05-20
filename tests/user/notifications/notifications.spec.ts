@@ -3,7 +3,6 @@ import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { AuthApi } from '../../../src/api/AuthApi';
 import { VideoApi } from '../../../src/api/VideoApi';
 import { SideBarPage } from '../../../src/pages/components/SideBarPage';
-import { StudioProfilePage } from '../../../src/pages/studio/StudioProfilePage';
 import { StudioMembershipPage } from '../../../src/pages/studio/StudioMembershipPage';
 import { UploadVideoFlow } from '../../../src/flows/UploadVideoFlow';
 import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
@@ -74,19 +73,12 @@ test('Verify default notification states and toggle settings', { annotation: { t
 test('Notification received on channel subscription', { annotation: { type: 'TC', description: 'NOTIF-002' } }, async ({ page, request }) => {
   test.setTimeout(360_000);
   const authApi = new AuthApi(request);
-  const videoApi = new VideoApi(request);
   const authFlow = new AuthFlow(page);
   const notificationsPage = new NotificationsPage(page);
   const password = process.env.USER_PASSWORD!;
 
   const userB = await authApi.createAndVerifyUser();
   const userA = await authApi.createAndVerifyUser();
-
-  await test.step('Make User B channel public via API', async () => {
-    const tokenB = await authApi.getUserToken(userB.email, password);
-    const channelId = await videoApi.getChannelId(tokenB);
-    await videoApi.setChannelPublic(tokenB, channelId, userB.username);
-  });
 
   await test.step('User A subscribes to User B channel via UI', async () => {
     await authFlow.loginSuccess(userA.email, password, userA.username);
@@ -118,7 +110,6 @@ test('Notification received on paid subscription purchase', { annotation: { type
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
-  const studioProfilePage = new StudioProfilePage(page);
   const notificationsPage = new NotificationsPage(page);
   const password = process.env.USER_PASSWORD!;
 
@@ -127,13 +118,8 @@ test('Notification received on paid subscription purchase', { annotation: { type
   const userB = await authApi.createAndVerifyUser();
   const userA = await authApi.createAndVerifyUser();
 
-  await test.step('User B: make channel public', async () => {
+  await test.step('User B: login and create membership plan', async () => {
     await authFlow.loginSuccess(userB.email, password, userB.username);
-    await sideBarPage.clickStudioEditChannel();
-    await studioProfilePage.changePrivacyToPublic();
-  });
-
-  await test.step('User B: create membership plan', async () => {
     const studioMembershipPage = new StudioMembershipPage(page);
     await sideBarPage.clickStudioSubscriptions();
     await studioMembershipPage.addMembershipPlan('Subscription #1', 'Test Description');
@@ -186,12 +172,6 @@ test.fixme('Notification received when subscribed channel uploads video', { anno
   const userB = await authApi.createAndVerifyUser();
   const userA = await authApi.createAndVerifyUser();
 
-  await test.step('Make User B channel public via API', async () => {
-    const tokenB = await authApi.getUserToken(userB.email, password);
-    const channelId = await videoApi.getChannelId(tokenB);
-    await videoApi.setChannelPublic(tokenB, channelId, userB.username);
-  });
-
   await test.step('User A subscribes to User B channel', async () => {
     await authFlow.loginSuccess(userA.email, password, userA.username);
     await page.goto(`/@${userB.username}`, { waitUntil: 'domcontentloaded' });
@@ -233,7 +213,6 @@ test('Notification received when paid channel uploads paid video', { annotation:
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
-  const studioProfilePage = new StudioProfilePage(page);
   const notificationsPage = new NotificationsPage(page);
   const password = process.env.USER_PASSWORD!;
 
@@ -243,10 +222,8 @@ test('Notification received when paid channel uploads paid video', { annotation:
   const userB = await authApi.createAndVerifyUser();
   const userA = await authApi.createAndVerifyUser();
 
-  await test.step('User B: make channel public + create membership plan', async () => {
+  await test.step('User B: login and create membership plan', async () => {
     await authFlow.loginSuccess(userB.email, password, userB.username);
-    await sideBarPage.clickStudioEditChannel();
-    await studioProfilePage.changePrivacyToPublic();
 
     const studioMembershipPage = new StudioMembershipPage(page);
     await sideBarPage.clickStudioSubscriptions();

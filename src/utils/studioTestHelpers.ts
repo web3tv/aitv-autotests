@@ -2,23 +2,6 @@ import { expect, Page, APIRequestContext, Response } from '@playwright/test';
 import { AuthApi } from '../api/AuthApi';
 import { VideoApi } from '../api/VideoApi';
 import { SubscriptionApi } from '../api/SubscriptionApi';
-import { AuthFlow } from '../flows/AuthFlow';
-import { StudioProfilePage } from '../pages/studio/StudioProfilePage';
-import { SideBarPage } from '../pages/components/SideBarPage';
-
-export async function setupUserWithPublicChannel(page: Page, request: APIRequestContext): Promise<{ email: string, username: string }> {
-    const authApi = new AuthApi(request);
-    const authFlow = new AuthFlow(page);
-    const studioProfilePage = new StudioProfilePage(page);
-    const sideBar = new SideBarPage(page);
-
-    const user = await authApi.createAndVerifyUser();
-    await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
-    await sideBar.clickStudioEditChannel();
-    await studioProfilePage.changePrivacyToPublic();
-    await sideBar.clickStudioContent();
-    return user;
-}
 
 export async function uploadWithChunkCheck(page: Page, uploadFn: () => Promise<void>): Promise<void> {
     let chunkError: string | null = null;
@@ -64,7 +47,6 @@ export async function setupVideoViaApi(
     const user = await authApi.createAndVerifyUser();
     const token = await authApi.getUserToken(user.email, password);
     const channelId = await videoApi.getChannelId(token);
-    await videoApi.setChannelPublic(token, channelId, user.username);
 
     const videoName = Date.now().toString();
     const description = options.description ?? (Date.now() + 1).toString();

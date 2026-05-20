@@ -14,13 +14,11 @@ test('Video player plays uploaded video', { tag: '@critical', annotation: [{ typ
     let userEmail: string;
     let username: string;
 
-    await test.step('Create user, set channel public and upload video via API', async () => {
+    await test.step('Create user and upload video via API', async () => {
         const user = await authApi.createAndVerifyUser();
         userEmail = user.email;
         username = user.username;
         const token = await authApi.getUserToken(userEmail, password);
-        const channelId = await videoApi.getChannelId(token);
-        await videoApi.setChannelPublic(token, channelId, username);
 
         const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
             title: videoName,
@@ -48,11 +46,9 @@ test('Video player plays uploaded short', { annotation: [{ type: 'TC', descripti
     const videoApi = new VideoApi(request);
     let shortUrl: string;
 
-    await test.step('Create user, set channel public and upload short via API', async () => {
+    await test.step('Create user and upload short via API', async () => {
         const user = await authApi.createAndVerifyUser();
         const token = await authApi.getUserToken(user.email, password);
-        const channelId = await videoApi.getChannelId(token);
-        await videoApi.setChannelPublic(token, channelId, user.username);
 
         const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/shortsVideo.mp4', {
             title: videoName,

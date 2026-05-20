@@ -3,15 +3,18 @@ import { AuthFlow } from '../../src/flows/AuthFlow';
 import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
 import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
 import { AuthApi } from '../../src/api/AuthApi';
-import { setupUserWithPublicChannel, uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
+import { uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
 
 test('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 'UPLOAD-001' } }, async ({ page, request }) => {
     test.setTimeout(120_000);
     let user: { email: string, username: string };
     const videoName: string = Date.now().toString();
 
-    await test.step('Create user and fix channel privacy to public', async () => {
-        user = await setupUserWithPublicChannel(page, request);
+    await test.step('Create user and login', async () => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
     await test.step('Upload public video and verify on studio content page', async () => {
@@ -38,8 +41,11 @@ test('Upload short video', { annotation: { type: 'TC', description: 'UPLOAD-005'
     let user: { email: string, username: string };
     const videoName: string = Date.now().toString();
 
-    await test.step('Create user and fix channel privacy to public', async () => {
-        user = await setupUserWithPublicChannel(page, request);
+    await test.step('Create user and login', async () => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
     await test.step('Upload public short and verify on studio content page', async () => {
@@ -65,8 +71,11 @@ test('Publish video while still processing', { annotation: { type: 'TC', descrip
     test.setTimeout(120_000);
     const videoName: string = Date.now().toString();
 
-    await test.step('Create user and fix channel privacy to public', async () => {
-        await setupUserWithPublicChannel(page, request);
+    await test.step('Create user and login', async () => {
+        const authApi = new AuthApi(request);
+        const authFlow = new AuthFlow(page);
+        const user = await authApi.createAndVerifyUser();
+        await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
     await test.step('Upload video, fill fields and publish without waiting for completed status', async () => {

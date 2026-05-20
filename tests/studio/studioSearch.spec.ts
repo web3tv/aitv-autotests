@@ -23,8 +23,6 @@ test.describe('Studio Content Search', () => {
         await test.step('Setup: create user and upload 2 videos via API', async () => {
             const user = await authApi.createAndVerifyUser();
             const token = await authApi.getUserToken(user.email, password);
-            const channelId = await videoApi.getChannelId(token);
-            await videoApi.setChannelPublic(token, channelId, user.username);
 
             const video1 = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
                 title: `SearchAlpha_${Date.now()}`,
@@ -102,8 +100,6 @@ test.describe('Studio Content Search', () => {
         await test.step('Setup: create user and upload video via API', async () => {
             const user = await authApi.createAndVerifyUser();
             const token = await authApi.getUserToken(user.email, password);
-            const channelId = await videoApi.getChannelId(token);
-            await videoApi.setChannelPublic(token, channelId, user.username);
 
             videoDescription = `UniqueDesc_${Date.now()}`;
             await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
@@ -153,8 +149,6 @@ test.describe('Studio Content Search', () => {
         await test.step('Setup: create user and upload 1 short via API', async () => {
             const user = await authApi.createAndVerifyUser();
             const token = await authApi.getUserToken(user.email, password);
-            const channelId = await videoApi.getChannelId(token);
-            await videoApi.setChannelPublic(token, channelId, user.username);
 
             const short1 = await videoApi.uploadVideo(token, 'test-data/fixtures/video/shortsVideo.mp4', {
                 title: `ShortAlpha_${Date.now()}`,

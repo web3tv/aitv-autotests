@@ -23,8 +23,6 @@ test.describe('Video chapters — English video', () => {
 
         user = await authApi.createAndVerifyUser();
         token = await authApi.getUserToken(user.email, password);
-        const channelId = await videoApi.getChannelId(token);
-        await videoApi.setChannelPublic(token, channelId, user.username);
 
         videoTitle = `Chapters_${Date.now()}`;
         const video = await videoApi.uploadVideo(token, ENGLISH_VIDEO_PATH, {
@@ -157,8 +155,6 @@ test.describe('Video chapters — Short video', () => {
         await test.step('Create user and upload short video', async () => {
             const user = await authApi.createAndVerifyUser();
             token = await authApi.getUserToken(user.email, password);
-            const channelId = await videoApi.getChannelId(token);
-            await videoApi.setChannelPublic(token, channelId, user.username);
 
             const video = await videoApi.uploadVideo(token, SHORT_VIDEO_PATH, {
                 title: `ShortChap_${Date.now()}`,
