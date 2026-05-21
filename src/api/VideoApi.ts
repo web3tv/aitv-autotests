@@ -406,14 +406,17 @@ export class VideoApi {
     ): Promise<UploadedVideo> {
         const title = options.title ?? `Video_${Date.now()}`;
         const channelId = await this.getChannelId(token);
+        const resolvedFilePath = path.isAbsolute(filePath)
+            ? filePath
+            : path.resolve(__dirname, '../../', filePath);
 
         // 1. Init
-        const initResult = await this.initUpload(token, channelId, filePath);
+        const initResult = await this.initUpload(token, channelId, resolvedFilePath);
         const id = initResult.id;
         let videoPlayerFeUrl = initResult.videoPlayerFeUrl;
 
         // 2. Upload chunk (single chunk for files < 50MB)
-        await this.uploadChunk(token, id, filePath);
+        await this.uploadChunk(token, id, resolvedFilePath);
 
         // 3. Complete
         await this.completeUpload(token, id);

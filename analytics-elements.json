@@ -1,0 +1,254 @@
+[
+  {
+    "tag": "div",
+    "text": "explore1779376644780 Channel\n\nAnalytics\nToday\n7D\n30D\nYTD\nAll\nCustom\nVIEWS\n\n—\n\nSU",
+    "dataId": "aitv-scroll-root",
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiBox-root mui-1hqh2zb"
+  },
+  {
+    "tag": "header",
+    "text": "explore1779376644780 Channel",
+    "dataId": "aitv-header",
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiBox-root mui-1096a7i"
+  },
+  {
+    "tag": "button",
+    "text": "explore1779376644780 Channel",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiButtonBase-root close mui-lvf7p8"
+  },
+  {
+    "tag": "p",
+    "text": "explore1779376644780 Channel",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-1gnhuwf"
+  },
+  {
+    "tag": "h1",
+    "text": "Analytics",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-h1 mui-92ipmb"
+  },
+  {
+    "tag": "span",
+    "text": "VIEWS",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-ef8wvd"
+  },
+  {
+    "tag": "p",
+    "text": "—",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-53zg5m"
+  },
+  {
+    "tag": "span",
+    "text": "SUBSCRIBERS",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-ef8wvd"
+  },
+  {
+    "tag": "p",
+    "text": "It's a bit empty here 🫠",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-y2v8hq"
+  },
+  {
+    "tag": "span",
+    "text": "ENGAGEMENTS",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-ef8wvd"
+  },
+  {
+    "tag": "span",
+    "text": "0",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-8it75i"
+  },
+  {
+    "tag": "span",
+    "text": "Likes",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-14t2vfy"
+  },
+  {
+    "tag": "span",
+    "text": "—",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-7jrlti"
+  },
+  {
+    "tag": "nav",
+    "text": "Studio\nOverview\nContent\nAnalytics\nEarnings\nChannel\nto AI.TV",
+    "dataId": "aitv-navigation",
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiBox-root mui-obxozu"
+  },
+  {
+    "tag": "a",
+    "text": "Studio",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": "studio",
+    "classes": ""
+  },
+  {
+    "tag": "span",
+    "text": "Studio",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-1fduqzl"
+  },
+  {
+    "tag": "a",
+    "text": "Overview",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": ""
+  },
+  {
+    "tag": "span",
+    "text": "Overview",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-fa8vav"
+  },
+  {
+    "tag": "a",
+    "text": "Content",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": ""
+  },
+  {
+    "tag": "span",
+    "text": "Content",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-fa8vav"
+  },
+  {
+    "tag": "a",
+    "text": "Analytics",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": ""
+  },
+  {
+    "tag": "span",
+    "text": "Analytics",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-fa8vav"
+  },
+  {
+    "tag": "a",
+    "text": "Earnings",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": ""
+  },
+  {
+    "tag": "span",
+    "text": "Earnings",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-fa8vav"
+  },
+  {
+    "tag": "a",
+    "text": "Channel",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": ""
+  },
+  {
+    "tag": "span",
+    "text": "Channel",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-fa8vav"
+  },
+  {
+    "tag": "a",
+    "text": "to AI.TV",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": ""
+  },
+  {
+    "tag": "span",
+    "text": "to AI.TV",
+    "dataId": null,
+    "testId": null,
+    "role": null,
+    "ariaLabel": null,
+    "classes": "MuiTypography-root MuiTypography-body1 mui-fa8vav"
+  }
+]
