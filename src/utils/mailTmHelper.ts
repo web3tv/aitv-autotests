@@ -138,7 +138,7 @@ export class MailTmHelper {
     const json = await res.json();
     const text = json.text ?? '';
 
-    const verifyMatch = text.match( /https:\/\/ai\.tv\/verification\?[^\s\)"]+/);
+    const verifyMatch = text.match( /https:\/\/web3tv2\.dev\/verification\?[^\s\)"]+/);
     if (verifyMatch) {
       return verifyMatch[0];
     }
@@ -154,7 +154,7 @@ export class MailTmHelper {
     const json = await res.json();
     const text = json.text ?? '';
 
-    const verifyMatch = text.match( /https:\/\/ai\.tv\/reset-password\?[^\s"'<>)]*/i);
+    const verifyMatch = text.match( /https:\/\/web3tv2\.dev\/reset-password\?[^\s"'<>)]*/i);
     if (verifyMatch) {
       return verifyMatch[0];
     }

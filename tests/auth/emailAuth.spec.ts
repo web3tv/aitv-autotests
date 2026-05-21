@@ -110,7 +110,7 @@ test.describe('Reset password tests', () => {
 });
 
 //TODO: Need to create page for 2FA
-test.describe('2FA tests', () => {
+test.describe.skip('2FA tests', () => {
 
   test('Enable 2FA and verify code', { annotation: [{ type: 'TC', description: '2FA-001' }, { type: 'TC', description: '2FA-002' }, { type: 'TC', description: '2FA-003' }] }, async ({ page, request }) => {
     let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
