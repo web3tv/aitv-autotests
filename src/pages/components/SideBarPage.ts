@@ -53,7 +53,7 @@ export class SideBarPage {
     this.studioAnalytics            = page.locator('[data-id="Analytics"]');
     this.studioSubscriptions        = page.locator('[data-id="Memberships"]');
     this.studioPlaylists            = page.locator('[data-id="Playlists"]');
-    this.studioEditChannel          = page.locator('[data-id="Edit channel"]');
+    this.studioEditChannel          = page.locator('a[href="/channel"]');
     this.studioSettings             = page.locator('[data-id="Settings"]');
 
     // SETTINGS
