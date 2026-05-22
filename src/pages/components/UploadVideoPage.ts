@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
 import * as fs from 'fs';
+import * as path from 'path';
 
 export class UploadVideoPage {
   readonly page: Page;
@@ -46,14 +47,17 @@ export class UploadVideoPage {
 
 
   async uploadVideo(pathToFileURL: string, mimeType?: string) {
+    const resolvedPath = path.isAbsolute(pathToFileURL)
+      ? pathToFileURL
+      : path.resolve(__dirname, '../../../', pathToFileURL);
     if (mimeType) {
       await this.uploadVideoButton.setInputFiles({
-        name: pathToFileURL.split('/').pop()!,
+        name: path.basename(resolvedPath),
         mimeType,
-        buffer: fs.readFileSync(pathToFileURL),
+        buffer: fs.readFileSync(resolvedPath),
       });
     } else {
-      await this.uploadVideoButton.setInputFiles(pathToFileURL);
+      await this.uploadVideoButton.setInputFiles(resolvedPath);
     }
   }
 

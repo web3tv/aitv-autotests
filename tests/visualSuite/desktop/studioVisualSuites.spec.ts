@@ -33,8 +33,6 @@ test.describe('Studio visual tests', () => {
         userEmail = user.email;
 
         const token = await authApi.getUserToken(user.email, password);
-        const channelId = await videoApi.getChannelId(token);
-        await videoApi.setChannelPublic(token, channelId, user.username);
 
         await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
             title: `Visual_${Date.now()}`,

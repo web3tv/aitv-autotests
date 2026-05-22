@@ -31,6 +31,24 @@ import { ensureOnStudioDomain } from '../../src/utils/studioNavigation';
 const VIDEO_PATH = 'test-data/fixtures/video/5secVideo.mp4';
 const THUMB_PATH = 'test-data/fixtures/photo/cat.jpg';
 
+test('Auto-created channel has handle as name without "Channel" suffix',
+    { annotation: { type: 'TC', description: 'CHANNEL-021' } },
+    async ({ request }) => {
+        const authApi = new AuthApi(request);
+        const videoApi = new VideoApi(request);
+
+        await test.step('Create user and verify auto-created channel name equals username', async () => {
+            const user = await authApi.createAndVerifyUser();
+            const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
+            const channelInfo = await videoApi.getChannelInfo(token);
+
+            expect(channelInfo.name, 'Channel name should not contain "Channel" suffix').not.toContain('Channel');
+            expect(channelInfo.name, 'Channel name should equal username').toBe(user.username);
+            expect(channelInfo.handle, 'Channel handle should equal username').toBe(user.username);
+        });
+    }
+);
+
 test('Set default video description in channel settings — saved successfully',
     { tag: '@critical', annotation: { type: 'TC', description: 'CHANNEL-017' } },
     async ({ page, request }) => {

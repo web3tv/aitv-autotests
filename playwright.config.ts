@@ -1,9 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
+import path from 'path';
 
 if (process.env.ENV_FILE || !process.env.CI) {
   const envFile = process.env.ENV_FILE || '.env.dev';
-  dotenv.config({ path: envFile, quiet: true });
+  dotenv.config({ path: path.resolve(__dirname, envFile), quiet: true });
 }
 
 

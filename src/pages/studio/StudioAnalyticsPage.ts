@@ -11,7 +11,7 @@ export class StudioAnalyticsPage {
     readonly subscribersCount: Locator;
     readonly subscribersCard: Locator;
 
-    // Period selector
+    // Period tabs
     readonly periodSelector: Locator;
     readonly periodDateRange: Locator;
     readonly periodType: Locator;
@@ -24,7 +24,7 @@ export class StudioAnalyticsPage {
     readonly engagementLikes: Locator;
     readonly engagementChart: Locator;
 
-    // Latest Uploaded Content
+    // Latest Video (right panel)
     readonly latestVideoSection: Locator;
     readonly latestVideoTitle: Locator;
     readonly latestVideoCover: Locator;
@@ -42,39 +42,49 @@ export class StudioAnalyticsPage {
     constructor(page: Page) {
         this.page = page;
 
-        // Summary cards — find label P then sibling count P via parent
-        this.viewsLabel = page.locator('p').filter({ hasText: /^\s*Views\s*$/ }).first();
-        this.viewsCount = this.viewsLabel.locator('xpath=following-sibling::p[1]');
-        this.viewsCard = this.viewsLabel.locator('..');
+        // Summary cards — labels are <span> with CSS text-transform: uppercase
+        // DOM text: "Views" / "Subscribers" (not "VIEWS" / "SUBSCRIBERS")
+        this.viewsLabel = page.locator('span').filter({ hasText: /^Views$/ }).first();
+        // count <p> is sibling of the icon+label wrapper (parent of span)
+        this.viewsCount = this.viewsLabel.locator('xpath=../following-sibling::p[1]');
+        // card = grandparent of span (contains icon+label wrapper AND count p)
+        this.viewsCard = this.viewsLabel.locator('../..');
 
-        this.subscribersLabel = page.locator('p').filter({ hasText: /^\s*Subscribers\s*$/ }).first();
-        this.subscribersCount = this.subscribersLabel.locator('xpath=following-sibling::p[1]');
-        this.subscribersCard = this.subscribersLabel.locator('..');
+        this.subscribersLabel = page.locator('span').filter({ hasText: /^Subscribers$/ }).first();
+        this.subscribersCount = this.subscribersLabel.locator('xpath=../following-sibling::p[1]');
+        this.subscribersCard = this.subscribersLabel.locator('../..');
 
-        // Period selector — the clickable area with date range and period type
-        this.periodSelector = page.locator('[data-testid="KeyboardArrowDownIcon"]').locator('..');
-        this.periodDateRange = this.periodSelector.locator('p').first();
-        this.periodType = this.periodSelector.locator('p').nth(1);
+        // Period — now tabs (div elements: Today | 7D | 30D | YTD | All | Custom)
+        // periodSelector = container div that holds all tab divs
+        this.periodSelector = page.locator('div').filter({ hasText: /^Today$/ }).locator('..');
+        this.periodDateRange = page.locator('span').filter({ hasText: /^\w{3}\s+\d+/ }).first();
+        this.periodType = page.locator('div').filter({ hasText: /^(Today|7D|30D|YTD|All|Custom)$/ }).first();
 
         // Main chart (recharts)
         this.mainChart = page.locator('.recharts-wrapper').first();
 
         // Engagement section
-        this.engagementTitle = page.locator('p').filter({ hasText: 'Engagement (48h)' });
-        this.engagementLikes = this.engagementTitle.locator('..').locator('..').locator('p').filter({ hasText: /likes/ });
-        this.engagementChart = this.engagementTitle.locator('..').locator('..').locator('.recharts-wrapper');
+        // DOM: <span>Engagements</span> + sibling <div><span>{count}</span><span>Likes</span></div>
+        this.engagementTitle = page.locator('span').filter({ hasText: /^Engagements$/ }).first();
+        // count+label div is the following-sibling of the icon+title div (span's parent)
+        this.engagementLikes = this.engagementTitle.locator('xpath=../following-sibling::div[1]');
+        // engagement chart is the second recharts-wrapper on the page (main chart is first)
+        this.engagementChart = page.locator('.recharts-wrapper').nth(1);
 
-        // Latest Uploaded Content
-        this.latestVideoSection = page.locator('[data-id="latest-video-section"]');
-        this.latestVideoTitle = page.locator('[data-id="video-title"]');
-        this.latestVideoCover = page.locator('[data-id="video-cover"]');
-        this.latestVideoViews = page.locator('[data-id="views"]');
-        this.latestVideoLikes = page.locator('[data-id="likes"]');
-        this.latestVideoComments = page.locator('[data-id="comments"]');
+        // Latest Video (right panel) — no data-id attrs in new design
+        // Navigate from "Latest Video" span up 3 levels to the section container
+        // (same nesting depth as the Engagements section)
+        this.latestVideoSection = page.locator('span').filter({ hasText: /^Latest Video$/ }).locator('../..');
+        this.latestVideoCover = this.latestVideoSection.locator('img').first();
+        this.latestVideoTitle = this.latestVideoSection.locator('p').first();
+        // stat rows: each row has icon+label on left, count on right
+        this.latestVideoViews    = this.latestVideoSection.locator('span').filter({ hasText: /^Views$/ }).locator('xpath=../following-sibling::span[1]');
+        this.latestVideoLikes    = this.latestVideoSection.locator('span').filter({ hasText: /^Likes$/ }).locator('xpath=../following-sibling::span[1]');
+        this.latestVideoComments = this.latestVideoSection.locator('span').filter({ hasText: /^Comments$/ }).locator('xpath=../following-sibling::span[1]');
 
-        // Top Content table
-        this.topContentHeader = page.locator('p').filter({ hasText: 'Top Content' });
-        this.topContentRows = page.locator('p').filter({ hasText: 'Top Content' }).locator('..').locator('> div').filter({ has: page.locator('img') });
+        // Top Content — header text updated
+        this.topContentHeader = page.locator('p, span').filter({ hasText: /^Top Content In This Period$/ }).first();
+        this.topContentRows = this.topContentHeader.locator('..').locator('> div').filter({ has: page.locator('img') });
 
         // Empty state
         this.emptyStateMessage = page.getByText("It's a bit empty here", { exact: false });
@@ -124,21 +134,15 @@ export class StudioAnalyticsPage {
 
     async switchChartToViews(): Promise<void> {
         await expect(this.viewsCard, 'Views card is not visible').toBeVisible();
-        await expect(this.viewsCard, 'Views card is not enabled').toBeEnabled();
         await this.viewsCard.click();
     }
 
-    /**
-     * Click Subscribers summary card to switch chart to subscribers metric.
-     * Returns a promise for the chart API response.
-     */
     async switchChartToSubscribers(): Promise<Response> {
         const chartResponse = this.page.waitForResponse(
             r => r.url().includes('analytics-chart') && r.url().includes('metric=subscribers') && r.status() === 200,
             { timeout: 15000 }
         );
         await expect(this.subscribersCard, 'Subscribers card is not visible').toBeVisible();
-        await expect(this.subscribersCard, 'Subscribers card is not enabled').toBeEnabled();
         await this.subscribersCard.click();
         return await chartResponse;
     }
@@ -191,7 +195,7 @@ export class StudioAnalyticsPage {
     }
 
     /**
-     * Open period dropdown and select a period option by text.
+     * Click a period tab by label (e.g. "7D", "30D", "Today", "YTD", "All", "Custom").
      * Returns promises for analytics + chart API responses.
      */
     async selectPeriod(periodText: string): Promise<{ analyticsResponse: Promise<Response>; chartResponse: Promise<Response> }> {
@@ -204,13 +208,21 @@ export class StudioAnalyticsPage {
             { timeout: 15000 }
         );
 
-        await expect(this.periodSelector, 'Period selector is not visible').toBeVisible();
-        await expect(this.periodSelector, 'Period selector is not enabled').toBeEnabled();
-        await this.periodSelector.click();
+        const tab = this.page.locator('div').filter({ hasText: new RegExp(`^${periodText}$`) }).first();
+        await expect(tab, `Period tab "${periodText}" is not visible`).toBeVisible();
 
-        const periodOption = this.page.getByText(periodText, { exact: true });
-        await expect(periodOption, `Period option "${periodText}" is not visible`).toBeVisible();
-        await periodOption.click();
+        // Active tab has a unique CSS class; inactive tabs share the same class.
+        // Clicking an already-active tab fires no API requests — reload instead.
+        const isActive = await tab.evaluate((el) => {
+            const siblings = Array.from(el.parentElement?.children ?? []).filter(c => c !== el);
+            return siblings.length > 0 && !siblings.some(s => s.className === el.className);
+        });
+
+        if (isActive) {
+            await this.page.reload({ waitUntil: 'domcontentloaded' });
+        } else {
+            await tab.click();
+        }
 
         return { analyticsResponse, chartResponse };
     }
