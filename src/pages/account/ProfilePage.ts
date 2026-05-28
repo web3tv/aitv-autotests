@@ -1,6 +1,9 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { HeaderPage } from '../components/HeaderPage';
+import * as path from 'path';
+
+const PROJECT_ROOT = path.resolve(__dirname, '../../../');
 
 export type SocialLinkField = 'facebook' | 'twitter' | 'instagram' | 'tiktok';
 
@@ -149,7 +152,8 @@ export class ProfilePage {
     }
 
     async uploadAvatarAndSubmit(filePath: string): Promise<void> {
-        await this.uploadImageButton.setInputFiles(filePath);
+        const resolved = path.isAbsolute(filePath) ? filePath : path.resolve(PROJECT_ROOT, filePath);
+        await this.uploadImageButton.setInputFiles(resolved);
         await expect(this.confirmButton, 'Confirm button is not visible').toBeVisible();
         await expect(this.confirmButton, 'Confirm button is not enabled').toBeEnabled();
         await this.confirmButton.click();

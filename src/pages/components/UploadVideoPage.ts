@@ -3,6 +3,8 @@ import { expect } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const PROJECT_ROOT = path.resolve(__dirname, '../../../');
+
 export class UploadVideoPage {
   readonly page: Page;
 
@@ -12,6 +14,11 @@ export class UploadVideoPage {
   readonly videoDescription: Locator;
   readonly videoCategoryDropdown: Locator;
   readonly videoCategory: Locator;
+  readonly videoGenreDropdown: Locator;
+  readonly videoGenreAction: Locator;
+  readonly videoGenreAdventure: Locator;
+  readonly videoGenreBiographical: Locator;
+  readonly videoGenreAdventureChip: Locator;
   readonly nextBtn: Locator;
   readonly publishBtn: Locator;
   
@@ -27,13 +34,18 @@ export class UploadVideoPage {
     this.page = page;
 
     this.uploadVideoButton = page.getByTestId('dropzone-input');
-    this.videoTitle = page.getByRole('textbox', { name: 'e.g. Why you should buy' });
+    this.videoTitle = page.getByRole('textbox', { name: 'Add a title...' });
     this.uploadVideoThumbnail = page.locator('input[data-id="upload-image"]');
     this.videoDescription = page.locator('.ql-editor');
     this.descriptionEditor = page.getByRole('dialog').locator('[data-id="description"] .ql-editor');
-    this.videoCategoryDropdown = page.getByRole('button', { name: 'Open' });
-    this.videoCategory = page.getByRole('option', { name: 'Chain Abstraction' });
-    
+    this.videoCategoryDropdown = page.getByRole('combobox', { name: 'Choose value' });
+    this.videoCategory = page.getByText('Documentaries');
+    this.videoGenreDropdown = page.locator('[id="_r_o_"]');
+    this.videoGenreAction = page.getByRole('option', { name: 'Action' });
+    this.videoGenreAdventure = page.getByRole('option', { name: 'Adventure' });
+    this.videoGenreBiographical = page.getByRole('option', { name: 'Biographical' });
+    this.videoGenreAdventureChip = page.locator('div').filter({ hasText: /^Adventure$/ });
+
     this.nextBtn = page.getByRole('button', { name: 'Next' });
     this.publishBtn = page.getByRole('button', { name: 'Publish' });
     
@@ -47,22 +59,21 @@ export class UploadVideoPage {
 
 
   async uploadVideo(pathToFileURL: string, mimeType?: string) {
-    const resolvedPath = path.isAbsolute(pathToFileURL)
-      ? pathToFileURL
-      : path.resolve(__dirname, '../../../', pathToFileURL);
+    const resolved = path.isAbsolute(pathToFileURL) ? pathToFileURL : path.resolve(PROJECT_ROOT, pathToFileURL);
     if (mimeType) {
       await this.uploadVideoButton.setInputFiles({
-        name: path.basename(resolvedPath),
+        name: path.basename(resolved),
         mimeType,
-        buffer: fs.readFileSync(resolvedPath),
+        buffer: fs.readFileSync(resolved),
       });
     } else {
-      await this.uploadVideoButton.setInputFiles(resolvedPath);
+      await this.uploadVideoButton.setInputFiles(resolved);
     }
   }
 
-  async uploadVideoThumb(pathToFileURL:string){
-    await this.uploadVideoThumbnail.setInputFiles(pathToFileURL);
+  async uploadVideoThumb(pathToFileURL: string) {
+    const resolved = path.isAbsolute(pathToFileURL) ? pathToFileURL : path.resolve(PROJECT_ROOT, pathToFileURL);
+    await this.uploadVideoThumbnail.setInputFiles(resolved);
   }
 
   async fillVideoTitle(name: any){
@@ -78,7 +89,20 @@ export class UploadVideoPage {
   async selectVideoCategory(){
     await this.videoCategoryDropdown.click();
     await this.videoCategory.click();
-    await expect(this.page.getByRole('combobox', { name: 'Choose value' })).toHaveValue('Chain Abstraction');
+    await expect(this.page.getByRole('combobox', { name: 'Choose value' })).toHaveValue('Documentaries');
+  }
+
+  async selectVideoGenres() {
+    await expect(this.videoGenreDropdown, 'Genre dropdown is not visible').toBeVisible();
+    await this.videoGenreDropdown.click();
+    await expect(this.videoGenreAction, 'Action genre option is not visible').toBeVisible();
+    await this.videoGenreAction.click();
+    await this.videoGenreAdventure.click();
+    await this.videoGenreBiographical.click();
+    await expect(this.page.locator('form'), 'Form should contain genre "Action"').toContainText('Action');
+    await this.videoGenreAdventureChip.click();
+    await expect(this.page.locator('form'), 'Form should contain genre "Adventure"').toContainText('Adventure');
+    await expect(this.page.locator('form'), 'Form should contain genre "Biographical"').toContainText('Biographical');
   }
 
   async clickNextBtn(){

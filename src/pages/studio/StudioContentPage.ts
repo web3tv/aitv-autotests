@@ -8,6 +8,7 @@ export class StudioContentPage {
     readonly firstVideoDescription: Locator;
     readonly firstVideoVisibility: Locator;
     readonly firstVideoStatus: Locator;
+    readonly firstVideoStatusIcon: Locator;
     readonly shortsTab: Locator;
     readonly videosTab: Locator;
     readonly liveTab: Locator;
@@ -22,7 +23,7 @@ export class StudioContentPage {
         this.firstVideoDescription = this.firstVideoRaw.locator('[data-id="video"]');
         this.firstVideoVisibility = this.firstVideoRaw.locator('[data-id="visibility"]');
         this.firstVideoStatus = this.firstVideoRaw.locator('[data-id="date"]').first();
-
+        this.firstVideoStatusIcon = this.firstVideoRaw.locator('.MuiBox-root > svg');
 
         this.shortsTab = this.page.locator('[data-id="shorts-tab"]');
         this.videosTab = this.page.locator('[data-id="videos-tab"]');
@@ -40,8 +41,10 @@ export class StudioContentPage {
         await expect(this.firstVideoVisibility).toContainText(visibility);
     }
 
-    async checkVideoStatus(status: string){
-        await expect(this.firstVideoStatus, `Video status should contain "${status}"`).toContainText(status, { timeout: 10_000 });
+    async checkVideoStatus(status: string) {
+        await expect(this.firstVideoStatusIcon, 'Video status icon is not visible').toBeVisible({ timeout: 10_000 });
+        await this.firstVideoStatusIcon.hover();
+        await expect(this.page.getByRole('tooltip', { name: status }), `Tooltip "${status}" is not visible`).toBeVisible();
     }
 
 
