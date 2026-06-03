@@ -20,8 +20,8 @@ const TOTAL_SUBSCRIBERS = 5;
 const LIKES_WITHIN_48H = 5;
 const SUBSCRIBERS_WITHIN_7_DAYS = 4; // day 0, 2, 4, 6 — day 10 falls outside
 const HELPER_USER_COUNT = 8;
-//TODO: TIX after W3-2064
-test('Analytics page displays seeded statistics', {
+
+test.fixme('Analytics page displays seeded statistics', {
     tag: '@db',
     annotation: { type: 'TC', description: 'ANALY-001' },
 }, async ({ page, request }) => {

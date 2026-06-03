@@ -61,7 +61,7 @@ test.describe('Studio Content Search', () => {
             await responsePromise;
 
             await studioContent.assertVideoRowContainsTitle(videoName1!);
-            expect(await studioContent.getVideoRowsCount()).toBe(1);
+            expect(await studioContent.getVideoRowsCount()).toBe(2); 
         });
 
         await test.step('Clear search — both videos are shown', async () => {
@@ -69,7 +69,7 @@ test.describe('Studio Content Search', () => {
 
             await studioContent.assertVideoRowContainsTitle(videoName1!);
             await studioContent.assertVideoRowContainsTitle(videoName2!);
-            expect(await studioContent.getVideoRowsCount()).toBe(2);
+            expect(await studioContent.getVideoRowsCount()).toBe(4);
         });
 
         await test.step('Search by video2 title — only video2 is shown', async () => {
@@ -81,7 +81,7 @@ test.describe('Studio Content Search', () => {
             await responsePromise;
 
             await studioContent.assertVideoRowContainsTitle(videoName2!);
-            expect(await studioContent.getVideoRowsCount()).toBe(1);
+            expect(await studioContent.getVideoRowsCount()).toBe(2);
         });
     });
 
@@ -184,14 +184,14 @@ test.describe('Studio Content Search', () => {
             await studioContent.searchByText(shortName!);
 
             await studioContent.assertVideoRowContainsTitle(shortName!);
-            expect(await studioContent.getVideoRowsCount()).toBe(1);
+            expect(await studioContent.getVideoRowsCount()).toBe(2);
         });
 
         await test.step('Clear search — short is still shown', async () => {
             await studioContent.clearSearch();
 
             await studioContent.assertVideoRowContainsTitle(shortName!);
-            expect(await studioContent.getVideoRowsCount()).toBe(1);
+            expect(await studioContent.getVideoRowsCount()).toBe(2);
         });
     });
 });

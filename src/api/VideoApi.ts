@@ -125,7 +125,7 @@ export class VideoApi {
                     privacySettings: "public",
                     isDefault: true,
                     backgroundPictureId: null,
-                    defaultVideoDescription,
+                    defaultVideoDescription: `${defaultVideoDescription}`,
                 },
             }
         );

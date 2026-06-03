@@ -12,7 +12,7 @@ export class StudioContentPage {
     readonly shortsTab: Locator;
     readonly videosTab: Locator;
     readonly liveTab: Locator;
-    readonly playlistTab: Locator;
+    readonly seriesTab: Locator;
     readonly searchInput: Locator;
     readonly videoRows: Locator;
 
@@ -25,10 +25,11 @@ export class StudioContentPage {
         this.firstVideoStatus = this.firstVideoRaw.locator('[data-id="date"]').first();
         this.firstVideoStatusIcon = this.firstVideoRaw.locator('.MuiBox-root > svg');
 
-        this.shortsTab = this.page.locator('[data-id="shorts-tab"]');
-        this.videosTab = this.page.locator('[data-id="videos-tab"]');
+        this.shortsTab = this.page.locator('[data-id="segmented-control-shorts"]');
+        this.videosTab = this.page.locator('[data-id="segmented-control-movies"]');
+        this.seriesTab = this.page.locator('[data-id="segmented-control-series"]');
         this.liveTab = this.page.locator('[data-id="live-tab"]');
-        this.playlistTab = this.page.locator('[data-id="playlist-tab"]');
+        
 
         this.searchInput = this.page.locator('[data-testid="studioSearchInput"]');
         this.videoRows = this.page.locator('[data-testid="video-row"]');
@@ -70,8 +71,8 @@ export class StudioContentPage {
         await this.liveTab.click();
     }
 
-    async clickPlaylistTab(){
-        await this.playlistTab.click();
+    async clickSeriesTab(){
+        await this.seriesTab.click();
     }
 
     async searchByText(text: string) {

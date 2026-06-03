@@ -2,10 +2,13 @@ import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
 
 export class UserDropdownPage {
-    
+
     readonly page: Page;
 
     readonly dropdown: Locator;
+    readonly closeBtn: Locator;
+    readonly channelLink: Locator;
+    readonly switchChannelBtn: Locator;
     readonly createChannelBtn: Locator;
     readonly logoutBtn: Locator;
 
@@ -13,8 +16,11 @@ export class UserDropdownPage {
         this.page = page;
 
         this.dropdown = page.locator('[aria-labelledby="aitv-profile-button"]');
-        this.createChannelBtn =  page.getByRole('link', { name: 'Add Channel' });
-        this.logoutBtn = page.getByRole('menuitem', { name: 'Log out' })
+        this.closeBtn = page.locator('[data-id="aitv-profile-menu-close"]');
+        this.channelLink = page.locator('[data-id="aitv-profile-menu-channel-link"]');
+        this.switchChannelBtn = page.locator('[data-id="aitv-profile-menu-switch-channel"]');
+        this.createChannelBtn = page.locator('[data-id="aitv-profile-menu-create-channel"]');
+        this.logoutBtn = page.getByRole('menuitem', { name: 'Log out' });
     }
 
     async clickAddChannelBtn(){

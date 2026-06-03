@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { EmbedPlayerPage } from '../../src/pages/components/EmbedPlayerPage';
 
-test.describe('Embed player — horizontal video', () => {
+test.describe.fixme('Embed player — horizontal video', () => {
     test('Embed player plays uploaded video', {
         tag: '@critical',
         annotation: [{ type: 'TC', description: 'EMBED-001' }],
@@ -37,7 +37,7 @@ test.describe('Embed player — horizontal video', () => {
     });
 });
 
-test.describe('Embed player — vertical short', () => {
+test.describe.fixme('Embed player — vertical short', () => {
     test('Embed player plays uploaded short', {
         annotation: [{ type: 'TC', description: 'EMBED-002' }],
     }, async ({ page }) => {

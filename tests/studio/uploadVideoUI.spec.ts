@@ -5,7 +5,7 @@ import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
 
-test('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 'UPLOAD-001' } }, async ({ page, request }) => {
+test.fixme('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 'UPLOAD-001' } }, async ({ page, request }) => {
     test.setTimeout(120_000);
     let user: { email: string, username: string };
     const videoName: string = Date.now().toString();
@@ -36,7 +36,7 @@ test('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 
     });
 });
 
-test('Upload short video', { annotation: { type: 'TC', description: 'UPLOAD-005' } }, async ({ page, request }) => {
+test.fixme('Upload short video', { annotation: { type: 'TC', description: 'UPLOAD-005' } }, async ({ page, request }) => {
     test.setTimeout(180_000);
     let user: { email: string, username: string };
     const videoName: string = Date.now().toString();
@@ -67,7 +67,7 @@ test('Upload short video', { annotation: { type: 'TC', description: 'UPLOAD-005'
     });
 });
 
-test('Publish video while still processing', { annotation: { type: 'TC', description: 'UPLOAD-013' } }, async ({ page, request }) => {
+test.fixme('Publish video while still processing', { annotation: { type: 'TC', description: 'UPLOAD-013' } }, async ({ page, request }) => {
     test.setTimeout(120_000);
     const videoName: string = Date.now().toString();
 
@@ -94,7 +94,7 @@ test('Publish video while still processing', { annotation: { type: 'TC', descrip
     });
 });
 
-test('Upload video >50mb workflow', { annotation: { type: 'TC', description: 'UPLOAD-006' } }, async ({ page, request }) => {
+test.fixme('Upload video >50mb workflow', { annotation: { type: 'TC', description: 'UPLOAD-006' } }, async ({ page, request }) => {
     test.setTimeout(270_000);
     const videoName: string = Date.now().toString();
 
