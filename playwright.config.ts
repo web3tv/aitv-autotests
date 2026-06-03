@@ -28,9 +28,6 @@ export default defineConfig({
     ],
   use: {
     baseURL: process.env.BASE_URL,
-    proxy: process.env.CI ? undefined : {
-      server: process.env.PLAYWRIGHT_PROXY || 'socks5://127.0.0.1:1080',
-    },
     trace: 'retain-on-failure',    
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',   
