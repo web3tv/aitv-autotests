@@ -134,4 +134,36 @@ export class AuthApi {
             mailToken,
         };
     }
+
+    async createUserFast(staticCode = '1111') {
+        const mailTm = new MailTmHelper(this.request);
+        const email = await mailTm.generateEmail();
+
+        const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
+            headers: { "Content-Type": "application/json" },
+            data: { method: "email", identifier: email, clientId: OAUTH_CLIENT_ID },
+        });
+        if (!startRes.ok()) throw new Error(`❌ /auth/start failed: ${startRes.status()}`);
+        const { otpChallengeId } = await startRes.json();
+
+        const verifyRes = await this.request.post(`${this.baseUrl}/auth/verify`, {
+            headers: { "Content-Type": "application/json" },
+            data: { challengeId: otpChallengeId, code: staticCode },
+        });
+        if (!verifyRes.ok()) throw new Error(`❌ /auth/verify failed: ${verifyRes.status()}`);
+        const { ticket } = await verifyRes.json();
+
+        const username = DataGenerator.generateUsername();
+        const completeRes = await this.request.post(`${this.baseUrl}/auth/complete`, {
+            headers: { "Content-Type": "application/json" },
+            data: { ticket, handle: username, password: process.env.USER_PASSWORD ?? "Admin1@@" },
+        });
+        if (!completeRes.ok()) throw new Error(`❌ /auth/complete failed: ${completeRes.status()}`);
+        const completeJson = await completeRes.json();
+
+        return {
+            email,
+            username: (completeJson.user?.username as string) ?? username,
+        };
+    }
 }

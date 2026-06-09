@@ -82,4 +82,29 @@ export class RegistrationFlow {
 
     return { email, password, username, mailTmPassword, token };
   }
+
+  async registerAndVerifyUserViaPopupFast(staticCode = '1111'): Promise<{ email: string; password: string; username: string }> {
+    const password = 'Admin1@@';
+    const username = DataGenerator.generateUsername();
+    const email = await this.mailTmHelper.generateEmail();
+
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+
+    await this.loginPopupPage.fillCode(staticCode);
+
+    await this.loginPopupPage.fillCreatePassword(password);
+    await this.loginPopupPage.clickSetNewPassword();
+    await this.loginPopupPage.fillChooseHandle(username);
+    await this.loginPopupPage.clickFinish();
+
+    await this.page.waitForURL('/');
+    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
+
+    return { email, password, username };
+  }
 }
