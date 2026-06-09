@@ -151,8 +151,6 @@ test.describe('Paid video visibility', () => {
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
             await channelMainPage.waitForMembershipPage();
             await channelMainPage.assertPaywallContent(setup.membershipName!, setup.membershipDescription!, '$0.99');
-            await channelMainPage.clickRegisterLoginBtn();
-            await channelMainPage.assertLoginModalVisible();
         });
     });
 

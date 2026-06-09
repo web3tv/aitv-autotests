@@ -38,12 +38,16 @@ export class LoginPopupPage {
     
 
 
+    readonly closeBtn: Locator;
+
     // Step 5: Choose handle (new user)
     readonly chooseHandleInput: Locator;
     readonly finishBtn: Locator;
 
     constructor(page: Page) {
         this.page = page;
+
+        this.closeBtn = page.getByTestId('aitv-auth-close');
 
         this.emailEntryBtn    = page.getByTestId('aitv-auth-entry-email');
         this.googleEntryBtn   = page.getByTestId('aitv-auth-entry-google');
@@ -79,6 +83,15 @@ export class LoginPopupPage {
 
     async assertPopupVisible(): Promise<void> {
         await expect(this.emailEntryBtn, 'Login popup is not visible (email entry button not found)').toBeVisible({ timeout: 10_000 });
+    }
+
+    async assertAuthModalVisible(): Promise<void> {
+        await expect(this.closeBtn, 'Auth modal close button is not visible').toBeVisible({ timeout: 10_000 });
+        await expect(this.emailEntryBtn, 'Auth modal email entry button is not visible').toBeVisible();
+        await expect(this.googleEntryBtn, 'Auth modal Google entry button is not visible').toBeVisible();
+        await expect(this.appleEntryBtn, 'Auth modal Apple entry button is not visible').toBeVisible();
+        await expect(this.telegramEntryBtn, 'Auth modal Telegram entry button is not visible').toBeVisible();
+        await expect(this.walletEntryBtn, 'Auth modal Wallet entry button is not visible').toBeVisible();
     }
 
     async clickTelegramEntry(): Promise<void> {

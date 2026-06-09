@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
 import { AuthPopupPage } from '../../src/pages/components/AuthPopupPage';
+import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
 import { setupVideoViaApi, VideoSetupResult } from '../../src/utils/studioTestHelpers';
 
 test.describe('Authorization popup on paid subscription', () => {
@@ -57,7 +58,7 @@ test.describe('Authorization popup on paid subscription', () => {
         });
     });
 
-    test.fixme('Auth popup Create account button navigates to register page', {
+    test('Auth popup Create account button navigates to register page', {
         annotation: { type: 'TC', description: 'AUTH-POP-009' },
     }, async ({ page }) => {
         const channelMainPage = new ChannelMainPage(page);
@@ -69,14 +70,15 @@ test.describe('Authorization popup on paid subscription', () => {
             await channelMainPage.clickButtonSubscribeNow();
         });
 
-        await test.step('Click Create account and verify navigation to register', async () => {
+        await test.step('Click Create account and verify auth modal opens', async () => {
+            const loginPopupPage = new LoginPopupPage(page);
             await authPopup.assertPopupVisible();
             await authPopup.clickCreateAccount();
-            await expect(page, 'Page should navigate to /register').toHaveURL(/\/register/, { timeout: 10_000 });
+            await loginPopupPage.assertAuthModalVisible();
         });
     });
 
-    test.fixme('Auth popup Login button navigates to login page', {
+    test('Auth popup Login button navigates to login page', {
         annotation: { type: 'TC', description: 'AUTH-POP-010' },
     }, async ({ page }) => {
         const channelMainPage = new ChannelMainPage(page);
@@ -89,13 +91,14 @@ test.describe('Authorization popup on paid subscription', () => {
         });
 
         await test.step('Click Login and verify navigation to login page', async () => {
+            const loginPopupPage = new LoginPopupPage(page);
             await authPopup.assertPopupVisible();
             await authPopup.clickLogin();
-            await expect(page, 'Page should navigate to /login').toHaveURL(/\/login/, { timeout: 10_000 });
+            await loginPopupPage.assertAuthModalVisible();
         });
     });
 
-    test.fixme('Auth popup closes when clicking close button', {
+    test('Auth popup closes when clicking close button', {
         annotation: { type: 'TC', description: 'AUTH-POP-011' },
     }, async ({ page }) => {
         const channelMainPage = new ChannelMainPage(page);
