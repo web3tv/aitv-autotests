@@ -170,19 +170,19 @@ export class AuthFlow {
       ? options.wallet
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.clickWalletLoginBtn();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickWalletEntry();
 
-    const siweResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/siwe-login'),
+    const authStartResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/start'),
       { timeout: 15_000 }
     );
     await this.loginPage.clickWalletOption(walletType);
-    const siweRes = await siweResponse;
-    expect(siweRes.status(), `SIWE login returned ${siweRes.status()}`).toBe(200);
+    const authStartRes = await authStartResponse;
+    expect(authStartRes.status(), `auth/start returned ${authStartRes.status()}`).toBe(200);
 
-    // Wait for wallet auth to complete — backend verifies signature and redirects
-    // URL may include query params like ?showPopup=true
     await this.page.waitForURL((url) => url.pathname === '/');
     // await this.page.waitForResponse(
     //   (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
@@ -215,32 +215,20 @@ export class AuthFlow {
       ? options.wallet
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.clickWalletLoginBtn();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickWalletEntry();
 
-    // Register both promises BEFORE the click to avoid race conditions
-    const siweLoginResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/siwe-login'),
+    const authStartResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/start'),
       { timeout: 15_000 }
     );
-    const siweRegisterResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/siwe-register'),
-      { timeout: 15_000 }
-    );
-
     await this.loginPage.clickWalletOption(walletType);
-
-    const loginRes = await siweLoginResponse;
-    expect(loginRes.status(), `Expected siwe-login to return 400 for unregistered wallet, got ${loginRes.status()}`).toBe(400);
-
-    const registerRes = await siweRegisterResponse;
-    expect(registerRes.status(), `siwe-register failed with ${registerRes.status()}`).toBe(201);
+    const authStartRes = await authStartResponse;
+    expect(authStartRes.status(), `auth/start returned ${authStartRes.status()}`).toBe(200);
 
     await this.page.waitForURL((url) => url.pathname === '/');
-    // await this.page.waitForResponse(
-    //   (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
-    //   { timeout: 40_000 }
-    // );
 
     await expect(this.headerPage.userIcon, 'Profile button is not visible after auto-register via login').toBeVisible();
 

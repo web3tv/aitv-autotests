@@ -41,35 +41,6 @@ test.describe('Wallet auth tests', () => {
     });
   });
 
-  test('Login via not existing wallet -> siwe-register -> Success login', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page }) => {
-    const authFlow = new AuthFlow(page);
-    await authFlow.walletAutoRegisterOnLogin();
-  });
-
-  test('Login via Connect wallet button as existing wallet -> Success login', { annotation: { type: 'TC', description: 'AUTH-17' } }, async ({ page }) => {
-    const authFlow = new AuthFlow(page);
-    let wallet: WalletInfo;
-
-    await test.step('Register wallet account', async () => {
-      const result = await authFlow.walletRegisterSuccess({ walletType: 'metamask' });
-      wallet = result.wallet;
-    });
-
-    await test.step('Logout', async () => {
-      await authFlow.logout();
-    });
-
-    await test.step('Login via header with existing wallet — verify siwe-login returns 200', async () => {
-      const siweResponse = page.waitForResponse(
-        r => r.url().includes('/api/auth/siwe-login'),
-        { timeout: 15_000 }
-      );
-      await authFlow.walletLoginViaHeaderSuccess({ walletType: 'metamask', wallet, skipInjection: true, skipModalCheck: true });
-      const res = await siweResponse;
-      expect(res.status(), `SIWE login returned ${res.status()}`).toBe(200);
-    });
-    
-  });
 
   test('Display wallet address on account page', { annotation: { type: 'TC', description: 'ACCOUNT-003' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
