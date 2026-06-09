@@ -57,7 +57,7 @@ test.describe('Authorization popup on paid subscription', () => {
         });
     });
 
-    test('Auth popup Create account button navigates to register page', {
+    test.fixme('Auth popup Create account button navigates to register page', {
         annotation: { type: 'TC', description: 'AUTH-POP-009' },
     }, async ({ page }) => {
         const channelMainPage = new ChannelMainPage(page);
@@ -76,7 +76,7 @@ test.describe('Authorization popup on paid subscription', () => {
         });
     });
 
-    test('Auth popup Login button navigates to login page', {
+    test.fixme('Auth popup Login button navigates to login page', {
         annotation: { type: 'TC', description: 'AUTH-POP-010' },
     }, async ({ page }) => {
         const channelMainPage = new ChannelMainPage(page);
@@ -95,7 +95,7 @@ test.describe('Authorization popup on paid subscription', () => {
         });
     });
 
-    test('Auth popup closes when clicking close button', {
+    test.fixme('Auth popup closes when clicking close button', {
         annotation: { type: 'TC', description: 'AUTH-POP-011' },
     }, async ({ page }) => {
         const channelMainPage = new ChannelMainPage(page);

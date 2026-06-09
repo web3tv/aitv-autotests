@@ -13,7 +13,7 @@ test.describe.fixme('Handle validation on Edit Channel Page', { annotation: [{ t
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
         const password = process.env.USER_PASSWORD!;
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, password, user.username);
     });
 
@@ -98,7 +98,7 @@ test.describe.fixme('Handle validation on Edit Channel Page', { annotation: [{ t
 
     test('7. Username exists', async ({ page, request }) => {
         const authApi = new AuthApi(request);
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
 
         const username = user.username
         const sideBarPage = new SideBarPage(page)
@@ -134,7 +134,7 @@ test.describe('Handle validation on Create Channel Page', { annotation: [{ type:
         const authFlow = new AuthFlow(page);
         const password = process.env.USER_PASSWORD!;
 
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, password, user.username);
         await headerPage.clickUserIcon();
         await userDropdownPage.clickAddChannelBtn();
@@ -205,7 +205,7 @@ test.describe('Handle validation on Create Channel Page', { annotation: [{ type:
     
     test('7. Username exists', async ({ page, request }) => {
         const authApi = new AuthApi(request);
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         const username = user.username
         const createChannelPage = new CreateChannelPage(page)
         

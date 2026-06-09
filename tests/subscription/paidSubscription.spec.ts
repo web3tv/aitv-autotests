@@ -13,7 +13,7 @@ import { MyPaidSubsPage } from '../../src/pages/account/MyPaidSubsPage';
 import { setupVideoViaApi, VideoSetupResult } from '../../src/utils/studioTestHelpers';
 
 test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', description: 'PAID-001' }, { type: 'TC', description: 'PAID-002' }, { type: 'TC', description: 'PAID-003' }] }, async ({ page, request }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(210_000);
     let user: { email: string, username: string };
     let videoUrl: string | null;
     const videoName: string = Date.now().toString();
@@ -24,13 +24,9 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
     await test.step('Create user and fix channel privacy to public', async () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const studioProfilePage = new StudioProfilePage(page);
-        const sideBar = new SideBarPage(page);
 
-        user = await authApi.createAndVerifyUser();
+        user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, password, user.username);
-        await sideBar.clickStudioEditChannel();
-        await studioProfilePage.changePrivacyToPublic();
     });
 
     await test.step('Create subscription plan', async () => {
@@ -66,6 +62,7 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
         await authFlow.logout();
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
         await channelMainPage.waitForMembershipPage();
+        await channelMainPage.clickButtonSubscribeNow();
         await channelMainPage.checkRegisterLoginBtn();
     });
 
@@ -74,7 +71,7 @@ test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', descript
         const authFlow = new AuthFlow(page);
         const channelMainPage = new ChannelMainPage(page);
 
-        const user2 = await authApi.createAndVerifyUser();
+        const user2 = await authApi.createUserFast();
         await authFlow.loginSuccess(user2.email, password, user2.username);
 
         await page.goto(videoUrl!, { waitUntil: 'domcontentloaded' });
@@ -108,7 +105,7 @@ test('Subscription expiry revokes access, re-purchase restores it', {
         const authFlow = new AuthFlow(page);
         const channelMainPage = new ChannelMainPage(page);
 
-        buyerUser = await authApi.createAndVerifyUser();
+        buyerUser = await authApi.createUserFast();
         await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
         await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });

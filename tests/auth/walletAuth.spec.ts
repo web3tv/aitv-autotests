@@ -70,7 +70,7 @@ test.describe('Wallet and email tests',()=>{
     const loginPage = new LoginPage(page);
 
     await test.step('Create user via API and login', async () => {
-      const user = await authApi.createAndVerifyUser();
+      const user = await authApi.createUserFast();
       await injectEthereumMock(page);
       await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });

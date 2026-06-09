@@ -38,7 +38,7 @@ test.fixme('Analytics page displays seeded statistics', {
     const helperEmails: string[] = [];
 
     await test.step('Create owner user and upload video', async () => {
-        const owner = await authApi.createAndVerifyUser();
+        const owner = await authApi.createUserFast();
         ownerEmail = owner.email;
         ownerUsername = owner.username;
 
@@ -55,7 +55,7 @@ test.fixme('Analytics page displays seeded statistics', {
 
     await test.step('Create helper users for likes and subscriptions', async () => {
         for (let i = 0; i < HELPER_USER_COUNT; i++) {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             helperEmails.push(user.email);
         }
     });
@@ -222,11 +222,10 @@ test('Analytics page shows empty state for user without statistics', {
     let ownerUsername: string;
 
     await test.step('Create fresh user and login', async () => {
-        const owner = await authApi.createAndVerifyUser();
+        const owner = await authApi.createUserFast();
         ownerEmail = owner.email;
         ownerUsername = owner.username;
 
-        await page.goto('/');
         await authFlow.loginSuccess(ownerEmail, process.env.USER_PASSWORD!, ownerUsername);
     });
 

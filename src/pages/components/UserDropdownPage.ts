@@ -28,7 +28,7 @@ export class UserDropdownPage {
         await expect(this.createChannelBtn, 'Add Channel button is not enabled').toBeEnabled();
         await this.createChannelBtn.click();
         await this.page.waitForURL('**/create-channel');
-        await expect(this.page.getByText('Create Your Web3.TV ChannelSet')).toBeVisible();
+        await expect(this.page.getByText('Create Your Ai.tv Channel')).toBeVisible();
     }
 
     async clickLogoutBtn(){

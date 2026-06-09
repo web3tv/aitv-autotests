@@ -10,7 +10,7 @@ test.describe('Login tests', () => {
     test('Success login as user', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-001' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
 
         await test.step('Open login popup and enter credentials', async () => {
             await authFlow.loginViaPopup(user.email, process.env.USER_PASSWORD!, user.username);
@@ -20,7 +20,7 @@ test.describe('Login tests', () => {
     test('Success logout', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-004' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
 
         await test.step('Login via popup', async () => {
             await authFlow.loginViaPopup(user.email, process.env.USER_PASSWORD!, user.username);
@@ -34,7 +34,7 @@ test.describe('Login tests', () => {
     test('Can`t login with incorrect password', { annotation: { type: 'TC', description: 'AUTH-002' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
 
         await test.step('Open popup and submit wrong password', async () => {
             await authFlow.passwordErrorViaPopup(user.email, 'Admin1@');
@@ -63,7 +63,7 @@ test.describe('Registration tests', () => {
     test('Register and verify user via API, then login via popup', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-006' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
 
         await test.step('Login via popup with API-created user', async () => {
             await authFlow.loginViaPopup(user.email, process.env.USER_PASSWORD!, user.username);

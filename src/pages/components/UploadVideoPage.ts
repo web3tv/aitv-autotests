@@ -40,7 +40,7 @@ export class UploadVideoPage {
     this.descriptionEditor = page.getByRole('dialog').locator('[data-id="description"] .ql-editor');
     this.videoCategoryDropdown = page.getByRole('combobox', { name: 'Choose value' });
     this.videoCategory = page.getByText('Documentaries');
-    this.videoGenreDropdown = page.locator('[id="_r_o_"]');
+    this.videoGenreDropdown = page.locator('p:has-text("Genres added")').locator('xpath=..').getByRole('combobox');
     this.videoGenreAction = page.getByRole('option', { name: 'Action' });
     this.videoGenreAdventure = page.getByRole('option', { name: 'Adventure' });
     this.videoGenreBiographical = page.getByRole('option', { name: 'Biographical' });

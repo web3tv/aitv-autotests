@@ -6,7 +6,7 @@ test('Login via Telegram (mocked OAuth)', { annotation: { type: 'TC', descriptio
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
 
-  const user = await authApi.createAndVerifyUser();
+  const user = await authApi.createUserFast();
 
   await test.step('Login via Telegram with mocked OAuth flow', async () => {
     await authFlow.telegramLoginSuccess(user);

@@ -48,6 +48,33 @@ export class UploadVideoFlow {
     }
 
  
+    async uploadVideoToForm(pathToFileURL: string, videoName: string) {
+        await ensureOnStudioDomain(this.page);
+        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickNewVideoBtn();
+        await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
+        const initResponsePromise = this.uploadVideoPage.page.waitForResponse(
+            (response) =>
+                response.url().includes('/api/videos/upload/init') &&
+                response.status() === 200,
+            { timeout: 40000 }
+        );
+        const studioResponsePromise = this.uploadVideoPage.page.waitForResponse(
+            async (response) => {
+                if (!response.url().includes('/api/videos/studio-videos') || response.status() !== 200) {
+                    return false;
+                }
+                const body = await response.json();
+                return Boolean(body?.data?.items?.[0]);
+            },
+            { timeout: 60000 }
+        );
+        await this.uploadVideoPage.uploadVideo(pathToFileURL);
+        await initResponsePromise;
+        await studioResponsePromise;
+        await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
+    }
+
     async uploadShort(pathToFileURL:string,videoName:string){
         await ensureOnStudioDomain(this.page);
         await this.headerPage.clickAddVideoBtn();

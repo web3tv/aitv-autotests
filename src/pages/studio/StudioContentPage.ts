@@ -13,6 +13,7 @@ export class StudioContentPage {
     readonly videosTab: Locator;
     readonly liveTab: Locator;
     readonly seriesTab: Locator;
+    readonly firstVideoLink: Locator;
     readonly searchInput: Locator;
     readonly videoRows: Locator;
 
@@ -20,10 +21,11 @@ export class StudioContentPage {
         this.page = page;
 
         this.firstVideoRaw = this.page.locator('[data-testid="video-row"]').first();
+        this.firstVideoLink = this.firstVideoRaw.locator('a[aria-label]');
         this.firstVideoDescription = this.firstVideoRaw.locator('[data-id="video"]');
-        this.firstVideoVisibility = this.firstVideoRaw.locator('[data-id="visibility"]');
+        this.firstVideoVisibility = this.page.locator('[data-id="privacy-badge"]').first();
         this.firstVideoStatus = this.firstVideoRaw.locator('[data-id="date"]').first();
-        this.firstVideoStatusIcon = this.firstVideoRaw.locator('.MuiBox-root > svg');
+        this.firstVideoStatusIcon = this.page.locator('[data-id="upload-status-badge"]').first();
 
         this.shortsTab = this.page.locator('[data-id="segmented-control-shorts"]');
         this.videosTab = this.page.locator('[data-id="segmented-control-movies"]');
@@ -50,9 +52,11 @@ export class StudioContentPage {
 
 
 
-    async getFirstVideoUrl(){
-        const href = await this.firstVideoRaw.locator('[data-id="video"] a').getAttribute('href');
-        return href
+    async getFirstVideoUrl(): Promise<string> {
+        await expect(this.firstVideoLink, 'First video link is not visible').toBeVisible();
+        const href = await this.firstVideoLink.getAttribute('href');
+        if (!href) throw new Error('First video link has no href');
+        return href;
     }
 
 

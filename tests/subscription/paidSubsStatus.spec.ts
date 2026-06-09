@@ -36,7 +36,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
 
         await test.step('Create buyer user, get API token and login via UI', async () => {
             const authFlow = new AuthFlow(page);
-            buyerUser = await authApi.createAndVerifyUser();
+            buyerUser = await authApi.createUserFast();
             buyerToken = await authApi.getUserToken(buyerUser.email, password);
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
         });
@@ -94,7 +94,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             const authFlow = new AuthFlow(page);
             const channelMainPage = new ChannelMainPage(page);
 
-            const buyerUser = await authApi.createAndVerifyUser();
+            const buyerUser = await authApi.createUserFast();
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -126,7 +126,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             const authFlow = new AuthFlow(page);
             const channelMainPage = new ChannelMainPage(page);
 
-            buyerUser = await authApi.createAndVerifyUser();
+            buyerUser = await authApi.createUserFast();
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -163,7 +163,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             const authFlow = new AuthFlow(page);
             const channelMainPage = new ChannelMainPage(page);
 
-            buyerUser = await authApi.createAndVerifyUser();
+            buyerUser = await authApi.createUserFast();
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -197,7 +197,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             const authFlow = new AuthFlow(page);
             const channelMainPage = new ChannelMainPage(page);
 
-            buyerUser = await authApi.createAndVerifyUser();
+            buyerUser = await authApi.createUserFast();
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });

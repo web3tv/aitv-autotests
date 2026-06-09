@@ -82,7 +82,7 @@ test.fixme('Email user without wallet sees add wallet popup on Convert to NFT',
         const password = process.env.USER_PASSWORD!;
 
         await test.step('Create email user and login', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             await authFlow.loginSuccess(user.email, password, user.username);
         });
 

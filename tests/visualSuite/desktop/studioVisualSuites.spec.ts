@@ -29,7 +29,7 @@ test.describe('Studio visual tests', () => {
         const videoApi = new VideoApi(requestContext);
         password = process.env.USER_PASSWORD!;
 
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         userEmail = user.email;
 
         const token = await authApi.getUserToken(user.email, password);

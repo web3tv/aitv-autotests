@@ -81,7 +81,7 @@ test.describe('Handle validation on registration page', { annotation: [{ type: '
 
   test('6. Handle exists', async ({ page, request }) => {
     const authApi = new AuthApi(request);
-    const user = await authApi.createAndVerifyUser();
+    const user = await authApi.createUserFast();
 
     const loginPopupPage = new LoginPopupPage(page);
     await loginPopupPage.chooseHandleInput.fill(user.username);

@@ -21,7 +21,7 @@ test.describe('Video chapters — English video', () => {
         const videoApi = new VideoApi(request);
         const password = process.env.USER_PASSWORD!;
 
-        user = await authApi.createAndVerifyUser();
+        user = await authApi.createUserFast();
         token = await authApi.getUserToken(user.email, password);
 
         videoTitle = `Chapters_${Date.now()}`;
@@ -153,7 +153,7 @@ test.describe('Video chapters — Short video', () => {
         let token: string;
 
         await test.step('Create user and upload short video', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             token = await authApi.getUserToken(user.email, password);
 
             const video = await videoApi.uploadVideo(token, SHORT_VIDEO_PATH, {
