@@ -1,39 +1,16 @@
 import { APIRequestContext } from "@playwright/test";
 import { DataGenerator } from "../utils/dataGenerator";
+import { MailTmHelper } from "../utils/mailTmHelper";
 import * as crypto from "node:crypto";
 
+const OAUTH_CLIENT_ID = "fa281fa9-ea9c-467e-a0f1-776876c3ad76";
+const MAILTM_PASSWORD = "StrongPass123!";
 
 export class AuthApi {
     constructor(
     private request: APIRequestContext,
     private baseUrl = process.env.API_URL,
-    private emailDomain = process.env.EMAIL_DOMAIN ?? "web3tv.com"
     ) {}
-
-    async createUser() {
-        const { username, email } = DataGenerator.generateEmail(this.emailDomain);
-
-        const response = await this.request.post(`${this.baseUrl}/user/`, {
-        headers: { "Content-Type": "application/json" },
-        data: {
-            email,
-            username,
-            plain_password: "Admin1@@",
-        },
-        });
-
-        if (!response.ok()) {
-        throw new Error(`❌ Failed to create user: ${response.status()}`);
-        }
-
-        const json = await response.json();
-
-        return {
-        id: json.id,
-        email,
-        username,
-        };
-    }
 
     async getAdminToken() {
         const adminUsername = process.env.USER_LOGIN_ADMIN!;
@@ -46,7 +23,7 @@ export class AuthApi {
             .digest("base64url");
 
         const authorize = await this.request.post(
-            `${this.baseUrl}/auth/authorize?client_id=fa281fa9-ea9c-467e-a0f1-776876c3ad76` +
+            `${this.baseUrl}/auth/authorize?client_id=${OAUTH_CLIENT_ID}` +
             `&response_type=json&code_challenge=${challenge}&code_challenge_method=S256&scope=user`,
             {
             headers: { "Content-Type": "application/json" },
@@ -60,14 +37,12 @@ export class AuthApi {
             throw new Error("❌ Admin authorize failed: no auth code returned");
         }
 
-        const code = authJson.code;
-
         const tokenRes = await this.request.post(`${this.baseUrl}/auth/token`, {
             headers: { "Content-Type": "application/json" },
             data: {
             grant_type: "authorization_code",
-            client_id: "fa281fa9-ea9c-467e-a0f1-776876c3ad76",
-            code,
+            client_id: OAUTH_CLIENT_ID,
+            code: authJson.code,
             code_verifier: verifier
             }
         });
@@ -89,7 +64,7 @@ export class AuthApi {
             .digest("base64url");
 
         const authorize = await this.request.post(
-            `${this.baseUrl}/auth/authorize?client_id=fa281fa9-ea9c-467e-a0f1-776876c3ad76` +
+            `${this.baseUrl}/auth/authorize?client_id=${OAUTH_CLIENT_ID}` +
             `&response_type=json&code_challenge=${challenge}&code_challenge_method=S256&scope=user`,
             {
             headers: { "Content-Type": "application/json" },
@@ -107,7 +82,7 @@ export class AuthApi {
             headers: { "Content-Type": "application/json" },
             data: {
             grant_type: "authorization_code",
-            client_id: "fa281fa9-ea9c-467e-a0f1-776876c3ad76",
+            client_id: OAUTH_CLIENT_ID,
             code: authJson.code,
             code_verifier: verifier
             }
@@ -122,27 +97,73 @@ export class AuthApi {
         return tokenJson.access_token;
     }
 
-    async verifyUser(id: string, email: string, adminToken: string) {
-        const response = await this.request.patch(`${this.baseUrl}/admin/user/${id}`, {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminToken}`,
-        },
-        data: {
-            email,
-            roles: ["ROLE_USER_VERIFIED"],
-        },
-        });
+    async createAndVerifyUser() {
+        const mailTm = new MailTmHelper(this.request);
+        const email = await mailTm.generateEmail();
+        await mailTm.createMailbox();
+        const mailToken = await mailTm.getToken(email, MAILTM_PASSWORD);
 
-        if (!response.ok()) {
-        throw new Error(`❌ Failed to verify user: ${response.status()}`);
-        }
+        const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
+            headers: { "Content-Type": "application/json" },
+            data: { method: "email", identifier: email, clientId: OAUTH_CLIENT_ID },
+        });
+        if (!startRes.ok()) throw new Error(`❌ /auth/start failed: ${startRes.status()}`);
+        const { otpChallengeId } = await startRes.json();
+
+        const messageId = await mailTm.waitForMessage(mailToken, "verification", 15, 3000);
+        const code = await mailTm.extractVerificationCode(messageId, mailToken);
+
+        const verifyRes = await this.request.post(`${this.baseUrl}/auth/verify`, {
+            headers: { "Content-Type": "application/json" },
+            data: { challengeId: otpChallengeId, code },
+        });
+        if (!verifyRes.ok()) throw new Error(`❌ /auth/verify failed: ${verifyRes.status()}`);
+        const { ticket } = await verifyRes.json();
+
+        const username = DataGenerator.generateUsername();
+        const completeRes = await this.request.post(`${this.baseUrl}/auth/complete`, {
+            headers: { "Content-Type": "application/json" },
+            data: { ticket, handle: username, password: process.env.USER_PASSWORD ?? "Admin1@@" },
+        });
+        if (!completeRes.ok()) throw new Error(`❌ /auth/complete failed: ${completeRes.status()}`);
+        const completeJson = await completeRes.json();
+
+        return {
+            email,
+            username: (completeJson.user?.username as string) ?? username,
+            mailToken,
+        };
     }
 
-    async createAndVerifyUser() {
-        const user = await this.createUser();
-        const adminToken = await this.getAdminToken();
-        await this.verifyUser(user.id, user.email, adminToken);
-        return user; 
+    async createUserFast(staticCode = '1111') {
+        const mailTm = new MailTmHelper(this.request);
+        const email = await mailTm.generateEmail();
+
+        const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
+            headers: { "Content-Type": "application/json" },
+            data: { method: "email", identifier: email, clientId: OAUTH_CLIENT_ID },
+        });
+        if (!startRes.ok()) throw new Error(`❌ /auth/start failed: ${startRes.status()}`);
+        const { otpChallengeId } = await startRes.json();
+
+        const verifyRes = await this.request.post(`${this.baseUrl}/auth/verify`, {
+            headers: { "Content-Type": "application/json" },
+            data: { challengeId: otpChallengeId, code: staticCode },
+        });
+        if (!verifyRes.ok()) throw new Error(`❌ /auth/verify failed: ${verifyRes.status()}`);
+        const { ticket } = await verifyRes.json();
+
+        const username = DataGenerator.generateUsername();
+        const completeRes = await this.request.post(`${this.baseUrl}/auth/complete`, {
+            headers: { "Content-Type": "application/json" },
+            data: { ticket, handle: username, password: process.env.USER_PASSWORD ?? "Admin1@@" },
+        });
+        if (!completeRes.ok()) throw new Error(`❌ /auth/complete failed: ${completeRes.status()}`);
+        const completeJson = await completeRes.json();
+
+        return {
+            email,
+            username: (completeJson.user?.username as string) ?? username,
+        };
     }
 }

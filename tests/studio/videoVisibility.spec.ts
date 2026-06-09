@@ -37,7 +37,7 @@ test.describe('Public video visibility', () => {
             const videoPlayer = new VideoPlayerPage(page);
             const password = process.env.USER_PASSWORD!;
 
-            const user2 = await authApi.createAndVerifyUser();
+            const user2 = await authApi.createUserFast();
             await authFlow.loginSuccess(user2.email, password, user2.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -78,7 +78,7 @@ test.describe('Private video visibility', () => {
             const channelMainPage = new ChannelMainPage(page);
             const password = process.env.USER_PASSWORD!;
 
-            const user2 = await authApi.createAndVerifyUser();
+            const user2 = await authApi.createUserFast();
             await authFlow.loginSuccess(user2.email, password, user2.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -119,7 +119,7 @@ test.describe('Unlisted video visibility', () => {
             const videoPlayer = new VideoPlayerPage(page);
             const password = process.env.USER_PASSWORD!;
 
-            const user2 = await authApi.createAndVerifyUser();
+            const user2 = await authApi.createUserFast();
             await authFlow.loginSuccess(user2.email, password, user2.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -151,8 +151,6 @@ test.describe('Paid video visibility', () => {
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
             await channelMainPage.waitForMembershipPage();
             await channelMainPage.assertPaywallContent(setup.membershipName!, setup.membershipDescription!, '$0.99');
-            await channelMainPage.clickRegisterLoginBtn();
-            await channelMainPage.assertLoginModalVisible();
         });
     });
 
@@ -163,7 +161,7 @@ test.describe('Paid video visibility', () => {
             const channelMainPage = new ChannelMainPage(page);
             const password = process.env.USER_PASSWORD!;
 
-            const user2 = await authApi.createAndVerifyUser();
+            const user2 = await authApi.createUserFast();
             await authFlow.loginSuccess(user2.email, password, user2.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });

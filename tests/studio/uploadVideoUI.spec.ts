@@ -13,7 +13,7 @@ test('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 
     await test.step('Create user and login', async () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        user = await authApi.createAndVerifyUser();
+        user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
@@ -44,7 +44,7 @@ test('Upload short video', { annotation: { type: 'TC', description: 'UPLOAD-005'
     await test.step('Create user and login', async () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        user = await authApi.createAndVerifyUser();
+        user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
@@ -74,7 +74,7 @@ test('Publish video while still processing', { annotation: { type: 'TC', descrip
     await test.step('Create user and login', async () => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
@@ -83,14 +83,14 @@ test('Publish video while still processing', { annotation: { type: 'TC', descrip
         const studioContentPage = new StudioContentPage(page);
 
         await uploadWithChunkCheck(page, async () => {
-            await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4', '5secVideo');
+            await uploadVideoFlow.uploadVideo('test-data/fixtures/video/ENGLISH_VIDEO.mp4', 'ENGLISH_VIDEO');
             await uploadVideoFlow.fillInReqFileds(videoName);
         });
 
         await uploadVideoFlow.selectVisibility('public');
         await uploadVideoFlow.clickPublishBtn();
         await uploadVideoFlow.confirmVideoUploading('Public');
-        await studioContentPage.checkVideoStatus('processing');
+        await studioContentPage.checkVideoStatus('Pending...');
     });
 });
 
@@ -103,7 +103,7 @@ test('Upload video >50mb workflow', { annotation: { type: 'TC', description: 'UP
         const authFlow = new AuthFlow(page);
         const password = process.env.USER_PASSWORD!;
 
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, password, user.username);
     });
 

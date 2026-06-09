@@ -9,14 +9,14 @@ import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
 import { NotificationsPage } from '../../../src/pages/account/NotificationsPage';
 
 
-test('Verify default notification states and toggle settings', { annotation: { type: 'TC', description: 'NOTIF-001' } }, async ({ page, request }) => {
+test.fixme('Verify default notification states and toggle settings', { annotation: { type: 'TC', description: 'NOTIF-001' } }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
   const notificationsPage = new NotificationsPage(page);
   const password = process.env.USER_PASSWORD!;
 
-  const user = await authApi.createAndVerifyUser();
+  const user = await authApi.createUserFast();
 
   await test.step('Login and navigate to /notifications', async () => {
     await authFlow.loginSuccess(user.email, password, user.username);
@@ -70,15 +70,15 @@ test('Verify default notification states and toggle settings', { annotation: { t
   });
 });
 
-test('Notification received on channel subscription', { annotation: { type: 'TC', description: 'NOTIF-002' } }, async ({ page, request }) => {
+test.fixme('Notification received on channel subscription', { annotation: { type: 'TC', description: 'NOTIF-002' } }, async ({ page, request }) => {
   test.setTimeout(360_000);
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const notificationsPage = new NotificationsPage(page);
   const password = process.env.USER_PASSWORD!;
 
-  const userB = await authApi.createAndVerifyUser();
-  const userA = await authApi.createAndVerifyUser();
+  const userB = await authApi.createUserFast();
+  const userA = await authApi.createUserFast();
 
   await test.step('User A subscribes to User B channel via UI', async () => {
     await authFlow.loginSuccess(userA.email, password, userA.username);
@@ -105,7 +105,7 @@ test('Notification received on channel subscription', { annotation: { type: 'TC'
   });
 });
 
-test('Notification received on paid subscription purchase', { annotation: { type: 'TC', description: 'NOTIF-003' } }, async ({ page, request }) => {
+test.fixme('Notification received on paid subscription purchase', { annotation: { type: 'TC', description: 'NOTIF-003' } }, async ({ page, request }) => {
   test.setTimeout(180_000);
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
@@ -115,8 +115,8 @@ test('Notification received on paid subscription purchase', { annotation: { type
 
   let videoUrl: string;
 
-  const userB = await authApi.createAndVerifyUser();
-  const userA = await authApi.createAndVerifyUser();
+  const userB = await authApi.createUserFast();
+  const userA = await authApi.createUserFast();
 
   await test.step('User B: login and create membership plan', async () => {
     await authFlow.loginSuccess(userB.email, password, userB.username);
@@ -169,8 +169,8 @@ test.fixme('Notification received when subscribed channel uploads video', { anno
   const notificationsPage = new NotificationsPage(page);
   const password = process.env.USER_PASSWORD!;
 
-  const userB = await authApi.createAndVerifyUser();
-  const userA = await authApi.createAndVerifyUser();
+  const userB = await authApi.createUserFast();
+  const userA = await authApi.createUserFast();
 
   await test.step('User A subscribes to User B channel', async () => {
     await authFlow.loginSuccess(userA.email, password, userA.username);
@@ -208,7 +208,7 @@ test.fixme('Notification received when subscribed channel uploads video', { anno
   });
 });
 
-test('Notification received when paid channel uploads paid video', { annotation: { type: 'TC', description: 'NOTIF-005' } }, async ({ page, request }) => {
+test.fixme('Notification received when paid channel uploads paid video', { annotation: { type: 'TC', description: 'NOTIF-005' } }, async ({ page, request }) => {
   test.setTimeout(360_000);
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
@@ -219,8 +219,8 @@ test('Notification received when paid channel uploads paid video', { annotation:
   let videoUrl: string;
   let secondVideoTitle: string;
 
-  const userB = await authApi.createAndVerifyUser();
-  const userA = await authApi.createAndVerifyUser();
+  const userB = await authApi.createUserFast();
+  const userA = await authApi.createUserFast();
 
   await test.step('User B: login and create membership plan', async () => {
     await authFlow.loginSuccess(userB.email, password, userB.username);

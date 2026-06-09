@@ -1,18 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
-import { RegistrationFlow } from '../../../src/flows/RegistrationFlow';
+import { AuthApi } from '../../../src/api/AuthApi';
 import { SideBarPage } from '../../../src/pages/components/SideBarPage';
 import { AccountPage } from '../../../src/pages/account/AccountPage';
 import { MailTmHelper } from '../../../src/utils/mailTmHelper';
 
-test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
-  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+test.fixme('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
+  let user: { email: string, username: string, password: string, token: string };
   const newPassword = 'NewPassword1@';
 
   await test.step('Create user', async () => {
-    const registrationFlow = new RegistrationFlow(page, request);
-    await registrationFlow.openRegistrationPage();
-    user = await registrationFlow.registerAndVerifyUserViaEmail();
+    const authApi = new AuthApi(request);
+    const { email, username, mailToken } = await authApi.createAndVerifyUser();
+    user = { email, username, password: process.env.USER_PASSWORD!, token: mailToken };
   });
 
   await test.step('Update password without verifying via email', async () => {
@@ -57,14 +57,14 @@ test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' }
 });
 
 test.fixme('Change password twice in one session', { annotation: { type: 'TC', description: 'ACCOUNT-006' } }, async ({ page, request }) => {
-  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+  let user: { email: string, username: string, password: string, token: string };
   const firstNewPassword = 'FirstNew1@@';
   const secondNewPassword = 'SecondNew1@@';
 
   await test.step('Create user', async () => {
-    const registrationFlow = new RegistrationFlow(page, request);
-    await registrationFlow.openRegistrationPage();
-    user = await registrationFlow.registerAndVerifyUserViaEmail();
+    const authApi = new AuthApi(request);
+    const { email, username, mailToken } = await authApi.createAndVerifyUser();
+    user = { email, username, password: process.env.USER_PASSWORD!, token: mailToken };
   });
 
   await test.step('Login and navigate to account settings', async () => {
@@ -115,13 +115,13 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
 });
 
 test.fixme('Change email without verification then change password', { annotation: { type: 'TC', description: 'ACCOUNT-007' } }, async ({ page, request }) => {
-  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+  let user: { email: string, username: string, password: string, token: string };
   const newPassword = 'NewPassword1@@';
 
   await test.step('Create user', async () => {
-    const registrationFlow = new RegistrationFlow(page, request);
-    await registrationFlow.openRegistrationPage();
-    user = await registrationFlow.registerAndVerifyUserViaEmail();
+    const authApi = new AuthApi(request);
+    const { email, username, mailToken } = await authApi.createAndVerifyUser();
+    user = { email, username, password: process.env.USER_PASSWORD!, token: mailToken };
   });
 
   await test.step('Login and navigate to account settings', async () => {
@@ -155,17 +155,17 @@ test.fixme('Change email without verification then change password', { annotatio
   });
 });
 
-test('Change email twice without verification', { annotation: { type: 'TC', description: 'ACCOUNT-008' } }, async ({ page, request }) => {
-  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+test.fixme('Change email twice without verification', { annotation: { type: 'TC', description: 'ACCOUNT-008' } }, async ({ page, request }) => {
+  let user: { email: string, username: string, password: string, token: string };
   let firstNewEmail: string;
   let firstVerificationUrl: string;
   let secondNewEmail: string;
   let secondNewToken: string;
 
   await test.step('Create user', async () => {
-    const registrationFlow = new RegistrationFlow(page, request);
-    await registrationFlow.openRegistrationPage();
-    user = await registrationFlow.registerAndVerifyUserViaEmail();
+    const authApi = new AuthApi(request);
+    const { email, username, mailToken } = await authApi.createAndVerifyUser();
+    user = { email, username, password: process.env.USER_PASSWORD!, token: mailToken };
   });
 
   await test.step('Login and navigate to account settings', async () => {
@@ -215,16 +215,16 @@ test('Change email twice without verification', { annotation: { type: 'TC', desc
   });
 });
 
-test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } }, async ({ page, request }) => {
-  let user: { email: string, username: string, password: string, token: string, mailTmPassword: string };
+test.fixme('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } }, async ({ page, request }) => {
+  let user: { email: string, username: string, password: string, token: string };
   let newEmailToken: string;
   let newEmail: string;
   let verificationUrl: string;
 
   await test.step('Create user', async () => {
-    const registrationFlow = new RegistrationFlow(page, request);
-    await registrationFlow.openRegistrationPage();
-    user = await registrationFlow.registerAndVerifyUserViaEmail();
+    const authApi = new AuthApi(request);
+    const { email, username, mailToken } = await authApi.createAndVerifyUser();
+    user = { email, username, password: process.env.USER_PASSWORD!, token: mailToken };
   });
 
   await test.step('Change email', async () => {

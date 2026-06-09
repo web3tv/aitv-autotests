@@ -3,6 +3,8 @@ import * as crypto from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+const PROJECT_ROOT = path.resolve(__dirname, "../../");
+
 interface UploadedVideo {
     id: string;
     title: string;
@@ -40,7 +42,7 @@ export class VideoApi {
         const chainAbstraction = items.find(
             (c: { slug?: string }) => c?.slug === "chain-abstraction"
         );
-        const picked = chainAbstraction ?? items[0];
+        const picked = chainAbstraction ?? items[5];
 
         if (!picked?.id) {
             throw new Error(
@@ -123,7 +125,7 @@ export class VideoApi {
                     privacySettings: "public",
                     isDefault: true,
                     backgroundPictureId: null,
-                    defaultVideoDescription,
+                    defaultVideoDescription: `${defaultVideoDescription}`,
                 },
             }
         );
@@ -141,11 +143,12 @@ export class VideoApi {
         channelId: string,
         filePath: string
     ): Promise<{ id: string; videoPlayerFeUrl: string }> {
-        const stats = fs.statSync(filePath);
-        const filename = path.basename(filePath);
-        const ext = path.extname(filePath).toLowerCase();
+        const filePath_ = path.isAbsolute(filePath) ? filePath : path.resolve(PROJECT_ROOT, filePath);
+        const stats = fs.statSync(filePath_);
+        const filename = path.basename(filePath_);
+        const ext = path.extname(filePath_).toLowerCase();
         const mimeType = ext === ".mov" ? "video/quicktime" : "video/mp4";
-        const fileBuffer = fs.readFileSync(filePath);
+        const fileBuffer = fs.readFileSync(filePath_);
         const checksum = crypto.createHash("sha256").update(fileBuffer).digest("hex");
 
         const response = await this.request.post(`${this.baseUrl}/videos/`, {
@@ -180,7 +183,8 @@ export class VideoApi {
         videoId: string,
         filePath: string
     ): Promise<void> {
-        const fileBuffer = fs.readFileSync(filePath);
+        const filePath_ = path.isAbsolute(filePath) ? filePath : path.resolve(PROJECT_ROOT, filePath);
+        const fileBuffer = fs.readFileSync(filePath_);
         const size = fileBuffer.length;
 
         const md5Hash = crypto
@@ -247,8 +251,8 @@ export class VideoApi {
         }
     ): Promise<void> {
         const multipart: Record<string, string> = {};
-        multipart.title = options.title ?? `Video_${Date.now()}`;
-        multipart.description = options.description ?? `${Date.now()}`;
+        if (options.title) multipart.title = options.title;
+        if (options.description) multipart.description = options.description;
         const catId = options.categoryId ?? (await this.getDefaultCategoryId());
         multipart["categoryIds[0]"] = String(catId);
         if (options.privacySetting) multipart.privacySetting = options.privacySetting;
@@ -406,17 +410,14 @@ export class VideoApi {
     ): Promise<UploadedVideo> {
         const title = options.title ?? `Video_${Date.now()}`;
         const channelId = await this.getChannelId(token);
-        const resolvedFilePath = path.isAbsolute(filePath)
-            ? filePath
-            : path.resolve(__dirname, '../../', filePath);
 
         // 1. Init
-        const initResult = await this.initUpload(token, channelId, resolvedFilePath);
+        const initResult = await this.initUpload(token, channelId, filePath);
         const id = initResult.id;
         let videoPlayerFeUrl = initResult.videoPlayerFeUrl;
 
         // 2. Upload chunk (single chunk for files < 50MB)
-        await this.uploadChunk(token, id, resolvedFilePath);
+        await this.uploadChunk(token, id, filePath);
 
         // 3. Complete
         await this.completeUpload(token, id);
@@ -448,6 +449,34 @@ export class VideoApi {
         }
 
         return { id, title, channelId, videoPlayerFeUrl };
+    }
+
+    async getVideoViewCount(token: string, videoId: string): Promise<number> {
+        const response = await this.request.get(`${this.baseUrl}/videos/studio/`, {
+            headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+            params: { id: videoId },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to get video stats: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const items = json?.data?.items ?? json?.items;
+        return Number(items?.[0]?.statistics?.view_count ?? 0);
+    }
+
+    async getChannelViewCount(token: string): Promise<number> {
+        const response = await this.request.get(`${this.baseUrl}/channels`, {
+            headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+            params: { mine: 'true', maxResults: '50' },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to get channel stats: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const channel = json?.data?.items?.[0] ?? json?.items?.[0];
+        return Number(channel?.statistics?.view_count ?? 0);
     }
 
     async getNotifications(token: string): Promise<any[]> {

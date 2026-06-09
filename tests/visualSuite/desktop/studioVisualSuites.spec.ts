@@ -9,8 +9,8 @@ const mainBaseUrl = process.env.BASE_URL || 'https://web3tv.dev';
 async function loginOnMainDomain(page: import('@playwright/test').Page, email: string, password: string) {
     const loginPage = new LoginPage(page);
 
-    await page.goto(`${mainBaseUrl}/login`);
-    await page.waitForLoadState('networkidle');
+    // await page.goto(`${mainBaseUrl}/login`);
+    // await page.waitForLoadState('networkidle');
     await loginPage.fillEmailInput(email);
     await loginPage.fillPasswordInput(password);
     await loginPage.clickLoginBtn();
@@ -29,7 +29,7 @@ test.describe('Studio visual tests', () => {
         const videoApi = new VideoApi(requestContext);
         password = process.env.USER_PASSWORD!;
 
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         userEmail = user.email;
 
         const token = await authApi.getUserToken(user.email, password);

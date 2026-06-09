@@ -7,6 +7,9 @@ import { Page } from '@playwright/test';
 import { MailTmHelper } from "../utils/mailTmHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
+import { TestPopupsPage } from "../pages/testPopups/TestPopupsPage";
+import { LoginPopupPage } from "../pages/testPopups/LoginPopupPage";
+import { DataGenerator } from "../utils/dataGenerator";
 
 
 export class AuthFlow {
@@ -16,6 +19,8 @@ export class AuthFlow {
   readonly headerPage: HeaderPage;
   readonly userDropdownPage: UserDropdownPage;
   readonly forgotPasswordPage: ForgotPasswordPage;
+  readonly testPopupsPage: TestPopupsPage;
+  readonly loginPopupPage: LoginPopupPage;
 
   constructor(public page: Page) {
     this.loginPage = new LoginPage(page);
@@ -23,41 +28,53 @@ export class AuthFlow {
     this.headerPage = new HeaderPage(page);
     this.userDropdownPage = new UserDropdownPage(page);
     this.forgotPasswordPage = new ForgotPasswordPage(page);
+    this.testPopupsPage = new TestPopupsPage(page);
+    this.loginPopupPage = new LoginPopupPage(page);
   }
 
   async loginSuccess (email:string,password:string,username:string,device?: 'mobile' | 'desktop') {
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
-    await this.loginPage.clickLoginBtn();
-    await this.loginPage.page.waitForURL('/')
-    await this.loginPage.page.waitForResponse('/api/users/whoami',{timeout:40_000})
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForURL('/');
+    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
     if (device === 'mobile') {
-      await expect(this.loginPage.page.locator('[data-id="user-avatar"]')).toBeVisible();
-    }
-    else{
+      await expect(this.page.locator('[data-id="user-avatar"]')).toBeVisible();
+    } else {
       await this.assertLoggedInAs(username);
     }
   }
 
   async loginFailed (email:string,password:string,device?: 'mobile' | 'desktop') {
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
-    await this.loginPage.clickLoginBtn();
-    await this.page.waitForResponse((response) =>
-            response.url().includes('/api/auth/login') &&
-            response.status() === 400,
-            { timeout: 40000 }
-        );
-    await expect(this.page.locator('form')).toContainText('Invalid password. Please re-enter another password.');
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForResponse(
+      (response) => response.url().includes('/api/auth/login') && response.status() === 400,
+      { timeout: 40_000 }
+    );
+    await expect(this.page.locator('body')).toContainText('Invalid password. Please re-enter another password.');
   }
 
   async loginWith2FaFailed(email:string,password:string){
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
-    await this.loginPage.clickLoginBtn();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
     await expect(this.page.locator('body')).toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 1' }).fill('2');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 2' }).fill('2');
@@ -72,11 +89,15 @@ export class AuthFlow {
 
   async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
     const mailTmHelper = new MailTmHelper(this.page.request);
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
     const requestedAt = Date.now();
-    await this.loginPage.clickLoginBtn();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
     await expect(this.page.locator('body')).toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
     const messageId = await mailTmHelper.waitForMessage(token, 'Authentication Code', 10, 3000, requestedAt);
     const [d1, d2, d3, d4] = await mailTmHelper.extract2FACode(messageId,token);
@@ -96,10 +117,14 @@ export class AuthFlow {
   }
 
   async submitForgotPasswordRequest(email: string) {
-    await this.loginPage.visitLoginPage();
-    await this.forgotPasswordPage.openForm();
-    await this.forgotPasswordPage.fillEmail(email);
-    await this.forgotPasswordPage.submitRequest();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.clickResetPassword();
+    await this.loginPopupPage.clickForgotContinue();
   }
 
   async prepareResetPasswordForm(resetUrl: string) {
@@ -135,20 +160,25 @@ export class AuthFlow {
   }
 
   async passwordError (email:string,password:string) {
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
-    await this.loginPage.clickLoginBtn();
-    await expect(this.loginPage.page.locator('form')).toContainText('Invalid password. Please re-enter another password.');
-    expect(this.loginPage.page.waitForURL('/login'));
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await expect(this.page.locator('body')).toContainText('Invalid password. Please re-enter another password.');
   }
 
-  async usernameError (email:string, password:string) {
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.removeFocusFromElement();
-    await expect(this.loginPage.page.locator('form')).toContainText('Username not found. Try another one.');
-    expect(this.loginPage.page.waitForURL('/login'));
+  async usernameError (email:string) {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await expect(this.page.locator('body')).toContainText('Username not found. Try another one.');
   }
 
   /**
@@ -163,19 +193,19 @@ export class AuthFlow {
       ? options.wallet
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.clickWalletLoginBtn();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickWalletEntry();
 
-    const siweResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/siwe-login'),
+    const authStartResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/start'),
       { timeout: 15_000 }
     );
     await this.loginPage.clickWalletOption(walletType);
-    const siweRes = await siweResponse;
-    expect(siweRes.status(), `SIWE login returned ${siweRes.status()}`).toBe(200);
+    const authStartRes = await authStartResponse;
+    expect(authStartRes.status(), `auth/start returned ${authStartRes.status()}`).toBe(200);
 
-    // Wait for wallet auth to complete — backend verifies signature and redirects
-    // URL may include query params like ?showPopup=true
     await this.page.waitForURL((url) => url.pathname === '/');
     // await this.page.waitForResponse(
     //   (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
@@ -208,32 +238,20 @@ export class AuthFlow {
       ? options.wallet
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
-    await this.loginPage.visitLoginPage();
-    await this.loginPage.clickWalletLoginBtn();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickWalletEntry();
 
-    // Register both promises BEFORE the click to avoid race conditions
-    const siweLoginResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/siwe-login'),
+    const authStartResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/start'),
       { timeout: 15_000 }
     );
-    const siweRegisterResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/siwe-register'),
-      { timeout: 15_000 }
-    );
-
     await this.loginPage.clickWalletOption(walletType);
-
-    const loginRes = await siweLoginResponse;
-    expect(loginRes.status(), `Expected siwe-login to return 400 for unregistered wallet, got ${loginRes.status()}`).toBe(400);
-
-    const registerRes = await siweRegisterResponse;
-    expect(registerRes.status(), `siwe-register failed with ${registerRes.status()}`).toBe(201);
+    const authStartRes = await authStartResponse;
+    expect(authStartRes.status(), `auth/start returned ${authStartRes.status()}`).toBe(200);
 
     await this.page.waitForURL((url) => url.pathname === '/');
-    // await this.page.waitForResponse(
-    //   (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
-    //   { timeout: 40_000 }
-    // );
 
     await expect(this.headerPage.userIcon, 'Profile button is not visible after auto-register via login').toBeVisible();
 
@@ -248,35 +266,34 @@ export class AuthFlow {
    */
   async walletRegisterSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<{ wallet: WalletInfo; username: string }> {
     const walletType = options?.walletType ?? 'metamask';
-    // Inject mock BEFORE navigating to the register page (skip if already injected in this page context)
     const wallet = options?.skipInjection && options.wallet
       ? options.wallet
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
-    await this.page.goto('/register');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickWalletEntry();
 
-    const username = await this.loginPage.fillUsernameInput();
-    await this.loginPage.clickCheckbox();
-    await this.loginPage.clickRegisterWalletBtn();
-    await this.loginPage.clickWalletOption(walletType);
-
-    // Wait for wallet auth to complete — backend verifies signature and redirects
-    await this.page.waitForURL((url) => url.pathname === '/');
-
-    // Assert the "set up alternative login method" modal
-    const addEmailModal = this.page.locator('[data-id="add-email-modal"]');
-    await expect(addEmailModal, 'Add email modal is not visible after wallet registration').toBeVisible({ timeout: 10_000 });
-    await expect(addEmailModal, 'Add email modal text is incorrect').toContainText(
-      'To recover your profile and set up an alternative login method, you can add an email address and password in your account settings.'
+    const authStartPromise = this.page.waitForResponse(
+      (res) => res.url().includes('/api/auth/start'),
+      { timeout: 15_000 }
     );
-    await expect(this.page.getByRole('button', { name: 'Cancel' }), 'Cancel button is not visible').toBeVisible();
-    await expect(this.page.locator('[data-id="open-settings"]'), 'Open Settings button is not visible').toBeVisible();
+    await this.loginPage.clickWalletOption(walletType);
+    await authStartPromise;
 
-    // Dismiss modal
-    await this.page.getByRole('button', { name: 'Cancel' }).click();
+    const username = DataGenerator.generateUsername();
+    await this.loginPopupPage.fillChooseHandle(username);
+    await this.loginPopupPage.clickFinish();
 
-    await this.assertLoggedInAs(wallet.address);
+    const whoamiPromise = this.page.waitForResponse(
+      (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
+      { timeout: 40_000 }
+    );
+    await this.page.waitForURL((url) => url.pathname === '/');
+    await whoamiPromise;
+
+    await this.assertLoggedInAs(username);
 
     return { wallet, username };
   }
@@ -369,10 +386,10 @@ export class AuthFlow {
       }
     });
 
-    await this.loginPage.visitLoginPage();
-    await expect(this.loginPage.telegramLoginBtn, 'Telegram login button is not visible').toBeVisible();
-    await expect(this.loginPage.telegramLoginBtn, 'Telegram login button is not enabled').toBeEnabled();
-    await this.loginPage.telegramLoginBtn.click();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickTelegramEntry();
 
     // Wait for the mock redirect chain: Telegram → callback → socialAuth → router.push('/')
     await this.page.waitForURL((url) => url.pathname === '/', { timeout: 30_000 });
@@ -423,7 +440,80 @@ export class AuthFlow {
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();
     await expect(this.page).toHaveURL('/');
-    await expect(this.headerPage.loginBtn, 'Login button should be visible after logout').toBeVisible();
-    await expect(this.headerPage.signUpBtn, 'Sign Up button should be visible after logout').toBeVisible();
+    await expect(this.headerPage.getStartedBtn, 'GetStarted button should be visible after logout').toBeVisible();
+  }
+
+  async loginViaPopup(email: string, password: string, username: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForURL('/');
+    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
+    await this.assertLoggedInAs(username);
+  }
+
+  async loginFailedViaPopup(email: string, password: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForResponse(
+      r => r.url().includes('/api/auth/login') && r.status() === 400,
+      { timeout: 40_000 }
+    );
+  }
+
+  async passwordErrorViaPopup(email: string, password: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await expect(
+      this.page.locator('body'),
+      'Error message not visible in popup'
+    ).toContainText('Invalid password. Please re-enter another password.', { timeout: 10_000 });
+  }
+
+  async emailNotFoundViaPopup(email: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await expect(
+      this.page.locator('body'),
+      'Error message not visible in popup'
+    ).toContainText('not found', { timeout: 10_000 });
+  }
+
+  async submitForgotPasswordViaPopup(email: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.clickResetPassword();
+    await this.loginPopupPage.clickForgotContinue();
+  }
+
+  async completeResetPasswordViaPopup(code: string, newPassword: string): Promise<void> {
+    await this.loginPopupPage.fillCode(code);
+    await this.loginPopupPage.fillCreatePassword(newPassword);
+    await this.loginPopupPage.clickSetNewPassword();
   }
 }

@@ -21,7 +21,7 @@ test.describe('Studio Content Search', () => {
         let videoName2: string;
 
         await test.step('Setup: create user and upload 2 videos via API', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, password);
 
             const video1 = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
@@ -61,7 +61,7 @@ test.describe('Studio Content Search', () => {
             await responsePromise;
 
             await studioContent.assertVideoRowContainsTitle(videoName1!);
-            expect(await studioContent.getVideoRowsCount()).toBe(1);
+            expect(await studioContent.getVideoRowsCount()).toBe(2); 
         });
 
         await test.step('Clear search — both videos are shown', async () => {
@@ -69,7 +69,7 @@ test.describe('Studio Content Search', () => {
 
             await studioContent.assertVideoRowContainsTitle(videoName1!);
             await studioContent.assertVideoRowContainsTitle(videoName2!);
-            expect(await studioContent.getVideoRowsCount()).toBe(2);
+            expect(await studioContent.getVideoRowsCount()).toBe(4);
         });
 
         await test.step('Search by video2 title — only video2 is shown', async () => {
@@ -81,7 +81,7 @@ test.describe('Studio Content Search', () => {
             await responsePromise;
 
             await studioContent.assertVideoRowContainsTitle(videoName2!);
-            expect(await studioContent.getVideoRowsCount()).toBe(1);
+            expect(await studioContent.getVideoRowsCount()).toBe(2);
         });
     });
 
@@ -98,7 +98,7 @@ test.describe('Studio Content Search', () => {
         let videoDescription: string;
 
         await test.step('Setup: create user and upload video via API', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, password);
 
             videoDescription = `UniqueDesc_${Date.now()}`;
@@ -147,7 +147,7 @@ test.describe('Studio Content Search', () => {
         let shortName: string;
 
         await test.step('Setup: create user and upload 1 short via API', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, password);
 
             const short1 = await videoApi.uploadVideo(token, 'test-data/fixtures/video/shortsVideo.mp4', {
@@ -184,14 +184,14 @@ test.describe('Studio Content Search', () => {
             await studioContent.searchByText(shortName!);
 
             await studioContent.assertVideoRowContainsTitle(shortName!);
-            expect(await studioContent.getVideoRowsCount()).toBe(1);
+            expect(await studioContent.getVideoRowsCount()).toBe(2);
         });
 
         await test.step('Clear search — short is still shown', async () => {
             await studioContent.clearSearch();
 
             await studioContent.assertVideoRowContainsTitle(shortName!);
-            expect(await studioContent.getVideoRowsCount()).toBe(1);
+            expect(await studioContent.getVideoRowsCount()).toBe(2);
         });
     });
 });

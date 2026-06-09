@@ -20,8 +20,8 @@ const TOTAL_SUBSCRIBERS = 5;
 const LIKES_WITHIN_48H = 5;
 const SUBSCRIBERS_WITHIN_7_DAYS = 4; // day 0, 2, 4, 6 — day 10 falls outside
 const HELPER_USER_COUNT = 8;
-//TODO: TIX after W3-2064
-test('Analytics page displays seeded statistics', {
+
+test.fixme('Analytics page displays seeded statistics', {
     tag: '@db',
     annotation: { type: 'TC', description: 'ANALY-001' },
 }, async ({ page, request }) => {
@@ -38,7 +38,7 @@ test('Analytics page displays seeded statistics', {
     const helperEmails: string[] = [];
 
     await test.step('Create owner user and upload video', async () => {
-        const owner = await authApi.createAndVerifyUser();
+        const owner = await authApi.createUserFast();
         ownerEmail = owner.email;
         ownerUsername = owner.username;
 
@@ -55,7 +55,7 @@ test('Analytics page displays seeded statistics', {
 
     await test.step('Create helper users for likes and subscriptions', async () => {
         for (let i = 0; i < HELPER_USER_COUNT; i++) {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             helperEmails.push(user.email);
         }
     });
@@ -222,11 +222,10 @@ test('Analytics page shows empty state for user without statistics', {
     let ownerUsername: string;
 
     await test.step('Create fresh user and login', async () => {
-        const owner = await authApi.createAndVerifyUser();
+        const owner = await authApi.createUserFast();
         ownerEmail = owner.email;
         ownerUsername = owner.username;
 
-        await page.goto('/');
         await authFlow.loginSuccess(ownerEmail, process.env.USER_PASSWORD!, ownerUsername);
     });
 

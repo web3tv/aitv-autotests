@@ -42,49 +42,39 @@ export class StudioAnalyticsPage {
     constructor(page: Page) {
         this.page = page;
 
-        // Summary cards — labels are <span> with CSS text-transform: uppercase
-        // DOM text: "Views" / "Subscribers" (not "VIEWS" / "SUBSCRIBERS")
-        this.viewsLabel = page.locator('span').filter({ hasText: /^Views$/ }).first();
-        // count <p> is sibling of the icon+label wrapper (parent of span)
-        this.viewsCount = this.viewsLabel.locator('xpath=../following-sibling::p[1]');
-        // card = grandparent of span (contains icon+label wrapper AND count p)
-        this.viewsCard = this.viewsLabel.locator('../..');
+        // Summary cards — scoped to chart option containers
+        this.viewsCard = page.locator('[data-id="aitv-analytics-chart-option-views"]');
+        this.viewsLabel = this.viewsCard.locator('span').filter({ hasText: /^Views$/ }).first();
+        this.viewsCount = this.viewsCard.locator('p').first();
 
-        this.subscribersLabel = page.locator('span').filter({ hasText: /^Subscribers$/ }).first();
-        this.subscribersCount = this.subscribersLabel.locator('xpath=../following-sibling::p[1]');
-        this.subscribersCard = this.subscribersLabel.locator('../..');
+        this.subscribersCard = page.locator('[data-id="aitv-analytics-chart-option-subscribers"]');
+        this.subscribersLabel = this.subscribersCard.locator('span').filter({ hasText: /^Subscribers$/ }).first();
+        this.subscribersCount = this.subscribersCard.locator('p').first();
 
-        // Period — now tabs (div elements: Today | 7D | 30D | YTD | All | Custom)
-        // periodSelector = container div that holds all tab divs
-        this.periodSelector = page.locator('div').filter({ hasText: /^Today$/ }).locator('..');
+        // Period picker
+        this.periodSelector = page.locator('[data-id="aitv-analytics-range-picker"]');
         this.periodDateRange = page.locator('span').filter({ hasText: /^\w{3}\s+\d+/ }).first();
-        this.periodType = page.locator('div').filter({ hasText: /^(Today|7D|30D|YTD|All|Custom)$/ }).first();
+        this.periodType = page.locator('[data-id^="aitv-analytics-range-preset-"]').first();
 
-        // Main chart (recharts)
-        this.mainChart = page.locator('.recharts-wrapper').first();
+        // Main chart (recharts) — scoped to charts container
+        this.mainChart = page.locator('[data-id="aitv-analytics-charts"]').locator('.recharts-wrapper').first();
 
-        // Engagement section
-        // DOM: <span>Engagements</span> + sibling <div><span>{count}</span><span>Likes</span></div>
-        this.engagementTitle = page.locator('span').filter({ hasText: /^Engagements$/ }).first();
-        // count+label div is the following-sibling of the icon+title div (span's parent)
+        // Engagement section — scoped to engagement block
+        this.engagementTitle = page.locator('[data-id="aitv-analytics-engagement"]').locator('span').filter({ hasText: /^Engagements$/ }).first();
         this.engagementLikes = this.engagementTitle.locator('xpath=../following-sibling::div[1]');
-        // engagement chart is the second recharts-wrapper on the page (main chart is first)
-        this.engagementChart = page.locator('.recharts-wrapper').nth(1);
+        this.engagementChart = page.locator('[data-id="aitv-analytics-engagement"]').locator('.recharts-wrapper').first();
 
-        // Latest Video (right panel) — no data-id attrs in new design
-        // Navigate from "Latest Video" span up 3 levels to the section container
-        // (same nesting depth as the Engagements section)
-        this.latestVideoSection = page.locator('span').filter({ hasText: /^Latest Video$/ }).locator('../..');
+        // Latest Video (right panel) — scoped to latest video block
+        this.latestVideoSection = page.locator('[data-id="aitv-analytics-latest-video"]');
         this.latestVideoCover = this.latestVideoSection.locator('img').first();
         this.latestVideoTitle = this.latestVideoSection.locator('p').first();
-        // stat rows: each row has icon+label on left, count on right
         this.latestVideoViews    = this.latestVideoSection.locator('span').filter({ hasText: /^Views$/ }).locator('xpath=../following-sibling::span[1]');
         this.latestVideoLikes    = this.latestVideoSection.locator('span').filter({ hasText: /^Likes$/ }).locator('xpath=../following-sibling::span[1]');
         this.latestVideoComments = this.latestVideoSection.locator('span').filter({ hasText: /^Comments$/ }).locator('xpath=../following-sibling::span[1]');
 
-        // Top Content — header text updated
-        this.topContentHeader = page.locator('p, span').filter({ hasText: /^Top Content In This Period$/ }).first();
-        this.topContentRows = this.topContentHeader.locator('..').locator('> div').filter({ has: page.locator('img') });
+        // Top Content — scoped to top content block
+        this.topContentHeader = page.locator('[data-id="aitv-analytics-top-content"]').locator('p, span').filter({ hasText: /^Top Content In This Period$/ }).first();
+        this.topContentRows = page.locator('[data-id="aitv-analytics-top-content"]').locator('> div').filter({ has: page.locator('img') });
 
         // Empty state
         this.emptyStateMessage = page.getByText("It's a bit empty here", { exact: false });
@@ -208,7 +198,17 @@ export class StudioAnalyticsPage {
             { timeout: 15000 }
         );
 
-        const tab = this.page.locator('div').filter({ hasText: new RegExp(`^${periodText}$`) }).first();
+        const keyMap: Record<string, string> = {
+            'Today': 'today',
+            '7D': '7d',
+            '30D': '30d',
+            'YTD': 'ytd',
+            'All': 'all',
+        };
+        const tab = periodText === 'Custom'
+            ? this.page.locator('[data-id="aitv-analytics-range-custom"]')
+            : this.page.locator(`[data-id="aitv-analytics-range-preset-${keyMap[periodText] ?? periodText.toLowerCase()}"]`);
+
         await expect(tab, `Period tab "${periodText}" is not visible`).toBeVisible();
 
         // Active tab has a unique CSS class; inactive tabs share the same class.

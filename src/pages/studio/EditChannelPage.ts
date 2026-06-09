@@ -10,8 +10,8 @@ export class EditChannelPage {
     constructor(page: Page) {
         this.page = page;
 
-        this.defaultVideoDescriptionEditor = page.locator('[data-id="default-video-description"] .ql-editor');
-        this.saveBtn = page.getByRole('button', { name: 'Save' });
+        this.defaultVideoDescriptionEditor = page.locator('textarea[name="defaultVideoDescription"]');
+        this.saveBtn = page.locator('[data-id="submit-btn"]');
         this.successToast = page.getByText('Channel successfully updated');
     }
 

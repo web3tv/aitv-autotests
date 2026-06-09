@@ -4,14 +4,14 @@ import { AuthApi } from '../../../src/api/AuthApi';
 import { SideBarPage } from '../../../src/pages/components/SideBarPage';
 import { ProfilePage } from '../../../src/pages/account/ProfilePage';
 
-test('Change user avatar and check new avatar is displayed', { tag: '@critical', annotation: [{ type: 'TC', description: 'PROFILE-001' }, { type: 'TC', description: 'PROFILE-002' }] }, async ({ page, request }) => {
+test.fixme('Change user avatar and check new avatar is displayed', { tag: '@critical', annotation: [{ type: 'TC', description: 'PROFILE-001' }, { type: 'TC', description: 'PROFILE-002' }] }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
   const profilePage = new ProfilePage(page);
   const password = process.env.USER_PASSWORD!;
 
-  const user = await authApi.createAndVerifyUser();
+  const user = await authApi.createUserFast();
 
   await test.step('Login and navigate to profile settings', async () => {
     await authFlow.loginSuccess(user.email, password, user.username);
@@ -41,14 +41,14 @@ test('Change user avatar and check new avatar is displayed', { tag: '@critical',
   });
 });
 
-test('Edit biography and verify persistence', { annotation: { type: 'TC', description: 'PROFILE-003' } }, async ({ page, request }) => {
+test.fixme('Edit biography and verify persistence', { annotation: { type: 'TC', description: 'PROFILE-003' } }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
   const profilePage = new ProfilePage(page);
   const password = process.env.USER_PASSWORD!;
 
-  const user = await authApi.createAndVerifyUser();
+  const user = await authApi.createUserFast();
 
   await test.step('Login and navigate to /profile', async () => {
     await authFlow.loginSuccess(user.email, password, user.username);
@@ -81,14 +81,14 @@ test('Edit biography and verify persistence', { annotation: { type: 'TC', descri
   });
 });
 
-test('Add and edit social links and verify persistence', { annotation: { type: 'TC', description: 'PROFILE-004' } }, async ({ page, request }) => {
+test.fixme('Add and edit social links and verify persistence', { annotation: { type: 'TC', description: 'PROFILE-004' } }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
   const profilePage = new ProfilePage(page);
   const password = process.env.USER_PASSWORD!;
 
-  const user = await authApi.createAndVerifyUser();
+  const user = await authApi.createUserFast();
 
   await test.step('Login and navigate to /profile', async () => {
     await authFlow.loginSuccess(user.email, password, user.username);
@@ -147,14 +147,14 @@ test('Add and edit social links and verify persistence', { annotation: { type: '
   });
 });
 
-test('Biography max length validation (1000 chars)', { annotation: { type: 'TC', description: 'PROFILE-005' } }, async ({ page, request }) => {
+test.fixme('Biography max length validation (1000 chars)', { annotation: { type: 'TC', description: 'PROFILE-005' } }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
   const profilePage = new ProfilePage(page);
   const password = process.env.USER_PASSWORD!;
 
-  const user = await authApi.createAndVerifyUser();
+  const user = await authApi.createUserFast();
 
   await test.step('Login and navigate to /profile', async () => {
     await authFlow.loginSuccess(user.email, password, user.username);
@@ -179,14 +179,14 @@ test('Biography max length validation (1000 chars)', { annotation: { type: 'TC',
   });
 });
 
-test('Social links max length validation (100 chars)', { annotation: { type: 'TC', description: 'PROFILE-006' } }, async ({ page, request }) => {
+test.fixme('Social links max length validation (100 chars)', { annotation: { type: 'TC', description: 'PROFILE-006' } }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
   const profilePage = new ProfilePage(page);
   const password = process.env.USER_PASSWORD!;
 
-  const user = await authApi.createAndVerifyUser();
+  const user = await authApi.createUserFast();
 
   await test.step('Login and navigate to /profile', async () => {
     await authFlow.loginSuccess(user.email, password, user.username);

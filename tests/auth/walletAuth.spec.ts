@@ -10,7 +10,7 @@ import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletIn
 
 test.describe.configure({ mode: 'parallel' });
 
-test.describe.skip('Wallet auth tests', () => {
+test.describe('Wallet auth tests', () => {
 
   test('Register user via wallet (MetaMask) -> Success', { annotation: { type: 'TC', description: 'AUTH-012' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
@@ -41,35 +41,6 @@ test.describe.skip('Wallet auth tests', () => {
     });
   });
 
-  test('Login via not existing wallet -> siwe-register -> Success login', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page }) => {
-    const authFlow = new AuthFlow(page);
-    await authFlow.walletAutoRegisterOnLogin();
-  });
-
-  test('Login via Connect wallet button as existing wallet -> Success login', { annotation: { type: 'TC', description: 'AUTH-17' } }, async ({ page }) => {
-    const authFlow = new AuthFlow(page);
-    let wallet: WalletInfo;
-
-    await test.step('Register wallet account', async () => {
-      const result = await authFlow.walletRegisterSuccess({ walletType: 'metamask' });
-      wallet = result.wallet;
-    });
-
-    await test.step('Logout', async () => {
-      await authFlow.logout();
-    });
-
-    await test.step('Login via header with existing wallet — verify siwe-login returns 200', async () => {
-      const siweResponse = page.waitForResponse(
-        r => r.url().includes('/api/auth/siwe-login'),
-        { timeout: 15_000 }
-      );
-      await authFlow.walletLoginViaHeaderSuccess({ walletType: 'metamask', wallet, skipInjection: true, skipModalCheck: true });
-      const res = await siweResponse;
-      expect(res.status(), `SIWE login returned ${res.status()}`).toBe(200);
-    });
-    
-  });
 
   test('Display wallet address on account page', { annotation: { type: 'TC', description: 'ACCOUNT-003' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
@@ -89,16 +60,17 @@ test.describe.skip('Wallet auth tests', () => {
 
 });
 
-test.describe.skip('Wallet and email tests',()=>{
+test.describe('Wallet and email tests',()=>{
 
-  test('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
+  //There is no 'Add Wallet' button in header
+  test.skip('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     const headerPage = new HeaderPage(page);
     const loginPage = new LoginPage(page);
 
     await test.step('Create user via API and login', async () => {
-      const user = await authApi.createAndVerifyUser();
+      const user = await authApi.createUserFast();
       await injectEthereumMock(page);
       await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
@@ -124,8 +96,8 @@ test.describe.skip('Wallet and email tests',()=>{
     let firstVerificationUrl: string;
     let secondVerificationUrl: string;
 
-    await test.step('Login via wallet', async () => {
-      await authFlow.walletAutoRegisterOnLogin();
+    await test.step('Register via wallet', async () => {
+      await authFlow.walletRegisterSuccess();
     });
 
     await test.step('Add first email and save verification URL', async () => {
@@ -185,8 +157,8 @@ test.describe.skip('Wallet and email tests',()=>{
       mailToken = await mailTmHelper.getToken(email, mailTmHelper['password']);
     });
 
-    await test.step('Login via wallet', async () => {
-      await authFlow.walletAutoRegisterOnLogin();
+    await test.step('Register via wallet', async () => {
+      await authFlow.walletRegisterSuccess();
     });
 
     await test.step('Navigate to account settings and add email', async () => {

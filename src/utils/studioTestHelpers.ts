@@ -17,7 +17,7 @@ export async function uploadWithChunkCheck(page: Page, uploadFn: () => Promise<v
 }
 
 export interface VideoSetupResult {
-    user: { id: string; email: string; username: string };
+    user: { id?: string; email: string; username: string };
     token: string;
     channelId: string;
     videoId: string;
@@ -44,7 +44,7 @@ export async function setupVideoViaApi(
     const password = process.env.USER_PASSWORD!;
     const baseUrl = process.env.BASE_URL!;
 
-    const user = await authApi.createAndVerifyUser();
+    const user = await authApi.createUserFast();
     const token = await authApi.getUserToken(user.email, password);
     const channelId = await videoApi.getChannelId(token);
 

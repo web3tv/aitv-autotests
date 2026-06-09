@@ -13,9 +13,11 @@ export class HeaderPage {
 
   readonly addWalletBtn: Locator;
   readonly connectWalletBtn: Locator;
+  readonly authedActions: Locator;
   readonly userIcon: Locator;
   readonly loginBtn: Locator;
   readonly signUpBtn: Locator;
+  readonly getStartedBtn: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -29,12 +31,13 @@ export class HeaderPage {
 
     this.joinBtn = page.getByRole('button', { name: 'Join' });
 
-
     this.addWalletBtn = page.locator('button:has(svg[viewBox="0 0 15 14"])').first();
     this.connectWalletBtn = page.getByRole('button', { name: 'Connect wallet' });
-    this.userIcon = page.locator('#aitv-profile-button');
+    this.authedActions = page.locator('[data-id="aitv-authed-actions"]');
+    this.userIcon = page.locator('[data-id="aitv-profile-menu-trigger"]');
     this.loginBtn = page.getByRole('link', { name: 'Login' });
     this.signUpBtn = page.getByRole('link', { name: 'Sign Up' });
+    this.getStartedBtn = page.locator('[data-id="aitv-header"] button', { hasText: 'Get Started' });
   }
 
   async clickAddVideoBtn(){
@@ -74,6 +77,11 @@ export class HeaderPage {
     await expect(this.userIcon, 'User icon is not enabled').toBeEnabled();
     await this.userIcon.click();
   }
-  
+
+  async clickGetStarted(): Promise<void> {
+    await expect(this.getStartedBtn, 'Get Started button is not visible').toBeVisible();
+    await expect(this.getStartedBtn, 'Get Started button is not enabled').toBeEnabled();
+    await this.getStartedBtn.click();
+  }
 
 }

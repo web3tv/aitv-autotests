@@ -157,11 +157,15 @@ export class ChannelMainPage {
 
         // Poll for Active status — blockchain confirmation may take time
         const deadline = Date.now() + 120_000;
+        let attempt = 0;
+        const start = Date.now();
         while (Date.now() < deadline) {
             const body = await this.page.locator('body').innerText();
             if (body.includes('Active') && !body.includes('Inactive')) break;
+            attempt++;
+            console.log(`[subscription poll] attempt ${attempt}, elapsed: ${Math.round((Date.now() - start) / 1000)}s`);
             await this.page.reload({ waitUntil: 'domcontentloaded' });
-            await this.page.waitForTimeout(15_000);
+            await this.page.waitForTimeout(5_000);
         }
     }
 

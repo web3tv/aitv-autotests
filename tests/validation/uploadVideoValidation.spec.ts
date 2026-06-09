@@ -12,7 +12,7 @@ test('Upload video — required fields validation', { annotation: { type: 'TC', 
         const authFlow = new AuthFlow(page);
         const password = process.env.USER_PASSWORD!;
 
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, password, user.username);
 
         const uploadVideoFlow = new UploadVideoFlow(page);

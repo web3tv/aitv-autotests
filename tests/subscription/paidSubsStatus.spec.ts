@@ -31,12 +31,12 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
         const authApi = new AuthApi(request);
         const subscriptionApi = new SubscriptionApi(request);
 
-        let buyerUser: { id: string; email: string; username: string };
+        let buyerUser: { id?: string; email: string; username: string };
         let buyerToken: string;
 
         await test.step('Create buyer user, get API token and login via UI', async () => {
             const authFlow = new AuthFlow(page);
-            buyerUser = await authApi.createAndVerifyUser();
+            buyerUser = await authApi.createUserFast();
             buyerToken = await authApi.getUserToken(buyerUser.email, password);
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
         });
@@ -94,7 +94,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
             const authFlow = new AuthFlow(page);
             const channelMainPage = new ChannelMainPage(page);
 
-            const buyerUser = await authApi.createAndVerifyUser();
+            const buyerUser = await authApi.createUserFast();
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -119,14 +119,14 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     }, async ({ page, request }) => {
         test.setTimeout(180_000);
 
-        let buyerUser: { id: string; email: string; username: string };
+        let buyerUser: { id?: string; email: string; username: string };
 
         await test.step('Create buyer, login and initiate purchase without payment', async () => {
             const authApi = new AuthApi(request);
             const authFlow = new AuthFlow(page);
             const channelMainPage = new ChannelMainPage(page);
 
-            buyerUser = await authApi.createAndVerifyUser();
+            buyerUser = await authApi.createUserFast();
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -156,14 +156,14 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     }, async ({ page, request }) => {
         test.setTimeout(180_000);
 
-        let buyerUser: { id: string; email: string; username: string };
+        let buyerUser: { id?: string; email: string; username: string };
 
         await test.step('Create buyer, login and initiate purchase without payment', async () => {
             const authApi = new AuthApi(request);
             const authFlow = new AuthFlow(page);
             const channelMainPage = new ChannelMainPage(page);
 
-            buyerUser = await authApi.createAndVerifyUser();
+            buyerUser = await authApi.createUserFast();
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
@@ -190,14 +190,14 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     test('Payment failed status on /my-paid-subs', { tag: '@db' }, async ({ page, request }) => {
         test.setTimeout(180_000);
 
-        let buyerUser: { id: string; email: string; username: string };
+        let buyerUser: { id?: string; email: string; username: string };
 
         await test.step('Create buyer, login and initiate purchase without payment', async () => {
             const authApi = new AuthApi(request);
             const authFlow = new AuthFlow(page);
             const channelMainPage = new ChannelMainPage(page);
 
-            buyerUser = await authApi.createAndVerifyUser();
+            buyerUser = await authApi.createUserFast();
             await authFlow.loginSuccess(buyerUser.email, password, buyerUser.username);
 
             await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });

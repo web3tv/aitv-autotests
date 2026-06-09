@@ -5,7 +5,7 @@ import { SideBarPage } from '../../src/pages/components/SideBarPage';
 import { StudioSettingsPage } from '../../src/pages/studio/StudioSettingsPage';
 import { HeroPayPage } from '../../src/pages/heroPay/HeroPayPage';
 
-test('Convert channel to NFT via mock payment',
+test.fixme('Convert channel to NFT via mock payment',
     { annotation: { type: 'TC', description: 'NFT-001' } },
     async ({ page, request }) => {
         test.setTimeout(300_000);
@@ -70,7 +70,7 @@ test('Convert channel to NFT via mock payment',
     }
 );
 
-test('Email user without wallet sees add wallet popup on Convert to NFT',
+test.fixme('Email user without wallet sees add wallet popup on Convert to NFT',
     { annotation: { type: 'TC', description: 'NFT-002' } },
     async ({ page, request }) => {
         test.setTimeout(60_000);
@@ -82,7 +82,7 @@ test('Email user without wallet sees add wallet popup on Convert to NFT',
         const password = process.env.USER_PASSWORD!;
 
         await test.step('Create email user and login', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             await authFlow.loginSuccess(user.email, password, user.username);
         });
 

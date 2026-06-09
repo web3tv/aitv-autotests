@@ -15,6 +15,7 @@ export class HeroPayPage {
 
     // Payment flow
     readonly iUnderstandBtn: Locator;
+    readonly tronNetworkLink: Locator;
     readonly mockPaymentLink: Locator;
     readonly confirmationLink: Locator;
     readonly returnToMerchantLink: Locator;
@@ -22,7 +23,8 @@ export class HeroPayPage {
     constructor(page: Page) {
         this.page = page;
 
-        this.tetherLink = page.getByRole('link', { name: /Tether.*USDT.*TRON/ });
+        this.tetherLink = page.locator('a.list-group-item-action:has(img[src*="usdt"])');
+        this.tronNetworkLink = page.locator('a.list-group-item-action:has(img[src*="tron"])');
         this.emailInput = page.locator('#email');
         this.consentCheckbox = page.locator('#consent');
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
@@ -158,6 +160,9 @@ export class HeroPayPage {
     async testnetPayment() {
         await expect(this.tetherLink, 'Tether USDT link is not visible').toBeVisible();
         await this.tetherLink.click();
+
+        await expect(this.tronNetworkLink, 'Tron network link is not visible').toBeVisible();
+        await this.tronNetworkLink.click();
 
         // Parse recipient address and amount from QR code title attribute
         // Format: "tron:{address}?amount={amount}"

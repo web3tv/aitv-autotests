@@ -18,7 +18,7 @@ test.describe('Mobile visual tests', () => {
         password = process.env.USER_PASSWORD!;
         const baseUrl = process.env.BASE_URL!;
 
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         userEmail = user.email;
         username = user.username;
 

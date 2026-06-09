@@ -38,7 +38,7 @@ test('Auto-created channel has handle as name without "Channel" suffix',
         const videoApi = new VideoApi(request);
 
         await test.step('Create user and verify auto-created channel name equals username', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
             const channelInfo = await videoApi.getChannelInfo(token);
 
@@ -61,7 +61,7 @@ test('Set default video description in channel settings — saved successfully',
         const defaultDescription = `Default desc ${Date.now()}`;
 
         await test.step('Create user, login and navigate to channel settings', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
             await sideBar.clickStudioEditChannel();
         });
@@ -94,7 +94,7 @@ test('Default description auto-fills description field when opening upload popup
         const defaultDescription = `Default desc ${Date.now()}`;
 
         await test.step('Create user and set default video description via API', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
             const channelId = await videoApi.getChannelId(token);
             await videoApi.setDefaultVideoDescription(token, channelId, user.username, defaultDescription);
@@ -105,7 +105,7 @@ test('Default description auto-fills description field when opening upload popup
 
         await test.step('Open upload popup and verify description is pre-filled with default', async () => {
             await uploadWithChunkCheck(page, async () => {
-                await uploadVideoFlow.uploadVideo(VIDEO_PATH, 'test-video');
+                await uploadVideoFlow.uploadVideoToForm(VIDEO_PATH, 'test-video');
             });
             await uploadVideoPage.assertDescriptionContains(defaultDescription);
         });
@@ -130,7 +130,7 @@ test('Override pre-filled description — video saved with custom description',
         const customDescription = `Custom desc ${Date.now()}`;
 
         await test.step('Create user and set default video description via API', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
             const channelId = await videoApi.getChannelId(token);
             await videoApi.setDefaultVideoDescription(token, channelId, user.username, defaultDescription);
@@ -177,7 +177,7 @@ test('Clear default description — upload popup opens with empty description',
         const defaultDescription = `Default desc ${Date.now()}`;
 
         await test.step('Create user and set default video description via API', async () => {
-            const user = await authApi.createAndVerifyUser();
+            const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
             const channelId = await videoApi.getChannelId(token);
             await videoApi.setDefaultVideoDescription(token, channelId, user.username, defaultDescription);
@@ -195,7 +195,7 @@ test('Clear default description — upload popup opens with empty description',
 
         await test.step('Open upload popup and verify description field is empty', async () => {
             await uploadWithChunkCheck(page, async () => {
-                await uploadVideoFlow.uploadVideo(VIDEO_PATH, 'test-video');
+                await uploadVideoFlow.uploadVideoToForm(VIDEO_PATH, 'test-video');
             });
             await uploadVideoPage.assertDescriptionDoesNotContain(defaultDescription);
             await expect(

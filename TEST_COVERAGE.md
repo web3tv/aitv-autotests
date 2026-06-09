@@ -15,19 +15,15 @@
 AUTH
 ├── Login (email) — success                         [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-001
 ├── Login (email) — wrong password                  [AUTO] tests/auth/login.spec.ts          AUTH-002
-├── Login (email) — wrong username                  [AUTO] tests/auth/login.spec.ts          AUTH-003
 ├── Logout                                          [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-004
 ├── Registration via email (UI)                     [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-005
 ├── Registration via API                            [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-006
 ├── Password reset — success                        [AUTO] tests/auth/resetPassword.spec.ts  AUTH-007
 ├── Password reset — password mismatch              [AUTO] tests/auth/resetPassword.spec.ts  AUTH-008
-├── Login via Web3 wallet                           [AUTO][CRITICAL] tests/auth/walletAuth.spec.ts  AUTH-009
 ├── Login via Telegram (mocked OAuth)               [AUTO] tests/auth/telegramAuth.spec.ts   AUTH-015
 ├── Add email to wallet account                     [AUTO] tests/auth/walletAuth.spec.ts     AUTH-011
 ├── Registration via Web3 wallet                    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-012
 ├── Register + Login via same wallet                [AUTO] tests/auth/walletAuth.spec.ts     AUTH-013
-├── Login via header button — existing MetaMask     [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-HEADER-EXISTING
-├── Login via login page — new MetaMask wallet      [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-LOGIN-NEW
 ├── Register and login via MetaMask                 [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-metamask
 ├── Register and login via Hero Wallet              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-hero-wallet
 ├── Register and login via Binance Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-binance-wallet

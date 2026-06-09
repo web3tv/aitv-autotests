@@ -15,7 +15,7 @@ test('Video player plays uploaded video', { tag: '@critical', annotation: [{ typ
     let username: string;
 
     await test.step('Create user and upload video via API', async () => {
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         userEmail = user.email;
         username = user.username;
         const token = await authApi.getUserToken(userEmail, password);
@@ -47,7 +47,7 @@ test('Video player plays uploaded short', { annotation: [{ type: 'TC', descripti
     let shortUrl: string;
 
     await test.step('Create user and upload short via API', async () => {
-        const user = await authApi.createAndVerifyUser();
+        const user = await authApi.createUserFast();
         const token = await authApi.getUserToken(user.email, password);
 
         const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/shortsVideo.mp4', {
@@ -63,7 +63,7 @@ test('Video player plays uploaded short', { annotation: [{ type: 'TC', descripti
         const authFlow = new AuthFlow(page);
         const videoPlayer = new VideoPlayerPage(page);
 
-        const user2 = await authApi.createAndVerifyUser();
+        const user2 = await authApi.createUserFast();
         await authFlow.loginSuccess(user2.email, password, user2.username);
         await page.goto(shortUrl, { waitUntil: 'domcontentloaded' });
         await videoPlayer.assertShortsIsPlaying();
