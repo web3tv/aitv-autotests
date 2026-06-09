@@ -60,9 +60,10 @@ test.describe('Wallet auth tests', () => {
 
 });
 
-test.describe.skip('Wallet and email tests',()=>{
+test.describe('Wallet and email tests',()=>{
 
-  test('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
+  //There is no 'Add Wallet' button in header
+  test.skip('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     const headerPage = new HeaderPage(page);
@@ -95,8 +96,8 @@ test.describe.skip('Wallet and email tests',()=>{
     let firstVerificationUrl: string;
     let secondVerificationUrl: string;
 
-    await test.step('Login via wallet', async () => {
-      await authFlow.walletAutoRegisterOnLogin();
+    await test.step('Register via wallet', async () => {
+      await authFlow.walletRegisterSuccess();
     });
 
     await test.step('Add first email and save verification URL', async () => {
@@ -156,8 +157,8 @@ test.describe.skip('Wallet and email tests',()=>{
       mailToken = await mailTmHelper.getToken(email, mailTmHelper['password']);
     });
 
-    await test.step('Login via wallet', async () => {
-      await authFlow.walletAutoRegisterOnLogin();
+    await test.step('Register via wallet', async () => {
+      await authFlow.walletRegisterSuccess();
     });
 
     await test.step('Navigate to account settings and add email', async () => {
