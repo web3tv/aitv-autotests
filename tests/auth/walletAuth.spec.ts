@@ -10,7 +10,7 @@ import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletIn
 
 test.describe.configure({ mode: 'parallel' });
 
-test.describe.skip('Wallet auth tests', () => {
+test.describe('Wallet auth tests', () => {
 
   test('Register user via wallet (MetaMask) -> Success', { annotation: { type: 'TC', description: 'AUTH-012' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);

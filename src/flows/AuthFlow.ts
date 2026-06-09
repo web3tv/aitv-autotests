@@ -9,6 +9,7 @@ import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
 import { TestPopupsPage } from "../pages/testPopups/TestPopupsPage";
 import { LoginPopupPage } from "../pages/testPopups/LoginPopupPage";
+import { DataGenerator } from "../utils/dataGenerator";
 
 
 export class AuthFlow {
@@ -254,35 +255,28 @@ export class AuthFlow {
    */
   async walletRegisterSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<{ wallet: WalletInfo; username: string }> {
     const walletType = options?.walletType ?? 'metamask';
-    // Inject mock BEFORE navigating to the register page (skip if already injected in this page context)
     const wallet = options?.skipInjection && options.wallet
       ? options.wallet
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
-    await this.page.goto('/register');
-    await this.page.waitForLoadState('networkidle');
-
-    const username = await this.loginPage.fillUsernameInput();
-    await this.loginPage.clickCheckbox();
-    await this.loginPage.clickRegisterWalletBtn();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickWalletEntry();
     await this.loginPage.clickWalletOption(walletType);
 
-    // Wait for wallet auth to complete — backend verifies signature and redirects
-    await this.page.waitForURL((url) => url.pathname === '/');
+    const username = DataGenerator.generateUsername();
+    await this.loginPopupPage.fillChooseHandle(username);
+    await this.loginPopupPage.clickFinish();
 
-    // Assert the "set up alternative login method" modal
-    const addEmailModal = this.page.locator('[data-id="add-email-modal"]');
-    await expect(addEmailModal, 'Add email modal is not visible after wallet registration').toBeVisible({ timeout: 10_000 });
-    await expect(addEmailModal, 'Add email modal text is incorrect').toContainText(
-      'To recover your profile and set up an alternative login method, you can add an email address and password in your account settings.'
+    const whoamiPromise = this.page.waitForResponse(
+      (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
+      { timeout: 40_000 }
     );
-    await expect(this.page.getByRole('button', { name: 'Cancel' }), 'Cancel button is not visible').toBeVisible();
-    await expect(this.page.locator('[data-id="open-settings"]'), 'Open Settings button is not visible').toBeVisible();
+    await this.page.waitForURL((url) => url.pathname === '/');
+    await whoamiPromise;
 
-    // Dismiss modal
-    await this.page.getByRole('button', { name: 'Cancel' }).click();
-
-    await this.assertLoggedInAs(wallet.address);
+    await this.assertLoggedInAs(username);
 
     return { wallet, username };
   }
