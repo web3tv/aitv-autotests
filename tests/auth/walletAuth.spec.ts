@@ -180,7 +180,7 @@ test.describe('Wallet and email tests',()=>{
 })
 
 
-test.describe.skip('Check all wallets login',()=>{
+test.describe('Check all wallets login',()=>{
 
   const wallets = (Object.keys(WALLET_PROVIDERS) as EvmWalletType[]).map(type => ({
     type,

@@ -274,7 +274,13 @@ export class AuthFlow {
     await this.headerPage.clickGetStarted();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickWalletEntry();
+
+    const authStartPromise = this.page.waitForResponse(
+      (res) => res.url().includes('/api/auth/start'),
+      { timeout: 15_000 }
+    );
     await this.loginPage.clickWalletOption(walletType);
+    await authStartPromise;
 
     const username = DataGenerator.generateUsername();
     await this.loginPopupPage.fillChooseHandle(username);
