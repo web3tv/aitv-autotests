@@ -33,38 +33,48 @@ export class AuthFlow {
   }
 
   async loginSuccess (email:string,password:string,username:string,device?: 'mobile' | 'desktop') {
-    // await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
-    await this.loginPage.clickLoginBtn();
-    await this.loginPage.page.waitForURL('/')
-    await this.loginPage.page.waitForResponse('/api/users/whoami',{timeout:40_000})
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForURL('/');
+    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
     if (device === 'mobile') {
-      await expect(this.loginPage.page.locator('[data-id="user-avatar"]')).toBeVisible();
-    }
-    else{
+      await expect(this.page.locator('[data-id="user-avatar"]')).toBeVisible();
+    } else {
       await this.assertLoggedInAs(username);
     }
   }
 
   async loginFailed (email:string,password:string,device?: 'mobile' | 'desktop') {
-    // await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
-    await this.loginPage.clickLoginBtn();
-    await this.page.waitForResponse((response) =>
-            response.url().includes('/api/auth/login') &&
-            response.status() === 400,
-            { timeout: 40000 }
-        );
-    await expect(this.page.locator('form')).toContainText('Invalid password. Please re-enter another password.');
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForResponse(
+      (response) => response.url().includes('/api/auth/login') && response.status() === 400,
+      { timeout: 40_000 }
+    );
+    await expect(this.page.locator('body')).toContainText('Invalid password. Please re-enter another password.');
   }
 
   async loginWith2FaFailed(email:string,password:string){
-    // await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
-    await this.loginPage.clickLoginBtn();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
     await expect(this.page.locator('body')).toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 1' }).fill('2');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 2' }).fill('2');
@@ -79,11 +89,15 @@ export class AuthFlow {
 
   async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
     const mailTmHelper = new MailTmHelper(this.page.request);
-    // await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
     const requestedAt = Date.now();
-    await this.loginPage.clickLoginBtn();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
     await expect(this.page.locator('body')).toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
     const messageId = await mailTmHelper.waitForMessage(token, 'Authentication Code', 10, 3000, requestedAt);
     const [d1, d2, d3, d4] = await mailTmHelper.extract2FACode(messageId,token);
@@ -103,10 +117,14 @@ export class AuthFlow {
   }
 
   async submitForgotPasswordRequest(email: string) {
-    // await this.loginPage.visitLoginPage();
-    await this.forgotPasswordPage.openForm();
-    await this.forgotPasswordPage.fillEmail(email);
-    await this.forgotPasswordPage.submitRequest();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.clickResetPassword();
+    await this.loginPopupPage.clickForgotContinue();
   }
 
   async prepareResetPasswordForm(resetUrl: string) {
@@ -142,20 +160,25 @@ export class AuthFlow {
   }
 
   async passwordError (email:string,password:string) {
-    // await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.fillPasswordInput(password);
-    await this.loginPage.clickLoginBtn();
-    await expect(this.loginPage.page.locator('form')).toContainText('Invalid password. Please re-enter another password.');
-    expect(this.loginPage.page.waitForURL('/login'));
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await expect(this.page.locator('body')).toContainText('Invalid password. Please re-enter another password.');
   }
 
-  async usernameError (email:string, password:string) {
-    // await this.loginPage.visitLoginPage();
-    await this.loginPage.fillEmailInput(email);
-    await this.loginPage.removeFocusFromElement();
-    await expect(this.loginPage.page.locator('form')).toContainText('Username not found. Try another one.');
-    expect(this.loginPage.page.waitForURL('/login'));
+  async usernameError (email:string) {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await expect(this.page.locator('body')).toContainText('Username not found. Try another one.');
   }
 
   /**
@@ -357,10 +380,10 @@ export class AuthFlow {
       }
     });
 
-    // await this.loginPage.visitLoginPage();
-    await expect(this.loginPage.telegramLoginBtn, 'Telegram login button is not visible').toBeVisible();
-    await expect(this.loginPage.telegramLoginBtn, 'Telegram login button is not enabled').toBeEnabled();
-    await this.loginPage.telegramLoginBtn.click();
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickTelegramEntry();
 
     // Wait for the mock redirect chain: Telegram → callback → socialAuth → router.push('/')
     await this.page.waitForURL((url) => url.pathname === '/', { timeout: 30_000 });
