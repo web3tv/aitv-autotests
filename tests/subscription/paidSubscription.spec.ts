@@ -96,7 +96,7 @@ test('Subscription expiry revokes access, re-purchase restores it', {
     test.setTimeout(300_000);
 
     let setup: VideoSetupResult;
-    let buyerUser: { id: string; email: string; username: string };
+    let buyerUser: { id?: string; email: string; username: string };
     const password = process.env.USER_PASSWORD!;
 
     await test.step('Setup owner with public channel, paid plan and video via API', async () => {

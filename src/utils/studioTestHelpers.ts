@@ -17,7 +17,7 @@ export async function uploadWithChunkCheck(page: Page, uploadFn: () => Promise<v
 }
 
 export interface VideoSetupResult {
-    user: { id: string; email: string; username: string };
+    user: { id?: string; email: string; username: string };
     token: string;
     channelId: string;
     videoId: string;

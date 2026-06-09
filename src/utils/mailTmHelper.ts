@@ -152,9 +152,9 @@ export class MailTmHelper {
     });
 
     const json = await res.json();
-    const text = json.text ?? '';
+    const text = (json.text ?? '') + '\n' + (json.html ?? '');
 
-    const verifyMatch = text.match( /https:\/\/web3tv2\.dev\/reset-password\?[^\s"'<>)]*/i);
+    const verifyMatch = text.match(/https:\/\/web3tv2\.dev\/reset-password\?[^\s"'<>)]*/i);
     if (verifyMatch) {
       return verifyMatch[0];
     }
@@ -175,5 +175,21 @@ export class MailTmHelper {
     }
 
     return text.split('');
+  }
+
+  async extractVerificationCode(messageId: string, token: string): Promise<string> {
+    const res = await this.request.get(`${this.baseUrl}/messages/${messageId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const json = await res.json();
+    const text = (json.text ?? '') + '\n' + (json.html ?? '');
+
+    const match = text.match(/\b(\d{4,8})\b/);
+    if (match) {
+      return match[1];
+    }
+
+    throw new Error('Verification code not found in email');
   }
 }

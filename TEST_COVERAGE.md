@@ -15,7 +15,6 @@
 AUTH
 ├── Login (email) — success                         [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-001
 ├── Login (email) — wrong password                  [AUTO] tests/auth/login.spec.ts          AUTH-002
-├── Login (email) — wrong username                  [AUTO] tests/auth/login.spec.ts          AUTH-003
 ├── Logout                                          [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-004
 ├── Registration via email (UI)                     [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-005
 ├── Registration via API                            [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-006

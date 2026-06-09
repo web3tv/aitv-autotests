@@ -7,6 +7,8 @@ import { Page } from '@playwright/test';
 import { MailTmHelper } from "../utils/mailTmHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
+import { TestPopupsPage } from "../pages/testPopups/TestPopupsPage";
+import { LoginPopupPage } from "../pages/testPopups/LoginPopupPage";
 
 
 export class AuthFlow {
@@ -16,6 +18,8 @@ export class AuthFlow {
   readonly headerPage: HeaderPage;
   readonly userDropdownPage: UserDropdownPage;
   readonly forgotPasswordPage: ForgotPasswordPage;
+  readonly testPopupsPage: TestPopupsPage;
+  readonly loginPopupPage: LoginPopupPage;
 
   constructor(public page: Page) {
     this.loginPage = new LoginPage(page);
@@ -23,6 +27,8 @@ export class AuthFlow {
     this.headerPage = new HeaderPage(page);
     this.userDropdownPage = new UserDropdownPage(page);
     this.forgotPasswordPage = new ForgotPasswordPage(page);
+    this.testPopupsPage = new TestPopupsPage(page);
+    this.loginPopupPage = new LoginPopupPage(page);
   }
 
   async loginSuccess (email:string,password:string,username:string,device?: 'mobile' | 'desktop') {
@@ -423,7 +429,80 @@ export class AuthFlow {
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();
     await expect(this.page).toHaveURL('/');
-    await expect(this.headerPage.loginBtn, 'Login button should be visible after logout').toBeVisible();
-    await expect(this.headerPage.signUpBtn, 'Sign Up button should be visible after logout').toBeVisible();
+    await expect(this.headerPage.getStartedBtn, 'GetStarted button should be visible after logout').toBeVisible();
+  }
+
+  async loginViaPopup(email: string, password: string, username: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForURL('/');
+    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
+    await this.assertLoggedInAs(username);
+  }
+
+  async loginFailedViaPopup(email: string, password: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForResponse(
+      r => r.url().includes('/api/auth/login') && r.status() === 400,
+      { timeout: 40_000 }
+    );
+  }
+
+  async passwordErrorViaPopup(email: string, password: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await expect(
+      this.page.locator('body'),
+      'Error message not visible in popup'
+    ).toContainText('Invalid password. Please re-enter another password.', { timeout: 10_000 });
+  }
+
+  async emailNotFoundViaPopup(email: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await expect(
+      this.page.locator('body'),
+      'Error message not visible in popup'
+    ).toContainText('not found', { timeout: 10_000 });
+  }
+
+  async submitForgotPasswordViaPopup(email: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.clickResetPassword();
+    await this.loginPopupPage.clickForgotContinue();
+  }
+
+  async completeResetPasswordViaPopup(code: string, newPassword: string): Promise<void> {
+    await this.loginPopupPage.fillCode(code);
+    await this.loginPopupPage.fillCreatePassword(newPassword);
+    await this.loginPopupPage.clickSetNewPassword();
   }
 }

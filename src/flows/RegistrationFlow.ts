@@ -3,10 +3,15 @@ import { MailTmHelper } from '../utils/mailTmHelper.ts';
 import { AuthFlow } from './AuthFlow';
 import { LoginPage } from '../pages/auth/LoginPage.ts';
 import { expect } from '@playwright/test';
+import { HeaderPage } from '../pages/components/HeaderPage';
+import { LoginPopupPage } from '../pages/testPopups/LoginPopupPage';
+import { DataGenerator } from '../utils/dataGenerator';
 
 export class RegistrationFlow {
   readonly loginPage: LoginPage;
   readonly mailTmHelper: MailTmHelper;
+  readonly headerPage: HeaderPage;
+  readonly loginPopupPage: LoginPopupPage;
 
   constructor(
     private page: Page,
@@ -14,6 +19,8 @@ export class RegistrationFlow {
   ) {
     this.loginPage = new LoginPage(page);
     this.mailTmHelper = new MailTmHelper(request);
+    this.headerPage = new HeaderPage(page);
+    this.loginPopupPage = new LoginPopupPage(page);
   }
   
   async openRegistrationPage(){
@@ -42,6 +49,37 @@ export class RegistrationFlow {
     const verificationUrl = await this.mailTmHelper.extractVerificationUrl(messageId, token);
     await this.page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(this.page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
+    return { email, password, username, mailTmPassword, token };
+  }
+
+  async registerAndVerifyUserViaPopup(): Promise<{ email: string; password: string; username: string; mailTmPassword: string; token: string }> {
+    const password = 'Admin1@@';
+    const mailTmPassword = 'StrongPass123!';
+    const username = DataGenerator.generateUsername();
+
+    const email = await this.mailTmHelper.generateEmail();
+    await this.mailTmHelper.createMailbox();
+    const token = await this.mailTmHelper.getToken(email, mailTmPassword);
+
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+
+    const messageId = await this.mailTmHelper.waitForMessage(token, 'verification', 15, 3000);
+    const code = await this.mailTmHelper.extractVerificationCode(messageId, token);
+    await this.loginPopupPage.fillCode(code);
+
+    await this.loginPopupPage.fillCreatePassword(password);
+    await this.loginPopupPage.clickSetNewPassword();
+    await this.loginPopupPage.fillChooseHandle(username);
+    await this.loginPopupPage.clickFinish();
+
+    await this.page.waitForURL('/');
+    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
+
     return { email, password, username, mailTmPassword, token };
   }
 }

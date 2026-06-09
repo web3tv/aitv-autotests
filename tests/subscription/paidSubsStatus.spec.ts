@@ -31,7 +31,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
         const authApi = new AuthApi(request);
         const subscriptionApi = new SubscriptionApi(request);
 
-        let buyerUser: { id: string; email: string; username: string };
+        let buyerUser: { id?: string; email: string; username: string };
         let buyerToken: string;
 
         await test.step('Create buyer user, get API token and login via UI', async () => {
@@ -119,7 +119,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     }, async ({ page, request }) => {
         test.setTimeout(180_000);
 
-        let buyerUser: { id: string; email: string; username: string };
+        let buyerUser: { id?: string; email: string; username: string };
 
         await test.step('Create buyer, login and initiate purchase without payment', async () => {
             const authApi = new AuthApi(request);
@@ -156,7 +156,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     }, async ({ page, request }) => {
         test.setTimeout(180_000);
 
-        let buyerUser: { id: string; email: string; username: string };
+        let buyerUser: { id?: string; email: string; username: string };
 
         await test.step('Create buyer, login and initiate purchase without payment', async () => {
             const authApi = new AuthApi(request);
@@ -190,7 +190,7 @@ test.describe('Paid subscription status on /my-paid-subs', () => {
     test('Payment failed status on /my-paid-subs', { tag: '@db' }, async ({ page, request }) => {
         test.setTimeout(180_000);
 
-        let buyerUser: { id: string; email: string; username: string };
+        let buyerUser: { id?: string; email: string; username: string };
 
         await test.step('Create buyer, login and initiate purchase without payment', async () => {
             const authApi = new AuthApi(request);

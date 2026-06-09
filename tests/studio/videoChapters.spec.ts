@@ -13,7 +13,7 @@ test.describe('Video chapters — English video', () => {
     let videoId: string;
     let videoTitle: string;
     let chapters: Array<{ startTime: number; title: string }>;
-    let user: { id: string; email: string; username: string };
+    let user: { id?: string; email: string; username: string };
 
     test.beforeAll(async ({ request }, testInfo) => {
         testInfo.setTimeout(600_000);
