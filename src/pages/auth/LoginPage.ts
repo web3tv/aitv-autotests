@@ -71,11 +71,6 @@ export class LoginPage {
     this.metamaskBrowserTab = page.getByRole('button', { name: /browser/i });
   }
 
-  async visitLoginPage() {
-    await this.page.goto('/login');
-    await this.page.waitForLoadState('networkidle');
-  }
-
   async fillEmailInput(email:string){
     await this.emailInput.waitFor({ state: 'visible', timeout: 15000 });
     await this.emailInput.click();

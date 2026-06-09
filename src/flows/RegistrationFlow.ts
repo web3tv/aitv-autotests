@@ -24,7 +24,7 @@ export class RegistrationFlow {
   }
   
   async openRegistrationPage(){
-    await this.page.goto('/register')
+    // await this.page.goto('/register')
   }
 
   async registerViaEmail(email:string,password:string){

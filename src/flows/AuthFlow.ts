@@ -33,7 +33,7 @@ export class AuthFlow {
   }
 
   async loginSuccess (email:string,password:string,username:string,device?: 'mobile' | 'desktop') {
-    await this.loginPage.visitLoginPage();
+    // await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.fillPasswordInput(password);
     await this.loginPage.clickLoginBtn();
@@ -48,7 +48,7 @@ export class AuthFlow {
   }
 
   async loginFailed (email:string,password:string,device?: 'mobile' | 'desktop') {
-    await this.loginPage.visitLoginPage();
+    // await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.fillPasswordInput(password);
     await this.loginPage.clickLoginBtn();
@@ -61,7 +61,7 @@ export class AuthFlow {
   }
 
   async loginWith2FaFailed(email:string,password:string){
-    await this.loginPage.visitLoginPage();
+    // await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.fillPasswordInput(password);
     await this.loginPage.clickLoginBtn();
@@ -79,7 +79,7 @@ export class AuthFlow {
 
   async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
     const mailTmHelper = new MailTmHelper(this.page.request);
-    await this.loginPage.visitLoginPage();
+    // await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.fillPasswordInput(password);
     const requestedAt = Date.now();
@@ -103,7 +103,7 @@ export class AuthFlow {
   }
 
   async submitForgotPasswordRequest(email: string) {
-    await this.loginPage.visitLoginPage();
+    // await this.loginPage.visitLoginPage();
     await this.forgotPasswordPage.openForm();
     await this.forgotPasswordPage.fillEmail(email);
     await this.forgotPasswordPage.submitRequest();
@@ -142,7 +142,7 @@ export class AuthFlow {
   }
 
   async passwordError (email:string,password:string) {
-    await this.loginPage.visitLoginPage();
+    // await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.fillPasswordInput(password);
     await this.loginPage.clickLoginBtn();
@@ -151,7 +151,7 @@ export class AuthFlow {
   }
 
   async usernameError (email:string, password:string) {
-    await this.loginPage.visitLoginPage();
+    // await this.loginPage.visitLoginPage();
     await this.loginPage.fillEmailInput(email);
     await this.loginPage.removeFocusFromElement();
     await expect(this.loginPage.page.locator('form')).toContainText('Username not found. Try another one.');
@@ -357,7 +357,7 @@ export class AuthFlow {
       }
     });
 
-    await this.loginPage.visitLoginPage();
+    // await this.loginPage.visitLoginPage();
     await expect(this.loginPage.telegramLoginBtn, 'Telegram login button is not visible').toBeVisible();
     await expect(this.loginPage.telegramLoginBtn, 'Telegram login button is not enabled').toBeEnabled();
     await this.loginPage.telegramLoginBtn.click();
