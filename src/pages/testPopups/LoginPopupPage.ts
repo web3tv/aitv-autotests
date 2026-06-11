@@ -14,6 +14,11 @@ export class LoginPopupPage {
     // Step 2: Email / phone input
     readonly emailUsernameeInput: Locator;
     readonly continueBtn: Locator;
+    readonly switchToPhoneBtn: Locator;
+
+    // Step 2 (phone): Phone input
+    readonly phoneInput: Locator;
+    readonly phoneContinueBtn: Locator;
 
     // Step 3a: Password (existing user)
     readonly passwordInput: Locator;
@@ -54,6 +59,10 @@ export class LoginPopupPage {
         this.appleEntryBtn    = page.getByTestId('aitv-auth-entry-apple');
         this.telegramEntryBtn = page.getByTestId('aitv-auth-entry-telegram');
         this.walletEntryBtn   = page.getByTestId('aitv-auth-entry-wallet');
+        this.switchToPhoneBtn = page.getByTestId('aitv-auth-email-switch-phone');
+
+        this.phoneInput       = page.getByTestId('aitv-auth-phone-input');
+        this.phoneContinueBtn = page.getByTestId('aitv-auth-phone-continue');
 
         this.emailUsernameeInput  = page.getByTestId('aitv-auth-email-input');
         this.continueBtn      = page.getByTestId('aitv-auth-email-continue')
@@ -188,5 +197,22 @@ export class LoginPopupPage {
         await expect(this.finishBtn, 'Finish button is not visible').toBeVisible();
         await expect(this.finishBtn, 'Finish button is not enabled').toBeEnabled();
         await this.finishBtn.click();
+    }
+
+    async clickSwitchToPhone(): Promise<void> {
+        await expect(this.switchToPhoneBtn, 'Switch to phone button is not visible').toBeVisible();
+        await expect(this.switchToPhoneBtn, 'Switch to phone button is not enabled').toBeEnabled();
+        await this.switchToPhoneBtn.click();
+    }
+
+    async fillPhone(phone: string): Promise<void> {
+        await expect(this.phoneInput, 'Phone input is not visible').toBeVisible();
+        await this.phoneInput.fill(phone);
+    }
+
+    async clickPhoneContinue(): Promise<void> {
+        await expect(this.phoneContinueBtn, 'Phone continue button is not visible').toBeVisible();
+        await expect(this.phoneContinueBtn, 'Phone continue button is not enabled').toBeEnabled();
+        await this.phoneContinueBtn.click();
     }
 }
