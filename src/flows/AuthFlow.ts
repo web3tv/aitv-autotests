@@ -516,4 +516,35 @@ export class AuthFlow {
     await this.loginPopupPage.fillCreatePassword(newPassword);
     await this.loginPopupPage.clickSetNewPassword();
   }
+
+  async loginViaPhonePopup(phone: string, password: string, username: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.clickSwitchToPhone();
+    await this.loginPopupPage.fillPhone(phone);
+    await this.loginPopupPage.clickPhoneContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await this.page.waitForURL('/');
+    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
+    await this.assertLoggedInAs(username);
+  }
+
+  async passwordErrorViaPhonePopup(phone: string, password: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickGetStarted();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.clickSwitchToPhone();
+    await this.loginPopupPage.fillPhone(phone);
+    await this.loginPopupPage.clickPhoneContinue();
+    await this.loginPopupPage.fillPassword(password);
+    await this.loginPopupPage.clickContinue2();
+    await expect(
+      this.page.locator('body'),
+      'Error message not visible in popup'
+    ).toContainText('Invalid password. Please re-enter another password.', { timeout: 10_000 });
+  }
 }

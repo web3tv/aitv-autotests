@@ -24,5 +24,11 @@ export class DataGenerator {
     const email = `${username}@${domain}`;
     return { username, email };
   }
+
+  // US phone: +1201XXXXXXX
+  static generatePhoneNumber(): string {
+    const suffix = Math.floor(Math.random() * 9_000_000 + 1_000_000);
+    return `+1201${suffix}`;
+  }
 }
 
