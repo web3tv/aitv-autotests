@@ -20,7 +20,7 @@ export class UploadVideoFlow {
 
     async uploadVideo(pathToFileURL:string,videoName:string){
         await ensureOnStudioDomain(this.page);
-        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickCreateBtn();
         await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
         const initResponsePromise = this.uploadVideoPage.page.waitForResponse(
@@ -50,7 +50,7 @@ export class UploadVideoFlow {
  
     async uploadVideoToForm(pathToFileURL: string, videoName: string) {
         await ensureOnStudioDomain(this.page);
-        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickCreateBtn();
         await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
         const initResponsePromise = this.uploadVideoPage.page.waitForResponse(
@@ -77,7 +77,7 @@ export class UploadVideoFlow {
 
     async uploadShort(pathToFileURL:string,videoName:string){
         await ensureOnStudioDomain(this.page);
-        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickCreateBtn();
         await this.headerPage.clickNewShortBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Short' })).toBeVisible();
         const mimeType = pathToFileURL.toLowerCase().endsWith('.mov') ? 'video/quicktime' : undefined;

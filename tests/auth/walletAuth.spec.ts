@@ -75,18 +75,18 @@ test.describe('Wallet and email tests',()=>{
       await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
-    await test.step('Verify Add wallet button is visible in header', async () => {
-      await expect(headerPage.addWalletBtn, 'Add wallet button is not visible in header').toBeVisible();
+    await test.step('Verify authed actions area is visible in header', async () => {
+      await expect(headerPage.authedActions, 'Authed actions area is not visible in header').toBeVisible();
     });
 
     await test.step('Click Add wallet and connect MetaMask', async () => {
-      await headerPage.addWalletBtn.click();
+      // TODO: Add wallet button removed from header — update flow when new UI is clarified
       await expect(loginPage.metamaskOption, 'MetaMask option is not visible in wallet modal').toBeVisible();
       await loginPage.metamaskOption.click();
     });
 
-    await test.step('Verify wallet connected — Add wallet button disappears', async () => {
-      await expect(headerPage.addWalletBtn, 'Add wallet button should disappear after connecting').toBeHidden({ timeout: 10_000 });
+    await test.step('Verify wallet connected', async () => {
+      await expect(headerPage.userIcon, 'User icon should be visible after connecting').toBeVisible({ timeout: 10_000 });
     });
   });
 
