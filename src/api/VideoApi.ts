@@ -39,10 +39,7 @@ export class VideoApi {
 
         const json = await response.json();
         const items = json?.items ?? json?.data?.items ?? [];
-        const chainAbstraction = items.find(
-            (c: { slug?: string }) => c?.slug === "chain-abstraction"
-        );
-        const picked = chainAbstraction ?? items[5];
+        const picked = items[0];
 
         if (!picked?.id) {
             throw new Error(
