@@ -254,7 +254,7 @@ export class VideoApi {
         if (options.title) multipart.title = options.title;
         if (options.description) multipart.description = options.description;
         const catId = options.categoryId ?? (await this.getDefaultCategoryId());
-        multipart["categoryIds[0]"] = String(catId);
+        multipart["categoryId"] = String(catId);
         if (options.privacySetting) multipart.privacySetting = options.privacySetting;
         if (options.publishedAt) multipart.publishedAt = options.publishedAt;
 
@@ -295,7 +295,7 @@ export class VideoApi {
         const fields: Record<string, string> = {
             title: meta.title,
             description: meta.description,
-            "categoryIds[0]": catId,
+            "categoryId": catId,
             privacySetting: "paid",
         };
 
