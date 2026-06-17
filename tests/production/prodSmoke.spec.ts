@@ -45,7 +45,7 @@ test.describe('Auth', () => {
 
 test.describe('Video upload', () => {
 
-    test.skip('Upload private video', { annotation: { type: 'TC', description: 'PROD-004' } }, async ({ page }) => {
+    test('Upload private video', { annotation: { type: 'TC', description: 'PROD-004' } }, async ({ page }) => {
         test.setTimeout(120_000);
         const authFlow = new AuthFlow(page);
         const uploadVideoFlow = new UploadVideoFlow(page);
