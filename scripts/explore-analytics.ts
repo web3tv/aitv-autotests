@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 
-dotenv.config({ path: path.resolve(__dirname, '../.env.dev') });
+dotenv.config({ path: path.resolve(__dirname, '../.env.web3tv2') });
 
 const API_URL    = process.env.API_URL!;
 const BASE_URL   = process.env.BASE_URL!;

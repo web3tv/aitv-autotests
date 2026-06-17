@@ -26,7 +26,7 @@ jobs:
           if [ "${{ inputs.environment }}" = "dev1" ]; then
             grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv >> $GITHUB_ENV
           else
-            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.dev >> $GITHUB_ENV
+            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv2 >> $GITHUB_ENV
           fi
 
       - uses: actions/setup-node@v4
