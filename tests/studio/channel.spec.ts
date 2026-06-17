@@ -50,7 +50,7 @@ test('Auto-created channel has handle as name without "Channel" suffix',
 );
 
 test('Set default video description in channel settings — saved successfully',
-    { tag: '@critical', annotation: { type: 'TC', description: 'CHANNEL-017' } },
+    { annotation: { type: 'TC', description: 'CHANNEL-017' } },
     async ({ page, request }) => {
         test.setTimeout(60_000);
 
