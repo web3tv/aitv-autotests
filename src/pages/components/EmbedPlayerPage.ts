@@ -31,7 +31,7 @@ export class EmbedPlayerPage {
         await page.setContent(`
             <iframe
                 src="${embedSrc}"
-                title="Web3.TV video player"
+                title="Ai.tv video player"
                 width="${width}"
                 height="${height}"
                 allow="accelerometer; autoplay; encrypted-media; gyroscope"
