@@ -24,9 +24,9 @@ jobs:
       - name: Load environment config
         run: |
           if [ "${{ inputs.environment }}" = "dev1" ]; then
-            cat .env.web3tv >> $GITHUB_ENV
+            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv >> $GITHUB_ENV
           else
-            cat .env.dev >> $GITHUB_ENV
+            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.dev >> $GITHUB_ENV
           fi
 
       - uses: actions/setup-node@v4
