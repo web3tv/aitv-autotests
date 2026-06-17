@@ -1,7 +1,6 @@
 import { test, expect, request as playwrightRequest } from '@playwright/test';
-import { AuthApi } from '../../../src/api/AuthApi';
-import { VideoApi } from '../../../src/api/VideoApi';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 
 test.describe('Mobile visual tests', () => {
 
@@ -13,25 +12,17 @@ test.describe('Mobile visual tests', () => {
 
     test.beforeAll(async () => {
         const requestContext = await playwrightRequest.newContext();
-        const authApi = new AuthApi(requestContext);
-        const videoApi = new VideoApi(requestContext);
         password = process.env.USER_PASSWORD!;
-        const baseUrl = process.env.BASE_URL!;
 
-        const user = await authApi.createUserFast();
-        userEmail = user.email;
-        username = user.username;
-
-        const token = await authApi.getUserToken(user.email, password);
-
-        const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
+        const setup = await setupVideoViaApi(requestContext, {
+            privacySetting: 'public',
             title: `Visual_${Date.now()}`,
             description: 'Visual test video',
-            privacySetting: 'public',
-            waitForProcessing: true,
         });
-        videoUrl = video.videoPlayerFeUrl;
-        channelUrl = `${baseUrl}/@${user.username}`;
+        userEmail = setup.user.email;
+        username = setup.user.username;
+        videoUrl = setup.videoUrl;
+        channelUrl = setup.channelUrl;
 
         await requestContext.dispose();
     });

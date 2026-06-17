@@ -14,7 +14,7 @@ test.describe('Phone login tests', () => {
         const user = await authApi.createUserFastViaPhone(phone);
 
         await test.step('Open login popup and enter phone credentials', async () => {
-            await authFlow.loginViaPhonePopup(user.phone, process.env.USER_PASSWORD!, user.username);
+            await authFlow.loginSuccess({ phone: user.phone }, process.env.USER_PASSWORD!, user.username);
         });
     });
 
@@ -25,7 +25,7 @@ test.describe('Phone login tests', () => {
         await authApi.createUserFastViaPhone(phone);
 
         await test.step('Open popup and submit wrong password', async () => {
-            await authFlow.passwordErrorViaPhonePopup(phone, 'Admin1@');
+            await authFlow.passwordErrorViaPopup({ phone }, 'Admin1@');
         });
     });
 

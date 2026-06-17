@@ -1,8 +1,7 @@
 import { test, expect, request as playwrightRequest } from '@playwright/test';
-import { AuthApi } from '../../../src/api/AuthApi';
-import { VideoApi } from '../../../src/api/VideoApi';
 import { LoginPage } from '../../../src/pages/auth/LoginPage';
 import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
+import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 
 const mainBaseUrl = process.env.BASE_URL || 'https://web3tv.dev';
 
@@ -25,21 +24,14 @@ test.describe('Studio visual tests', () => {
 
     test.beforeAll(async () => {
         const requestContext = await playwrightRequest.newContext();
-        const authApi = new AuthApi(requestContext);
-        const videoApi = new VideoApi(requestContext);
         password = process.env.USER_PASSWORD!;
 
-        const user = await authApi.createUserFast();
-        userEmail = user.email;
-
-        const token = await authApi.getUserToken(user.email, password);
-
-        await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
+        const setup = await setupVideoViaApi(requestContext, {
+            privacySetting: 'public',
             title: `Visual_${Date.now()}`,
             description: 'Visual test video',
-            privacySetting: 'public',
-            waitForProcessing: true,
         });
+        userEmail = setup.user.email;
 
         await requestContext.dispose();
     });

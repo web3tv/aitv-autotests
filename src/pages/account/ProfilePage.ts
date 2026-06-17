@@ -1,6 +1,5 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
-import { HeaderPage } from '../components/HeaderPage';
 import * as path from 'path';
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../');

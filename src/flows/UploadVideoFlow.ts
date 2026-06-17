@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { HeaderPage } from "../pages/components/HeaderPage";
+import { StudioHeaderPage } from "../pages/components/StudioHeaderPage";
 import { UploadVideoPage } from "../pages/components/UploadVideoPage";
 
 import { Page } from '@playwright/test';
@@ -10,12 +10,12 @@ export class UploadVideoFlow {
     private timestamp: string = '';
 
     readonly uploadVideoPage: UploadVideoPage;
-    readonly headerPage: HeaderPage;
-    
+    readonly headerPage: StudioHeaderPage;
+
 
     constructor(public page: Page){
         this.uploadVideoPage = new UploadVideoPage(page);
-        this.headerPage = new HeaderPage(page);
+        this.headerPage = new StudioHeaderPage(page);
     }
 
     async uploadVideo(pathToFileURL:string,videoName:string){

@@ -12,7 +12,7 @@ import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
 import { MyPaidSubsPage } from '../../src/pages/account/MyPaidSubsPage';
 import { setupVideoViaApi, VideoSetupResult } from '../../src/utils/studioTestHelpers';
 
-test('Paid video suite', { tag: '@critical', annotation: [{ type: 'TC', description: 'PAID-001' }, { type: 'TC', description: 'PAID-002' }, { type: 'TC', description: 'PAID-003' }] }, async ({ page, request }) => {
+test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' }, { type: 'TC', description: 'PAID-002' }, { type: 'TC', description: 'PAID-003' }] }, async ({ page, request }) => {
     test.setTimeout(210_000);
     let user: { email: string, username: string };
     let videoUrl: string | null;
