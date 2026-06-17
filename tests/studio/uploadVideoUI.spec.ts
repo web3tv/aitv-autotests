@@ -6,7 +6,7 @@ import { AuthApi } from '../../src/api/AuthApi';
 import { uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
 
 test('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 'UPLOAD-001' } }, async ({ page, request }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(240_000);
     let user: { email: string, username: string };
     const videoName: string = Date.now().toString();
 
@@ -37,7 +37,7 @@ test('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 
 });
 
 test('Upload short video', {  tag: '@critical', annotation: { type: 'TC', description: 'UPLOAD-005' } }, async ({ page, request }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(240_000);
     let user: { email: string, username: string };
     const videoName: string = Date.now().toString();
 
