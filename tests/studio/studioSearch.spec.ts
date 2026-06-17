@@ -4,6 +4,7 @@ import { VideoApi } from '../../src/api/VideoApi';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { SideBarPage } from '../../src/pages/components/SideBarPage';
 import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
+import { setupVideoViaApi } from '../../src/utils/studioTestHelpers';
 
 test.describe('Studio Content Search', () => {
 
@@ -98,18 +99,12 @@ test.describe('Studio Content Search', () => {
         let videoDescription: string;
 
         await test.step('Setup: create user and upload video via API', async () => {
-            const user = await authApi.createUserFast();
-            const token = await authApi.getUserToken(user.email, password);
-
             videoDescription = `UniqueDesc_${Date.now()}`;
-            await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
-                title: `Video_${Date.now()}`,
-                description: videoDescription,
+            const setup = await setupVideoViaApi(request, {
                 privacySetting: 'public',
-                waitForProcessing: true,
+                description: videoDescription,
             });
-
-            await authFlow.loginSuccess(user.email, password, user.username);
+            await authFlow.loginSuccess(setup.user.email, password, setup.user.username);
         });
 
         await test.step('Navigate to Studio Content page', async () => {
@@ -147,19 +142,14 @@ test.describe('Studio Content Search', () => {
         let shortName: string;
 
         await test.step('Setup: create user and upload 1 short via API', async () => {
-            const user = await authApi.createUserFast();
-            const token = await authApi.getUserToken(user.email, password);
-
-            const short1 = await videoApi.uploadVideo(token, 'test-data/fixtures/video/shortsVideo.mp4', {
+            const setup = await setupVideoViaApi(request, {
+                privacySetting: 'public',
                 title: `ShortAlpha_${Date.now()}`,
                 description: `short_desc_alpha_${Date.now()}`,
-                privacySetting: 'public',
                 contentType: 'short',
-                waitForProcessing: true,
             });
-            shortName = short1.title;
-
-            await authFlow.loginSuccess(user.email, password, user.username);
+            shortName = setup.videoName;
+            await authFlow.loginSuccess(setup.user.email, password, setup.user.username);
         });
 
         await test.step('Navigate to Studio Content page and switch to Shorts tab', async () => {

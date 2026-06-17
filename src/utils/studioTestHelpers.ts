@@ -34,8 +34,11 @@ export async function setupVideoViaApi(
     request: APIRequestContext,
     options: {
         privacySetting: 'public' | 'private' | 'unlisted' | 'paid';
+        title?: string;
         description?: string;
         contentType?: 'video' | 'short';
+        coverVerticalImgPath?: string;
+        waitForProcessing?: boolean;
         subscriptionOptions?: { title: string; description: string; price: string; duration?: number };
     }
 ): Promise<VideoSetupResult> {
@@ -48,7 +51,7 @@ export async function setupVideoViaApi(
     const token = await authApi.getUserToken(user.email, password);
     const channelId = await videoApi.getChannelId(token);
 
-    const videoName = Date.now().toString();
+    const videoName = options.title ?? Date.now().toString();
     const description = options.description ?? (Date.now() + 1).toString();
 
     let subId: string | undefined;
@@ -79,7 +82,8 @@ export async function setupVideoViaApi(
         privacySetting: options.privacySetting,
         contentType,
         subId,
-        waitForProcessing: true,
+        coverVerticalImgPath: options.coverVerticalImgPath ?? 'test-data/fixtures/photo/cat.jpg',
+        waitForProcessing: options.waitForProcessing ?? true,
     });
 
     return {

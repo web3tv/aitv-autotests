@@ -36,7 +36,7 @@ test('Upload video', { tag: '@critical', annotation: { type: 'TC', description: 
     });
 });
 
-test('Upload short video', { annotation: { type: 'TC', description: 'UPLOAD-005' } }, async ({ page, request }) => {
+test('Upload short video', {  tag: '@critical', annotation: { type: 'TC', description: 'UPLOAD-005' } }, async ({ page, request }) => {
     test.setTimeout(180_000);
     let user: { email: string, username: string };
     const videoName: string = Date.now().toString();

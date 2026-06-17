@@ -6,24 +6,28 @@ export class UserDropdownPage {
     readonly page: Page;
 
     readonly dropdown: Locator;
-    readonly closeBtn: Locator;
-    readonly channelLink: Locator;
     readonly switchChannelBtn: Locator;
     readonly createChannelBtn: Locator;
+    readonly studioLink: Locator;
+    readonly purchasesLink: Locator;
+    readonly accountLink: Locator;
+    readonly supportLink: Locator;
     readonly logoutBtn: Locator;
 
     constructor(page: Page) {
         this.page = page;
 
         this.dropdown = page.locator('[aria-labelledby="aitv-profile-button"]');
-        this.closeBtn = page.locator('[data-id="aitv-profile-menu-close"]');
-        this.channelLink = page.locator('[data-id="aitv-profile-menu-channel-link"]');
         this.switchChannelBtn = page.locator('[data-id="aitv-profile-menu-switch-channel"]');
         this.createChannelBtn = page.locator('[data-id="aitv-profile-menu-create-channel"]');
-        this.logoutBtn = page.getByRole('menuitem', { name: 'Log out' });
+        this.studioLink = page.locator('[data-id="aitv-profile-menu-studio"]');
+        this.purchasesLink = page.locator('[data-id="aitv-profile-menu-purchases"]');
+        this.accountLink = page.locator('[data-id="aitv-profile-menu-account"]');
+        this.supportLink = page.locator('[data-id="aitv-profile-menu-support"]');
+        this.logoutBtn = page.locator('[data-id="aitv-profile-menu-logout"]');
     }
 
-    async clickAddChannelBtn(){
+    async clickAddChannelBtn() {
         await expect(this.createChannelBtn, 'Add Channel button is not visible').toBeVisible();
         await expect(this.createChannelBtn, 'Add Channel button is not enabled').toBeEnabled();
         await this.createChannelBtn.click();
@@ -31,12 +35,9 @@ export class UserDropdownPage {
         await expect(this.page.getByText('Create Your Ai.tv Channel')).toBeVisible();
     }
 
-    async clickLogoutBtn(){
-        await expect(this.logoutBtn, 'Sign out button is not visible').toBeVisible();
-        await expect(this.logoutBtn, 'Sign out button is not enabled').toBeEnabled();
+    async clickLogoutBtn() {
+        await expect(this.logoutBtn, 'Log out button is not visible').toBeVisible();
+        await expect(this.logoutBtn, 'Log out button is not enabled').toBeEnabled();
         await this.logoutBtn.click();
     }
-
-
-
 }

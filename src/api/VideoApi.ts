@@ -39,10 +39,7 @@ export class VideoApi {
 
         const json = await response.json();
         const items = json?.items ?? json?.data?.items ?? [];
-        const chainAbstraction = items.find(
-            (c: { slug?: string }) => c?.slug === "chain-abstraction"
-        );
-        const picked = chainAbstraction ?? items[5];
+        const picked = items[0];
 
         if (!picked?.id) {
             throw new Error(
@@ -221,6 +218,33 @@ export class VideoApi {
         }
     }
 
+    private async fetchVideoUrl(
+        token: string,
+        videoId: string,
+        contentType: "video" | "short" = "video"
+    ): Promise<string> {
+        const response = await this.request.get(`${this.baseUrl}/videos/studio/`, {
+            headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+            params: { withFacets: "true", id: videoId, type: contentType },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to fetch video: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const item = (json?.data?.items ?? json?.items)?.[0];
+        const videoType = item?.type;
+        const categorySlug = item?.category?.slug ?? item?.categories?.[0]?.slug;
+        const videoSlug = item?.slug;
+        if (videoType && categorySlug && videoSlug) {
+            return `${process.env.BASE_URL}/${videoType}/${categorySlug}/${videoSlug}`;
+        }
+        throw new Error(
+            `Cannot build URL for video ${videoId}: ` +
+            `type=${videoType}, categorySlug=${categorySlug}, slug=${videoSlug}`
+        );
+    }
+
     private async completeUpload(token: string, videoId: string): Promise<void> {
         const response = await this.request.post(
             `${this.baseUrl}/videos/${videoId}/complete`,
@@ -248,15 +272,28 @@ export class VideoApi {
             categoryId?: number;
             privacySetting?: "public" | "private" | "paid" | "unlisted";
             publishedAt?: string;
+            coverVerticalImgPath?: string;
         }
     ): Promise<void> {
-        const multipart: Record<string, string> = {};
+        const multipart: Record<string, string | { name: string; mimeType: string; buffer: Buffer }> = {};
         if (options.title) multipart.title = options.title;
         if (options.description) multipart.description = options.description;
         const catId = options.categoryId ?? (await this.getDefaultCategoryId());
         multipart["categoryId"] = String(catId);
         if (options.privacySetting) multipart.privacySetting = options.privacySetting;
         if (options.publishedAt) multipart.publishedAt = options.publishedAt;
+        if (options.coverVerticalImgPath) {
+            const absPath = path.isAbsolute(options.coverVerticalImgPath)
+                ? options.coverVerticalImgPath
+                : path.resolve(PROJECT_ROOT, options.coverVerticalImgPath);
+            const ext = path.extname(absPath).toLowerCase();
+            const mimeType = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
+            multipart.coverVerticalImg = {
+                name: path.basename(absPath),
+                mimeType,
+                buffer: fs.readFileSync(absPath),
+            };
+        }
 
         const response = await this.request.post(
             `${this.baseUrl}/videos/${videoId}`,
@@ -297,6 +334,7 @@ export class VideoApi {
             description: meta.description,
             "categoryId": catId,
             privacySetting: "paid",
+            publishedAt: new Date().toISOString(),
         };
 
         let body = "";
@@ -357,12 +395,16 @@ export class VideoApi {
                 if (state === "completed") {
                     const item = items[0];
                     const videoType = item?.type;
-                    const categorySlug = item?.categories?.[0]?.slug;
+                    const categorySlug = item?.category?.slug ?? item?.categories?.[0]?.slug;
                     const videoSlug = item?.slug;
                     if (videoType && categorySlug && videoSlug) {
                         return `${process.env.BASE_URL}/${videoType}/${categorySlug}/${videoSlug}`;
                     }
-                    return undefined;
+                    throw new Error(
+                        `Video ${videoId} completed but URL fields are missing: ` +
+                        `type=${videoType}, categorySlug=${categorySlug}, slug=${videoSlug}. ` +
+                        `Full item: ${JSON.stringify(item)}`
+                    );
                 }
                 if (state === "failed") {
                     throw new Error(`Video ${videoId} processing failed`);
@@ -406,15 +448,19 @@ export class VideoApi {
             contentType?: "video" | "short";
             subId?: string;
             waitForProcessing?: boolean;
+            coverVerticalImgPath?: string;
+            publishedAt?: string;
         } = {}
     ): Promise<UploadedVideo> {
         const title = options.title ?? `Video_${Date.now()}`;
-        const channelId = await this.getChannelId(token);
+        const channelInfo = await this.getChannelInfo(token);
+        const channelId = channelInfo.id;
+        console.log(`[VideoApi] Uploading "${title}" for channel: "${channelInfo.name}" (@${channelInfo.handle})`);
 
         // 1. Init
         const initResult = await this.initUpload(token, channelId, filePath);
         const id = initResult.id;
-        let videoPlayerFeUrl = initResult.videoPlayerFeUrl;
+        let videoPlayerFeUrl: string;
 
         // 2. Upload chunk (single chunk for files < 50MB)
         await this.uploadChunk(token, id, filePath);
@@ -424,11 +470,16 @@ export class VideoApi {
 
         // 4. Update metadata + visibility
         const isPaid = options.privacySetting === "paid" && options.subId;
+        const publishedAt =
+            options.publishedAt ??
+            (options.privacySetting !== 'private' && options.privacySetting ? new Date().toISOString() : undefined);
         await this.updateVideo(token, id, {
             title,
             description: options.description ?? `${Date.now()}`,
             categoryId: options.categoryId,
             privacySetting: isPaid ? undefined : options.privacySetting,
+            coverVerticalImgPath: options.coverVerticalImgPath,
+            publishedAt,
         });
 
         // 4b. Bind subscription for paid videos (via frontend proxy)
@@ -440,12 +491,17 @@ export class VideoApi {
             });
         }
 
-        // 5. Wait for processing (optional) — builds correct video URL from response
+        // 5. Build video URL; if processing is required — wait for completion first
         if (options.waitForProcessing) {
             const builtUrl = await this.waitForProcessing(
                 token, id, options.contentType ?? "video"
             );
-            if (builtUrl) videoPlayerFeUrl = builtUrl;
+            if (!builtUrl) {
+                throw new Error(`No player URL available for video ${id} after processing`);
+            }
+            videoPlayerFeUrl = builtUrl;
+        } else {
+            videoPlayerFeUrl = await this.fetchVideoUrl(token, id, options.contentType ?? "video");
         }
 
         return { id, title, channelId, videoPlayerFeUrl };

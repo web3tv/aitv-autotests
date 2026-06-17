@@ -1,71 +1,46 @@
 import { test } from '@playwright/test';
 import { AuthApi } from '../../src/api/AuthApi';
-import { VideoApi } from '../../src/api/VideoApi';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
+import { setupVideoViaApi } from '../../src/utils/studioTestHelpers';
 
 test('Video player plays uploaded video', { tag: '@critical', annotation: [{ type: 'TC', description: 'PLAYER-001' }, { type: 'TC', description: 'PLAYER-002' }, { type: 'TC', description: 'PLAYER-003' }] }, async ({ page, request }) => {
     test.setTimeout(120_000);
-    const videoName: string = Date.now().toString();
     const password = process.env.USER_PASSWORD!;
-    const authApi = new AuthApi(request);
-    const videoApi = new VideoApi(request);
-    let videoUrl: string;
-    let userEmail: string;
-    let username: string;
+    const authFlow = new AuthFlow(page);
+    const videoPlayer = new VideoPlayerPage(page);
+    let setup: Awaited<ReturnType<typeof setupVideoViaApi>>;
 
     await test.step('Create user and upload video via API', async () => {
-        const user = await authApi.createUserFast();
-        userEmail = user.email;
-        username = user.username;
-        const token = await authApi.getUserToken(userEmail, password);
-
-        const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/5secVideo.mp4', {
-            title: videoName,
-            privacySetting: 'public',
-            waitForProcessing: true,
-        });
-        videoUrl = video.videoPlayerFeUrl;
+        setup = await setupVideoViaApi(request, { privacySetting: 'public' });
     });
 
     await test.step('Login, open video and assert player is playing', async () => {
-        const authFlow = new AuthFlow(page);
-        const videoPlayer = new VideoPlayerPage(page);
-
-        await authFlow.loginSuccess(userEmail, password, username);
-        await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        await authFlow.loginSuccess(setup.user.email, password, setup.user.username);
+        await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
         await videoPlayer.assertVideoIsPlaying();
     });
 });
 
 test('Video player plays uploaded short', { annotation: [{ type: 'TC', description: 'SHORTS-001' }, { type: 'TC', description: 'SHORTS-002' }] }, async ({ page, request }) => {
     test.setTimeout(180_000);
-    const videoName: string = Date.now().toString();
     const password = process.env.USER_PASSWORD!;
     const authApi = new AuthApi(request);
-    const videoApi = new VideoApi(request);
-    let shortUrl: string;
+    const authFlow = new AuthFlow(page);
+    const videoPlayer = new VideoPlayerPage(page);
+    let setup: Awaited<ReturnType<typeof setupVideoViaApi>>;
 
     await test.step('Create user and upload short via API', async () => {
-        const user = await authApi.createUserFast();
-        const token = await authApi.getUserToken(user.email, password);
-
-        const video = await videoApi.uploadVideo(token, 'test-data/fixtures/video/shortsVideo.mp4', {
-            title: videoName,
+        setup = await setupVideoViaApi(request, {
             privacySetting: 'public',
             contentType: 'short',
-            waitForProcessing: true,
         });
-        shortUrl = video.videoPlayerFeUrl;
     });
 
     await test.step('Login as another user, open short and assert player is playing', async () => {
-        const authFlow = new AuthFlow(page);
-        const videoPlayer = new VideoPlayerPage(page);
-
         const user2 = await authApi.createUserFast();
         await authFlow.loginSuccess(user2.email, password, user2.username);
-        await page.goto(shortUrl, { waitUntil: 'domcontentloaded' });
+        await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
         await videoPlayer.assertShortsIsPlaying();
     });
 });

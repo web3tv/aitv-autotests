@@ -22,9 +22,7 @@ export class MailTmHelper {
     return this.email;
   }
 
-  async createMailbox(retries = 3, delayMs = 10000) {
-    // console.log('Attempting to create mailbox with email:', this.email);
-
+  async createMailbox(retries = 5, initialDelayMs = 15000) {
     for (let i = 0; i < retries; i++) {
       const res = await this.request.post(`${this.baseUrl}/accounts`, {
         data: {
@@ -34,13 +32,13 @@ export class MailTmHelper {
       });
 
       if (res.ok()) {
-        // console.log('Mailbox created successfully.');
         return;
       }
 
       if (res.status() === 429) {
-        console.warn(`Too Many Requests. Retrying in ${delayMs}ms... (${i + 1}/${retries})`);
-        await new Promise(r => setTimeout(r, delayMs));
+        const delay = Math.round(initialDelayMs * Math.pow(1.5, i));
+        console.warn(`Too Many Requests. Retrying in ${delay / 1000}s... (${i + 1}/${retries})`);
+        await new Promise(r => setTimeout(r, delay));
         continue;
       }
 

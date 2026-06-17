@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { HeaderPage } from "../pages/components/HeaderPage";
+import { StudioHeaderPage } from "../pages/components/StudioHeaderPage";
 import { UploadVideoPage } from "../pages/components/UploadVideoPage";
 
 import { Page } from '@playwright/test';
@@ -10,17 +10,17 @@ export class UploadVideoFlow {
     private timestamp: string = '';
 
     readonly uploadVideoPage: UploadVideoPage;
-    readonly headerPage: HeaderPage;
-    
+    readonly headerPage: StudioHeaderPage;
+
 
     constructor(public page: Page){
         this.uploadVideoPage = new UploadVideoPage(page);
-        this.headerPage = new HeaderPage(page);
+        this.headerPage = new StudioHeaderPage(page);
     }
 
     async uploadVideo(pathToFileURL:string,videoName:string){
         await ensureOnStudioDomain(this.page);
-        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickCreateBtn();
         await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
         const initResponsePromise = this.uploadVideoPage.page.waitForResponse(
@@ -50,7 +50,7 @@ export class UploadVideoFlow {
  
     async uploadVideoToForm(pathToFileURL: string, videoName: string) {
         await ensureOnStudioDomain(this.page);
-        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickCreateBtn();
         await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
         const initResponsePromise = this.uploadVideoPage.page.waitForResponse(
@@ -77,7 +77,7 @@ export class UploadVideoFlow {
 
     async uploadShort(pathToFileURL:string,videoName:string){
         await ensureOnStudioDomain(this.page);
-        await this.headerPage.clickAddVideoBtn();
+        await this.headerPage.clickCreateBtn();
         await this.headerPage.clickNewShortBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Short' })).toBeVisible();
         const mimeType = pathToFileURL.toLowerCase().endsWith('.mov') ? 'video/quicktime' : undefined;

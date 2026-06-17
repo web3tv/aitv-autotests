@@ -13,17 +13,17 @@ test.describe('Login tests', () => {
         const user = await authApi.createUserFast();
 
         await test.step('Open login popup and enter credentials', async () => {
-            await authFlow.loginViaPopup(user.email, process.env.USER_PASSWORD!, user.username);
+            await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
         });
     });
 
-    test('Success logout', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-004' } }, async ({ page, request }) => {
+    test('Success logout', { annotation: { type: 'TC', description: 'AUTH-004' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
         const user = await authApi.createUserFast();
 
         await test.step('Login via popup', async () => {
-            await authFlow.loginViaPopup(user.email, process.env.USER_PASSWORD!, user.username);
+            await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
         });
 
         await test.step('Logout and verify redirect to home', async () => {
@@ -60,13 +60,27 @@ test.describe('Registration tests', () => {
         });
     });
 
-    test('Register and verify user via API, then login via popup', { tag: '@critical', annotation: { type: 'TC', description: 'AUTH-006' } }, async ({ page, request }) => {
+    test('Register and verify user via API, then login via popup', { annotation: { type: 'TC', description: 'AUTH-006' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
         const user = await authApi.createUserFast();
 
         await test.step('Login via popup with API-created user', async () => {
-            await authFlow.loginViaPopup(user.email, process.env.USER_PASSWORD!, user.username);
+            await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
+        });
+    });
+
+    test('Can`t verify email with wrong code 4 times — too many attempts error', { annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page, request }) => {
+        const authFlow = new AuthFlow(page);
+        const mailTmHelper = new MailTmHelper(request);
+        let email: string;
+
+        await test.step('Generate email for registration', async () => {
+            email = await mailTmHelper.generateEmail();
+        });
+
+        await test.step('Enter wrong verification code 4 times and verify attempt messages', async () => {
+            await authFlow.enterWrongCodeMaxAttemptsViaPopup(email);
         });
     });
 
@@ -107,7 +121,7 @@ test.describe('Reset password tests', () => {
         });
 
         await test.step('Login with new password — expect success', async () => {
-            await authFlow.loginViaPopup(email, newPassword, username);
+            await authFlow.loginSuccess(email, newPassword, username);
         });
     });
 
@@ -159,7 +173,7 @@ test.describe.skip('2FA tests', () => {
             const authFlow = new AuthFlow(page);
 
             user = await registrationFlow.registerAndVerifyUserViaPopup();
-            await authFlow.loginViaPopup(user.email, user.password, user.username);
+            await authFlow.loginSuccess(user.email, user.password, user.username);
         });
 
         await test.step('Login - insert incorrect 2FA code - Failed', async () => {
@@ -181,12 +195,12 @@ test.describe.skip('2FA tests', () => {
             const authFlow = new AuthFlow(page);
 
             user = await registrationFlow.registerAndVerifyUserViaPopup();
-            await authFlow.loginViaPopup(user.email, user.password, user.username);
+            await authFlow.loginSuccess(user.email, user.password, user.username);
         });
 
         await test.step('Login without 2FA - Success', async () => {
             const authFlow = new AuthFlow(page);
-            await authFlow.loginViaPopup(user.email, user.password, user.username);
+            await authFlow.loginSuccess(user.email, user.password, user.username);
         });
     });
 
