@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 if (process.env.ENV_FILE || !process.env.CI) {
-  const envFile = process.env.ENV_FILE || '.env.dev';
+  const envFile = process.env.ENV_FILE || '.env.web3tv2';
   dotenv.config({ path: path.resolve(__dirname, envFile), quiet: true });
 }
 

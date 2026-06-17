@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import mysql from 'mysql2/promise';
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env.dev') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.web3tv2') });
 
 const arg = process.argv[2];
 if (!arg) {

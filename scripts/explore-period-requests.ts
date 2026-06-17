@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-dotenv.config({ path: path.resolve(__dirname, '../.env.dev') });
+dotenv.config({ path: path.resolve(__dirname, '../.env.web3tv2') });
 
 const BASE_URL   = process.env.BASE_URL!;
 const STUDIO_URL = process.env.STUDIO_URL!;

@@ -48,7 +48,7 @@ npx playwright show-report
 
 ## Environment Setup
 
-Local config is loaded from `.env.dev` (not committed). Required variables:
+Local config is loaded from `.env.web3tv2` (not committed). Required variables:
 - `BASE_URL` — frontend URL (e.g. `https://web3tv.dev`)
 - `API_URL` — backend API base URL
 - `USER_LOGIN_ADMIN` — admin username for API-based user verification
