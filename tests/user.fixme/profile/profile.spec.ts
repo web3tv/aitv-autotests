@@ -4,7 +4,7 @@ import { AuthApi } from '../../../src/api/AuthApi';
 import { SideBarPage } from '../../../src/pages/components/SideBarPage';
 import { ProfilePage } from '../../../src/pages/account/ProfilePage';
 
-test.fixme('Change user avatar and check new avatar is displayed', { tag: '@critical', annotation: [{ type: 'TC', description: 'PROFILE-001' }, { type: 'TC', description: 'PROFILE-002' }] }, async ({ page, request }) => {
+test.fixme('Change user avatar and check new avatar is displayed', { annotation: [{ type: 'TC', description: 'PROFILE-001' }, { type: 'TC', description: 'PROFILE-002' }] }, async ({ page, request }) => {
   const authApi = new AuthApi(request);
   const authFlow = new AuthFlow(page);
   const sideBarPage = new SideBarPage(page);
