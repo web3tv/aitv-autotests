@@ -116,8 +116,12 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
           BODY=$(jq -nc \
-            --arg text "Autotests [$ENVIRONMENT]: $STATUS\n$RUN_URL" \
-            '{body: {type: "doc", version: 1, content: [{type: "paragraph", content: [{type: "text", text: $text}]}]}}')
+            --arg label "Autotests [$ENVIRONMENT]: $STATUS — " \
+            --arg url "$RUN_URL" \
+            '{body: {type: "doc", version: 1, content: [{type: "paragraph", content: [
+              {type: "text", text: $label},
+              {type: "text", text: "View run →", marks: [{type: "link", attrs: {href: $url}}]}
+            ]}]}}')
           curl -s -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: Basic $(printf '%s:%s' "$JIRA_EMAIL" "$JIRA_API_TOKEN" | base64 -w 0)" \
