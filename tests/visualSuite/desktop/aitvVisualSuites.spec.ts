@@ -36,14 +36,20 @@ test.describe('AITV visual tests', () => {
             await expect(page.getByRole('link', { name: 'Top titles today' })).toBeVisible();
         });
 
+        await test.step('Hide dynamic images via CSS', async () => {
+            await page.addStyleTag({
+                content: `
+                    [data-id="aitv-hero"] img,
+                    [data-id="aitv-hero"] video,
+                    [data-id="aitv-top-card"] img,
+                    [data-id="aitv-video-card"] img { visibility: hidden !important; }
+                `,
+            });
+        });
+
         await test.step('Take screenshot', async () => {
             await expect(page).toHaveScreenshot({
                 fullPage: true,
-                mask: [
-                    page.locator('[data-id="aitv-hero"]'),
-                    page.locator('[data-id="aitv-top-card"]'),
-                    page.locator('[data-id="aitv-video-card"]'),
-                ],
                 maxDiffPixelRatio: 0.02,
             });
         });
