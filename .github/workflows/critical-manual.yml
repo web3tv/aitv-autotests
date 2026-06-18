@@ -12,8 +12,8 @@ on:
           - dev2
           - dev1
       task:
-        description: 'Номер задачи (например PROJ-123)'
-        required: false
+        description: 'Номер задачи - W3-XXXX'
+        required: true
         type: string
 
 jobs:
