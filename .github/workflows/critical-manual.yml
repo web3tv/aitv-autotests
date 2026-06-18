@@ -11,6 +11,10 @@ on:
         options:
           - dev2
           - dev1
+      task:
+        description: 'Номер задачи (например PROJ-123)'
+        required: false
+        type: string
 
 jobs:
 
@@ -84,10 +88,12 @@ jobs:
         env:
           STATUS: ${{ job.status }}
           ENVIRONMENT: ${{ inputs.environment }}
+          TASK: ${{ inputs.task }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+          LABEL="${ENVIRONMENT}${TASK:+ | $TASK}"
           curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"message\":\"Critical Tests [$ENVIRONMENT]\nStatus: $STATUS\n$RUN_URL\"}" \
+            --data "{\"message\":\"Critical Tests [$LABEL]\nStatus: $STATUS\n$RUN_URL\"}" \
             "$WEBHOOK"
