@@ -115,20 +115,11 @@ jobs:
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
+          BODY=$(jq -nc \
+            --arg text "Autotests [$ENVIRONMENT]: $STATUS\n$RUN_URL" \
+            '{body: {type: "doc", version: 1, content: [{type: "paragraph", content: [{type: "text", text: $text}]}]}}')
           curl -s -X POST \
             -H "Content-Type: application/json" \
-            -H "Authorization: Basic $(echo -n "$JIRA_EMAIL:$JIRA_API_TOKEN" | base64)" \
-            --data "{
-              \"body\": {
-                \"type\": \"doc\",
-                \"version\": 1,
-                \"content\": [{
-                  \"type\": \"paragraph\",
-                  \"content\": [{
-                    \"type\": \"text\",
-                    \"text\": \"Autotests [$ENVIRONMENT]: $STATUS\n$RUN_URL\"
-                  }]
-                }]
-              }
-            }" \
+            -H "Authorization: Basic $(printf '%s:%s' "$JIRA_EMAIL" "$JIRA_API_TOKEN" | base64 -w 0)" \
+            --data "$BODY" \
             "$JIRA_BASE_URL/rest/api/3/issue/$TASK/comment"
