@@ -94,6 +94,21 @@ export default defineConfig({
     },
 
     // RUN THIS PROJECT ONLY IN DOCKER!
+    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-aitv-desktop-chromium
+    {
+      name: 'visual-aitv-desktop-chromium',
+      testMatch: /visualSuite\/desktop\/aitvVisualSuites\.spec\.ts$/,
+      fullyParallel: false,
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 1920, height: 1080 },
+        deviceScaleFactor: 1,
+        colorScheme: 'light',
+        locale: 'en-US',
+      },
+    },
+
+    // RUN THIS PROJECT ONLY IN DOCKER!
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
     {
       name: 'visual-mobile-webkit',

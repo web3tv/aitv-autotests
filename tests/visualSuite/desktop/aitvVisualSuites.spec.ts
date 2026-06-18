@@ -1,0 +1,154 @@
+import { test, expect, request as playwrightRequest } from '@playwright/test';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { HeaderPage } from '../../../src/pages/components/HeaderPage';
+import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
+
+test.describe('AITV visual tests', () => {
+
+    test.use({ viewport: { width: 1920, height: 1080 } });
+
+    let userEmail: string;
+    let password: string;
+    let username: string;
+
+    test.beforeAll(async () => {
+        const requestContext = await playwrightRequest.newContext();
+        password = process.env.USER_PASSWORD!;
+
+        const authApi = new AuthApi(requestContext);
+        const user = await authApi.createUserFast();
+        userEmail = user.email;
+        username = user.username;
+
+        await requestContext.dispose();
+    });
+
+    // ── Main Page ──
+
+    test('Main page for anonymous user', {
+        annotation: { type: 'TC', description: 'VIS-AITV-001' },
+    }, async ({ page }) => {
+        await test.step('Open main page', async () => {
+            await page.goto('/');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(async () => { await document.fonts.ready; });
+            await expect(page.getByRole('link', { name: 'Top titles today' })).toBeVisible();
+        });
+
+        await test.step('Take screenshot', async () => {
+            await expect(page).toHaveScreenshot({
+                fullPage: true,
+                mask: [
+                    page.locator('[data-id="aitv-hero"]'),
+                    page.locator('[data-id="aitv-top-card"]'),
+                    page.locator('[data-id="aitv-video-card"]'),
+                ],
+                maxDiffPixelRatio: 0.02,
+            });
+        });
+    });
+
+    test('Main page for logged in user', {
+        annotation: { type: 'TC', description: 'VIS-AITV-002' },
+    }, async ({ page }) => {
+        await test.step('Login and navigate to main page', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(userEmail, password, username);
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(async () => { await document.fonts.ready; });
+            await expect(page.getByRole('link', { name: 'Top titles today' })).toBeVisible();
+        });
+
+        await test.step('Take screenshot', async () => {
+            await expect(page).toHaveScreenshot({
+                mask: [
+                    page.locator('[data-id="aitv-video-card"]'),
+                    page.locator('[data-id="aitv-profile-menu-trigger"]'),
+                ],
+                maxDiffPixelRatio: 0.02,
+            });
+        });
+    });
+
+    // ── Header ──
+
+    test('Header for anonymous user', {
+        annotation: { type: 'TC', description: 'VIS-AITV-003' },
+    }, async ({ page }) => {
+        await test.step('Open main page', async () => {
+            await page.goto('/');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(async () => { await document.fonts.ready; });
+        });
+
+        await test.step('Take header screenshot', async () => {
+            await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
+            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
+        });
+    });
+
+    test('Header for logged in user', {
+        annotation: { type: 'TC', description: 'VIS-AITV-004' },
+    }, async ({ page }) => {
+        await test.step('Login and navigate to main page', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(userEmail, password, username);
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(async () => { await document.fonts.ready; });
+        });
+
+        await test.step('Take header screenshot', async () => {
+            await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
+            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot({
+                mask: [page.locator('[data-id="aitv-profile-menu-trigger"]')],
+                maxDiffPixelRatio: 0.02,
+            });
+        });
+    });
+
+    // ── Auth modal ──
+
+    test('Auth modal on Get Started click', {
+        annotation: { type: 'TC', description: 'VIS-AITV-005' },
+    }, async ({ page }) => {
+        const headerPage = new HeaderPage(page);
+        const loginPopupPage = new LoginPopupPage(page);
+
+        await test.step('Open main page and click Get Started', async () => {
+            await page.goto('/');
+            await page.waitForLoadState('networkidle');
+            await headerPage.clickGetStarted();
+        });
+
+        await test.step('Wait for auth modal and take screenshot', async () => {
+            await loginPopupPage.assertPopupVisible();
+            await page.evaluate(async () => { await document.fonts.ready; });
+            await expect(page.getByRole('dialog')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
+        });
+    });
+
+    // ── Video card hover preview ──
+
+    test('Video card hover preview on main page', {
+        annotation: { type: 'TC', description: 'VIS-AITV-006' },
+    }, async ({ page }) => {
+        await test.step('Open main page and wait for video cards', async () => {
+            await page.goto('/');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(async () => { await document.fonts.ready; });
+        });
+
+        await test.step('Hover on first video card and take screenshot', async () => {
+            const card = page.locator('[data-id="aitv-video-card"]').first();
+            await expect(card, 'First video card is not visible').toBeVisible();
+            await card.hover();
+            await page.waitForTimeout(600);
+            await expect(card).toHaveScreenshot({
+                mask: [card.locator('img')],
+                maxDiffPixelRatio: 0.02,
+            });
+        });
+    });
+
+});
