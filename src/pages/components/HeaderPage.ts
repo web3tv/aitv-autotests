@@ -4,6 +4,8 @@ import { expect } from '@playwright/test';
 export class HeaderPage {
   readonly page: Page;
 
+  readonly header: Locator;
+
   // Unauthenticated header
   readonly getStartedBtn: Locator;
   readonly searchBtn: Locator;
@@ -22,6 +24,8 @@ export class HeaderPage {
 
   constructor(page: Page) {
     this.page = page;
+
+    this.header = page.locator('[data-id="aitv-header"]');
 
     this.getStartedBtn = page.getByRole('button', { name: 'Get Started' });
     this.searchBtn = page.locator('[data-id="aitv-header-search"]');

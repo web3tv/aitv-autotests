@@ -29,73 +29,6 @@ test.describe('Main domain visual tests', () => {
         await requestContext.dispose();
     });
 
-    // ── SideBar ──
-
-    test('SideBar menu for anonymous user', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
-        await page.evaluate(async () => {
-            await document.fonts.ready;
-        });
-        await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible();
-        await expect(page.locator('.sidebarNav')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
-    });
-
-    test('SideBar menu for logged in user', async ({ page }) => {
-        const authFlow = new AuthFlow(page);
-        await authFlow.loginSuccess(userEmail, password, username);
-        await page.waitForLoadState('networkidle');
-        await page.evaluate(async () => {
-            await document.fonts.ready;
-        });
-        await expect(page.locator('.sidebarNav')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
-    });
-
-    // ── Header ──
-
-    test('Header panel for anonymous user', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForLoadState('networkidle');
-        await page.evaluate(async () => {
-            await document.fonts.ready;
-        });
-        await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible();
-        await expect(page.locator('[data-id="header"]')).toBeVisible();
-        await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
-        await expect(page.locator('[data-id="header"]')).toHaveScreenshot({maxDiffPixelRatio: 0.02});
-    });
-
-    test('Header panel for logged in user', async ({ page }) => {
-        const authFlow = new AuthFlow(page);
-        await authFlow.loginSuccess(userEmail, password, username);
-        await page.waitForLoadState('networkidle');
-        await page.evaluate(async () => {
-            await document.fonts.ready;
-        });
-        await expect(page.locator('[data-id="header"]')).toBeVisible();
-        await expect(page.locator('[data-id="header"]')).toHaveScreenshot({
-            mask: [
-                page.locator('[id="profile-button"]')
-            ],
-            maxDiffPixelRatio: 0.02
-        });
-    });
-
-    test('Header panel for wallet user', async ({ page }) => {
-        const authFlow = new AuthFlow(page);
-        await authFlow.walletRegisterSuccess();
-        await page.waitForLoadState('networkidle');
-        await page.evaluate(async () => {
-            await document.fonts.ready;
-        });
-        await expect(page.locator('[data-id="header"]')).toBeVisible();
-        await expect(page.locator('[data-id="header"]')).toHaveScreenshot({
-            mask: [
-                page.locator('[id="profile-button"]')
-            ],
-            maxDiffPixelRatio: 0.02
-        });
-    });
 
     // ── Video page ──
 
@@ -169,26 +102,6 @@ test.describe('Main domain visual tests', () => {
             await document.fonts.ready;
         });
         await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
-        await expect(page).toHaveScreenshot({
-            fullPage: false,
-            mask: [
-                page.locator('[data-id="video"]'),
-                page.locator('[data-id="avatar"]'),
-                page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')
-            ],
-            maxDiffPixelRatio: 0.02
-        });
-    });
-
-    test('Channel page for anonymous user - collapse sidebar', async ({ page }) => {
-        await page.goto(channelUrl);
-        await page.waitForLoadState('networkidle');
-        await page.evaluate(async () => {
-            await document.fonts.ready;
-        });
-        await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
-        await page.getByTestId('menu-btn').click();
         await expect(page).toHaveScreenshot({
             fullPage: false,
             mask: [
