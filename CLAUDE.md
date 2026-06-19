@@ -19,13 +19,19 @@ npx playwright test tests/auth/auth.spec.ts --project=functional
 npx playwright test --grep "Success login as user" --project=functional
 ```
 
-**Run visual tests (desktop):**
+**Run visual tests (desktop 1920×1080):**
 ```
 # Must be run inside Docker
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
 ```
 
-**Run visual tests (mobile):**
+**Run visual tests (desktop 2560×1080):**
+```
+# Must be run inside Docker
+docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-large-chromium
+```
+
+**Run visual tests (mobile iPhone 15 Pro Max):**
 ```
 # Must be run inside Docker
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit

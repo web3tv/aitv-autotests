@@ -65,31 +65,31 @@ export default defineConfig({
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
     {
       name: 'visual-desktop-chromium',
-      testMatch: /visualSuite\/desktop\/visualSuites\.spec\.ts$/,
+      testMatch: /visualSuite\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
-      // workers: 1,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
         deviceScaleFactor: 1,
         colorScheme: 'light',
         locale: 'en-US',
+        trace: 'off',
       },
     },
 
     // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-studio-desktop-chromium
+    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-large-chromium
     {
-      name: 'visual-studio-desktop-chromium',
-      testMatch: /visualSuite\/desktop\/studioVisualSuites\.spec\.ts$/,
+      name: 'visual-desktop-large-chromium',
+      testMatch: /visualSuite\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
       use: {
         browserName: 'chromium',
-        baseURL: process.env.STUDIO_URL,
-        viewport: { width: 2560, height: 2000 },
+        viewport: { width: 2560, height: 1080 },
         deviceScaleFactor: 1,
         colorScheme: 'light',
         locale: 'en-US',
+        trace: 'off',
       },
     },
 
@@ -97,11 +97,11 @@ export default defineConfig({
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
     {
       name: 'visual-mobile-webkit',
-      testMatch: /visualSuite\/mobile\/visualSuites\.spec\.ts$/,
+      testMatch: /visualSuite\/mobile\/.*\.spec\.ts$/,
       fullyParallel: false,
-      // workers: 1,
       use: {
-         ...devices['iPhone 15 Pro Max']
+        ...devices['iPhone 15 Pro Max'],
+        trace: 'off',
       },
     },
   ]

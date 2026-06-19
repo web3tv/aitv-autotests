@@ -4,6 +4,12 @@ import { expect } from '@playwright/test';
 export class HeaderPage {
   readonly page: Page;
 
+  readonly header: Locator;
+  readonly mobileHeader: Locator;
+  readonly mobileDropdownTrigger: Locator;
+  readonly mobileDropdownMenu: Locator;
+  readonly mobileProfileMenuChannelLink: Locator;
+
   // Unauthenticated header
   readonly getStartedBtn: Locator;
   readonly searchBtn: Locator;
@@ -19,9 +25,16 @@ export class HeaderPage {
   readonly newVideoBtn: Locator;
   readonly newShortBtn: Locator;
   readonly userIcon: Locator;
+  readonly channelTriggerBtn: Locator;
 
   constructor(page: Page) {
     this.page = page;
+
+    this.header = page.locator('[data-id="aitv-header"]');
+    this.mobileHeader = page.locator('[data-id="aitv-header-mobile"]');
+    this.mobileDropdownTrigger = page.locator('[data-id="aitv-header-dropdown-trigger"]');
+    this.mobileDropdownMenu = page.locator('ul[role="menu"]');
+    this.mobileProfileMenuChannelLink = page.locator('[data-id="aitv-profile-menu-channel-link"]');
 
     this.getStartedBtn = page.getByRole('button', { name: 'Get Started' });
     this.searchBtn = page.locator('[data-id="aitv-header-search"]');
@@ -36,6 +49,7 @@ export class HeaderPage {
     this.newVideoBtn = page.getByTestId('new-video-button');
     this.newShortBtn = page.getByText('New short');
     this.userIcon = page.locator('[data-id="aitv-profile-menu-trigger"]');
+    this.channelTriggerBtn = page.locator('[data-id="aitv-studio-channel-trigger-button"]');
   }
 
   async clickGetStarted(): Promise<void> {

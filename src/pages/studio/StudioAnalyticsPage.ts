@@ -39,6 +39,11 @@ export class StudioAnalyticsPage {
     // Empty state
     readonly emptyStateMessage: Locator;
 
+    // Dashboard page masks
+    readonly dashboardAnalyticsData: Locator;
+    readonly dashboardVideoTitle: Locator;
+    readonly dashboardVideoCover: Locator;
+
     constructor(page: Page) {
         this.page = page;
 
@@ -78,6 +83,11 @@ export class StudioAnalyticsPage {
 
         // Empty state
         this.emptyStateMessage = page.getByText("It's a bit empty here", { exact: false });
+
+        // Dashboard page masks
+        this.dashboardAnalyticsData = page.locator('[data-id="analytics-data"]');
+        this.dashboardVideoTitle = page.locator('[data-id="video-title"]');
+        this.dashboardVideoCover = page.locator('[data-id="video-cover"]');
     }
 
     async navigateToAnalytics(): Promise<void> {
