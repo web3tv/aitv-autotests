@@ -50,6 +50,7 @@ test.describe('AITV visual tests', () => {
         await test.step('Take screenshot', async () => {
             await expect(page).toHaveScreenshot({
                 fullPage: true,
+                mask: [page.locator('[data-id="aitv-hero"] .MuiTypography-root')],
                 maxDiffPixelRatio: 0.02,
             });
         });
@@ -66,10 +67,22 @@ test.describe('AITV visual tests', () => {
             await expect(page.getByRole('link', { name: 'Top titles today' })).toBeVisible();
         });
 
+        await test.step('Hide dynamic images via CSS', async () => {
+            await page.addStyleTag({
+                content: `
+                    [data-id="aitv-hero"] img,
+                    [data-id="aitv-hero"] video,
+                    [data-id="aitv-top-card"] img,
+                    [data-id="aitv-video-card"] img { visibility: hidden !important; }
+                `,
+            });
+        });
+
         await test.step('Take screenshot', async () => {
             await expect(page).toHaveScreenshot({
+                fullPage: true,
                 mask: [
-                    page.locator('[data-id="aitv-video-card"]'),
+                    page.locator('[data-id="aitv-hero"] .MuiTypography-root'),
                     page.locator('[data-id="aitv-profile-menu-trigger"]'),
                 ],
                 maxDiffPixelRatio: 0.02,
@@ -88,6 +101,15 @@ test.describe('AITV visual tests', () => {
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 
+        await test.step('Hide hero background', async () => {
+            await page.addStyleTag({
+                content: `
+                    [data-id="aitv-hero"] img,
+                    [data-id="aitv-hero"] video { visibility: hidden !important; }
+                `,
+            });
+        });
+
         await test.step('Take header screenshot', async () => {
             await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
             await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
@@ -102,6 +124,15 @@ test.describe('AITV visual tests', () => {
             await authFlow.loginSuccess(userEmail, password, username);
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
+        });
+
+        await test.step('Hide hero background', async () => {
+            await page.addStyleTag({
+                content: `
+                    [data-id="aitv-hero"] img,
+                    [data-id="aitv-hero"] video { visibility: hidden !important; }
+                `,
+            });
         });
 
         await test.step('Take header screenshot', async () => {
@@ -145,13 +176,27 @@ test.describe('AITV visual tests', () => {
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 
-        await test.step('Hover on first video card and take screenshot', async () => {
-            const card = page.locator('[data-id="aitv-video-card"]').first();
-            await expect(card, 'First video card is not visible').toBeVisible();
+        await test.step('Scroll to first category section', async () => {
+            const section = page.locator('[data-id="aitv-category-section"]').first();
+            await expect(section, 'First category section is not visible').toBeVisible();
+            await section.scrollIntoViewIfNeeded();
+            await page.waitForTimeout(500);
+        });
+
+        await test.step('Hover on first video card in category section and take screenshot', async () => {
+            const card = page.locator('[data-id="aitv-category-section"]').first()
+                .locator('[data-id="aitv-video-card"]').first();
+            await expect(card, 'First video card in category section is not visible').toBeVisible();
             await card.hover();
             await page.waitForTimeout(600);
-            await expect(card).toHaveScreenshot({
-                mask: [card.locator('img')],
+            await expect(page).toHaveScreenshot({
+                mask: [
+                    page.locator('[data-id="aitv-hero"] img'),
+                    page.locator('[data-id="aitv-hero"] video'),
+                    page.locator('[data-id="aitv-hero"] .MuiTypography-root'),
+                    page.locator('[data-id="aitv-top-card"] img'),
+                    page.locator('[data-id="aitv-video-card"] img'),
+                ],
                 maxDiffPixelRatio: 0.02,
             });
         });
