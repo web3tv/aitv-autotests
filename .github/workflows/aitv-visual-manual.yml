@@ -79,10 +79,10 @@ jobs:
             -e USER_LOGIN_ADMIN="$USER_LOGIN_ADMIN" \
             -e CI=true \
             aitv-test \
-            npx playwright test \
-              --project=visual-aitv-desktop-chromium \
-              --project=visual-aitv-mobile-chromium \
-              --project=visual-aitv-large-chromium \
+            ./node_modules/.bin/playwright test \
+              --project=visual-desktop-chromium \
+              --project=visual-desktop-large-chromium \
+              --project=visual-mobile-webkit \
               $SNAPSHOT_FLAG
 
       - if: always()
