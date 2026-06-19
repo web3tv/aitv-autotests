@@ -53,7 +53,7 @@ export class AuthFlow {
     await this.loginPopupPage.clickContinue2();
     await loginResponse;
     if (device === 'mobile') {
-      await expect(this.page.locator('[data-id="user-avatar"]')).toBeVisible();
+      await expect(this.headerPage.userAvatar, 'User avatar is not visible').toBeVisible();
     } else {
       await this.assertLoggedInAs(username);
     }
