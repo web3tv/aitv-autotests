@@ -21,7 +21,6 @@ export class HeaderPage {
   readonly newVideoBtn: Locator;
   readonly newShortBtn: Locator;
   readonly userIcon: Locator;
-  readonly userAvatar: Locator;
   readonly channelTriggerBtn: Locator;
 
   constructor(page: Page) {
@@ -42,7 +41,6 @@ export class HeaderPage {
     this.newVideoBtn = page.getByTestId('new-video-button');
     this.newShortBtn = page.getByText('New short');
     this.userIcon = page.locator('[data-id="aitv-profile-menu-trigger"]');
-    this.userAvatar = page.locator('[data-id="user-avatar"]');
     this.channelTriggerBtn = page.locator('[data-id="aitv-studio-channel-trigger-button"]');
   }
 

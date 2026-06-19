@@ -32,7 +32,7 @@ export class AuthFlow {
     this.loginPopupPage = new LoginPopupPage(page);
   }
 
-  async loginSuccess(credentials: string | { phone: string }, password: string, username: string, device?: 'mobile' | 'desktop') {
+  async loginSuccess(credentials: string | { phone: string }, password: string, username: string) {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickGetStarted();
     await this.loginPopupPage.assertPopupVisible();
@@ -52,11 +52,7 @@ export class AuthFlow {
     );
     await this.loginPopupPage.clickContinue2();
     await loginResponse;
-    if (device === 'mobile') {
-      await expect(this.headerPage.userAvatar, 'User avatar is not visible').toBeVisible();
-    } else {
-      await this.assertLoggedInAs(username);
-    }
+    await this.assertLoggedInAs(username);
   }
 
   async loginFailed(email: string, password: string): Promise<void> {

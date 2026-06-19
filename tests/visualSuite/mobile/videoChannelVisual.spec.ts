@@ -72,7 +72,7 @@ test.describe('Mobile video & channel visual tests', () => {
     }, async ({ page }) => {
         await test.step('Login and open video page', async () => {
             const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username, 'mobile');
+            await authFlow.loginSuccess(userEmail, password, username);
             await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
             await expect(page.locator('h1')).toBeVisible({ timeout: 15_000 });
             await expect(page.getByRole('button', { name: 'Share' })).toBeVisible({ timeout: 10_000 });
@@ -116,7 +116,7 @@ test.describe('Mobile video & channel visual tests', () => {
     }, async ({ page }) => {
         await test.step('Login and open channel page', async () => {
             const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username, 'mobile');
+            await authFlow.loginSuccess(userEmail, password, username);
             await page.goto(channelUrl);
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
@@ -158,7 +158,7 @@ test.describe('Mobile video & channel visual tests', () => {
     }, async ({ page }) => {
         await test.step('Login and navigate to main page', async () => {
             const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username, 'mobile');
+            await authFlow.loginSuccess(userEmail, password, username);
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
             await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible({ timeout: 10_000 });
