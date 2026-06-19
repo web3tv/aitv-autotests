@@ -85,7 +85,7 @@ test.describe('Mobile video & channel visual tests', () => {
 
         await test.step('Login and open video page', async () => {
             const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username);
+            await authFlow.loginSuccess(userEmail, password, username, true);
             await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
             await expect(videoPlayer.videoTitle).toBeVisible({ timeout: 15_000 });
             await expect(videoPlayer.shareBtn).toBeVisible({ timeout: 10_000 });
@@ -133,7 +133,7 @@ test.describe('Mobile video & channel visual tests', () => {
 
         await test.step('Login and open channel page', async () => {
             const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username);
+            await authFlow.loginSuccess(userEmail, password, username, true);
             await page.goto(channelUrl);
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });

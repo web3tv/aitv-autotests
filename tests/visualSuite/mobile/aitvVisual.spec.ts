@@ -73,7 +73,7 @@ test.describe('AITV mobile visual tests', () => {
 
         await test.step('Login and navigate to main page', async () => {
             const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username);
+            await authFlow.loginSuccess(userEmail, password, username, true);
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
             await expect(mainPage.topTitlesTodayHeading).toBeVisible();
@@ -134,7 +134,7 @@ test.describe('AITV mobile visual tests', () => {
 
         await test.step('Login and navigate to main page', async () => {
             const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username);
+            await authFlow.loginSuccess(userEmail, password, username, true);
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
         });

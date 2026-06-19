@@ -32,7 +32,7 @@ export class AuthFlow {
     this.loginPopupPage = new LoginPopupPage(page);
   }
 
-  async loginSuccess(credentials: string | { phone: string }, password: string, username: string) {
+  async loginSuccess(credentials: string | { phone: string }, password: string, username: string, isMobile = false) {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickGetStarted();
     await this.loginPopupPage.assertPopupVisible();
@@ -52,7 +52,11 @@ export class AuthFlow {
     );
     await this.loginPopupPage.clickContinue2();
     await loginResponse;
-    await this.assertLoggedInAs(username);
+    if (isMobile) {
+      await this.assertLoggedInAsMobile(username);
+    } else {
+      await this.assertLoggedInAs(username);
+    }
   }
 
   async loginFailed(email: string, password: string): Promise<void> {
@@ -241,6 +245,20 @@ export class AuthFlow {
     await this.assertLoggedInAs(username);
 
     return { wallet, username };
+  }
+
+  async assertLoggedInAsMobile(username: string) {
+    await expect(this.headerPage.userIcon, 'Profile button is not visible').toBeVisible();
+    await this.headerPage.clickUserIcon();
+    await expect(
+      this.headerPage.mobileProfileMenuChannelLink,
+      'Profile menu channel link is not visible'
+    ).toBeVisible();
+    await expect(
+      this.headerPage.mobileProfileMenuChannelLink,
+      `Expected @${username} in profile menu`
+    ).toContainText(`@${username}`);
+    await this.page.keyboard.press('Escape');
   }
 
   async assertLoggedInAs(username: string) {

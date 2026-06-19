@@ -8,6 +8,7 @@ export class HeaderPage {
   readonly mobileHeader: Locator;
   readonly mobileDropdownTrigger: Locator;
   readonly mobileDropdownMenu: Locator;
+  readonly mobileProfileMenuChannelLink: Locator;
 
   // Unauthenticated header
   readonly getStartedBtn: Locator;
@@ -33,6 +34,7 @@ export class HeaderPage {
     this.mobileHeader = page.locator('[data-id="aitv-header-mobile"]');
     this.mobileDropdownTrigger = page.locator('[data-id="aitv-header-dropdown-trigger"]');
     this.mobileDropdownMenu = page.locator('ul[role="menu"]');
+    this.mobileProfileMenuChannelLink = page.locator('[data-id="aitv-profile-menu-channel-link"]');
 
     this.getStartedBtn = page.getByRole('button', { name: 'Get Started' });
     this.searchBtn = page.locator('[data-id="aitv-header-search"]');

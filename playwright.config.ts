@@ -73,6 +73,7 @@ export default defineConfig({
         deviceScaleFactor: 1,
         colorScheme: 'light',
         locale: 'en-US',
+        trace: 'off',
       },
     },
 
@@ -88,6 +89,7 @@ export default defineConfig({
         deviceScaleFactor: 1,
         colorScheme: 'light',
         locale: 'en-US',
+        trace: 'off',
       },
     },
 
@@ -99,6 +101,7 @@ export default defineConfig({
       fullyParallel: false,
       use: {
         ...devices['iPhone 15 Pro Max'],
+        trace: 'off',
       },
     },
   ]
