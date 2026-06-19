@@ -1,10 +1,30 @@
-import { test, expect, request as playwrightRequest } from '@playwright/test';
+import { test, expect, request as playwrightRequest, Page } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { StudioNavigationPage } from '../../../src/pages/studio/StudioNavigationPage';
 import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 
 const studioBaseUrl = process.env.STUDIO_URL!;
+
+const studioHeaderMasks = (page: Page) => [
+    page.locator('[data-id="aitv-profile-menu-trigger"]'),
+    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
+];
+
+const studioDashboardMasks = (page: Page) => [
+    ...studioHeaderMasks(page),
+    page.locator('[data-id="analytics-data"]'),
+    page.locator('[data-id="video-title"]'),
+    page.locator('[data-id="video-cover"]'),
+];
+
+const studioContentMasks = (page: Page) => [
+    ...studioHeaderMasks(page),
+    page.locator('[data-id="image"]'),
+    page.locator('[data-id="date"]'),
+    page.locator('[data-testid="video-row"] .title'),
+    page.locator('[data-testid="video-row"] .description'),
+];
 
 test.describe('Studio visual tests', () => {
 
@@ -64,10 +84,7 @@ test.describe('Studio visual tests', () => {
             const headerPage = new HeaderPage(page);
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
             await expect(headerPage.header).toHaveScreenshot({
-                mask: [
-                    page.locator('[data-id="aitv-profile-menu-trigger"]'),
-                    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
-                ],
+                mask: studioHeaderMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });
@@ -90,13 +107,7 @@ test.describe('Studio visual tests', () => {
             const headerPage = new HeaderPage(page);
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
             await expect(page).toHaveScreenshot({
-                mask: [
-                    page.locator('[data-id="aitv-profile-menu-trigger"]'),
-                    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
-                    page.locator('[data-id="analytics-data"]'),
-                    page.locator('[data-id="video-title"]'),
-                    page.locator('[data-id="video-cover"]'),
-                ],
+                mask: studioDashboardMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });
@@ -117,14 +128,7 @@ test.describe('Studio visual tests', () => {
             const headerPage = new HeaderPage(page);
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
             await expect(page).toHaveScreenshot({
-                mask: [
-                    page.locator('[data-id="aitv-profile-menu-trigger"]'),
-                    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
-                    page.locator('[data-id="image"]'),
-                    page.locator('[data-id="date"]'),
-                    page.locator('[data-testid="video-row"] .title'),
-                    page.locator('[data-testid="video-row"] .description'),
-                ],
+                mask: studioContentMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });

@@ -1,10 +1,31 @@
-import { test, expect, request as playwrightRequest } from '@playwright/test';
+import { test, expect, request as playwrightRequest, Page } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 
-test.describe('Main domain visual tests', () => {
+const videoPageMasks = (page: Page) => [
+    page.locator('[data-id="recommended-videos"]'),
+    page.locator('[aria-label="Video Player"]'),
+    page.locator('[data-id="aitv-profile-menu-trigger"]'),
+    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
+    page.locator('h1'),
+    page.locator('h2'),
+    page.locator('.MuiAvatar-circular'),
+    page.locator('[data-id="video-views-count"]'),
+    page.locator('[data-id="video-views-count"] + p'),
+];
 
-    test.use({ viewport: { width: 2560, height: 2000 } });
+const channelPageMasks = (page: Page) => [
+    page.locator('[data-id="video"]'),
+    page.locator('[data-id="avatar"]'),
+    page.locator('[data-id="count"]'),
+    page.locator('[data-id="subscribers"]'),
+    page.locator('[data-id="name"]'),
+    page.locator('[data-id="handle"]'),
+    page.locator('[data-id="aitv-profile-menu-trigger"]'),
+    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
+];
+
+test.describe('Main domain visual tests', () => {
 
     let userEmail: string;
     let password: string;
@@ -42,10 +63,7 @@ test.describe('Main domain visual tests', () => {
         await page.waitForTimeout(1000);
         await expect(page).toHaveScreenshot({
             fullPage: true,
-            mask: [
-                page.locator('[data-id="recommended-videos"]'),
-                page.locator('[aria-label="Video Player"]')
-            ],
+            mask: videoPageMasks(page),
             maxDiffPixelRatio: 0.02
         });
     });
@@ -63,10 +81,7 @@ test.describe('Main domain visual tests', () => {
         await page.waitForTimeout(1000);
         await expect(page).toHaveScreenshot({
             fullPage: true,
-            mask: [
-                page.locator('[data-id="recommended-videos"]'),
-                page.locator('[aria-label="Video Player"]')
-            ],
+            mask: videoPageMasks(page),
             maxDiffPixelRatio: 0.02
         });
     });
@@ -82,12 +97,7 @@ test.describe('Main domain visual tests', () => {
         await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
         await expect(page).toHaveScreenshot({
             fullPage: false,
-            mask: [
-                page.locator('[data-id="video"]'),
-                page.locator('[data-id="avatar"]'),
-                page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')
-            ],
+            mask: channelPageMasks(page),
             maxDiffPixelRatio: 0.02
         });
     });
@@ -104,12 +114,7 @@ test.describe('Main domain visual tests', () => {
         await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
         await expect(page).toHaveScreenshot({
             fullPage: false,
-            mask: [
-                page.locator('[data-id="video"]'),
-                page.locator('[data-id="avatar"]'),
-                page.locator('[data-id="count"]'),
-                page.locator('[data-id="subscribers"]')
-            ],
+            mask: channelPageMasks(page),
             maxDiffPixelRatio: 0.02
         });
     });

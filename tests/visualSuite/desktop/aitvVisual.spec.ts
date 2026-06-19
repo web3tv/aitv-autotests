@@ -1,8 +1,25 @@
-import { test, expect, request as playwrightRequest } from '@playwright/test';
+import { test, expect, request as playwrightRequest, Page } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { AuthApi } from '../../../src/api/AuthApi';
 import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
+
+const mainPageMasks = (page: Page) => [
+    page.locator('[data-id="aitv-hero"] .MuiTypography-root'),
+];
+
+const mainPageLoggedInMasks = (page: Page) => [
+    ...mainPageMasks(page),
+    page.locator('[data-id="aitv-profile-menu-trigger"]'),
+];
+
+const videoCardHoverMasks = (page: Page) => [
+    page.locator('[data-id="aitv-hero"] img'),
+    page.locator('[data-id="aitv-hero"] video'),
+    page.locator('[data-id="aitv-hero"] .MuiTypography-root'),
+    page.locator('[data-id="aitv-top-card"] img'),
+    page.locator('[data-id="aitv-video-card"] img'),
+];
 
 test.describe('AITV visual tests', () => {
 
@@ -48,7 +65,7 @@ test.describe('AITV visual tests', () => {
         await test.step('Take screenshot', async () => {
             await expect(page).toHaveScreenshot({
                 fullPage: true,
-                mask: [page.locator('[data-id="aitv-hero"] .MuiTypography-root')],
+                mask: mainPageMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });
@@ -79,10 +96,7 @@ test.describe('AITV visual tests', () => {
         await test.step('Take screenshot', async () => {
             await expect(page).toHaveScreenshot({
                 fullPage: true,
-                mask: [
-                    page.locator('[data-id="aitv-hero"] .MuiTypography-root'),
-                    page.locator('[data-id="aitv-profile-menu-trigger"]'),
-                ],
+                mask: mainPageLoggedInMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });

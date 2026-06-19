@@ -65,39 +65,7 @@ export default defineConfig({
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
     {
       name: 'visual-desktop-chromium',
-      testMatch: /visualSuite\/desktop\/visualSuites\.spec\.ts$/,
-      fullyParallel: false,
-      // workers: 1,
-      use: {
-        browserName: 'chromium',
-        viewport: { width: 1920, height: 1080 },
-        deviceScaleFactor: 1,
-        colorScheme: 'light',
-        locale: 'en-US',
-      },
-    },
-
-    // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-studio-desktop-chromium
-    {
-      name: 'visual-studio-desktop-chromium',
-      testMatch: /visualSuite\/desktop\/studioVisualSuites\.spec\.ts$/,
-      fullyParallel: false,
-      use: {
-        browserName: 'chromium',
-        baseURL: process.env.STUDIO_URL,
-        viewport: { width: 2560, height: 2000 },
-        deviceScaleFactor: 1,
-        colorScheme: 'light',
-        locale: 'en-US',
-      },
-    },
-
-    // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-aitv-desktop-chromium
-    {
-      name: 'visual-aitv-desktop-chromium',
-      testMatch: /visualSuite\/desktop\/aitvVisualSuites\.spec\.ts$/,
+      testMatch: /visualSuite\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
       use: {
         browserName: 'chromium',
@@ -109,30 +77,15 @@ export default defineConfig({
     },
 
     // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-aitv-large-chromium
+    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-large-chromium
     {
-      name: 'visual-aitv-large-chromium',
-      testMatch: /visualSuite\/desktop\/aitvVisualSuites\.spec\.ts$/,
+      name: 'visual-desktop-large-chromium',
+      testMatch: /visualSuite\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
       use: {
         browserName: 'chromium',
-        viewport: { width: 2560, height: 1440 },
+        viewport: { width: 2560, height: 1080 },
         deviceScaleFactor: 1,
-        colorScheme: 'light',
-        locale: 'en-US',
-      },
-    },
-
-    // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-aitv-mobile-chromium
-    {
-      name: 'visual-aitv-mobile-chromium',
-      testMatch: /visualSuite\/desktop\/aitvVisualSuites\.spec\.ts$/,
-      fullyParallel: false,
-      use: {
-        browserName: 'chromium',
-        viewport: { width: 390, height: 844 },
-        deviceScaleFactor: 2,
         colorScheme: 'light',
         locale: 'en-US',
       },
@@ -142,11 +95,10 @@ export default defineConfig({
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
     {
       name: 'visual-mobile-webkit',
-      testMatch: /visualSuite\/mobile\/visualSuites\.spec\.ts$/,
+      testMatch: /visualSuite\/mobile\/.*\.spec\.ts$/,
       fullyParallel: false,
-      // workers: 1,
       use: {
-         ...devices['iPhone 15 Pro Max']
+        ...devices['iPhone 15 Pro Max'],
       },
     },
   ]
