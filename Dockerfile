@@ -1,15 +1,15 @@
 FROM mcr.microsoft.com/playwright:v1.57.0-jammy
 
-WORKDIR /app
-
+# Install dependencies in /deps so they survive the -v "$PWD:/app" bind mount
+WORKDIR /deps
 COPY package*.json ./
 RUN npm ci
-
-# Браузеры уже включены в официальный playwright image,
-# но если хочешь гарантированно — можно оставить:
 RUN npx playwright install --with-deps
 
+ENV PATH="/deps/node_modules/.bin:$PATH"
+
+WORKDIR /app
 COPY . .
 
-CMD ["npx", "playwright", "test", "--workers=1","--project=visual-desktop-chromium","--project=visual-mobile-webkit"]
+CMD ["playwright", "test", "--workers=1","--project=visual-desktop-chromium","--project=visual-mobile-webkit"]
 
