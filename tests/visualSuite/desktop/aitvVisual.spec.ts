@@ -63,7 +63,7 @@ test.describe('AITV visual tests', () => {
         });
 
         await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot({
+            await expect(page).toHaveScreenshot('main-page-anon.webp', {
                 fullPage: true,
                 mask: mainPageMasks(page),
                 maxDiffPixelRatio: 0.02,
@@ -94,7 +94,7 @@ test.describe('AITV visual tests', () => {
         });
 
         await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot({
+            await expect(page).toHaveScreenshot('main-page-logged-in.webp', {
                 fullPage: true,
                 mask: mainPageLoggedInMasks(page),
                 maxDiffPixelRatio: 0.02,
@@ -124,7 +124,7 @@ test.describe('AITV visual tests', () => {
 
         await test.step('Take header screenshot', async () => {
             await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
-            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
+            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-anon.webp', { maxDiffPixelRatio: 0.02 });
         });
     });
 
@@ -149,7 +149,7 @@ test.describe('AITV visual tests', () => {
 
         await test.step('Take header screenshot', async () => {
             await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
-            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot({
+            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-logged-in.webp', {
                 mask: [page.locator('[data-id="aitv-profile-menu-trigger"]')],
                 maxDiffPixelRatio: 0.02,
             });
@@ -173,7 +173,7 @@ test.describe('AITV visual tests', () => {
         await test.step('Wait for auth modal and take screenshot', async () => {
             await loginPopupPage.assertPopupVisible();
             await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByRole('dialog')).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
+            await expect(page.getByRole('dialog')).toHaveScreenshot('auth-modal.webp', { maxDiffPixelRatio: 0.02 });
         });
     });
 
@@ -208,7 +208,7 @@ test.describe('AITV visual tests', () => {
                     .MuiTypography-body1 ~ div { visibility: hidden !important; }
                 `,
             });
-            await expect(page).toHaveScreenshot({
+            await expect(page).toHaveScreenshot('main-page-video-card-hover.webp', {
                 mask: videoCardHoverMasks(page),
                 maxDiffPixelRatio: 0.02,
             });

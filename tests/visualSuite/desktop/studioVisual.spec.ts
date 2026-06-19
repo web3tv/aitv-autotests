@@ -63,7 +63,7 @@ test.describe('Studio visual tests', () => {
         await test.step('Take sidebar screenshot', async () => {
             const nav = new StudioNavigationPage(page);
             await nav.assertVisible();
-            await expect(nav.nav).toHaveScreenshot({ maxDiffPixelRatio: 0.02 });
+            await expect(nav.nav).toHaveScreenshot('studio-sidebar.webp', { maxDiffPixelRatio: 0.02 });
         });
     });
 
@@ -83,7 +83,7 @@ test.describe('Studio visual tests', () => {
         await test.step('Take header screenshot', async () => {
             const headerPage = new HeaderPage(page);
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
-            await expect(headerPage.header).toHaveScreenshot({
+            await expect(headerPage.header).toHaveScreenshot('studio-header.webp', {
                 mask: studioHeaderMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
@@ -106,7 +106,7 @@ test.describe('Studio visual tests', () => {
         await test.step('Take dashboard screenshot', async () => {
             const headerPage = new HeaderPage(page);
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
-            await expect(page).toHaveScreenshot({
+            await expect(page).toHaveScreenshot('studio-dashboard.webp', {
                 mask: studioDashboardMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
@@ -127,7 +127,7 @@ test.describe('Studio visual tests', () => {
         await test.step('Take content page screenshot', async () => {
             const headerPage = new HeaderPage(page);
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
-            await expect(page).toHaveScreenshot({
+            await expect(page).toHaveScreenshot('studio-content.webp', {
                 mask: studioContentMasks(page),
                 maxDiffPixelRatio: 0.02,
             });

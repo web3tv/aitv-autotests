@@ -61,7 +61,7 @@ test.describe('Main domain visual tests', () => {
             await document.fonts.ready;
         });
         await page.waitForTimeout(1000);
-        await expect(page).toHaveScreenshot({
+        await expect(page).toHaveScreenshot('video-page-anon.webp', {
             fullPage: true,
             mask: videoPageMasks(page),
             maxDiffPixelRatio: 0.02
@@ -79,7 +79,7 @@ test.describe('Main domain visual tests', () => {
             await document.fonts.ready;
         });
         await page.waitForTimeout(1000);
-        await expect(page).toHaveScreenshot({
+        await expect(page).toHaveScreenshot('video-page-logged-in.webp', {
             fullPage: true,
             mask: videoPageMasks(page),
             maxDiffPixelRatio: 0.02
@@ -95,7 +95,7 @@ test.describe('Main domain visual tests', () => {
             await document.fonts.ready;
         });
         await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
-        await expect(page).toHaveScreenshot({
+        await expect(page).toHaveScreenshot('channel-page-anon.webp', {
             fullPage: false,
             mask: channelPageMasks(page),
             maxDiffPixelRatio: 0.02
@@ -112,7 +112,7 @@ test.describe('Main domain visual tests', () => {
             await document.fonts.ready;
         });
         await expect(page.getByRole('heading', { name: 'For you' })).toBeVisible({timeout:10_000});
-        await expect(page).toHaveScreenshot({
+        await expect(page).toHaveScreenshot('channel-page-logged-in.webp', {
             fullPage: false,
             mask: channelPageMasks(page),
             maxDiffPixelRatio: 0.02
