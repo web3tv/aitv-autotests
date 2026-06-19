@@ -82,6 +82,7 @@ jobs:
             -v "$PWD:/app" \
             -e BASE_URL="$BASE_URL" \
             -e API_URL="$API_URL" \
+            -e STUDIO_URL="$STUDIO_URL" \
             -e USER_PASSWORD="$USER_PASSWORD" \
             -e USER_LOGIN_ADMIN="$USER_LOGIN_ADMIN" \
             -e CI=true \
