@@ -61,6 +61,13 @@ jobs:
           sudo ip route replace 10.3.0.0/16 dev wg0
           rm -f wg0.conf
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
       - name: Build Docker image
         run: docker build -t aitv-test .
 
@@ -79,7 +86,7 @@ jobs:
             -e USER_LOGIN_ADMIN="$USER_LOGIN_ADMIN" \
             -e CI=true \
             aitv-test \
-            playwright test \
+            npx playwright test \
               --project=visual-desktop-chromium \
               --project=visual-desktop-large-chromium \
               --project=visual-mobile-webkit \
