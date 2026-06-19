@@ -7,6 +7,16 @@ export class VideoPlayerPage {
   readonly shortsPlayButton: Locator;
   readonly shortsVideoElement: Locator;
 
+  readonly playerContainer: Locator;
+  readonly recommendedVideos: Locator;
+  readonly videoTitle: Locator;
+  readonly videoSubtitle: Locator;
+  readonly authorAvatar: Locator;
+  readonly videoViewsCount: Locator;
+  readonly videoViewsCountDate: Locator;
+  readonly commentingAsTrigger: Locator;
+  readonly shareBtn: Locator;
+
   // Video description
   readonly showMoreBtn: Locator;
   readonly showLessBtn: Locator;
@@ -14,6 +24,16 @@ export class VideoPlayerPage {
   constructor(page: Page) {
     this.page = page;
     this.videoElement = page.locator('video.vjs-tech');
+
+    this.playerContainer = page.locator('[aria-label="Video Player"]');
+    this.recommendedVideos = page.locator('[data-id="recommended-videos"]');
+    this.videoTitle = page.locator('h1');
+    this.videoSubtitle = page.locator('h2');
+    this.authorAvatar = page.locator('.MuiAvatar-circular');
+    this.videoViewsCount = page.locator('[data-id="video-views-count"]');
+    this.videoViewsCountDate = page.locator('[data-id="video-views-count"] + p');
+    this.commentingAsTrigger = page.locator('[data-id="commenting-as-trigger"]');
+    this.shareBtn = page.getByRole('button', { name: 'Share' });
     this.playButton = page.locator('.vjs-big-play-button');
     this.shortsPlayButton = page.locator('.swiper-slide-active .vjs-big-play-button');
     this.shortsVideoElement = page.locator('.swiper-slide-active video.vjs-tech');

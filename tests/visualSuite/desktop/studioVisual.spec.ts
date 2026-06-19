@@ -2,29 +2,40 @@ import { test, expect, request as playwrightRequest, Page } from '@playwright/te
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { StudioNavigationPage } from '../../../src/pages/studio/StudioNavigationPage';
+import { StudioAnalyticsPage } from '../../../src/pages/studio/StudioAnalyticsPage';
+import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
 import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 
 const studioBaseUrl = process.env.STUDIO_URL!;
 
-const studioHeaderMasks = (page: Page) => [
-    new HeaderPage(page).userIcon,
-    new HeaderPage(page).channelTriggerBtn,
-];
+const studioHeaderMasks = (page: Page) => {
+    const header = new HeaderPage(page);
+    return [
+        header.userIcon,
+        header.channelTriggerBtn,
+    ];
+};
 
-const studioDashboardMasks = (page: Page) => [
-    ...studioHeaderMasks(page),
-    page.locator('[data-id="analytics-data"]'),
-    page.locator('[data-id="video-title"]'),
-    page.locator('[data-id="video-cover"]'),
-];
+const studioDashboardMasks = (page: Page) => {
+    const analytics = new StudioAnalyticsPage(page);
+    return [
+        ...studioHeaderMasks(page),
+        analytics.dashboardAnalyticsData,
+        analytics.dashboardVideoTitle,
+        analytics.dashboardVideoCover,
+    ];
+};
 
-const studioContentMasks = (page: Page) => [
-    ...studioHeaderMasks(page),
-    page.locator('[data-id="image"]'),
-    page.locator('[data-id="date"]'),
-    page.locator('[data-testid="video-row"] .title'),
-    page.locator('[data-testid="video-row"] .description'),
-];
+const studioContentMasks = (page: Page) => {
+    const content = new StudioContentPage(page);
+    return [
+        ...studioHeaderMasks(page),
+        content.videoRowImages,
+        content.videoRowDates,
+        content.videoRowTitles,
+        content.videoRowDescriptions,
+    ];
+};
 
 test.describe('Studio visual tests', () => {
 

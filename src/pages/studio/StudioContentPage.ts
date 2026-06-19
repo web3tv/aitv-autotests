@@ -17,6 +17,11 @@ export class StudioContentPage {
     readonly searchInput: Locator;
     readonly videoRows: Locator;
 
+    readonly videoRowImages: Locator;
+    readonly videoRowDates: Locator;
+    readonly videoRowTitles: Locator;
+    readonly videoRowDescriptions: Locator;
+
     constructor(page: Page) {
         this.page = page;
 
@@ -35,6 +40,11 @@ export class StudioContentPage {
 
         this.searchInput = this.page.locator('[data-testid="studioSearchInput"]');
         this.videoRows = this.page.locator('[data-testid="video-row"]');
+
+        this.videoRowImages = this.page.locator('[data-id="image"]');
+        this.videoRowDates = this.page.locator('[data-id="date"]');
+        this.videoRowTitles = this.page.locator('[data-testid="video-row"] .title');
+        this.videoRowDescriptions = this.page.locator('[data-testid="video-row"] .description');
     }
 
     async checkVideoDescription(description: any){

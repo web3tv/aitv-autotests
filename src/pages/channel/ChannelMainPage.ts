@@ -7,11 +7,20 @@ export class ChannelMainPage {
     readonly page: Page;    
 
 
+    readonly videos: Locator;
     readonly firstVideo: Locator;
     readonly firstShort: Locator;
 
     readonly exclusiveBadge: Locator;
     readonly lockedBadge: Locator;
+
+    readonly avatar: Locator;
+    readonly videoCount: Locator;
+    readonly subscribersCount: Locator;
+    readonly channelName: Locator;
+    readonly channelHandle: Locator;
+    readonly forYouHeading: Locator;
+    readonly editChannelBtn: Locator;
    
 
 
@@ -30,8 +39,17 @@ export class ChannelMainPage {
     constructor(page: Page) {
         this.page = page;
 
+        this.videos = page.locator('[data-id="video"]');
         this.firstVideo = page.locator('[data-id="video"]').first();
         this.firstShort = page.locator('[data-id="clip"]').first();
+
+        this.avatar = page.locator('[data-id="avatar"]');
+        this.videoCount = page.locator('[data-id="count"]');
+        this.subscribersCount = page.locator('[data-id="subscribers"]');
+        this.channelName = page.locator('[data-id="name"]');
+        this.channelHandle = page.locator('[data-id="handle"]');
+        this.forYouHeading = page.getByRole('heading', { name: 'For you' });
+        this.editChannelBtn = page.getByRole('button', { name: 'Edit channel' });
 
         this.exclusiveBadge = page.locator('div').filter({ hasText: /^Exclusive Content$/ }).first();
         this.lockedBadge = this.firstVideo.locator('.locked');

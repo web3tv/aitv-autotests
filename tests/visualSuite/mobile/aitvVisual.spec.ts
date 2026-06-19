@@ -2,10 +2,11 @@ import { test, expect, request as playwrightRequest, Page } from '@playwright/te
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { AuthApi } from '../../../src/api/AuthApi';
 import { HeaderPage } from '../../../src/pages/components/HeaderPage';
+import { MainPage } from '../../../src/pages/components/MainPage';
 import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
 
 const mainPageMasks = (page: Page) => [
-    page.locator('[data-id="aitv-hero"] .MuiTypography-root'),
+    new MainPage(page).heroText,
 ];
 
 const mainPageLoggedInMasks = (page: Page) => [
@@ -36,11 +37,13 @@ test.describe('AITV mobile visual tests', () => {
     test('Main page for anonymous user', {
         annotation: { type: 'TC', description: 'VIS-AITV-MOB-001' },
     }, async ({ page }) => {
+        const mainPage = new MainPage(page);
+
         await test.step('Open main page', async () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByText('Top titles today')).toBeVisible();
+            await expect(mainPage.topTitlesTodayHeading).toBeVisible();
         });
 
         await test.step('Hide dynamic images via CSS', async () => {
@@ -66,12 +69,14 @@ test.describe('AITV mobile visual tests', () => {
     test('Main page for logged in user', {
         annotation: { type: 'TC', description: 'VIS-AITV-MOB-002' },
     }, async ({ page }) => {
+        const mainPage = new MainPage(page);
+
         await test.step('Login and navigate to main page', async () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username);
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByText('Top titles today')).toBeVisible();
+            await expect(mainPage.topTitlesTodayHeading).toBeVisible();
         });
 
         await test.step('Hide dynamic images via CSS', async () => {
@@ -99,6 +104,8 @@ test.describe('AITV mobile visual tests', () => {
     test('Header for anonymous user', {
         annotation: { type: 'TC', description: 'VIS-AITV-MOB-003' },
     }, async ({ page }) => {
+        const headerPage = new HeaderPage(page);
+
         await test.step('Open main page', async () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
@@ -115,7 +122,6 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Take header screenshot', async () => {
-            const headerPage = new HeaderPage(page);
             await expect(headerPage.mobileHeader).toBeVisible();
             await expect(headerPage.mobileHeader).toHaveScreenshot('header-anon.png', { maxDiffPixelRatio: 0.02 });
         });
@@ -124,6 +130,8 @@ test.describe('AITV mobile visual tests', () => {
     test('Header for logged in user', {
         annotation: { type: 'TC', description: 'VIS-AITV-MOB-004' },
     }, async ({ page }) => {
+        const headerPage = new HeaderPage(page);
+
         await test.step('Login and navigate to main page', async () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username);
@@ -141,7 +149,6 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Take header screenshot', async () => {
-            const headerPage = new HeaderPage(page);
             await expect(headerPage.mobileHeader).toBeVisible();
             await expect(headerPage.mobileHeader).toHaveScreenshot('header-logged-in.png', {
                 mask: [headerPage.userIcon],
@@ -153,6 +160,8 @@ test.describe('AITV mobile visual tests', () => {
     test('Header navigation dropdown', {
         annotation: { type: 'TC', description: 'VIS-AITV-MOB-005' },
     }, async ({ page }) => {
+        const headerPage = new HeaderPage(page);
+
         await test.step('Open main page', async () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
@@ -171,7 +180,6 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Click dropdown trigger and take screenshot', async () => {
-            const headerPage = new HeaderPage(page);
             await expect(headerPage.mobileDropdownTrigger, 'Dropdown trigger is not visible').toBeVisible();
             await headerPage.mobileDropdownTrigger.click();
             await expect(headerPage.mobileDropdownMenu, 'Dropdown menu is not visible').toBeVisible();
@@ -199,7 +207,7 @@ test.describe('AITV mobile visual tests', () => {
         await test.step('Wait for auth modal and take screenshot', async () => {
             await loginPopupPage.assertPopupVisible();
             await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByRole('dialog')).toHaveScreenshot('auth-modal.png', { maxDiffPixelRatio: 0.02 });
+            await expect(loginPopupPage.dialog).toHaveScreenshot('auth-modal.png', { maxDiffPixelRatio: 0.02 });
         });
     });
 

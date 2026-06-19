@@ -43,6 +43,7 @@ export class LoginPopupPage {
     
 
 
+    readonly dialog: Locator;
     readonly closeBtn: Locator;
 
     // Step 5: Choose handle (new user)
@@ -52,6 +53,7 @@ export class LoginPopupPage {
     constructor(page: Page) {
         this.page = page;
 
+        this.dialog = page.getByRole('dialog');
         this.closeBtn = page.getByTestId('aitv-auth-close');
 
         this.emailEntryBtn    = page.getByTestId('aitv-auth-entry-email');
