@@ -40,7 +40,7 @@ test.describe('AITV mobile visual tests', () => {
             await page.goto('/');
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByRole('link', { name: 'Top titles today' })).toBeVisible();
+            await expect(page.getByText('Top titles today')).toBeVisible();
         });
 
         await test.step('Hide dynamic images via CSS', async () => {
@@ -55,7 +55,7 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('main-page-anon.webp', {
+            await expect(page).toHaveScreenshot('main-page-anon.png', {
                 fullPage: true,
                 mask: mainPageMasks(page),
                 maxDiffPixelRatio: 0.02,
@@ -71,7 +71,7 @@ test.describe('AITV mobile visual tests', () => {
             await authFlow.loginSuccess(userEmail, password, username, 'mobile');
             await page.waitForLoadState('networkidle');
             await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByRole('link', { name: 'Top titles today' })).toBeVisible();
+            await expect(page.getByText('Top titles today')).toBeVisible();
         });
 
         await test.step('Hide dynamic images via CSS', async () => {
@@ -86,7 +86,7 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('main-page-logged-in.webp', {
+            await expect(page).toHaveScreenshot('main-page-logged-in.png', {
                 fullPage: true,
                 mask: mainPageLoggedInMasks(page),
                 maxDiffPixelRatio: 0.02,
@@ -116,7 +116,7 @@ test.describe('AITV mobile visual tests', () => {
 
         await test.step('Take header screenshot', async () => {
             await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
-            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-anon.webp', { maxDiffPixelRatio: 0.02 });
+            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-anon.png', { maxDiffPixelRatio: 0.02 });
         });
     });
 
@@ -141,7 +141,7 @@ test.describe('AITV mobile visual tests', () => {
 
         await test.step('Take header screenshot', async () => {
             await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
-            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-logged-in.webp', {
+            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-logged-in.png', {
                 mask: [page.locator('[data-id="aitv-profile-menu-trigger"]')],
                 maxDiffPixelRatio: 0.02,
             });
@@ -165,7 +165,7 @@ test.describe('AITV mobile visual tests', () => {
         await test.step('Wait for auth modal and take screenshot', async () => {
             await loginPopupPage.assertPopupVisible();
             await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByRole('dialog')).toHaveScreenshot('auth-modal.webp', { maxDiffPixelRatio: 0.02 });
+            await expect(page.getByRole('dialog')).toHaveScreenshot('auth-modal.png', { maxDiffPixelRatio: 0.02 });
         });
     });
 

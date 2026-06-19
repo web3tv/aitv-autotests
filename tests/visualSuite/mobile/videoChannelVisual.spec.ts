@@ -60,7 +60,7 @@ test.describe('Mobile video & channel visual tests', () => {
         });
 
         await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('video-page-anon.webp', {
+            await expect(page).toHaveScreenshot('video-page-anon.png', {
                 mask: videoPageMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
@@ -81,7 +81,7 @@ test.describe('Mobile video & channel visual tests', () => {
         });
 
         await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('video-page-logged-in.webp', {
+            await expect(page).toHaveScreenshot('video-page-logged-in.png', {
                 mask: videoPageMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
@@ -103,7 +103,7 @@ test.describe('Mobile video & channel visual tests', () => {
         });
 
         await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('channel-page-anon.webp', {
+            await expect(page).toHaveScreenshot('channel-page-anon.png', {
                 fullPage: false,
                 mask: channelPageMasks(page),
                 maxDiffPixelRatio: 0.02,
@@ -126,7 +126,7 @@ test.describe('Mobile video & channel visual tests', () => {
         });
 
         await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('channel-page-logged-in.webp', {
+            await expect(page).toHaveScreenshot('channel-page-logged-in.png', {
                 fullPage: false,
                 mask: channelPageMasks(page),
                 maxDiffPixelRatio: 0.02,
@@ -149,7 +149,7 @@ test.describe('Mobile video & channel visual tests', () => {
         await test.step('Take navigation screenshot', async () => {
             const nav = page.getByText('HomeShortsYou');
             await expect(nav).toBeVisible({ timeout: 10_000 });
-            await expect(nav).toHaveScreenshot('mobile-nav-anon.webp', { maxDiffPixelRatio: 0.02 });
+            await expect(nav).toHaveScreenshot('mobile-nav-anon.png', { maxDiffPixelRatio: 0.02 });
         });
     });
 
@@ -167,7 +167,7 @@ test.describe('Mobile video & channel visual tests', () => {
         await test.step('Take navigation screenshot', async () => {
             const nav = page.getByText('HomeShortsYou');
             await expect(nav).toBeVisible({ timeout: 10_000 });
-            await expect(nav).toHaveScreenshot('mobile-nav-logged-in.webp', { maxDiffPixelRatio: 0.02 });
+            await expect(nav).toHaveScreenshot('mobile-nav-logged-in.png', { maxDiffPixelRatio: 0.02 });
         });
     });
 
