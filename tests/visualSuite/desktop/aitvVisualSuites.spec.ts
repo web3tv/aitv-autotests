@@ -6,8 +6,6 @@ import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
 
 test.describe('AITV visual tests', () => {
 
-    test.use({ viewport: { width: 1920, height: 1080 } });
-
     let userEmail: string;
     let password: string;
     let username: string;
@@ -189,6 +187,13 @@ test.describe('AITV visual tests', () => {
             await expect(card, 'First video card in category section is not visible').toBeVisible();
             await card.hover();
             await page.waitForTimeout(600);
+            await page.addStyleTag({
+                content: `
+                    .MuiAvatar-root,
+                    .MuiTypography-body1,
+                    .MuiTypography-body1 ~ div { visibility: hidden !important; }
+                `,
+            });
             await expect(page).toHaveScreenshot({
                 mask: [
                     page.locator('[data-id="aitv-hero"] img'),

@@ -1,0 +1,141 @@
+name: AITV Visual Tests (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Стенд для запуска тестов'
+        required: true
+        default: 'dev2'
+        type: choice
+        options:
+          - dev2
+          - dev1
+      update_snapshots:
+        description: 'Обновить базовые снапшоты (--update-snapshots)'
+        required: false
+        default: false
+        type: boolean
+      task:
+        description: 'Номер задачи - W3-XXXX (необязательно)'
+        required: false
+        type: string
+
+jobs:
+
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load environment config
+        run: |
+          if [ "${{ inputs.environment }}" = "dev1" ]; then
+            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv >> $GITHUB_ENV
+          else
+            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv2 >> $GITHUB_ENV
+          fi
+
+      - name: Link Jira task
+        if: ${{ inputs.task != '' }}
+        run: |
+          echo "### Jira Task" >> $GITHUB_STEP_SUMMARY
+          echo "[${{ inputs.task }}](${{ secrets.JIRA_BASE_URL }}/browse/${{ inputs.task }})" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Project:** ${{ inputs.project }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Install WireGuard
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wireguard-tools iproute2
+
+      - name: Connect VPN
+        env:
+          WG_CLIENT_CONFIG: ${{ secrets.WG_CLIENT_CONFIG }}
+        run: |
+          printf "%s\n" "$WG_CLIENT_CONFIG" > wg0.conf
+          sudo install -m 600 wg0.conf /etc/wireguard/wg0.conf
+          sudo wg-quick up wg0
+          sudo ip route replace 10.3.0.0/16 dev wg0
+          rm -f wg0.conf
+
+      - name: Build Docker image
+        run: docker build -t aitv-test .
+
+      - name: Run visual tests
+        run: |
+          SNAPSHOT_FLAG=""
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+            SNAPSHOT_FLAG="--update-snapshots"
+          fi
+          docker run --rm \
+            --network host \
+            -v "$PWD:/app" \
+            -e BASE_URL="$BASE_URL" \
+            -e API_URL="$API_URL" \
+            -e USER_PASSWORD="$USER_PASSWORD" \
+            -e USER_LOGIN_ADMIN="$USER_LOGIN_ADMIN" \
+            -e CI=true \
+            aitv-test \
+            npx playwright test \
+              --project=visual-aitv-desktop-chromium \
+              --project=visual-aitv-mobile-chromium \
+              --project=visual-aitv-large-chromium \
+              $SNAPSHOT_FLAG
+
+      - if: always()
+        run: sudo wg-quick down wg0
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aitv-visual-report
+          path: playwright-report
+
+      - name: Upload updated snapshots
+        if: ${{ inputs.update_snapshots == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aitv-snapshots
+          path: tests/visualSuite/desktop/aitvVisualSuites.spec.ts-snapshots
+
+      - name: Send Slack notification
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          TASK: ${{ inputs.task }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          LABEL="${ENVIRONMENT}${TASK:+ | $TASK}"
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            --data "{\"message\":\"AITV Visual Tests [$LABEL]\nStatus: $STATUS\n$RUN_URL\"}" \
+            "$WEBHOOK"
+
+      - name: Comment on Jira task
+        if: ${{ always() && inputs.task != '' }}
+        env:
+          STATUS: ${{ job.status }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          TASK: ${{ inputs.task }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          BODY=$(jq -nc \
+            --arg label "AITV Visual Tests [$ENVIRONMENT]: $STATUS — " \
+            --arg url "$RUN_URL" \
+            '{body: {type: "doc", version: 1, content: [{type: "paragraph", content: [
+              {type: "text", text: $label},
+              {type: "text", text: "View run →", marks: [{type: "link", attrs: {href: $url}}]}
+            ]}]}}')
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Basic $(printf '%s:%s' "$JIRA_EMAIL" "$JIRA_API_TOKEN" | base64 -w 0)" \
+            --data "$BODY" \
+            "$JIRA_BASE_URL/rest/api/3/issue/$TASK/comment"
