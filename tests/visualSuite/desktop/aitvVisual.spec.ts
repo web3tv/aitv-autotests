@@ -209,13 +209,7 @@ test.describe('AITV visual tests', () => {
                 `,
             });
             await expect(page).toHaveScreenshot({
-                mask: [
-                    page.locator('[data-id="aitv-hero"] img'),
-                    page.locator('[data-id="aitv-hero"] video'),
-                    page.locator('[data-id="aitv-hero"] .MuiTypography-root'),
-                    page.locator('[data-id="aitv-top-card"] img'),
-                    page.locator('[data-id="aitv-video-card"] img'),
-                ],
+                mask: videoCardHoverMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });
