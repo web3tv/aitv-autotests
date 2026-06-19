@@ -7,6 +7,7 @@ RUN npm ci
 RUN npx playwright install --with-deps
 
 ENV PATH="/deps/node_modules/.bin:$PATH"
+ENV NODE_PATH="/deps/node_modules"
 
 WORKDIR /app
 COPY . .
