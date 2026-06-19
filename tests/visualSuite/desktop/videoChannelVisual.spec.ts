@@ -13,6 +13,7 @@ const videoPageMasks = (page: Page) => [
     page.locator('.MuiAvatar-circular'),
     page.locator('[data-id="video-views-count"]'),
     page.locator('[data-id="video-views-count"] + p'),
+    page.locator('[data-id="commenting-as-trigger"]'),
 ];
 
 const channelPageMasks = (page: Page) => [

@@ -5,6 +5,9 @@ export class HeaderPage {
   readonly page: Page;
 
   readonly header: Locator;
+  readonly mobileHeader: Locator;
+  readonly mobileDropdownTrigger: Locator;
+  readonly mobileDropdownMenu: Locator;
 
   // Unauthenticated header
   readonly getStartedBtn: Locator;
@@ -27,6 +30,9 @@ export class HeaderPage {
     this.page = page;
 
     this.header = page.locator('[data-id="aitv-header"]');
+    this.mobileHeader = page.locator('[data-id="aitv-header-mobile"]');
+    this.mobileDropdownTrigger = page.locator('[data-id="aitv-header-dropdown-trigger"]');
+    this.mobileDropdownMenu = page.locator('ul[role="menu"]');
 
     this.getStartedBtn = page.getByRole('button', { name: 'Get Started' });
     this.searchBtn = page.locator('[data-id="aitv-header-search"]');

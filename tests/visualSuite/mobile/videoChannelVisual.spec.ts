@@ -10,6 +10,7 @@ const videoPageMasks = (page: Page) => [
     page.locator('.MuiAvatar-circular'),
     page.locator('[data-id="video-views-count"]'),
     page.locator('[data-id="video-views-count"] + p'),
+    page.locator('[data-id="commenting-as-trigger"]'),
 ];
 
 const channelPageMasks = (page: Page) => [
@@ -131,43 +132,6 @@ test.describe('Mobile video & channel visual tests', () => {
                 mask: channelPageMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
-        });
-    });
-
-    // ── Mobile navigation ──
-
-    test('Mobile navigation buttons for anonymous user', {
-        annotation: { type: 'TC', description: 'VIS-MOB-005' },
-    }, async ({ page }) => {
-        await test.step('Open main page', async () => {
-            await page.goto('/');
-            await page.waitForLoadState('networkidle');
-            await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible({ timeout: 10_000 });
-        });
-
-        await test.step('Take navigation screenshot', async () => {
-            const nav = page.getByText('HomeShortsYou');
-            await expect(nav).toBeVisible({ timeout: 10_000 });
-            await expect(nav).toHaveScreenshot('mobile-nav-anon.png', { maxDiffPixelRatio: 0.02 });
-        });
-    });
-
-    test('Mobile navigation buttons for logged in user', {
-        annotation: { type: 'TC', description: 'VIS-MOB-006' },
-    }, async ({ page }) => {
-        await test.step('Login and navigate to main page', async () => {
-            const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username);
-            await page.waitForLoadState('networkidle');
-            await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(page.getByRole('heading', { name: 'Recommended for You' })).toBeVisible({ timeout: 10_000 });
-        });
-
-        await test.step('Take navigation screenshot', async () => {
-            const nav = page.getByText('HomeShortsYou');
-            await expect(nav).toBeVisible({ timeout: 10_000 });
-            await expect(nav).toHaveScreenshot('mobile-nav-logged-in.png', { maxDiffPixelRatio: 0.02 });
         });
     });
 

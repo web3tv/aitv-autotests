@@ -115,8 +115,9 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Take header screenshot', async () => {
-            await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
-            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-anon.png', { maxDiffPixelRatio: 0.02 });
+            const headerPage = new HeaderPage(page);
+            await expect(headerPage.mobileHeader).toBeVisible();
+            await expect(headerPage.mobileHeader).toHaveScreenshot('header-anon.png', { maxDiffPixelRatio: 0.02 });
         });
     });
 
@@ -140,9 +141,42 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Take header screenshot', async () => {
-            await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
-            await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-logged-in.png', {
-                mask: [new HeaderPage(page).userIcon],
+            const headerPage = new HeaderPage(page);
+            await expect(headerPage.mobileHeader).toBeVisible();
+            await expect(headerPage.mobileHeader).toHaveScreenshot('header-logged-in.png', {
+                mask: [headerPage.userIcon],
+                maxDiffPixelRatio: 0.02,
+            });
+        });
+    });
+
+    test('Header navigation dropdown', {
+        annotation: { type: 'TC', description: 'VIS-AITV-MOB-005' },
+    }, async ({ page }) => {
+        await test.step('Open main page', async () => {
+            await page.goto('/');
+            await page.waitForLoadState('networkidle');
+            await page.evaluate(async () => { await document.fonts.ready; });
+        });
+
+        await test.step('Hide dynamic content', async () => {
+            await page.addStyleTag({
+                content: `
+                    [data-id="aitv-hero"] img,
+                    [data-id="aitv-hero"] video,
+                    [data-id="aitv-top-card"] img,
+                    [data-id="aitv-video-card"] img { visibility: hidden !important; }
+                `,
+            });
+        });
+
+        await test.step('Click dropdown trigger and take screenshot', async () => {
+            const headerPage = new HeaderPage(page);
+            await expect(headerPage.mobileDropdownTrigger, 'Dropdown trigger is not visible').toBeVisible();
+            await headerPage.mobileDropdownTrigger.click();
+            await expect(headerPage.mobileDropdownMenu, 'Dropdown menu is not visible').toBeVisible();
+            await expect(page).toHaveScreenshot('header-dropdown-open.png', {
+                mask: mainPageMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });
@@ -151,7 +185,7 @@ test.describe('AITV mobile visual tests', () => {
     // ── Auth modal ──
 
     test('Auth modal on Get Started click', {
-        annotation: { type: 'TC', description: 'VIS-AITV-MOB-005' },
+        annotation: { type: 'TC', description: 'VIS-AITV-MOB-006' },
     }, async ({ page }) => {
         const headerPage = new HeaderPage(page);
         const loginPopupPage = new LoginPopupPage(page);
