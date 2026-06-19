@@ -7,8 +7,8 @@ import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 const studioBaseUrl = process.env.STUDIO_URL!;
 
 const studioHeaderMasks = (page: Page) => [
-    page.locator('[data-id="aitv-profile-menu-trigger"]'),
-    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
+    new HeaderPage(page).userIcon,
+    new HeaderPage(page).channelTriggerBtn,
 ];
 
 const studioDashboardMasks = (page: Page) => [

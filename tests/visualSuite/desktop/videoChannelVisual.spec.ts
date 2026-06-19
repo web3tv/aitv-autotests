@@ -1,12 +1,13 @@
 import { test, expect, request as playwrightRequest, Page } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 
 const videoPageMasks = (page: Page) => [
     page.locator('[data-id="recommended-videos"]'),
     page.locator('[aria-label="Video Player"]'),
-    page.locator('[data-id="aitv-profile-menu-trigger"]'),
-    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
+    new HeaderPage(page).userIcon,
+    new HeaderPage(page).channelTriggerBtn,
     page.locator('h1'),
     page.locator('h2'),
     page.locator('.MuiAvatar-circular'),
@@ -21,8 +22,8 @@ const channelPageMasks = (page: Page) => [
     page.locator('[data-id="subscribers"]'),
     page.locator('[data-id="name"]'),
     page.locator('[data-id="handle"]'),
-    page.locator('[data-id="aitv-profile-menu-trigger"]'),
-    page.locator('[data-id="aitv-studio-channel-trigger-button"]'),
+    new HeaderPage(page).userIcon,
+    new HeaderPage(page).channelTriggerBtn,
 ];
 
 test.describe('Main domain visual tests', () => {

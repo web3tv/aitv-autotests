@@ -10,7 +10,7 @@ const mainPageMasks = (page: Page) => [
 
 const mainPageLoggedInMasks = (page: Page) => [
     ...mainPageMasks(page),
-    page.locator('[data-id="aitv-profile-menu-trigger"]'),
+    new HeaderPage(page).userIcon,
 ];
 
 test.describe('AITV mobile visual tests', () => {
@@ -142,7 +142,7 @@ test.describe('AITV mobile visual tests', () => {
         await test.step('Take header screenshot', async () => {
             await expect(page.locator('[data-id="aitv-header"]')).toBeVisible();
             await expect(page.locator('[data-id="aitv-header"]')).toHaveScreenshot('header-logged-in.png', {
-                mask: [page.locator('[data-id="aitv-profile-menu-trigger"]')],
+                mask: [new HeaderPage(page).userIcon],
                 maxDiffPixelRatio: 0.02,
             });
         });
