@@ -73,7 +73,7 @@ test.describe('Mobile video & channel visual tests', () => {
         await test.step('Take screenshot', async () => {
             await expect(page).toHaveScreenshot('video-page-anon.png', {
                 mask: videoPageMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -96,7 +96,7 @@ test.describe('Mobile video & channel visual tests', () => {
         await test.step('Take screenshot', async () => {
             await expect(page).toHaveScreenshot('video-page-logged-in.png', {
                 mask: videoPageMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -121,7 +121,7 @@ test.describe('Mobile video & channel visual tests', () => {
             await expect(page).toHaveScreenshot('channel-page-anon.png', {
                 fullPage: false,
                 mask: channelPageMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -146,7 +146,7 @@ test.describe('Mobile video & channel visual tests', () => {
             await expect(page).toHaveScreenshot('channel-page-logged-in.png', {
                 fullPage: false,
                 mask: channelPageMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });

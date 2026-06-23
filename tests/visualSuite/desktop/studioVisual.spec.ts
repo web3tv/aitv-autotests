@@ -74,7 +74,9 @@ test.describe('Studio visual tests', () => {
         await test.step('Take sidebar screenshot', async () => {
             const nav = new StudioNavigationPage(page);
             await nav.assertVisible();
-            await expect(nav.nav).toHaveScreenshot('studio-sidebar.png', { maxDiffPixelRatio: 0.02 });
+            await expect(nav.nav).toHaveScreenshot('studio-sidebar.png', {
+                //  maxDiffPixelRatio: 0.02
+            });
         });
     });
 
@@ -96,7 +98,7 @@ test.describe('Studio visual tests', () => {
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
             await expect(headerPage.header).toHaveScreenshot('studio-header.png', {
                 mask: studioHeaderMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -119,7 +121,7 @@ test.describe('Studio visual tests', () => {
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
             await expect(page).toHaveScreenshot('studio-dashboard.png', {
                 mask: studioDashboardMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -140,7 +142,7 @@ test.describe('Studio visual tests', () => {
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
             await expect(page).toHaveScreenshot('studio-content.png', {
                 mask: studioContentMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });

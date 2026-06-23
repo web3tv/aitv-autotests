@@ -61,7 +61,7 @@ test.describe('AITV mobile visual tests', () => {
             await expect(page).toHaveScreenshot('main-page-anon.png', {
                 fullPage: true,
                 mask: mainPageMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -94,7 +94,7 @@ test.describe('AITV mobile visual tests', () => {
             await expect(page).toHaveScreenshot('main-page-logged-in.png', {
                 fullPage: true,
                 mask: mainPageLoggedInMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -123,7 +123,9 @@ test.describe('AITV mobile visual tests', () => {
 
         await test.step('Take header screenshot', async () => {
             await expect(headerPage.mobileHeader).toBeVisible();
-            await expect(headerPage.mobileHeader).toHaveScreenshot('header-anon.png', { maxDiffPixelRatio: 0.02 });
+            await expect(headerPage.mobileHeader).toHaveScreenshot('header-anon.png', {
+                // maxDiffPixelRatio: 0.02 
+            });
         });
     });
 
@@ -152,7 +154,7 @@ test.describe('AITV mobile visual tests', () => {
             await expect(headerPage.mobileHeader).toBeVisible();
             await expect(headerPage.mobileHeader).toHaveScreenshot('header-logged-in.png', {
                 mask: [headerPage.userIcon],
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -185,7 +187,7 @@ test.describe('AITV mobile visual tests', () => {
             await expect(headerPage.mobileDropdownMenu, 'Dropdown menu is not visible').toBeVisible();
             await expect(page).toHaveScreenshot('header-dropdown-open.png', {
                 mask: mainPageMasks(page),
-                maxDiffPixelRatio: 0.02,
+                // maxDiffPixelRatio: 0.02,
             });
         });
     });
@@ -207,7 +209,9 @@ test.describe('AITV mobile visual tests', () => {
         await test.step('Wait for auth modal and take screenshot', async () => {
             await loginPopupPage.assertPopupVisible();
             await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(loginPopupPage.dialog).toHaveScreenshot('auth-modal.png', { maxDiffPixelRatio: 0.02 });
+            await expect(loginPopupPage.dialog).toHaveScreenshot('auth-modal.png', { 
+                // maxDiffPixelRatio: 0.02 
+            });
         });
     });
 

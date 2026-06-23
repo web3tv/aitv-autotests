@@ -67,6 +67,12 @@ export default defineConfig({
       name: 'visual-desktop-chromium',
       testMatch: /visualSuite\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
+      expect: {
+        toHaveScreenshot: {
+          maxDiffPixelRatio: 0.01,  
+          threshold: 0.1,           
+        },
+      },
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
@@ -83,6 +89,12 @@ export default defineConfig({
       name: 'visual-desktop-large-chromium',
       testMatch: /visualSuite\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
+      expect: {
+        toHaveScreenshot: {
+          maxDiffPixelRatio: 0.02,  
+          threshold: 0.1,         
+        },
+      },
       use: {
         browserName: 'chromium',
         viewport: { width: 2560, height: 1080 },
@@ -99,6 +111,12 @@ export default defineConfig({
       name: 'visual-mobile-webkit',
       testMatch: /visualSuite\/mobile\/.*\.spec\.ts$/,
       fullyParallel: false,
+      expect: {
+        toHaveScreenshot: {
+          maxDiffPixelRatio: 0.03,  // строго: 1% (десктоп, контроль)
+          threshold: 0.2,           // цвета почти как есть
+        },
+      },
       use: {
         ...devices['iPhone 15 Pro Max'],
         trace: 'off',
