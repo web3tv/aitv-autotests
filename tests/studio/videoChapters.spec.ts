@@ -101,7 +101,7 @@ test.describe('Video chapters — English video', () => {
     });
 
     test('Flipping chapters_enabled to false still returns chapters', {
-        tag: '@bd',
+        tag: '@db',
         annotation: { type: 'TC', description: 'CHAP-005' },
     }, async ({ request }) => {
         test.setTimeout(60_000);

@@ -3,14 +3,28 @@ import { Page, Locator, expect } from '@playwright/test';
 export class VideoPlayerPage {
   readonly page: Page;
   readonly videoElement: Locator;
+  readonly shortsVideoElement: Locator;
+
+  // Player controls
+  readonly playerCenterPlayBtn: Locator;
+  readonly playerPlayBtn: Locator;
+  readonly playerProgress: Locator;
+  readonly playerMuteBtn: Locator;
+  readonly playerVolume: Locator;
+  readonly playerReplay10Btn: Locator;
+  readonly playerForward10Btn: Locator;
+  readonly playerTime: Locator;
+  readonly playerNextBtn: Locator;
+  readonly playerSettingsBtn: Locator;
+  readonly playerFullscreenBtn: Locator;
+
+  // Backwards-compatible aliases
   readonly playButton: Locator;
   readonly shortsPlayButton: Locator;
-  readonly shortsVideoElement: Locator;
 
   readonly playerContainer: Locator;
   readonly recommendedVideos: Locator;
   readonly videoTitle: Locator;
-  readonly videoSubtitle: Locator;
   readonly authorAvatar: Locator;
   readonly videoViewsCount: Locator;
   readonly videoViewsCountDate: Locator;
@@ -26,20 +40,32 @@ export class VideoPlayerPage {
     this.videoElement = page.locator('video.vjs-tech');
 
     this.playerContainer = page.locator('[aria-label="Video Player"]');
-    this.recommendedVideos = page.locator('[data-id="recommended-videos"]');
+    this.recommendedVideos = page.locator('[data-id="aitv-related-videos"]');
     this.videoTitle = page.locator('h1');
-    this.videoSubtitle = page.locator('h2');
-    this.authorAvatar = page.locator('.MuiAvatar-circular');
-    this.videoViewsCount = page.locator('[data-id="video-views-count"]');
-    this.videoViewsCountDate = page.locator('[data-id="video-views-count"] + p');
+    this.authorAvatar = page.locator('[data-testid="aitv-channel"] .MuiAvatar-circular');
+    this.videoViewsCount = page.locator('[data-id="aitv-watch-content"]').getByText(/views$/);
+    this.videoViewsCountDate = page.locator('[data-id="aitv-watch-content"]').getByText(/ago$/);
     this.commentingAsTrigger = page.locator('[data-id="commenting-as-trigger"]');
-    this.shareBtn = page.getByRole('button', { name: 'Share' });
-    this.playButton = page.locator('.vjs-big-play-button');
-    this.shortsPlayButton = page.locator('.swiper-slide-active .vjs-big-play-button');
+    this.shareBtn = page.getByTestId('aitv-share');
+
+    this.playerCenterPlayBtn = page.getByTestId('aitv-player-center-play');
+    this.playerPlayBtn = page.getByTestId('aitv-player-play');
+    this.playerProgress = page.getByTestId('aitv-player-progress');
+    this.playerMuteBtn = page.getByTestId('aitv-player-mute');
+    this.playerVolume = page.getByTestId('aitv-player-volume');
+    this.playerReplay10Btn = page.getByTestId('aitv-player-replay10');
+    this.playerForward10Btn = page.getByTestId('aitv-player-forward10');
+    this.playerTime = page.getByTestId('aitv-player-time');
+    this.playerNextBtn = page.getByTestId('aitv-player-next');
+    this.playerSettingsBtn = page.getByTestId('aitv-player-settings');
+    this.playerFullscreenBtn = page.getByTestId('aitv-player-fullscreen');
+
+    this.playButton = this.playerCenterPlayBtn;
+    this.shortsPlayButton = page.locator('.swiper-slide-active').getByTestId('aitv-player-center-play');
     this.shortsVideoElement = page.locator('.swiper-slide-active video.vjs-tech');
 
-    this.showMoreBtn = page.getByText('Show more', { exact: true });
-    this.showLessBtn = page.getByText('Show less', { exact: true });
+    this.showMoreBtn = page.locator('[data-id="aitv-description-more"]');
+    this.showLessBtn = page.locator('[data-id="aitv-description-more"]');
   }
 
   async expandDescription(): Promise<void> {
@@ -133,10 +159,9 @@ export class VideoPlayerPage {
       throw new Error('❌ Видео не проигрывается (currentTime не изменился)!');
     }
 
-    const slider = this.page.locator('.vjs-progress-holder');
-    const progressStart = parseFloat(await slider.getAttribute('aria-valuenow') || '0');
+    const progressStart = parseFloat(await this.playerProgress.getAttribute('aria-valuenow') || '0');
     await this.page.waitForTimeout(3000);
-    const progressEnd = parseFloat(await slider.getAttribute('aria-valuenow') || '0');
+    const progressEnd = parseFloat(await this.playerProgress.getAttribute('aria-valuenow') || '0');
 
     if (progressEnd <= progressStart) {
       throw new Error(`❌ Прогресс-бар не движется. Было: ${progressStart}, стало: ${progressEnd}`);

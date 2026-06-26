@@ -14,7 +14,6 @@ const videoPageMasks = (page: Page) => {
         header.userIcon,
         header.channelTriggerBtn,
         video.videoTitle,
-        video.videoSubtitle,
         video.authorAvatar,
         video.videoViewsCount,
         video.videoViewsCountDate,
@@ -67,8 +66,10 @@ test.describe('Main domain visual tests', () => {
 
     test('Video page for anonymous user', async ({ page }) => {
         const videoPlayer = new VideoPlayerPage(page);
+        const header = new HeaderPage(page);
 
         await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 });
         await expect(videoPlayer.videoTitle).toBeVisible({ timeout: 15_000 });
         await expect(videoPlayer.shareBtn).toBeVisible({ timeout: 10_000 });
         await page.evaluate(async () => {
@@ -84,10 +85,12 @@ test.describe('Main domain visual tests', () => {
 
     test('Video page for logged in user', async ({ page }) => {
         const videoPlayer = new VideoPlayerPage(page);
+        const header = new HeaderPage(page);
         const authFlow = new AuthFlow(page);
         await authFlow.loginSuccess(userEmail, password, username);
 
         await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 });
         await expect(videoPlayer.videoTitle).toBeVisible({ timeout: 15_000 });
         await expect(videoPlayer.shareBtn).toBeVisible({ timeout: 10_000 });
         await page.evaluate(async () => {
@@ -105,9 +108,11 @@ test.describe('Main domain visual tests', () => {
 
     test('Channel page for anonymous user', async ({ page }) => {
         const channelPage = new ChannelMainPage(page);
+        const header = new HeaderPage(page);
 
         await page.goto(channelUrl);
         await page.waitForLoadState('networkidle');
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 });
         await page.evaluate(async () => {
             await document.fonts.ready;
         });
@@ -121,11 +126,13 @@ test.describe('Main domain visual tests', () => {
 
     test('Channel page for logged in user', async ({ page }) => {
         const channelPage = new ChannelMainPage(page);
+        const header = new HeaderPage(page);
         const authFlow = new AuthFlow(page);
         await authFlow.loginSuccess(userEmail, password, username);
 
         await page.goto(channelUrl);
         await page.waitForLoadState('networkidle');
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 });
         await page.evaluate(async () => {
             await document.fonts.ready;
         });

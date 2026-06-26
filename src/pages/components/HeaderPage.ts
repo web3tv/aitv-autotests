@@ -36,7 +36,7 @@ export class HeaderPage {
     this.mobileDropdownMenu = page.locator('ul[role="menu"]');
     this.mobileProfileMenuChannelLink = page.locator('[data-id="aitv-profile-menu-channel-link"]');
 
-    this.getStartedBtn = page.getByRole('button', { name: 'Get Started' });
+    this.getStartedBtn = page.locator('[data-id="aitv-header"], [data-id="aitv-header-mobile"]').getByRole('button', { name: 'Get Started' });
     this.searchBtn = page.locator('[data-id="aitv-header-search"]');
     this.homeLink = page.locator('[data-id="home"]');
     this.seriesLink = page.locator('[data-id="series"]');
@@ -53,7 +53,9 @@ export class HeaderPage {
   }
 
   async clickGetStarted(): Promise<void> {
-    await expect(this.getStartedBtn, 'Get Started button is not visible').toBeVisible();
+    await this.page.waitForLoadState('load');
+    await expect(this.header.or(this.mobileHeader), 'Header is not visible').toBeVisible({ timeout: 30_000 });
+    await expect(this.getStartedBtn, 'Get Started button is not visible').toBeVisible({ timeout: 15_000 });
     await expect(this.getStartedBtn, 'Get Started button is not enabled').toBeEnabled();
     await this.getStartedBtn.click();
   }

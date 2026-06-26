@@ -1,0 +1,11 @@
+[    1595ms] [LOG] videojs-http-source-selector initialized! @ https://web3tv2.dev/_next/static/chunks/0t~4aky1xge.1.js:9
+[    1595ms] [LOG] player.techName_:Html5 @ https://web3tv2.dev/_next/static/chunks/0t~4aky1xge.1.js:9
+[    1595ms] [LOG] videojs-http-source-selector initialized! @ https://web3tv2.dev/_next/static/chunks/0t~4aky1xge.1.js:9
+[    1595ms] [LOG] player.techName_:Html5 @ https://web3tv2.dev/_next/static/chunks/0t~4aky1xge.1.js:9
+[    2207ms] [LOG] VIDEOJS: loadmetadata event @ https://web3tv2.dev/_next/static/chunks/0t~4aky1xge.1.js:9
+[    2208ms] [LOG] player.videojs_http_source_selector_initialized == false @ https://web3tv2.dev/_next/static/chunks/0t~4aky1xge.1.js:9
+[    2208ms] [LOG] VIDEOJS: loadmetadata event @ https://web3tv2.dev/_next/static/chunks/0t~4aky1xge.1.js:9
+[    2208ms] [LOG] player.videojs_http_source_selector_initialized == true @ https://web3tv2.dev/_next/static/chunks/0t~4aky1xge.1.js:9
+[   10561ms] [WARNING] The resource https://fonts.reown.com/KHTeka-Medium.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://web3tv2.dev/video/documentaries/dlinnoe-nazvanie-videorolikadlinnoe-nazvanie-videorolikadlinnoe-nazvanie-vi-1swb:0
+[   14818ms] [WARNING] The resource https://fonts.reown.com/KHTeka-Medium.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://web3tv2.dev/video/documentaries/dlinnoe-nazvanie-videorolikadlinnoe-nazvanie-videorolikadlinnoe-nazvanie-vi-1swb:0
+[11053757ms] [WARNING] The resource https://fonts.reown.com/KHTeka-Medium.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ https://web3tv2.dev/video/documentaries/dlinnoe-nazvanie-videorolikadlinnoe-nazvanie-videorolikadlinnoe-nazvanie-vi-1swb:0

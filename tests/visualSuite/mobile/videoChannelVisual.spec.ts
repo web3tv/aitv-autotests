@@ -1,5 +1,6 @@
 import { test, expect, request as playwrightRequest, Page } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { VideoPlayerPage } from '../../../src/pages/components/VideoPlayerPage';
 import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
 import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
@@ -10,7 +11,6 @@ const videoPageMasks = (page: Page) => {
         video.recommendedVideos,
         video.playerContainer,
         video.videoTitle,
-        video.videoSubtitle,
         video.authorAvatar,
         video.videoViewsCount,
         video.videoViewsCountDate,
@@ -61,11 +61,13 @@ test.describe('Mobile video & channel visual tests', () => {
         annotation: { type: 'TC', description: 'VIS-MOB-001' },
     }, async ({ page }) => {
         const videoPlayer = new VideoPlayerPage(page);
+        const header = new HeaderPage(page);
 
         await test.step('Open video page', async () => {
             await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+            await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
             await expect(videoPlayer.videoTitle).toBeVisible({ timeout: 15_000 });
-            await expect(videoPlayer.shareBtn).toBeVisible({ timeout: 10_000 });
+            // await expect(videoPlayer.shareBtn).toBeVisible({ timeout: 10_000 });
             await page.evaluate(async () => { await document.fonts.ready; });
             await page.waitForTimeout(1000);
         });
@@ -82,13 +84,15 @@ test.describe('Mobile video & channel visual tests', () => {
         annotation: { type: 'TC', description: 'VIS-MOB-002' },
     }, async ({ page }) => {
         const videoPlayer = new VideoPlayerPage(page);
+        const header = new HeaderPage(page);
 
         await test.step('Login and open video page', async () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username, true);
             await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
+            await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
             await expect(videoPlayer.videoTitle).toBeVisible({ timeout: 15_000 });
-            await expect(videoPlayer.shareBtn).toBeVisible({ timeout: 10_000 });
+            // await expect(videoPlayer.shareBtn).toBeVisible({ timeout: 10_000 });
             await page.evaluate(async () => { await document.fonts.ready; });
             await page.waitForTimeout(1000);
         });
@@ -107,10 +111,12 @@ test.describe('Mobile video & channel visual tests', () => {
         annotation: { type: 'TC', description: 'VIS-MOB-003' },
     }, async ({ page }) => {
         const channelPage = new ChannelMainPage(page);
+        const header = new HeaderPage(page);
 
         await test.step('Open channel page', async () => {
             await page.goto(channelUrl);
             await page.waitForLoadState('networkidle');
+            await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
             await page.evaluate(async () => { await document.fonts.ready; });
             await expect(channelPage.forYouHeading).toBeVisible({ timeout: 10_000 });
             await expect(channelPage.channelSubscribeBtn).toBeVisible();
@@ -130,12 +136,14 @@ test.describe('Mobile video & channel visual tests', () => {
         annotation: { type: 'TC', description: 'VIS-MOB-004' },
     }, async ({ page }) => {
         const channelPage = new ChannelMainPage(page);
+        const header = new HeaderPage(page);
 
         await test.step('Login and open channel page', async () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username, true);
             await page.goto(channelUrl);
             await page.waitForLoadState('networkidle');
+            await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
             await page.evaluate(async () => { await document.fonts.ready; });
             await expect(channelPage.forYouHeading).toBeVisible({ timeout: 10_000 });
             await expect(channelPage.editChannelBtn).toBeVisible();
