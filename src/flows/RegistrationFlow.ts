@@ -68,7 +68,7 @@ export class RegistrationFlow {
     await this.loginPopupPage.fillEmailOrUsername(email);
     await this.loginPopupPage.clickContinue();
 
-    const messageId = await this.mailTmHelper.waitForMessage(token, 'verification', 15, 3000);
+    const messageId = await this.mailTmHelper.waitForMessage(token, 'Email Verification', 15, 3000);
     const code = await this.mailTmHelper.extractVerificationCode(messageId, token);
     await this.loginPopupPage.fillCode(code);
 

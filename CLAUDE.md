@@ -37,14 +37,27 @@ docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
 ```
 
+**Run tests by tag:**
+```
+npm run test:critical                                   # @critical smoke (functional --grep @critical)
+npm run test:regression                                 # full functional regression
+npx playwright test --project=functional --grep @emails # any tag
+```
+
+**Run DB tests (`@db`) — needs port-forward first:**
+```
+kubectl port-forward -n web3tv svc/mariadb 3307:3306    # local 3307 matches DB_PORT
+npx playwright test --project=functional --grep @db
+```
+
 **Setup production accounts (run once):**
 ```
-ENV_FILE=.env.prod npx playwright test tests/production/setup.spec.ts --project=production
+ENV_FILE=.env.prod npx playwright test tests/production/setup.spec.ts --project=prodSmoke
 ```
 
 **Run production smoke tests:**
 ```
-ENV_FILE=.env.prod npx playwright test --project=production
+ENV_FILE=.env.prod npx playwright test --project=prodSmoke
 ```
 
 **View test report:**
@@ -54,11 +67,23 @@ npx playwright show-report
 
 ## Environment Setup
 
-Local config is loaded from `.env.web3tv2` (not committed). Required variables:
-- `BASE_URL` — frontend URL (e.g. `https://web3tv.dev`)
+Three environments, each with its own `.env` file (all gitignored). Default is `.env.web3tv2`.
+
+| Env | File | Host |
+|-----|------|------|
+| dev1 | `.env.web3tv` | web3tv.dev |
+| dev2 (default) | `.env.web3tv2` | web3tv2.dev |
+| prod | `.env.prod` | ai.tv |
+
+Switch via `ENV_FILE` (`ENV_FILE=.env.prod npx playwright test ...`) or, in the VS Code Playwright extension, via `playwright.env` in `.vscode/settings.json`. See README for details.
+
+Required variables:
+- `BASE_URL` — frontend URL (e.g. `https://web3tv2.dev`)
 - `API_URL` — backend API base URL
-- `USER_LOGIN_ADMIN` — admin username for API-based user verification
+- `USER_LOGIN_ADMIN` — admin username for admin-token operations
 - `USER_PASSWORD` — default password used by `AuthApi.createAndVerifyUser()` (`Admin1@@`)
+- `DB_HOST` / `DB_PORT` — DB connection for `@db` tests (`127.0.0.1` / `3307`, via the kubectl port-forward above)
+- `EMAIL_DOMAIN` — domain used in generated test emails
 
 ## Architecture
 
@@ -66,13 +91,15 @@ Local config is loaded from `.env.web3tv2` (not committed). Required variables:
 
 ```
 tests/
-  auth/         — Authentication tests
-  user/         — Account settings tests
+  auth/         — Authentication tests (login, registration, 2FA, reset, email templates)
+  user.fixme/   — Account settings tests (currently disabled / WIP)
   subscription/ — Subscription & paid content tests
-  hero/         — HERO integration tests
   studio/       — Video upload, player, channel tests
   validation/   — Input validation tests
-  visualSuite/  — Visual regression tests (Docker only)
+  production/   — Production setup + smoke specs (prodSmoke project)
+  visualSuite/
+    desktop/    — Desktop visual regression specs (Docker only)
+    mobile/     — Mobile visual regression specs (Docker only)
 src/
   flows/        — High-level user journey orchestrators
   pages/        — Page Object Model classes
@@ -91,7 +118,7 @@ test-data/
 ### Key design patterns
 
 **Two user creation strategies:**
-1. **API-based (preferred for speed):** `AuthApi.createAndVerifyUser()` — creates user via REST API and grants `ROLE_USER_VERIFIED` using an admin token obtained via PKCE OAuth flow. Password is always `Admin1@@` (`process.env.USER_PASSWORD`).
+1. **API-based (preferred for speed):** `AuthApi.createAndVerifyUser()` — registers via the email OTP flow over REST (`/auth/start` → read code from mail.tm → `/auth/verify` → `/auth/complete`). Password is always `Admin1@@` (`process.env.USER_PASSWORD`). (PKCE admin token via `getAdminToken()` is separate — used for admin-only operations, not for this flow.)
 2. **UI-based (for registration flow tests):** `RegistrationFlow.registerAndVerifyUserViaEmail()` — registers via browser, then reads verification link from a real mailbox using the `mail.tm` disposable email service.
 
 **Flows wrap Pages:** `AuthFlow`, `RegistrationFlow`, `UploadVideoFlow` compose multiple Page Objects into end-to-end sequences. Use flows for complex, reusable multi-step journeys (login, registration, upload). For everything else, tests instantiate Page Objects directly, and use API helpers (`AuthApi`, `VideoApi`) for fast setup that bypasses the UI. Mixing flows + direct Page Objects in one test is normal.
@@ -102,9 +129,12 @@ test-data/
 
 **Playwright projects:**
 - `functional` — all non-visual specs, Chromium 1920×1080
-- `production` — smoke tests for prod, Chromium 1920×1080
-- `visual-desktop-chromium` — desktop visual regression, Docker only
-- `visual-mobile-webkit` — mobile visual regression (iPhone 15), Docker only
+- `prodSmoke` — smoke tests for prod (`ENV_FILE=.env.prod`), Chromium 1920×1080
+- `visual-desktop-chromium` — desktop visual regression 1920×1080, Docker only
+- `visual-desktop-large-chromium` — desktop visual regression 2560×1080, Docker only
+- `visual-mobile-webkit` — mobile visual regression (iPhone 15 Pro Max), Docker only
+
+**Tags:** set via `{ tag: '@...' }` in `test()`/`test.describe()`, run with `--grep @tag`. Current tags: `@critical` (pre-deploy smoke), `@db` (needs DB port-forward), `@emails` (email template content).
 
 ## Coding Rules
 
@@ -178,3 +208,6 @@ await page.goto(url, { waitUntil: 'domcontentloaded' });
 
 **Page Object locators — constructor only:**
 All locators must be defined in the constructor. Never create locators inline in methods.
+
+**Don't hardcode the environment/domain:**
+Tests must work across dev1/dev2/prod. Don't hardcode hosts like `web3tv2.dev` — rely on `BASE_URL`/relative paths, and keep helpers domain-agnostic (e.g. email URL extractors in `MailTmHelper` match `https://[^/]+/...`). Email subject matching in `waitForMessage` is case-insensitive.
