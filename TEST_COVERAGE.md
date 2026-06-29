@@ -66,7 +66,8 @@ EMAIL TEMPLATES (W3-2662)
 ├── Welcome email — content                         [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-002
 ├── Password reset email — content, link & security [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-003
 ├── Password changed email — content                [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-004
-└── New device / suspicious login email             [BLOCKED] не реализовано в бэке (W3-2662) EMAIL-005
+├── New device / suspicious login email             [BLOCKED] не реализовано в бэке (W3-2662) EMAIL-005
+└── Coming-soon (pre-subscribed) video release email [AUTO] tests/studio/comingSoonEmail.spec.ts EMAIL-006
 
 ────────────────────────────────────────────────────────────────
 ACCOUNT SETTINGS (/account)
