@@ -606,4 +606,36 @@ export class VideoApi {
             `Chapters for video ${videoId} not generated after ${maxAttempts} attempts (${(maxAttempts * intervalMs) / 1000}s)`
         );
     }
+
+    /** Pre-subscribe на релиз "coming soon" видео: POST /videos/{id}/notify-on-release */
+    async subscribeToVideoRelease(token: string, videoId: string): Promise<void> {
+        const response = await this.request.post(
+            `${this.baseUrl}/videos/${videoId}/notify-on-release`,
+            { headers: { Accept: "application/json", Authorization: `Bearer ${token}` } }
+        );
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to subscribe to video release: ${response.status()} ${body}`);
+        }
+    }
+
+    /**
+     * Включает уведомления о релизе подписанного видео (on-platform + email).
+     * Бэк шлёт email только внутри проверки VIDEO_RELEASE (поле `subscriptions`),
+     * а сам email — по `emailSubscriptionActivity`; PUT перезаписывает настройки
+     * целиком, поэтому отправляем оба поля. На бэке дефолт обоих может быть false.
+     */
+    async enableReleaseNotifications(token: string): Promise<void> {
+        const response = await this.request.put(
+            `${this.baseUrl}/user/notifications/settings/`,
+            {
+                headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+                data: { subscriptions: true, emailSubscriptionActivity: true },
+            }
+        );
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to update notification settings: ${response.status()} ${body}`);
+        }
+    }
 }
