@@ -10,5 +10,6 @@ node_modules/
 # Env files (local, not committed)
 .env.*
 
-# IDE (local settings, not committed)
-.vscode/
+# IDE (local settings, not committed) — кроме общего settings.json
+.vscode/*
+!.vscode/settings.json

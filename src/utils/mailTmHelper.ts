@@ -1,4 +1,15 @@
-import { APIRequestContext } from '@playwright/test';
+import { APIRequestContext, expect } from '@playwright/test';
+
+/** Незаполненный Twig-плейсхолдер вида {{ ... }}. */
+const PLACEHOLDER_RE = /\{\{.*?\}\}/;
+
+export type EmailMessage = {
+  subject: string;
+  fromAddress: string;
+  fromName: string;
+  text: string;
+  html: string;
+};
 
 export class MailTmHelper {
   private request: APIRequestContext;
@@ -97,7 +108,7 @@ export class MailTmHelper {
       const json = await res.json();
       const messages = json?.['hydra:member'] ?? [];
       const targetMessage = messages.find(m => {
-        if (!m.subject?.includes(subjectText)) {
+        if (!m.subject?.toLowerCase().includes(subjectText.toLowerCase())) {
           return false;
         }
 
@@ -136,7 +147,7 @@ export class MailTmHelper {
     const json = await res.json();
     const text = json.text ?? '';
 
-    const verifyMatch = text.match( /https:\/\/web3tv2\.dev\/verification\?[^\s\)"]+/);
+    const verifyMatch = text.match(/https:\/\/[^\s/]+\/verification\?[^\s)"]+/);
     if (verifyMatch) {
       return verifyMatch[0];
     }
@@ -152,7 +163,7 @@ export class MailTmHelper {
     const json = await res.json();
     const text = (json.text ?? '') + '\n' + (json.html ?? '');
 
-    const verifyMatch = text.match(/https:\/\/web3tv2\.dev\/reset-password\?[^\s"'<>)]*/i);
+    const verifyMatch = text.match(/https:\/\/[^\s/]+\/reset-password\?[^\s"'<>)]*/i);
     if (verifyMatch) {
       return verifyMatch[0];
     }
@@ -173,6 +184,58 @@ export class MailTmHelper {
     }
 
     return text.split('');
+  }
+
+  /**
+   * Возвращает полное содержимое письма для проверок контента шаблонов:
+   * subject, отправитель (адрес и имя), текстовое и HTML-тело.
+   */
+  async getMessage(messageId: string, token: string): Promise<EmailMessage> {
+    const res = await this.request.get(`${this.baseUrl}/messages/${messageId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!res.ok()) {
+      throw new Error(`Failed to fetch message ${messageId} from Mail.tm: ${res.statusText()}`);
+    }
+
+    const json = await res.json();
+    return {
+      subject: json.subject ?? '',
+      fromAddress: json.from?.address ?? '',
+      fromName: json.from?.name ?? '',
+      text: json.text ?? '',
+      html: Array.isArray(json.html) ? json.html.join('\n') : (json.html ?? ''),
+    };
+  }
+
+  /**
+   * Проверяет инвариантные (общие для всех писем AITV) свойства письма:
+   * точная тема, домен отправителя, брендинг и отсутствие незаполненных плейсхолдеров.
+   * Специфичный для письма контент проверяется в самом тесте.
+   *
+   * Отправитель на стейдже технический (Web3TV Staging <staging@web3.tv>), поэтому
+   * sender проверяется по домену, а бренд — по содержимому (футер «© 2026 AITV»).
+   */
+  static assertEmailBasics(
+    email: EmailMessage,
+    opts: {
+      subject: string;
+      senderDomain?: string;
+      branding?: string;
+      noPlaceholders?: boolean;
+    },
+  ): void {
+    const senderDomain = opts.senderDomain ?? 'web3.tv';
+    const branding = opts.branding ?? 'AITV';
+
+    expect(email.subject, 'email subject').toBe(opts.subject);
+    expect(email.fromAddress, 'sender domain').toContain(senderDomain);
+    expect(email.text, 'AITV branding present').toContain(branding);
+
+    if (opts.noPlaceholders !== false) {
+      expect(email.text, 'no unresolved Twig placeholders').not.toMatch(PLACEHOLDER_RE);
+    }
   }
 
   async extractVerificationCode(messageId: string, token: string): Promise<string> {

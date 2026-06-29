@@ -94,7 +94,7 @@ test-data/
 1. **API-based (preferred for speed):** `AuthApi.createAndVerifyUser()` — creates user via REST API and grants `ROLE_USER_VERIFIED` using an admin token obtained via PKCE OAuth flow. Password is always `Admin1@@` (`process.env.USER_PASSWORD`).
 2. **UI-based (for registration flow tests):** `RegistrationFlow.registerAndVerifyUserViaEmail()` — registers via browser, then reads verification link from a real mailbox using the `mail.tm` disposable email service.
 
-**Flows wrap Pages:** `AuthFlow`, `RegistrationFlow`, `UploadVideoFlow` compose multiple Page Objects into end-to-end sequences. Tests instantiate flows, not page objects directly (except for specific page-level assertions).
+**Flows wrap Pages:** `AuthFlow`, `RegistrationFlow`, `UploadVideoFlow` compose multiple Page Objects into end-to-end sequences. Use flows for complex, reusable multi-step journeys (login, registration, upload). For everything else, tests instantiate Page Objects directly, and use API helpers (`AuthApi`, `VideoApi`) for fast setup that bypasses the UI. Mixing flows + direct Page Objects in one test is normal.
 
 **Serial describes for stateful tests:** Multi-step feature tests (e.g., upload then verify visibility) use `test.describe.serial` with shared `let` variables to pass state (URLs, usernames) between test steps.
 
