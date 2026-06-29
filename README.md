@@ -1,6 +1,6 @@
 # AITV Autotests
 
-E2E-тесты платформы AITV на [Playwright] + TypeScript.
+E2E-тесты платформы AITV на [Playwright](https://playwright.dev/) + TypeScript.
 
 ## О проекте
 
@@ -70,7 +70,7 @@ test-data/    — фикстуры (видео, фото)
 - **`page.waitForResponse` регистрируй ДО триггер-действия**, иначе гонка.
 - **Никогда не используй `waitUntil: 'networkidle'` на видео-страницах** — плеер шлёт запросы постоянно. Используй `domcontentloaded`.
 - **Локаторы Page Object — только в конструкторе.** Не создавай локаторы инлайн в методах.
-- **Тесты работают через Flows**, а не напрямую через Page Objects (кроме точечных page-level проверок).
+- **Flows — для сложных переиспользуемых многошаговых сценариев** (логин, регистрация, аплоад). Для остального тесты обращаются к Page Objects напрямую, а к API-хелперам (`AuthApi`, `VideoApi`) — для быстрого сетапа в обход UI.
 
 ## Проекты и запуск
 
@@ -100,7 +100,7 @@ npm run test:regression  # вся регрессия
 **Тесты с БД (`@db`)** — сначала port-forward к базе:
 
 ```bash
-kubectl port-forward svc/mysql 3306:3306 -n <namespace>
+kubectl port-forward -n web3tv svc/mariadb 3307:3306
 npx playwright test --project=functional --grep @db
 ```
 
