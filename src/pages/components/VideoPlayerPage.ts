@@ -26,6 +26,9 @@ export class VideoPlayerPage {
   readonly recommendedVideos: Locator;
   readonly videoTitle: Locator;
   readonly authorAvatar: Locator;
+  readonly channelName: Locator;
+  readonly categorySections: Locator;
+  readonly shortCards: Locator;
   readonly videoViewsCount: Locator;
   readonly videoViewsCountDate: Locator;
   readonly commentingAsTrigger: Locator;
@@ -43,6 +46,9 @@ export class VideoPlayerPage {
     this.recommendedVideos = page.locator('[data-id="aitv-related-videos"]');
     this.videoTitle = page.locator('h1');
     this.authorAvatar = page.locator('[data-testid="aitv-channel"] .MuiAvatar-circular');
+    this.channelName = page.locator('[data-testid="aitv-channel"] p').first();
+    this.categorySections = page.locator('[data-id="aitv-category-section"]');
+    this.shortCards = page.locator('[data-id="aitv-short-card"]');
     this.videoViewsCount = page.locator('[data-id="aitv-watch-content"]').getByText(/views$/);
     this.videoViewsCountDate = page.locator('[data-id="aitv-watch-content"]').getByText(/ago$/);
     this.commentingAsTrigger = page.locator('[data-id="commenting-as-trigger"]');

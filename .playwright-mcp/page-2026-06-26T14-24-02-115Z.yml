@@ -1,0 +1,1511 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e13]:
+          - generic [ref=e15]:
+            - img "Длинное название видеороликаДлинное название видеороликаДлинное название видеороликаауацуацуауцауцау" [ref=e16]
+            - generic [ref=e17]:
+              - generic [ref=e18]:
+                - paragraph [ref=e20]: < 1m
+                - paragraph [ref=e21]: Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание м Длинное описание Длинное описание Длинное описание мДлинное описание Длинное описание м ммДлинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание м Длинное описание Длинное описание Длинное описание мДлинное описание Длинное описание м ммДлинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание Длинное описание
+              - generic [ref=e22]:
+                - button "Watch Now" [ref=e23] [cursor=pointer]:
+                  - img [ref=e25]
+                  - text: Watch Now
+                - button "My List" [ref=e27] [cursor=pointer]:
+                  - img [ref=e29]
+                  - text: My List
+          - generic [ref=e32]:
+            - img "Visual_1781874515800" [ref=e33]
+            - generic [ref=e34]:
+              - generic [ref=e35]:
+                - paragraph [ref=e37]: < 1m
+                - paragraph [ref=e38]: Visual test video
+              - generic [ref=e39]:
+                - button "Watch Now" [ref=e40] [cursor=pointer]:
+                  - img [ref=e42]
+                  - text: Watch Now
+                - button "My List" [ref=e44] [cursor=pointer]:
+                  - img [ref=e46]
+                  - text: My List
+          - generic [ref=e49]:
+            - img "Visual_1781868630997" [ref=e50]
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - paragraph [ref=e54]: < 1m
+                - paragraph [ref=e55]: Visual test video
+              - generic [ref=e56]:
+                - button "Watch Now" [ref=e57] [cursor=pointer]:
+                  - img [ref=e59]
+                  - text: Watch Now
+                - button "My List" [ref=e61] [cursor=pointer]:
+                  - img [ref=e63]
+                  - text: My List
+          - generic [ref=e66]:
+            - img "1781019074518" [ref=e67]
+            - generic [ref=e68]:
+              - generic [ref=e69]:
+                - paragraph [ref=e71]: 1m
+                - paragraph [ref=e72]: "1781019099403"
+              - generic [ref=e73]:
+                - button "Watch Now" [ref=e74] [cursor=pointer]:
+                  - img [ref=e76]
+                  - text: Watch Now
+                - button "My List" [ref=e78] [cursor=pointer]:
+                  - img [ref=e80]
+                  - text: My List
+          - generic [ref=e83]:
+            - img "1781676996540" [ref=e84]
+            - generic [ref=e85]:
+              - generic [ref=e86]:
+                - paragraph [ref=e88]: < 1m
+                - paragraph [ref=e89]: "1781677008713"
+              - generic [ref=e90]:
+                - button "Watch Now" [ref=e91] [cursor=pointer]:
+                  - img [ref=e93]
+                  - text: Watch Now
+                - button "My List" [ref=e95] [cursor=pointer]:
+                  - img [ref=e97]
+                  - text: My List
+        - button "Unmute" [ref=e99] [cursor=pointer]:
+          - img [ref=e100]
+        - button "Previous" [ref=e104] [cursor=pointer]:
+          - img [ref=e105]
+        - button "Next" [ref=e107] [cursor=pointer]:
+          - img [ref=e108]
+      - generic [ref=e110]:
+        - paragraph [ref=e112]: Top titles today
+        - generic [ref=e114]:
+          - link "Длинное название видеороликаДлинное название видеороликаДлинное название видеороликаауацуацуауцауцау" [ref=e115] [cursor=pointer]:
+            - /url: /video/documentaries/dlinnoe-nazvanie-videorolikadlinnoe-nazvanie-videorolikadlinnoe-nazvanie-vi-1swb
+            - img [ref=e117]
+            - img "Длинное название видеороликаДлинное название видеороликаДлинное название видеороликаауацуацуауцауцау" [ref=e125]
+          - link "Visual_1781874515800" [ref=e126] [cursor=pointer]:
+            - /url: /video/documentaries/visual-1781874515800-143u
+            - img [ref=e128]
+            - img "Visual_1781874515800" [ref=e136]
+          - link "Visual_1781868630997" [ref=e137] [cursor=pointer]:
+            - /url: /video/documentaries/visual-1781868630997-zusf
+            - img [ref=e139]
+            - img "Visual_1781868630997" [ref=e147]
+          - link "1781019074518" [ref=e148] [cursor=pointer]:
+            - /url: /video/documentaries/1781019074518-k2q0
+            - img [ref=e150]
+            - img "1781019074518" [ref=e158]
+          - link "1781676996540" [ref=e159] [cursor=pointer]:
+            - /url: /video/documentaries/1781676996540-cgtk
+            - img [ref=e161]
+            - img "1781676996540" [ref=e169]
+          - link "Chapters_1781695903225" [ref=e170] [cursor=pointer]:
+            - /url: /video/documentaries/chapters-1781695903225-1h0z
+            - img [ref=e172]
+            - img "Chapters_1781695903225" [ref=e180]
+          - link "Public_1781532410036" [ref=e181] [cursor=pointer]:
+            - /url: /video/miniseries/public-1781532410036-rks7
+            - img [ref=e183]
+            - img "Public_1781532410036" [ref=e191]
+          - link "1781676737707" [ref=e192] [cursor=pointer]:
+            - /url: /video/documentaries/1781676737707-16cw
+            - img [ref=e194]
+            - img "1781676737707" [ref=e202]
+          - link "Visual_1781868790660" [ref=e203] [cursor=pointer]:
+            - /url: /video/documentaries/visual-1781868790660-1360
+            - img [ref=e205]
+            - img "Visual_1781868790660" [ref=e213]
+          - link "Смотрим на длительность видео" [ref=e214] [cursor=pointer]:
+            - /url: /video/miniseries/searchbeta-1780482043202-y3kj
+            - img [ref=e216]
+            - img "Смотрим на длительность видео" [ref=e228]
+      - generic [ref=e229]:
+        - link "Documentaries" [ref=e231] [cursor=pointer]:
+          - /url: /search?categories[]=documentaries
+          - generic [ref=e232]: Documentaries
+          - img [ref=e234]
+        - generic [ref=e237]:
+          - generic [ref=e239]:
+            - generic [ref=e240]:
+              - link "Visual_1782482402400" [ref=e241] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782482402400-og4y
+                - img "Visual_1782482402400" [ref=e244]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782482402400
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "BL bludm9865":
+                - /url: /@bludm9865
+                - generic:
+                  - generic:
+                    - generic: BL
+                  - generic:
+                    - paragraph: bludm9865
+              - button "Follow"
+          - generic [ref=e246]:
+            - generic [ref=e247]:
+              - link "Visual_1782482269531" [ref=e248] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782482269531-14hh
+                - img "Visual_1782482269531" [ref=e251]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782482269531
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "BE beojv4823":
+                - /url: /@beojv4823
+                - generic:
+                  - generic:
+                    - generic: BE
+                  - generic:
+                    - paragraph: beojv4823
+              - button "Follow"
+          - generic [ref=e253]:
+            - generic [ref=e254]:
+              - link "Visual_1782482201014" [ref=e255] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782482201014-1vtl
+                - img "Visual_1782482201014" [ref=e258]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782482201014
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "YL yllym2916":
+                - /url: /@yllym2916
+                - generic:
+                  - generic:
+                    - generic: YL
+                  - generic:
+                    - paragraph: yllym2916
+              - button "Follow"
+          - generic [ref=e260]:
+            - generic [ref=e261]:
+              - link "Visual_1782481738820" [ref=e262] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782481738820-gioa
+                - img "Visual_1782481738820" [ref=e265]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782481738820
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "HE heprw2433":
+                - /url: /@heprw2433
+                - generic:
+                  - generic:
+                    - generic: HE
+                  - generic:
+                    - paragraph: heprw2433
+              - button "Follow"
+          - generic [ref=e267]:
+            - generic [ref=e268]:
+              - link "Visual_1782479509782" [ref=e269] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782479509782-70yi
+                - img "Visual_1782479509782" [ref=e272]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782479509782
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "BQ bqljj5683":
+                - /url: /@bqljj5683
+                - generic:
+                  - generic:
+                    - generic: BQ
+                  - generic:
+                    - paragraph: bqljj5683
+              - button "Follow"
+          - generic [ref=e274]:
+            - generic [ref=e275]:
+              - link "Visual_1782479125999" [ref=e276] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782479125999-mw1h
+                - img "Visual_1782479125999" [ref=e279]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782479125999
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "KA kapct4750":
+                - /url: /@kapct4750
+                - generic:
+                  - generic:
+                    - generic: KA
+                  - generic:
+                    - paragraph: kapct4750
+              - button "Follow"
+          - generic [ref=e281]:
+            - generic [ref=e282]:
+              - link "Visual_1782479034190" [ref=e283] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782479034190-1nph
+                - img "Visual_1782479034190" [ref=e286]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782479034190
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "KU kuqpo392":
+                - /url: /@kuqpo392
+                - generic:
+                  - generic:
+                    - generic: KU
+                  - generic:
+                    - paragraph: kuqpo392
+              - button "Follow"
+          - generic [ref=e288]:
+            - generic [ref=e289]:
+              - link "Visual_1782478625481" [ref=e290] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782478625481-jkta
+                - img "Visual_1782478625481" [ref=e293]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782478625481
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "NV nvqcm5103":
+                - /url: /@nvqcm5103
+                - generic:
+                  - generic:
+                    - generic: NV
+                  - generic:
+                    - paragraph: nvqcm5103
+              - button "Follow"
+          - generic [ref=e295]:
+            - generic [ref=e296]:
+              - link "Visual_1782478555983" [ref=e297] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782478555983-18si
+                - img "Visual_1782478555983" [ref=e300]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782478555983
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "HM hmafn1585":
+                - /url: /@hmafn1585
+                - generic:
+                  - generic:
+                    - generic: HM
+                  - generic:
+                    - paragraph: hmafn1585
+              - button "Follow"
+          - generic [ref=e302]:
+            - generic [ref=e303]:
+              - link "Visual_1782478506140" [ref=e304] [cursor=pointer]:
+                - /url: /video/documentaries/visual-1782478506140-16jd
+                - img "Visual_1782478506140" [ref=e307]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Visual_1782478506140
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "AA aaumn2549":
+                - /url: /@aaumn2549
+                - generic:
+                  - generic:
+                    - generic: AA
+                  - generic:
+                    - paragraph: aaumn2549
+              - button "Follow"
+      - generic [ref=e308]:
+        - link "Docuseries" [ref=e310] [cursor=pointer]:
+          - /url: /search?categories[]=docuseries
+          - generic [ref=e311]: Docuseries
+          - img [ref=e313]
+        - generic [ref=e316]:
+          - generic [ref=e318]:
+            - generic [ref=e319]:
+              - link "dubbing + hotspots" [ref=e320] [cursor=pointer]:
+                - /url: /video/docuseries/dubbing-hotspots-1jje
+                - img "dubbing + hotspots" [ref=e323]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: dubbing + hotspots
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+          - generic [ref=e325]:
+            - generic [ref=e326]:
+              - link "Серия №4" [ref=e327] [cursor=pointer]:
+                - /url: /video/docuseries/seria-no4-duzh
+                - img "Серия №4" [ref=e330]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Серия №4
+                    - generic:
+                      - paragraph: E0
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+          - generic [ref=e332]:
+            - generic [ref=e333]:
+              - link "fefefe" [ref=e334] [cursor=pointer]:
+                - /url: /video/docuseries/fefefe-mt3e
+                - img "fefefe" [ref=e337]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: fefefe
+                    - generic:
+                      - paragraph: 11m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "EF efwefwe":
+                - /url: /@efwefwe
+                - generic:
+                  - generic:
+                    - generic: EF
+                  - generic:
+                    - paragraph: efwefwe
+              - button "Follow"
+          - generic [ref=e339]:
+            - generic [ref=e340]:
+              - link "впкуп" [ref=e341] [cursor=pointer]:
+                - /url: /video/docuseries/vpkup-110x
+                - img "впкуп" [ref=e344]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: впкуп
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "EF efwefwe":
+                - /url: /@efwefwe
+                - generic:
+                  - generic:
+                    - generic: EF
+                  - generic:
+                    - paragraph: efwefwe
+              - button "Follow"
+          - generic [ref=e346]:
+            - generic [ref=e347]:
+              - link "3333333333" [ref=e348] [cursor=pointer]:
+                - /url: /video/docuseries/3333333333-13xz
+                - img "3333333333" [ref=e351]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: "3333333333"
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "EF efwefwe":
+                - /url: /@efwefwe
+                - generic:
+                  - generic:
+                    - generic: EF
+                  - generic:
+                    - paragraph: efwefwe
+              - button "Follow"
+          - generic [ref=e353]:
+            - generic [ref=e354]:
+              - link "AFTER DRAFT" [ref=e355] [cursor=pointer]:
+                - /url: /video/docuseries/after-draft-50gu
+                - img "AFTER DRAFT" [ref=e358]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: AFTER DRAFT
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "EF efwefwe":
+                - /url: /@efwefwe
+                - generic:
+                  - generic:
+                    - generic: EF
+                  - generic:
+                    - paragraph: efwefwe
+              - button "Follow"
+          - generic [ref=e360]:
+            - generic [ref=e361]:
+              - link "wefewfefWEF" [ref=e362] [cursor=pointer]:
+                - /url: /video/docuseries/wefewfefwef-rot4
+                - img "wefewfefWEF" [ref=e365]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: wefewfefWEF
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "EF efwefwe":
+                - /url: /@efwefwe
+                - generic:
+                  - generic:
+                    - generic: EF
+                  - generic:
+                    - paragraph: efwefwe
+              - button "Follow"
+          - generic [ref=e367]:
+            - generic [ref=e368]:
+              - link "wqdwqdwdqwqwd" [ref=e369] [cursor=pointer]:
+                - /url: /video/docuseries/wqdwqdwdqwqwd-xq6y
+                - img "wqdwqdwdqwqwd" [ref=e372]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: wqdwqdwdqwqwd
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "VI video1231231":
+                - /url: /@video1231231
+                - generic:
+                  - generic:
+                    - generic: VI
+                  - generic:
+                    - paragraph: video1231231
+              - button "Follow"
+          - generic [ref=e374]:
+            - generic [ref=e375]:
+              - link "ауцацау" [ref=e376] [cursor=pointer]:
+                - /url: /video/docuseries/aucacau-aqyb
+                - img "ауцацау" [ref=e379]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: ауцацау
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "ZE zeyeu5236":
+                - /url: /@zeyeu5236
+                - generic:
+                  - generic:
+                    - generic: ZE
+                  - generic:
+                    - paragraph: zeyeu5236
+              - button "Follow"
+          - generic [ref=e381]:
+            - generic [ref=e382]:
+              - link "уцауцуауауау" [ref=e383] [cursor=pointer]:
+                - /url: /video/docuseries/ucaucuauauau-17n9
+                - img "уцауцуауауау" [ref=e386]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: уцауцуауауау
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "ZE zeyeu5236":
+                - /url: /@zeyeu5236
+                - generic:
+                  - generic:
+                    - generic: ZE
+                  - generic:
+                    - paragraph: zeyeu5236
+              - button "Follow"
+      - generic [ref=e387]:
+        - link "Education" [ref=e389] [cursor=pointer]:
+          - /url: /search?categories[]=education
+          - generic [ref=e390]: Education
+          - img [ref=e392]
+        - generic [ref=e395]:
+          - generic [ref=e397]:
+            - generic [ref=e398]:
+              - link "Серия №6" [ref=e399] [cursor=pointer]:
+                - /url: /video/education/seria-no6-4yim
+                - img "Серия №6" [ref=e402]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Серия №6
+                    - generic:
+                      - paragraph: E0
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+          - generic [ref=e404]:
+            - generic [ref=e405]:
+              - link "wqddwqdwqq" [ref=e406] [cursor=pointer]:
+                - /url: /video/education/wqddwqdwqq-161k
+                - img "wqddwqdwqq" [ref=e409]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: wqddwqdwqq
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "QW qwwfwqqqqqq":
+                - /url: /@qwwfwqqqqqq
+                - generic:
+                  - generic:
+                    - generic: QW
+                  - generic:
+                    - paragraph: qwwfwqqqqqq
+              - button "Follow"
+          - generic [ref=e411]:
+            - generic [ref=e412]:
+              - link "gwref" [ref=e413] [cursor=pointer]:
+                - /url: /video/education/gwref-y3lp
+                - img "gwref" [ref=e416]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: gwref
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "QW qwwfwqqqqqq":
+                - /url: /@qwwfwqqqqqq
+                - generic:
+                  - generic:
+                    - generic: QW
+                  - generic:
+                    - paragraph: qwwfwqqqqqq
+              - button "Follow"
+          - generic [ref=e418]:
+            - generic [ref=e419]:
+              - link "SHEDULED" [ref=e420] [cursor=pointer]:
+                - /url: /video/education/sheduled-1hxd
+                - img "SHEDULED" [ref=e423]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: SHEDULED
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "QW qwwfwqqqqqq":
+                - /url: /@qwwfwqqqqqq
+                - generic:
+                  - generic:
+                    - generic: QW
+                  - generic:
+                    - paragraph: qwwfwqqqqqq
+              - button "Follow"
+          - generic [ref=e425]:
+            - generic [ref=e426]:
+              - link "frergegrg" [ref=e427] [cursor=pointer]:
+                - /url: /video/education/frergegrg-vjts
+                - img "frergegrg" [ref=e430]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: frergegrg
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "QW qwwfwqqqqqq":
+                - /url: /@qwwfwqqqqqq
+                - generic:
+                  - generic:
+                    - generic: QW
+                  - generic:
+                    - paragraph: qwwfwqqqqqq
+              - button "Follow"
+          - generic [ref=e432]:
+            - generic [ref=e433]:
+              - link "sheduled video" [ref=e434] [cursor=pointer]:
+                - /url: /video/education/sheduled-video-1dyy
+                - img "sheduled video" [ref=e437]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: sheduled video
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "QW qwwfwqqqqqq":
+                - /url: /@qwwfwqqqqqq
+                - generic:
+                  - generic:
+                    - generic: QW
+                  - generic:
+                    - paragraph: qwwfwqqqqqq
+              - button "Follow"
+          - generic [ref=e439]:
+            - generic [ref=e440]:
+              - link "sheduled video" [ref=e441] [cursor=pointer]:
+                - /url: /video/education/sheduled-video-d56t
+                - img "sheduled video" [ref=e444]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: sheduled video
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "QW qwwfwqqqqqq":
+                - /url: /@qwwfwqqqqqq
+                - generic:
+                  - generic:
+                    - generic: QW
+                  - generic:
+                    - paragraph: qwwfwqqqqqq
+              - button "Follow"
+          - generic [ref=e446]:
+            - generic [ref=e447]:
+              - 'link "SER #2" [ref=e448] [cursor=pointer]':
+                - /url: /video/education/ser-2-1iew
+                - 'img "SER #2" [ref=e451]'
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: "SER #2"
+                    - generic:
+                      - paragraph: E0
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+          - generic [ref=e453]:
+            - generic [ref=e454]:
+              - link "Серия №1" [ref=e455] [cursor=pointer]:
+                - /url: /video/education/seria-no1-1a5d
+                - img "Серия №1" [ref=e458]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Серия №1
+                    - generic:
+                      - paragraph: E0
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+          - generic [ref=e460]:
+            - generic [ref=e461]:
+              - link "ауауцу" [ref=e462] [cursor=pointer]:
+                - /url: /video/education/auaucu-zgpv
+                - img "ауауцу" [ref=e465]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: ауауцу
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "BO boostvideos":
+                - /url: /@boostvideos
+                - generic:
+                  - generic:
+                    - generic: BO
+                  - generic:
+                    - paragraph: boostvideos
+              - button "Follow"
+      - generic [ref=e466]:
+        - link "Kids & Family" [ref=e468] [cursor=pointer]:
+          - /url: /search?categories[]=kids-family
+          - generic [ref=e469]: Kids & Family
+          - img [ref=e471]
+        - generic [ref=e476]:
+          - generic [ref=e477]:
+            - link "geo" [ref=e478] [cursor=pointer]:
+              - /url: /video/kids-family/geo-c30j
+              - img "geo" [ref=e481]
+            - generic:
+              - button:
+                - img
+              - generic:
+                - generic:
+                  - paragraph: geo
+                  - generic:
+                    - paragraph: E0
+                - generic:
+                  - button:
+                    - img
+          - generic:
+            - link "fwefewfe fwefewfe":
+              - /url: /@fwefewfe
+              - generic:
+                - generic:
+                  - img "fwefewfe"
+                - generic:
+                  - paragraph: fwefewfe
+            - button "Follow"
+      - generic [ref=e482]:
+        - link "Miniseries" [ref=e484] [cursor=pointer]:
+          - /url: /search?categories[]=miniseries
+          - generic [ref=e485]: Miniseries
+          - img [ref=e487]
+        - generic [ref=e490]:
+          - generic [ref=e492]:
+            - generic [ref=e493]:
+              - link "1781611634201" [ref=e494] [cursor=pointer]:
+                - /url: /video/miniseries/1781611634201-14t0
+                - img "1781611634201" [ref=e497]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: "1781611634201"
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "CM cmnqf6277":
+                - /url: /@cmnqf6277
+                - generic:
+                  - generic:
+                    - generic: CM
+                  - generic:
+                    - paragraph: cmnqf6277
+              - button "Follow"
+          - generic [ref=e499]:
+            - generic [ref=e500]:
+              - link "Video_1781610615708" [ref=e501] [cursor=pointer]:
+                - /url: /video/miniseries/video-1781610615708-8nij
+                - img "Video_1781610615708" [ref=e504]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Video_1781610615708
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "EH ehecj3286":
+                - /url: /@ehecj3286
+                - generic:
+                  - generic:
+                    - generic: EH
+                  - generic:
+                    - paragraph: ehecj3286
+              - button "Follow"
+          - generic [ref=e506]:
+            - generic [ref=e507]:
+              - link "SearchBeta_1781610569576" [ref=e508] [cursor=pointer]:
+                - /url: /video/miniseries/searchbeta-1781610569576-21ty
+                - img "SearchBeta_1781610569576" [ref=e511]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: SearchBeta_1781610569576
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "AG agguf2975":
+                - /url: /@agguf2975
+                - generic:
+                  - generic:
+                    - generic: AG
+                  - generic:
+                    - paragraph: agguf2975
+              - button "Follow"
+          - generic [ref=e513]:
+            - generic [ref=e514]:
+              - link "SearchAlpha_1781610539417" [ref=e515] [cursor=pointer]:
+                - /url: /video/miniseries/searchalpha-1781610539417-o958
+                - img "SearchAlpha_1781610539417" [ref=e518]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: SearchAlpha_1781610539417
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "AG agguf2975":
+                - /url: /@agguf2975
+                - generic:
+                  - generic:
+                    - generic: AG
+                  - generic:
+                    - paragraph: agguf2975
+              - button "Follow"
+          - generic [ref=e520]:
+            - generic [ref=e521]:
+              - link "1781538909362" [ref=e522] [cursor=pointer]:
+                - /url: /video/miniseries/1781538909362-1f9y
+                - img "1781538909362" [ref=e525]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: "1781538909362"
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "HF hfgks9872":
+                - /url: /@hfgks9872
+                - generic:
+                  - generic:
+                    - generic: HF
+                  - generic:
+                    - paragraph: hfgks9872
+              - button "Follow"
+          - generic [ref=e527]:
+            - generic [ref=e528]:
+              - link "1781538732710" [ref=e529] [cursor=pointer]:
+                - /url: /video/miniseries/1781538732710-6yyi
+                - img "1781538732710" [ref=e532]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: "1781538732710"
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "TE tewzh4012":
+                - /url: /@tewzh4012
+                - generic:
+                  - generic:
+                    - generic: TE
+                  - generic:
+                    - paragraph: tewzh4012
+              - button "Follow"
+          - generic [ref=e534]:
+            - generic [ref=e535]:
+              - link "1781538684893" [ref=e536] [cursor=pointer]:
+                - /url: /video/miniseries/1781538684893-1o9p
+                - img "1781538684893" [ref=e539]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: "1781538684893"
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "GD gdtiu3448":
+                - /url: /@gdtiu3448
+                - generic:
+                  - generic:
+                    - generic: GD
+                  - generic:
+                    - paragraph: gdtiu3448
+              - button "Follow"
+          - generic [ref=e541]:
+            - generic [ref=e542]:
+              - link "1781538660846" [ref=e543] [cursor=pointer]:
+                - /url: /video/miniseries/1781538660846-l560
+                - img "1781538660846" [ref=e546]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: "1781538660846"
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "ER erawp7173":
+                - /url: /@erawp7173
+                - generic:
+                  - generic:
+                    - generic: ER
+                  - generic:
+                    - paragraph: erawp7173
+              - button "Follow"
+          - generic [ref=e548]:
+            - generic [ref=e549]:
+              - link "Video_1781538641989" [ref=e550] [cursor=pointer]:
+                - /url: /video/miniseries/video-1781538641989-nfff
+                - img "Video_1781538641989" [ref=e553]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Video_1781538641989
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "IV ivfjr9125":
+                - /url: /@ivfjr9125
+                - generic:
+                  - generic:
+                    - generic: IV
+                  - generic:
+                    - paragraph: ivfjr9125
+              - button "Follow"
+          - generic [ref=e555]:
+            - generic [ref=e556]:
+              - link "1781538636931" [ref=e557] [cursor=pointer]:
+                - /url: /video/miniseries/1781538636931-gsig
+                - img "1781538636931" [ref=e560]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: "1781538636931"
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "ZK zkuaa9209":
+                - /url: /@zkuaa9209
+                - generic:
+                  - generic:
+                    - generic: ZK
+                  - generic:
+                    - paragraph: zkuaa9209
+              - button "Follow"
+      - generic [ref=e561]:
+        - link "News & Commentary" [ref=e563] [cursor=pointer]:
+          - /url: /search?categories[]=news-commentary
+          - generic [ref=e564]: News & Commentary
+          - img [ref=e566]
+        - generic [ref=e571]:
+          - generic [ref=e572]:
+            - link "way" [ref=e573] [cursor=pointer]:
+              - /url: /video/news-commentary/way-1qyz
+              - img "way" [ref=e576]
+            - generic:
+              - button:
+                - img
+              - generic:
+                - generic:
+                  - paragraph: way
+                  - generic:
+                    - paragraph: 1h 32m
+                - generic:
+                  - button:
+                    - img
+          - generic:
+            - link "BO boostvideos":
+              - /url: /@boostvideos
+              - generic:
+                - generic:
+                  - generic: BO
+                - generic:
+                  - paragraph: boostvideos
+            - button "Follow"
+      - generic [ref=e577]:
+        - link "Series" [ref=e579] [cursor=pointer]:
+          - /url: /search?categories[]=series
+          - generic [ref=e580]: Series
+          - img [ref=e582]
+        - generic [ref=e585]:
+          - generic [ref=e587]:
+            - generic [ref=e588]:
+              - link "Серия №7" [ref=e589] [cursor=pointer]:
+                - /url: /video/series/seria-no7-95o5
+                - img "Серия №7" [ref=e592]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Серия №7
+                    - generic:
+                      - paragraph: E0
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+          - generic [ref=e594]:
+            - generic [ref=e595]:
+              - link "Серия №3" [ref=e596] [cursor=pointer]:
+                - /url: /video/series/seria-no3-1ms5
+                - img "Серия №3" [ref=e599]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Серия №3
+                    - generic:
+                      - paragraph: E0
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+          - generic [ref=e601]:
+            - generic [ref=e602]:
+              - link "Серия №2" [ref=e603] [cursor=pointer]:
+                - /url: /video/series/seria-no2-1ky9
+                - img "Серия №2" [ref=e606]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Серия №2
+                    - generic:
+                      - paragraph: E0
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+          - generic [ref=e608]:
+            - generic [ref=e609]:
+              - link "Серия №1" [ref=e610] [cursor=pointer]:
+                - /url: /video/series/seria-no1-igr2
+                - img "Серия №1" [ref=e613]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Серия №1
+                    - generic:
+                      - paragraph: E0
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "fwefewfe fwefewfe":
+                - /url: /@fwefewfe
+                - generic:
+                  - generic:
+                    - img "fwefewfe"
+                  - generic:
+                    - paragraph: fwefewfe
+              - button "Follow"
+      - generic [ref=e614]:
+        - link "Short Films" [ref=e616] [cursor=pointer]:
+          - /url: /search?categories[]=short-films
+          - generic [ref=e617]: Short Films
+          - img [ref=e619]
+        - generic [ref=e622]:
+          - generic [ref=e624]:
+            - generic [ref=e625]:
+              - link "gfwfeewffwfef" [ref=e626] [cursor=pointer]:
+                - /url: /video/short-films/gfwfeewffwfef-928v
+                - img "gfwfeewffwfef" [ref=e629]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: gfwfeewffwfef
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "EF efwfe":
+                - /url: /@efwfe
+                - generic:
+                  - generic:
+                    - generic: EF
+                  - generic:
+                    - paragraph: efwfe
+              - button "Follow"
+          - generic [ref=e631]:
+            - generic [ref=e632]:
+              - link "пуккпкуукп" [ref=e633] [cursor=pointer]:
+                - /url: /video/short-films/pukkpkuukp-ith4
+                - img "пуккпкуукп" [ref=e636]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: пуккпкуукп
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "EF efwfe":
+                - /url: /@efwfe
+                - generic:
+                  - generic:
+                    - generic: EF
+                  - generic:
+                    - paragraph: efwfe
+              - button "Follow"
+          - generic [ref=e638]:
+            - generic [ref=e639]:
+              - link "рпаипиваммамм" [ref=e640] [cursor=pointer]:
+                - /url: /video/short-films/rpaipivammamm-n9yq
+                - img "рпаипиваммамм" [ref=e643]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: рпаипиваммамм
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "TG tgevvre":
+                - /url: /@tgevvre
+                - generic:
+                  - generic:
+                    - generic: TG
+                  - generic:
+                    - paragraph: tgevvre
+              - button "Follow"
+          - generic [ref=e645]:
+            - generic [ref=e646]:
+              - link "Inside 'New Record Day' with Ron Brene" [ref=e647] [cursor=pointer]:
+                - /url: /video/short-films/b90bdd9d-643c-43f1-a8f2-28de282768d2
+                - img "Inside 'New Record Day' with Ron Brene" [ref=e650]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: Inside 'New Record Day' with Ron Brene
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "TG tgevvre":
+                - /url: /@tgevvre
+                - generic:
+                  - generic:
+                    - generic: TG
+                  - generic:
+                    - paragraph: tgevvre
+              - button "Follow"
+          - generic [ref=e652]:
+            - generic [ref=e653]:
+              - link "dub dub" [ref=e654] [cursor=pointer]:
+                - /url: /video/short-films/dub-dub-oe39
+                - img "dub dub" [ref=e657]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: dub dub
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "TG tgevvre":
+                - /url: /@tgevvre
+                - generic:
+                  - generic:
+                    - generic: TG
+                  - generic:
+                    - paragraph: tgevvre
+              - button "Follow"
+          - generic [ref=e659]:
+            - generic [ref=e660]:
+              - link "refefrerfrferfe" [ref=e661] [cursor=pointer]:
+                - /url: /video/short-films/refefrerfrferfe-14ty
+                - img "refefrerfrferfe" [ref=e664]
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - paragraph: refefrerfrferfe
+                    - generic:
+                      - paragraph: < 1m
+                  - generic:
+                    - button:
+                      - img
+            - generic:
+              - link "TG tgevvre":
+                - /url: /@tgevvre
+                - generic:
+                  - generic:
+                    - generic: TG
+                  - generic:
+                    - paragraph: tgevvre
+              - button "Follow"
+    - generic [ref=e690]:
+      - generic [ref=e691]:
+        - generic [ref=e692]:
+          - generic [ref=e693]:
+            - paragraph [ref=e694]: Legal
+            - generic [ref=e695]:
+              - link "Community Guidelines" [ref=e696] [cursor=pointer]:
+                - /url: /community-guidelines
+              - link "Accessibility Statement" [ref=e697] [cursor=pointer]:
+                - /url: /accessibility-statement
+              - link "Cookie Policy" [ref=e698] [cursor=pointer]:
+                - /url: /cookie-policy
+          - generic [ref=e700]:
+            - link "Copyright Policy" [ref=e701] [cursor=pointer]:
+              - /url: /copyright-policy
+            - link "Privacy Policy" [ref=e702] [cursor=pointer]:
+              - /url: /privacy-policy
+            - link "Terms of Services" [ref=e703] [cursor=pointer]:
+              - /url: /tos
+        - generic [ref=e704]:
+          - generic [ref=e705]:
+            - paragraph [ref=e706]: Company
+            - generic [ref=e707]:
+              - link "About Us" [ref=e708] [cursor=pointer]:
+                - /url: /about-us
+              - link "Contact Us" [ref=e709] [cursor=pointer]:
+                - /url: /contact-us
+          - generic [ref=e711]:
+            - link "Advertising" [ref=e712] [cursor=pointer]:
+              - /url: /advertising
+            - link "Developer Docs" [ref=e713] [cursor=pointer]:
+              - /url: /developers/api-doc
+      - generic [ref=e714]:
+        - generic [ref=e715]: © 2026 AITV · All Rights Reserved
+        - generic [ref=e716]:
+          - link "X" [ref=e717] [cursor=pointer]:
+            - /url: https://x.com/AITV2026
+            - img [ref=e718]
+          - link "TikTok" [ref=e720] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@aitv
+            - img [ref=e721]
+          - link "Telegram" [ref=e723] [cursor=pointer]:
+            - /url: https://t.me/aitv
+            - img [ref=e724]
+  - alert [ref=e726]
