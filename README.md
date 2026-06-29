@@ -1,154 +1,130 @@
 # AITV Autotests
 
-Playwright-based E2E test suite for the AITV platform.
+E2E-тесты платформы AITV на [Playwright] + TypeScript.
 
-## Stack
+## О проекте
 
-- **[Playwright](https://playwright.dev/)** — browser automation & test runner
-- **TypeScript** — test language
-- **mysql2** — direct DB access for tests tagged `@db`
-- **dotenv** — environment configuration
-- **mail.tm** — disposable email for registration flows
+- **Playwright** — раннер и автоматизация браузера
+- **TypeScript** — язык тестов
+- **mail.tm** — одноразовые ящики для флоу с письмами (регистрация, сброс пароля)
+- **mysql2** — прямой доступ к БД для тестов с тегом `@db`
 
-## Prerequisites
+### Установка
 
-- Node.js 18+
-- Install dependencies: `npm install`
-- Install browsers: `npx playwright install`
-- `.env.web3tv2` file (not committed) with required variables:
-
-```env
-BASE_URL=https://web3tv.dev
-API_URL=https://api.web3tv.dev
-USER_LOGIN_ADMIN=adminuser
-USER_PASSWORD=Admin1@@
+```bash
+npm install
+npx playwright install
 ```
 
-Admin user: create user with handle `adminuser` and assign `ROLE_ADMIN`.
+### Окружение
 
-### Switching environment
+Есть три окружения, каждому соответствует свой `.env`-файл (не коммитятся, все в `.gitignore`):
 
-По умолчанию тесты загружают `.env.web3tv2`. Создай отдельный файл для каждого окружения, например `.env.prod`.
+| Окружение | Файл | Хост |
+|-----------|------|------|
+| dev1 | `.env.web3tv` | web3tv.dev |
+| dev2 (по умолчанию) | `.env.web3tv2` | web3tv2.dev |
+| prod | `.env.prod` | ai.tv |
 
-**Из терминала:**
+По умолчанию используется `.env.web3tv2`. Переключение из терминала — через `ENV_FILE`:
 
 ```bash
 ENV_FILE=.env.prod npx playwright test --project=functional
 ```
 
-**Из IDE (VS Code Playwright extension):**
-
-Расширение не поддерживает передачу переменных окружения через UI. Чтобы переключить env при запуске из IDE — добавь `playwright.env` в `.vscode/settings.json`:
+Для запуска из IDE (VS Code Playwright extension) задай env в `.vscode/settings.json`:
 
 ```json
 {
-  "playwright.env": {
-    "ENV_FILE": ".env.prod"
-  }
+  "playwright.env": { "ENV_FILE": ".env.prod" }
 }
 ```
 
-После изменения перезагрузи список тестов кнопкой ↺ в Test Explorer. Чтобы вернуться на дефолтный env — удали блок `playwright.env` или смени значение на `.env.web3tv2`.
+После изменения обнови список тестов кнопкой ↺ в Test Explorer.
 
-All `.env.*` files are gitignored.
+### Структура
 
-## Running Tests
-
-### Critical (smoke) — before each deploy
-
-```bash
-npm run test:critical
+```
+tests/        — спеки по доменам (auth, user, subscription, studio, validation, visualSuite)
+src/
+  flows/      — оркестраторы пользовательских сценариев
+  pages/      — Page Object Model
+  api/        — API-хелперы (быстрый сетап в обход UI)
+  utils/      — утилиты (mail.tm, видео-плеер, генерация данных)
+test-data/    — фикстуры (видео, фото)
 ```
 
-Runs tests tagged `@critical` covering the key user journey: auth, registration, upload, player, visibility, paid subscription, profile, channel settings.
+Карта покрытия тест-кейсами — [TEST_COVERAGE.md](TEST_COVERAGE.md).
 
-### Full regression
+## Правила написания тестов
+
+- **Проверяй доступность элемента перед действием.** Перед каждым `click`/`fill` — `expect(...).toBeVisible()` и `toBeEnabled()` с описательным сообщением об ошибке (например `'Submit button is not enabled'`).
+- **TC ID — в `annotation`, не в имени теста.** Один TC ID = один `test()`.
+  ```ts
+  test('Search filters videos by title', {
+      annotation: { type: 'TC', description: 'STUDIO-017' },
+  }, async () => { ... });
+  ```
+- **Логические фазы — в `test.step()`** (setup, action, assertion).
+- **Независимый пользователь на каждый тест** — через `AuthApi.createAndVerifyUser()`. Не шарь юзеров/состояние между тестами.
+- **`page.waitForResponse` регистрируй ДО триггер-действия**, иначе гонка.
+- **Никогда не используй `waitUntil: 'networkidle'` на видео-страницах** — плеер шлёт запросы постоянно. Используй `domcontentloaded`.
+- **Локаторы Page Object — только в конструкторе.** Не создавай локаторы инлайн в методах.
+- **Тесты работают через Flows**, а не напрямую через Page Objects (кроме точечных page-level проверок).
+
+## Проекты и запуск
+
+| Проект | Браузер | Вьюпорт | Назначение |
+|--------|---------|---------|------------|
+| `functional` | Chromium | 1920×1080 | Все функциональные тесты |
+| `prodSmoke` | Chromium | 1920×1080 | Прод-смоук (`ENV_FILE=.env.prod`) |
+| `visual-desktop-chromium` | Chromium | 1920×1080 | Визуал, только Docker |
+| `visual-desktop-large-chromium` | Chromium | 2560×1080 | Визуал, только Docker |
+| `visual-mobile-webkit` | WebKit | iPhone 15 Pro Max | Визуал, только Docker |
+
+**Функциональные тесты:**
 
 ```bash
-npm run test:regression
+npx playwright test --project=functional                          # все
+npx playwright test tests/auth/auth.spec.ts --project=functional  # один файл
+npx playwright test --grep "Success login as user" --project=functional  # по имени
 ```
 
-### Single file / single test
+**Критический смоук / полная регрессия:**
 
 ```bash
-npx playwright test tests/auth/auth.spec.ts --project=functional
-npx playwright test --grep "Success login as user" --project=functional
+npm run test:critical    # тесты с тегом @critical, гейт перед деплоем
+npm run test:regression  # вся регрессия
 ```
 
-### Tests with DB access (`@db` tag)
-
-Tests tagged `@db` connect directly to the database via `mysql2`. Before running, set up port-forward to the DB:
+**Тесты с БД (`@db`)** — сначала port-forward к базе:
 
 ```bash
 kubectl port-forward svc/mysql 3306:3306 -n <namespace>
-```
-
-Then run:
-
-```bash
 npx playwright test --project=functional --grep @db
 ```
 
-### Visual regression (Docker only)
-
-Visual tests must be run inside Docker to ensure pixel-perfect consistency across machines.
+**Визуальные тесты** — только внутри Docker (для пиксель-стабильности):
 
 ```bash
-# Desktop 1920×1080
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
-
-# Desktop 2560×1080
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-large-chromium
-
-# Mobile (iPhone 15 Pro Max)
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
 ```
 
-### View report
+**Отчёт:**
 
 ```bash
 npx playwright show-report
 ```
 
-## Test Tags
+## Теги
 
-| Tag | Purpose | Command |
-|-----|---------|---------|
-| `@critical` | Smoke suite, pre-deploy gate | `npm run test:critical` |
-| `@db` | Requires DB port-forward | `--grep @db` |
-| _(no tag)_ | Full regression | `npm run test:regression` |
+Тег задаётся в опциях `test()` или `test.describe()`: `{ tag: '@emails' }`. Запуск по тегу — `--grep`.
 
-## Playwright Projects
-
-| Project | Browser | Viewport | Notes |
-|---------|---------|----------|-------|
-| `functional` | Chromium | 1920×1080 | All functional tests |
-| `prodSmoke` | Chromium | 1920×1080 | Production smoke, use `ENV_FILE=.env.prod` |
-| `visual-desktop-chromium` | Chromium | 1920×1080 | Docker only |
-| `visual-desktop-large-chromium` | Chromium | 2560×1080 | Docker only |
-| `visual-mobile-webkit` | WebKit | iPhone 15 Pro Max | Docker only |
-
-## Project Structure
-
-```
-tests/
-  auth/         — Authentication tests
-  user/         — Account & profile settings
-  subscription/ — Paid subscriptions
-  studio/       — Upload, player, channel, embed, visibility
-  validation/   — Input validation
-  visualSuite/
-    desktop/    — Desktop visual regression specs
-    mobile/     — Mobile visual regression specs
-src/
-  flows/        — High-level user journey orchestrators
-  pages/        — Page Object Model classes
-  api/          — API helpers (bypass UI for test setup)
-  utils/        — Utilities (mail.tm, video player, data generation)
-test-data/
-  fixtures/     — Static assets (videos, photos)
-```
-
-## Test Coverage
-
-See [TEST_COVERAGE.md](TEST_COVERAGE.md) for full test case mapping.
+| Тег | Назначение | Команда |
+|-----|------------|---------|
+| `@critical` | Смоук-сьют, гейт перед деплоем | `npm run test:critical` |
+| `@db` | Требует port-forward к БД | `--grep @db` |
+| `@emails` | Проверки контента email-шаблонов | `--grep @emails` |
+| _(без тега)_ | Полная регрессия | `npm run test:regression` |
