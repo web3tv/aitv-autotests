@@ -173,8 +173,10 @@ export class LoginPopupPage {
 
     async fillResetPassword(password: string): Promise<void> {
         await expect(this.createResetPasswordInput, 'Reset password input is not visible').toBeVisible();
+        await expect(this.createResetPasswordInput, 'Reset password input is not editable').toBeEditable();
         await this.createResetPasswordInput.fill(password);
         await expect(this.repeatResetPasswordInput, 'Repeat reset password input is not visible').toBeVisible();
+        await expect(this.repeatResetPasswordInput, 'Repeat reset password input is not editable').toBeEditable();
         await this.repeatResetPasswordInput.fill(password);
     }
 

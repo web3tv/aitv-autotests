@@ -435,4 +435,10 @@ export class AuthFlow {
     await this.loginPopupPage.clickSetNewPassword();
   }
 
+  /** Завершает сброс пароля на странице, открытой по ссылке из письма. */
+  async submitNewPasswordViaResetLink(newPassword: string): Promise<void> {
+    await this.loginPopupPage.fillResetPassword(newPassword);
+    await this.loginPopupPage.clickResetFinish();
+  }
+
 }
