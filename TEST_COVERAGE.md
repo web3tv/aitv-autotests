@@ -143,6 +143,18 @@ VIDEO UPLOAD
 └── Publish video while still processing            [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-013
 
 ────────────────────────────────────────────────────────────────
+CONTENT CREATION FLOW — Movie / Series / Shorts (W3-2702)
+├── Create a Movie end-to-end (type→details→2 covers→finalize→success)  [AUTO][CRITICAL] tests/studio/uploadMovie.spec.ts   MOVIE-001
+├── Shorts type disabled for a landscape video               [AUTO] tests/studio/uploadMovie.spec.ts    MOVIE-002
+├── Create a new Series with its first episode (New Series)   [AUTO][CRITICAL] tests/studio/uploadSeries.spec.ts  SERIES-001
+├── Add a new Episode to an existing Series (New Episode)     [AUTO][CRITICAL] tests/studio/uploadSeries.spec.ts   SERIES-002
+├── Shorts details: category locked to "Shorts", single cover [AUTO][CRITICAL] tests/studio/uploadShorts.spec.ts  SHORTS-001
+├── Shorts: Associated movie/series toggle reveals selector   [AUTO] tests/studio/uploadShorts.spec.ts   SHORTS-002
+└── Publish a Short end-to-end                                [BLOCKED:W3-2722] tests/studio/uploadShorts.spec.ts  SHORTS-003
+        # BLOCKED by W3-2722: publish returns HTTP 400 `categoryId: should not be null` — locked
+        # Shorts category is not submitted, so a Short can never be published.
+
+────────────────────────────────────────────────────────────────
 VIDEO VISIBILITY
 ├── Public: visible on channel page                 [AUTO][CRITICAL] tests/studio/videoVisibility.spec.ts  VIS-001
 ├── Public: visible to anonymous guest              [AUTO][CRITICAL] tests/studio/videoVisibility.spec.ts  VIS-001
