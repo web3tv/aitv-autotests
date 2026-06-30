@@ -51,6 +51,24 @@ export class VideoApi {
         return this.defaultCategoryIdCache;
     }
 
+    /** Resolves a video category id by its slug (e.g. "education"). */
+    async getCategoryIdBySlug(slug: string): Promise<number> {
+        const response = await this.request.get(`${this.baseUrl}/videos/categories/`, {
+            headers: { Accept: "application/json" },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to fetch video categories: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const items = json?.items ?? json?.data?.items ?? [];
+        const match = items.find((c: any) => c?.slug === slug);
+        if (!match?.id) {
+            throw new Error(`Video category with slug "${slug}" not found`);
+        }
+        return match.id as number;
+    }
+
     async getChannelId(token: string): Promise<string> {
         const response = await this.request.get(`${this.baseUrl}/channels`, {
             headers: {
@@ -344,11 +362,16 @@ export class VideoApi {
             coverVerticalImgPath?: string;
             seriesId?: string;
             isSeriesRoot?: boolean;
+            tags?: string[];
         }
     ): Promise<void> {
         const multipart: Record<string, string | { name: string; mimeType: string; buffer: Buffer }> = {};
         if (options.title) multipart.title = options.title;
         if (options.description) multipart.description = options.description;
+        // Genre tags (e.g. "Action", "Adventure") — sent as tags[0], tags[1], ...
+        (options.tags ?? []).forEach((tag, i) => {
+            multipart[`tags[${i}]`] = tag;
+        });
         // Attach this video to a series playlist (turns it into an episode).
         if (options.seriesId) {
             multipart.seriesId = options.seriesId;
@@ -530,6 +553,7 @@ export class VideoApi {
             publishedAt?: string;
             seriesId?: string;
             isSeriesRoot?: boolean;
+            tags?: string[];
         } = {}
     ): Promise<UploadedVideo> {
         const title = options.title ?? `Video_${Date.now()}`;
@@ -562,6 +586,7 @@ export class VideoApi {
             publishedAt,
             seriesId: options.seriesId,
             isSeriesRoot: options.isSeriesRoot,
+            tags: options.tags,
         });
 
         // 4b. Bind subscription for paid videos (via frontend proxy)

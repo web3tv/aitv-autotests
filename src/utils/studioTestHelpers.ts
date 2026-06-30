@@ -126,7 +126,13 @@ export interface SeriesSetupResult {
  */
 export async function setupSeriesWithEpisodes(
     request: APIRequestContext,
-    options: { episodeCount?: number; filePath?: string; seriesTitle?: string } = {}
+    options: {
+        episodeCount?: number;
+        filePath?: string;
+        seriesTitle?: string;
+        categorySlug?: string;
+        genres?: string[];
+    } = {}
 ): Promise<SeriesSetupResult> {
     const authApi = new AuthApi(request);
     const videoApi = new VideoApi(request);
@@ -134,10 +140,13 @@ export async function setupSeriesWithEpisodes(
     const episodeCount = options.episodeCount ?? 2;
     const filePath = options.filePath ?? 'test-data/fixtures/video/5secVideo.mp4';
     const seriesTitle = options.seriesTitle ?? `QA Series ${Date.now()}`;
+    const categorySlug = options.categorySlug ?? 'education';
+    const genres = options.genres ?? ['Action', 'Adventure', 'Comedy'];
 
     const user = await authApi.createUserFast();
     const token = await authApi.getUserToken(user.email, password);
     const channelId = await videoApi.getChannelId(token);
+    const categoryId = await videoApi.getCategoryIdBySlug(categorySlug);
 
     const series = await videoApi.createSeries(token, { title: seriesTitle, channelId });
 
@@ -146,6 +155,8 @@ export async function setupSeriesWithEpisodes(
             title: `Episode ${i + 1}`,
             description: `Episode ${i + 1} of ${seriesTitle}`,
             privacySetting: 'public',
+            categoryId,
+            tags: genres,
             seriesId: series.id,
             isSeriesRoot: i === 0,
             waitForProcessing: true,

@@ -17,9 +17,6 @@ test('Series auto-advances to the next episode when an episode finishes', {
         expect(series.episodes.length, 'Series should have 2 episodes').toBe(2);
     });
 
-    await test.step('Login as the creator', async () => {
-        await new AuthFlow(page).loginSuccess(series.user.email, process.env.USER_PASSWORD!, series.user.username);
-    });
 
     await test.step('Open episode 1 (in series context) and confirm it plays', async () => {
         const ep1 = series.episodes[0];
