@@ -67,7 +67,7 @@ EMAIL TEMPLATES (W3-2662)
 ├── Password reset email — content, link & security [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-003
 ├── Password changed email — content                [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-004
 ├── New device / suspicious login email             [BLOCKED] не реализовано в бэке (W3-2662) EMAIL-005
-└── Coming-soon (pre-subscribed) video release email [AUTO] tests/studio/comingSoonEmail.spec.ts EMAIL-006
+└── Coming-soon (pre-subscribed) video release email [AUTO] tests/api/comingSoonEmail.spec.ts EMAIL-006
 
 ────────────────────────────────────────────────────────────────
 ACCOUNT SETTINGS (/account)
@@ -128,19 +128,31 @@ NFT
 
 ────────────────────────────────────────────────────────────────
 VIDEO UPLOAD
-├── Upload horizontal video (public)                [AUTO][CRITICAL] tests/studio/uploadVideoUI.spec.ts   UPLOAD-001
+├── Upload horizontal video (public)                [TODO] (covered by MOVIE-001)               UPLOAD-001
 ├── Upload horizontal video (private)               [TODO]                                      UPLOAD-002
 ├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
 ├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
-├── Upload Shorts                                   [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-005
-├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-006
+├── Upload Shorts                                   [TODO] (covered by SHORTS-003)              UPLOAD-005
+├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/studio/uploadMovie.spec.ts     UPLOAD-006
 ├── Upload thumbnail manually                       [AUTO] tests/studio/content.spec.ts         UPLOAD-007
 ├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
 ├── Required fields validation (title/desc/cat)     [AUTO] tests/validation/uploadVideoValidation.spec.ts  UPLOAD-009
 ├── Delete video during upload                      [TODO]                                      UPLOAD-010
 ├── Save video as draft                             [TODO]                                      UPLOAD-011
 ├── Select auto-generated thumbnail                 [AUTO] tests/studio/content.spec.ts         UPLOAD-012
-└── Publish video while still processing            [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-013
+└── Publish video while still processing            [TODO] (obsolete by design — stepped modal blocks publish until processed)  UPLOAD-013
+
+────────────────────────────────────────────────────────────────
+CONTENT CREATION FLOW — Movie / Series / Shorts (W3-2702)
+├── Create a Movie end-to-end (type→details→2 covers→finalize→success)  [AUTO][CRITICAL] tests/studio/uploadMovie.spec.ts   MOVIE-001
+├── Shorts type disabled for a landscape video               [AUTO] tests/studio/uploadMovie.spec.ts    MOVIE-002
+├── Create a new Series with its first episode (New Series)   [AUTO][CRITICAL] tests/studio/uploadSeries.spec.ts  SERIES-001
+├── Add a new Episode to an existing Series (New Episode)     [AUTO][CRITICAL] tests/studio/uploadSeries.spec.ts   SERIES-002
+├── Shorts details: category locked to "Shorts", single cover [AUTO][CRITICAL] tests/studio/uploadShorts.spec.ts  SHORTS-001
+├── Shorts: Associated movie/series toggle reveals selector   [AUTO] tests/studio/uploadShorts.spec.ts   SHORTS-002
+└── Publish a Short end-to-end                                [BLOCKED:W3-2722] tests/studio/uploadShorts.spec.ts  SHORTS-003
+        # BLOCKED by W3-2722: publish returns HTTP 400 `categoryId: should not be null` — locked
+        # Shorts category is not submitted, so a Short can never be published.
 
 ────────────────────────────────────────────────────────────────
 VIDEO VISIBILITY
@@ -162,6 +174,7 @@ VIDEO PLAYER — Regular Player
 ├── Play / pause                                    [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-001
 ├── currentTime advances while playing              [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-002
 ├── Progress bar advances while playing             [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-003
+├── Series: episode auto-advances to next on end    [AUTO][CRITICAL] tests/studio/seriesPlayback.spec.ts  SERIES-003
 ├── Dubbing available for video <1 min              [TODO]                                   PLAYER-004
 ├── Dubbing: switch language                        [TODO]                                   PLAYER-005
 ├── Hot-spots: owner sets hot-spot area             [TODO]                                   PLAYER-006
@@ -334,11 +347,11 @@ ANALYTICS (studio.web3tv.dev/analytics) — W3-881
 
 ────────────────────────────────────────────────────────────────
 VIDEO CHAPTERS (W3-2434)
-├── English video → chapters non-empty, sorted, enabled       [AUTO] tests/studio/videoChapters.spec.ts  CHAP-001
-├── English video → chapters_generation_success notification  [AUTO] tests/studio/videoChapters.spec.ts  CHAP-002
-├── Short video → no chapters generated                       [AUTO] tests/studio/videoChapters.spec.ts  CHAP-003
+├── English video → chapters non-empty, sorted, enabled       [AUTO] tests/api/videoChapters.spec.ts  CHAP-001
+├── English video → chapters_generation_success notification  [AUTO] tests/api/videoChapters.spec.ts  CHAP-002
+├── Short video → no chapters generated                       [AUTO] tests/api/videoChapters.spec.ts  CHAP-003
 ├── Non-English video → no chapters                           [TODO] test.fixme, no fixture              CHAP-004
-├── chapters_enabled=false → chapters still returned          [AUTO] tests/studio/videoChapters.spec.ts  CHAP-005
+├── chapters_enabled=false → chapters still returned          [AUTO] tests/api/videoChapters.spec.ts  CHAP-005
 ├── Re-transcription → old chapters replaced atomically       [TODO] test.fixme, no re-trigger API       CHAP-006
 ├── ML failure → chapters_generation_failed notification      [BLOCKED] not in MVP (no failed notif type) CHAP-007
 └── Empty ML response → chapters untouched                    [BLOCKED] cannot control OpenAI response    CHAP-008

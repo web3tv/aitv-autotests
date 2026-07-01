@@ -13,3 +13,6 @@ node_modules/
 # IDE (local settings, not committed) — кроме общего settings.json
 .vscode/*
 !.vscode/settings.json
+
+# Playwright MCP session artifacts
+.playwright-mcp/

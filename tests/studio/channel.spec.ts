@@ -2,13 +2,11 @@ import { test, expect } from '@playwright/test';
 import { AuthApi } from '../../src/api/AuthApi';
 import { VideoApi } from '../../src/api/VideoApi';
 import { AuthFlow } from '../../src/flows/AuthFlow';
-import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
-import { UploadVideoPage } from '../../src/pages/components/UploadVideoPage';
+import { ContentCreationFlow } from '../../src/flows/ContentCreationFlow';
 import { SideBarPage } from '../../src/pages/components/SideBarPage';
 import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
 import { EditChannelPage } from '../../src/pages/studio/EditChannelPage';
 import { uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
-import { ensureOnStudioDomain } from '../../src/utils/studioNavigation';
 
 //TODO: 1. Create channel
 //TODO: 2. Check channel is available in the list
@@ -29,7 +27,6 @@ import { ensureOnStudioDomain } from '../../src/utils/studioNavigation';
 //TODO: 17. Home page - Counter - videos, subscribers
 
 const VIDEO_PATH = 'test-data/fixtures/video/5secVideo.mp4';
-const THUMB_PATH = 'test-data/fixtures/photo/cat.jpg';
 
 test('Auto-created channel has handle as name without "Channel" suffix',
     { annotation: { type: 'TC', description: 'CHANNEL-021' } },
@@ -87,9 +84,7 @@ test('Default description auto-fills description field when opening upload popup
         const authApi = new AuthApi(request);
         const videoApi = new VideoApi(request);
         const authFlow = new AuthFlow(page);
-        const sideBar = new SideBarPage(page);
-        const uploadVideoFlow = new UploadVideoFlow(page);
-        const uploadVideoPage = new UploadVideoPage(page);
+        const flow = new ContentCreationFlow(page);
 
         const defaultDescription = `Default desc ${Date.now()}`;
 
@@ -99,15 +94,18 @@ test('Default description auto-fills description field when opening upload popup
             const channelId = await videoApi.getChannelId(token);
             await videoApi.setDefaultVideoDescription(token, channelId, user.username, defaultDescription);
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
-            await ensureOnStudioDomain(page);
-            await sideBar.clickStudioContent();
         });
 
         await test.step('Open upload popup and verify description is pre-filled with default', async () => {
             await uploadWithChunkCheck(page, async () => {
-                await uploadVideoFlow.uploadVideoToForm(VIDEO_PATH, 'test-video');
+                await flow.openNewVideo();
+                await flow.modal.selectFile(VIDEO_PATH);
+                await flow.modal.selectType('movie');
             });
-            await uploadVideoPage.assertDescriptionContains(defaultDescription);
+            await expect(
+                flow.modal.descriptionEditor,
+                'Description field should be pre-filled with the default description'
+            ).toContainText(defaultDescription);
         });
     }
 );
@@ -121,8 +119,7 @@ test('Override pre-filled description — video saved with custom description',
         const videoApi = new VideoApi(request);
         const authFlow = new AuthFlow(page);
         const sideBar = new SideBarPage(page);
-        const uploadVideoFlow = new UploadVideoFlow(page);
-        const uploadVideoPage = new UploadVideoPage(page);
+        const flow = new ContentCreationFlow(page);
         const studioContentPage = new StudioContentPage(page);
 
         const videoName = `video-${Date.now()}`;
@@ -135,22 +132,19 @@ test('Override pre-filled description — video saved with custom description',
             const channelId = await videoApi.getChannelId(token);
             await videoApi.setDefaultVideoDescription(token, channelId, user.username, defaultDescription);
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
-            await ensureOnStudioDomain(page);
-            await sideBar.clickStudioContent();
         });
 
         await test.step('Upload video and override pre-filled description with custom text', async () => {
             await uploadWithChunkCheck(page, async () => {
-                await uploadVideoFlow.uploadVideo(VIDEO_PATH, videoName);
-                await uploadVideoPage.fillVideoTitle(videoName);
-                await uploadVideoPage.fillVideoDescription(customDescription);
-                await uploadVideoFlow.uploadVideoThumb(THUMB_PATH);
-                await uploadVideoPage.selectVideoCategory();
-                await uploadVideoPage.clickNextBtn();
-                await uploadVideoFlow.waitStatusSuccessfully();
+                // createMovie fills the description via .fill(), replacing the pre-filled default.
+                await flow.createMovie({
+                    filePath: VIDEO_PATH,
+                    title: videoName,
+                    description: customDescription,
+                    visibility: 'public',
+                });
             });
-            await uploadVideoFlow.selectVisibility('public');
-            await uploadVideoFlow.clickPublishBtn();
+            await flow.modal.closeSuccess();
         });
 
         await test.step('Verify video saved with custom description, not the default', async () => {
@@ -171,8 +165,7 @@ test('Clear default description — upload popup opens with empty description',
         const authFlow = new AuthFlow(page);
         const sideBar = new SideBarPage(page);
         const editChannelPage = new EditChannelPage(page);
-        const uploadVideoFlow = new UploadVideoFlow(page);
-        const uploadVideoPage = new UploadVideoPage(page);
+        const flow = new ContentCreationFlow(page);
 
         const defaultDescription = `Default desc ${Date.now()}`;
 
@@ -190,16 +183,16 @@ test('Clear default description — upload popup opens with empty description',
             await editChannelPage.clearDefaultVideoDescription();
             await editChannelPage.clickSave();
             await editChannelPage.assertSuccessToast();
-            await sideBar.clickStudioContent();
         });
 
         await test.step('Open upload popup and verify description field is empty', async () => {
             await uploadWithChunkCheck(page, async () => {
-                await uploadVideoFlow.uploadVideoToForm(VIDEO_PATH, 'test-video');
+                await flow.openNewVideo();
+                await flow.modal.selectFile(VIDEO_PATH);
+                await flow.modal.selectType('movie');
             });
-            await uploadVideoPage.assertDescriptionDoesNotContain(defaultDescription);
             await expect(
-                uploadVideoPage.descriptionEditor,
+                flow.modal.descriptionEditor,
                 'Description field should be empty after clearing default'
             ).toHaveText(/^\s*$/);
         });

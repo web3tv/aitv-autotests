@@ -10,6 +10,8 @@ if (process.env.ENV_FILE || !process.env.CI) {
 
 export default defineConfig({
   testDir: './tests',
+  // `tests/skip/**` is parked (disabled) code kept for reference — never collected/run.
+  testIgnore: '**/skip/**',
   expect: {
     timeout: 10_000,
   },
