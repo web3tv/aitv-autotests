@@ -23,6 +23,8 @@ export class AccountPage {
 
     // Wallet
     readonly walletAddress: Locator;
+    readonly addWalletBtn: Locator;
+    readonly walletAddedToast: Locator;
 
     // Buttons
     readonly submitBtn: Locator;
@@ -51,6 +53,8 @@ export class AccountPage {
 
         // Wallet
         this.walletAddress = page.locator('h3').filter({ hasText: 'Wallet Used for Sign In' }).locator('~ p');
+        this.addWalletBtn = page.getByRole('button', { name: 'Add wallet' });
+        this.walletAddedToast = page.getByText('Wallet successfully added!');
 
         // Submit button
         this.submitBtn = page.getByRole('button', { name: 'Submit' });
@@ -67,6 +71,17 @@ export class AccountPage {
     async assertDisplayedWalletAddress(address: string): Promise<void> {
         await expect(this.walletAddress, 'Wallet address is not visible').toBeVisible();
         await expect(this.walletAddress, 'Wallet address is not displayed correctly').toHaveText(address);
+    }
+
+    // ADD WALLET (email-only user)
+    async clickAddWalletBtn(): Promise<void> {
+        await expect(this.addWalletBtn, 'Add wallet button is not visible').toBeVisible();
+        await expect(this.addWalletBtn, 'Add wallet button is not enabled').toBeEnabled();
+        await this.addWalletBtn.click();
+    }
+
+    async assertWalletAddedToast(): Promise<void> {
+        await expect(this.walletAddedToast, 'Wallet added confirmation toast is not visible').toBeVisible({ timeout: 15_000 });
     }
 
     // CHANGE PASSWORD METHODS

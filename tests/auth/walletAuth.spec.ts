@@ -3,8 +3,6 @@ import { AuthFlow } from '../../src/flows/AuthFlow';
 import { MailTmHelper } from '../../src/utils/mailTmHelper';
 import { AccountPage } from '../../src/pages/account/AccountPage';
 import { AuthApi } from '../../src/api/AuthApi';
-import { HeaderPage } from '../../src/pages/components/HeaderPage';
-import { LoginPage } from '../../src/pages/auth/LoginPage';
 import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletInfo } from '../../src/utils/walletMock';
 
 
@@ -62,35 +60,24 @@ test.describe('Wallet auth tests', () => {
 
 test.describe('Wallet and email tests',()=>{
 
-  //There is no 'Add Wallet' button in header
-  test.skip('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
+  test('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
-    const headerPage = new HeaderPage(page);
-    const loginPage = new LoginPage(page);
+    let wallet: WalletInfo;
 
-    await test.step('Create user via API and login', async () => {
+    await test.step('Create user via API, inject wallet mock and login', async () => {
       const user = await authApi.createUserFast();
-      await injectEthereumMock(page);
+      wallet = await injectEthereumMock(page);
       await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
-    await test.step('Verify authed actions area is visible in header', async () => {
-      await expect(headerPage.authedActions, 'Authed actions area is not visible in header').toBeVisible();
-    });
-
-    await test.step('Click Add wallet and connect MetaMask', async () => {
-      // TODO: Add wallet button removed from header — update flow when new UI is clarified
-      await expect(loginPage.metamaskOption, 'MetaMask option is not visible in wallet modal').toBeVisible();
-      await loginPage.metamaskOption.click();
-    });
-
-    await test.step('Verify wallet connected', async () => {
-      await expect(headerPage.userIcon, 'User icon should be visible after connecting').toBeVisible({ timeout: 10_000 });
+    await test.step('Add wallet from account page and verify it is linked', async () => {
+      await authFlow.addWalletFromAccountSuccess({ wallet, skipInjection: true });
     });
   });
 
-  test('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
+  // https://stretch-com.atlassian.net/browse/W3-2730
+  test.fixme('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
     let firstVerificationUrl: string;
@@ -113,7 +100,7 @@ test.describe('Wallet and email tests',()=>{
       await addEmailInput.fill(firstEmail);
       await accountPage.clickSubmitBtn();
 
-      const messageId = await mailHelper1.waitForMessage(firstToken, 'Email Verification');
+      const messageId = await mailHelper1.waitForMessage(firstToken, 'Your verification link');
       firstVerificationUrl = await mailHelper1.extractVerificationUrl(messageId, firstToken);
     });
 
@@ -129,7 +116,7 @@ test.describe('Wallet and email tests',()=>{
       await addEmailInput.fill(secondEmail);
       await accountPage.clickSubmitBtn();
 
-      const messageId = await mailHelper2.waitForMessage(secondToken, 'Email Verification');
+      const messageId = await mailHelper2.waitForMessage(secondToken, 'Your verification link');
       secondVerificationUrl = await mailHelper2.extractVerificationUrl(messageId, secondToken);
     });
 
@@ -171,7 +158,7 @@ test.describe('Wallet and email tests',()=>{
     });
 
     await test.step('Verify email via mail.tm', async () => {
-      const messageId = await mailTmHelper.waitForMessage(mailToken, 'Email Verification');
+      const messageId = await mailTmHelper.waitForMessage(mailToken, 'Your verification link');
       const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, mailToken);
       await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
       await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });

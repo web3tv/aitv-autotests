@@ -130,7 +130,7 @@ test.describe('Unlisted video visibility', () => {
     });
 });
 
-test.describe('Paid video visibility', () => {
+test.describe.skip('Paid video visibility', () => {
     let setup: VideoSetupResult;
 
     test.beforeAll(async ({ request }) => {

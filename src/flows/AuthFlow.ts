@@ -7,6 +7,7 @@ import { Page } from '@playwright/test';
 import { MailTmHelper } from "../utils/mailTmHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
+import { AccountPage } from "../pages/account/AccountPage";
 import { TestPopupsPage } from "../pages/testPopups/TestPopupsPage";
 import { LoginPopupPage } from "../pages/testPopups/LoginPopupPage";
 import { DataGenerator } from "../utils/dataGenerator";
@@ -213,6 +214,30 @@ export class AuthFlow {
     return wallet;
   }
 
+  async addWalletFromAccountSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
+    const walletType = options?.walletType ?? 'metamask';
+    const wallet = options?.skipInjection && options.wallet
+      ? options.wallet
+      : await injectEthereumMock(this.page, options?.wallet, walletType);
+
+    const accountPage = new AccountPage(this.page);
+    await this.page.goto('/account', { waitUntil: 'domcontentloaded' });
+    await accountPage.clickAddWalletBtn();
+
+    const addWalletResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/add-wallet'),
+      { timeout: 15_000 }
+    );
+    await this.loginPage.clickWalletOption(walletType);
+    const res = await addWalletResponse;
+    expect(res.status(), `auth/add-wallet returned ${res.status()}`).toBe(200);
+
+    await accountPage.assertWalletAddedToast();
+    await accountPage.assertDisplayedWalletAddress(wallet.address);
+
+    return wallet;
+  }
+
   async walletRegisterSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<{ wallet: WalletInfo; username: string }> {
     const walletType = options?.walletType ?? 'metamask';
     const wallet = options?.skipInjection && options.wallet
@@ -233,12 +258,12 @@ export class AuthFlow {
 
     const username = DataGenerator.generateUsername();
     await this.loginPopupPage.fillChooseHandle(username);
-    await this.loginPopupPage.clickFinish();
 
     const whoamiPromise = this.page.waitForResponse(
       (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
       { timeout: 40_000 }
     );
+    await this.loginPopupPage.clickFinish();
     await this.page.waitForURL((url) => url.pathname === '/');
     await whoamiPromise;
 

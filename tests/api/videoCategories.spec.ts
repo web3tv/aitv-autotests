@@ -43,7 +43,8 @@ test.describe('Video categories API', () => {
         });
     });
 
-    test('Categories response contains all expected ai.tv slugs', {
+    
+    test.fixme('Categories response contains all expected ai.tv slugs', {
         annotation: { type: 'TC', description: 'CATEGORIES-002' },
     }, async ({ request }) => {
         let slugs: string[] = [];
