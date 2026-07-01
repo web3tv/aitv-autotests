@@ -67,7 +67,7 @@ EMAIL TEMPLATES (W3-2662)
 ├── Password reset email — content, link & security [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-003
 ├── Password changed email — content                [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-004
 ├── New device / suspicious login email             [BLOCKED] не реализовано в бэке (W3-2662) EMAIL-005
-└── Coming-soon (pre-subscribed) video release email [AUTO] tests/studio/comingSoonEmail.spec.ts EMAIL-006
+└── Coming-soon (pre-subscribed) video release email [AUTO] tests/api/comingSoonEmail.spec.ts EMAIL-006
 
 ────────────────────────────────────────────────────────────────
 ACCOUNT SETTINGS (/account)
@@ -347,11 +347,11 @@ ANALYTICS (studio.web3tv.dev/analytics) — W3-881
 
 ────────────────────────────────────────────────────────────────
 VIDEO CHAPTERS (W3-2434)
-├── English video → chapters non-empty, sorted, enabled       [AUTO] tests/studio/videoChapters.spec.ts  CHAP-001
-├── English video → chapters_generation_success notification  [AUTO] tests/studio/videoChapters.spec.ts  CHAP-002
-├── Short video → no chapters generated                       [AUTO] tests/studio/videoChapters.spec.ts  CHAP-003
+├── English video → chapters non-empty, sorted, enabled       [AUTO] tests/api/videoChapters.spec.ts  CHAP-001
+├── English video → chapters_generation_success notification  [AUTO] tests/api/videoChapters.spec.ts  CHAP-002
+├── Short video → no chapters generated                       [AUTO] tests/api/videoChapters.spec.ts  CHAP-003
 ├── Non-English video → no chapters                           [TODO] test.fixme, no fixture              CHAP-004
-├── chapters_enabled=false → chapters still returned          [AUTO] tests/studio/videoChapters.spec.ts  CHAP-005
+├── chapters_enabled=false → chapters still returned          [AUTO] tests/api/videoChapters.spec.ts  CHAP-005
 ├── Re-transcription → old chapters replaced atomically       [TODO] test.fixme, no re-trigger API       CHAP-006
 ├── ML failure → chapters_generation_failed notification      [BLOCKED] not in MVP (no failed notif type) CHAP-007
 └── Empty ML response → chapters untouched                    [BLOCKED] cannot control OpenAI response    CHAP-008

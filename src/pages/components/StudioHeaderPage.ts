@@ -5,6 +5,7 @@ export class StudioHeaderPage {
   readonly page: Page;
 
   readonly createBtn: Locator;
+  readonly plusBtn: Locator;
   readonly newVideoBtn: Locator;
   readonly newShortBtn: Locator;
   readonly liveBtn: Locator;
@@ -23,6 +24,8 @@ export class StudioHeaderPage {
     this.page = page;
 
     this.createBtn = page.getByRole('button', { name: 'Create' });
+    // Header "+" button — opens the upload modal directly (no submenu).
+    this.plusBtn = page.locator('[data-id="aitv-header-plus"]');
     this.newVideoBtn = page.getByTestId('new-video-button');
     this.newShortBtn = page.getByText('New short');
     this.liveBtn = page.getByText('Live');
@@ -44,6 +47,13 @@ export class StudioHeaderPage {
     await expect(this.createBtn, 'Create button is not visible').toBeVisible();
     await expect(this.createBtn, 'Create button is not enabled').toBeEnabled();
     await this.createBtn.click();
+  }
+
+  /** Clicks the header "+" button, which opens the upload modal directly. */
+  async clickPlusBtn() {
+    await expect(this.plusBtn, 'Header "+" button is not visible').toBeVisible();
+    await expect(this.plusBtn, 'Header "+" button is not enabled').toBeEnabled();
+    await this.plusBtn.click();
   }
 
   async clickNewVideoBtn() {

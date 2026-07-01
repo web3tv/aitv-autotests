@@ -20,6 +20,8 @@ export class ContentUploadModal {
     // Dialog root
     readonly dialog: Locator;
 
+    readonly modalClose: Locator;
+
     // Upload (dropzone) step
     readonly uploader: Locator;
     readonly dropzone: Locator;
@@ -103,9 +105,8 @@ export class ContentUploadModal {
         this.uploader = page.getByTestId('aitv-upload-uploader');
         this.dropzone = page.getByTestId('aitv-upload-dropzone');
         this.selectFileBtn = page.getByTestId('aitv-upload-select-file');
-        this.dropzoneFileInput = page.locator(
-            '[data-testid="aitv-upload-dropzone"] input[type="file"], [data-testid="aitv-upload-uploader"] input[type="file"]',
-        ).first();
+        this.dropzoneFileInput = page.getByTestId('aitv-upload-file-input');
+        this.modalClose = page.getByTestId('aitv-upload-modal-close');
 
         this.typeSelector = page.getByTestId('aitv-upload-type-selector');
         this.typeMovie = page.getByTestId('aitv-upload-type-movie');
@@ -114,34 +115,35 @@ export class ContentUploadModal {
 
         this.detailsStep = page.getByTestId('aitv-upload-details-step');
         this.autofillBtn = page.getByTestId('aitv-upload-details-autofill');
-        this.titleInput = page.locator('input[name="title"]');
+        // The data-testids now sit directly on the input / file-input elements.
+        this.titleInput = page.getByTestId('aitv-upload-details-title');
         this.descriptionEditor = page.locator('[data-id="description"] .ql-editor');
         this.categoryContainer = page.getByTestId('aitv-upload-details-category');
-        this.categoryInput = this.categoryContainer.locator('input').first();
+        this.categoryInput = this.categoryContainer;
         this.genresContainer = page.getByTestId('aitv-upload-details-genres');
-        this.genresInput = this.genresContainer.locator('input').first();
+        this.genresInput = this.genresContainer;
 
         this.thumbHorizontal = page.getByTestId('aitv-upload-details-thumb-horizontal');
-        this.thumbHorizontalInput = this.thumbHorizontal.locator('input[type="file"]');
+        this.thumbHorizontalInput = this.thumbHorizontal;
         this.thumbVertical = page.getByTestId('aitv-upload-details-thumb-vertical');
-        this.thumbVerticalInput = this.thumbVertical.locator('input[type="file"]');
-        this.cropConfirmBtn = page.getByRole('button', { name: 'Confirm' });
+        this.thumbVerticalInput = this.thumbVertical;
+        this.cropConfirmBtn = page.getByTestId('upload-image-crop-confirm');
 
         this.seriesFields = page.getByTestId('aitv-upload-series-fields');
         this.seriesModeNew = page.getByTestId('aitv-upload-series-mode-new');
         this.seriesModeEpisode = page.getByTestId('aitv-upload-series-mode-episode');
-        this.seriesNameInput = page.locator('input[name="seriesName"]');
+        this.seriesNameInput = page.getByTestId('aitv-upload-series-name');
         this.seriesEpisodeNumberContainer = page.getByTestId('aitv-upload-series-episode-number');
-        this.seriesEpisodeNumberInput = this.seriesEpisodeNumberContainer.locator('input').first();
+        this.seriesEpisodeNumberInput = this.seriesEpisodeNumberContainer;
         this.seriesParentContainer = page.getByTestId('aitv-upload-series-parent');
-        this.seriesParentInput = this.seriesParentContainer.locator('input').first();
+        this.seriesParentInput = this.seriesParentContainer;
 
         this.shortsThumbnail = page.getByTestId('aitv-upload-shorts-thumbnail');
-        this.shortsThumbnailInput = this.shortsThumbnail.locator('input[type="file"]');
+        this.shortsThumbnailInput = this.shortsThumbnail;
         this.shortsAssociated = page.getByTestId('aitv-upload-shorts-associated');
         this.shortsAssociatedToggle = page.getByTestId('aitv-upload-shorts-associated-toggle');
         this.shortsAssociatedSelectContainer = page.getByTestId('aitv-upload-shorts-associated-select');
-        this.shortsAssociatedSelectInput = this.shortsAssociatedSelectContainer.locator('input').first();
+        this.shortsAssociatedSelectInput = this.shortsAssociatedSelectContainer;
 
         this.footer = page.getByTestId('aitv-upload-footer');
         this.cancelBtn = page.getByTestId('aitv-upload-footer-cancel');
@@ -386,7 +388,7 @@ export class ContentUploadModal {
     async assertSuccess(): Promise<void> {
         await expect(this.successRoot, 'Success screen is not visible').toBeVisible({ timeout: 30_000 });
         await expect(this.successRoot, 'Success screen does not show the confirmation text')
-            .toContainText('successfully uploaded');
+            .toContainText(/successfully (uploaded|published)/i);
     }
 
     async closeSuccess(): Promise<void> {

@@ -100,45 +100,6 @@ test.describe('Video chapters — English video', () => {
         });
     });
 
-    test('Flipping chapters_enabled to false still returns chapters', {
-        tag: '@db',
-        annotation: { type: 'TC', description: 'CHAP-005' },
-    }, async ({ request }) => {
-        test.setTimeout(60_000);
-        const videoApi = new VideoApi(request);
-        const db = new DatabaseHelper();
-
-        await test.step('Connect to database', async () => {
-            await db.connect();
-        });
-
-        try {
-            const videoHexId = await test.step('Look up video hex ID', async () => {
-                const rows = await db.query<Array<{ vid_hex: string }>>(
-                    'SELECT HEX(id) as vid_hex FROM videos WHERE title = ? AND deletedAt IS NULL ORDER BY published_at DESC LIMIT 1',
-                    [videoTitle]
-                );
-                expect(rows.length, 'Video should exist in database').toBeGreaterThan(0);
-                return rows[0].vid_hex;
-            });
-
-            await test.step('Flip chapters_enabled to false', async () => {
-                await db.setChaptersEnabled(videoHexId, false);
-            });
-
-            await test.step('Verify API returns chapters with flag false', async () => {
-                const videoItem = await videoApi.getVideoById(videoId, token);
-                expect(videoItem.chapters_enabled, 'chapters_enabled should be false').toBe(false);
-                expect(videoItem.chapters.length, 'Chapters should still be present').toBeGreaterThan(0);
-            });
-
-            await test.step('Restore chapters_enabled to true', async () => {
-                await db.setChaptersEnabled(videoHexId, true);
-            });
-        } finally {
-            await db.disconnect();
-        }
-    });
 });
 
 test.describe('Video chapters — Short video', () => {

@@ -53,18 +53,22 @@ export class ContentCreationFlow {
         this.modal = new ContentUploadModal(page);
     }
 
-    async openNewVideo(): Promise<void> {
+    /**
+     * Opens the upload modal. The header "+" button now opens it directly (no submenu);
+     * the content type (Movie/Series/Shorts) is chosen inside the modal after a file is added.
+     */
+    async openUploadModal(): Promise<void> {
         await ensureOnStudioDomain(this.page);
-        await this.header.clickCreateBtn();
-        await this.header.clickNewVideoBtn();
-        await expect(this.modal.dropzone, 'Upload dialog did not open from "New video"').toBeVisible({ timeout: 15_000 });
+        await this.header.clickPlusBtn();
+        await expect(this.modal.dropzone, 'Upload modal did not open from the "+" button').toBeVisible({ timeout: 15_000 });
+    }
+
+    async openNewVideo(): Promise<void> {
+        await this.openUploadModal();
     }
 
     async openNewShort(): Promise<void> {
-        await ensureOnStudioDomain(this.page);
-        await this.header.clickCreateBtn();
-        await this.header.clickNewShortBtn();
-        await expect(this.modal.dropzone, 'Upload dialog did not open from "New short"').toBeVisible({ timeout: 15_000 });
+        await this.openUploadModal();
     }
 
     /** Full Movie creation: details + both covers + finalize + publish. Returns the movie title. */
