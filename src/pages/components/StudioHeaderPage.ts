@@ -6,8 +6,6 @@ export class StudioHeaderPage {
 
   readonly createBtn: Locator;
   readonly plusBtn: Locator;
-  readonly newVideoBtn: Locator;
-  readonly newShortBtn: Locator;
   readonly liveBtn: Locator;
   readonly heroCoins: Locator;
   readonly joinBtn: Locator;
@@ -23,11 +21,9 @@ export class StudioHeaderPage {
   constructor(page: Page) {
     this.page = page;
 
+    // "Create" and the header "+" both open the upload modal directly (the old "New Video/New Short" submenu is gone).
     this.createBtn = page.getByRole('button', { name: 'Create' });
-    // Header "+" button — opens the upload modal directly (no submenu).
     this.plusBtn = page.locator('[data-id="aitv-header-plus"]');
-    this.newVideoBtn = page.getByTestId('new-video-button');
-    this.newShortBtn = page.getByText('New short');
     this.liveBtn = page.getByText('Live');
 
     this.heroCoins = page.locator('[data-id="coins"]');
@@ -54,18 +50,6 @@ export class StudioHeaderPage {
     await expect(this.plusBtn, 'Header "+" button is not visible').toBeVisible();
     await expect(this.plusBtn, 'Header "+" button is not enabled').toBeEnabled();
     await this.plusBtn.click();
-  }
-
-  async clickNewVideoBtn() {
-    await expect(this.newVideoBtn, 'New video button is not visible').toBeVisible();
-    await expect(this.newVideoBtn, 'New video button is not enabled').toBeEnabled();
-    await this.newVideoBtn.click();
-  }
-
-  async clickNewShortBtn() {
-    await expect(this.newShortBtn, 'New short button is not visible').toBeVisible();
-    await expect(this.newShortBtn, 'New short button is not enabled').toBeEnabled();
-    await this.newShortBtn.click();
   }
 
   async clickJoinBtn() {

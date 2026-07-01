@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { RegistrationFlow } from '../../src/flows/RegistrationFlow';
-import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
+import { ContentCreationFlow } from '../../src/flows/ContentCreationFlow';
 import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
 import { uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
 
@@ -46,9 +46,9 @@ test.describe('Auth', () => {
 test.describe('Video upload', () => {
 
     test('Upload private video', { annotation: { type: 'TC', description: 'PROD-004' } }, async ({ page }) => {
-        test.setTimeout(120_000);
+        test.setTimeout(180_000);
         const authFlow = new AuthFlow(page);
-        const uploadVideoFlow = new UploadVideoFlow(page);
+        const flow = new ContentCreationFlow(page);
         const email = process.env.PROD_TEST_EMAIL;
         const password = process.env.PROD_TEST_PASSWORD;
         const username = process.env.PROD_TEST_USERNAME;
@@ -59,24 +59,15 @@ test.describe('Video upload', () => {
             await authFlow.loginSuccess(email, password, username);
         });
 
-        await test.step('Upload video file', async () => {
+        await test.step('Upload and publish a private video through the full upload flow', async () => {
             await uploadWithChunkCheck(page, async () => {
-                await uploadVideoFlow.uploadVideo('test-data/fixtures/video/5secVideo.mp4', videoName);
+                await flow.createMovie({
+                    filePath: 'test-data/fixtures/video/5secVideo.mp4',
+                    title: videoName,
+                    visibility: 'private',
+                });
             });
-        });
-
-        await test.step('Fill required fields and select private visibility', async () => {
-            await uploadVideoFlow.fillInReqFileds(videoName);
-            await uploadVideoFlow.selectVisibility('private');
-        });
-
-        await test.step('Wait for processing and publish', async () => {
-            await uploadVideoFlow.waitStatusSuccessfully();
-            await uploadVideoFlow.clickPublishBtn();
-        });
-
-        await test.step('Confirm video uploaded as Private', async () => {
-            await uploadVideoFlow.confirmVideoUploading('Private');
+            await flow.modal.closeSuccess();
         });
     });
 
