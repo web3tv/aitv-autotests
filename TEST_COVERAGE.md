@@ -128,19 +128,19 @@ NFT
 
 ────────────────────────────────────────────────────────────────
 VIDEO UPLOAD
-├── Upload horizontal video (public)                [AUTO][CRITICAL] tests/studio/uploadVideoUI.spec.ts   UPLOAD-001
+├── Upload horizontal video (public)                [TODO] (covered by MOVIE-001)               UPLOAD-001
 ├── Upload horizontal video (private)               [TODO]                                      UPLOAD-002
 ├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
 ├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
-├── Upload Shorts                                   [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-005
-├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-006
+├── Upload Shorts                                   [TODO] (covered by SHORTS-003)              UPLOAD-005
+├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/studio/uploadMovie.spec.ts     UPLOAD-006
 ├── Upload thumbnail manually                       [AUTO] tests/studio/content.spec.ts         UPLOAD-007
 ├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
 ├── Required fields validation (title/desc/cat)     [AUTO] tests/validation/uploadVideoValidation.spec.ts  UPLOAD-009
 ├── Delete video during upload                      [TODO]                                      UPLOAD-010
 ├── Save video as draft                             [TODO]                                      UPLOAD-011
 ├── Select auto-generated thumbnail                 [AUTO] tests/studio/content.spec.ts         UPLOAD-012
-└── Publish video while still processing            [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-013
+└── Publish video while still processing            [TODO] (obsolete by design — stepped modal blocks publish until processed)  UPLOAD-013
 
 ────────────────────────────────────────────────────────────────
 CONTENT CREATION FLOW — Movie / Series / Shorts (W3-2702)

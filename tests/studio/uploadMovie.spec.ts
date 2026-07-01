@@ -71,3 +71,36 @@ test('Shorts type is not selectable for a landscape video', {
             .toHaveAttribute('aria-checked', 'false');
     });
 });
+
+test('Upload video >50mb workflow', { annotation: { type: 'TC', description: 'UPLOAD-006' } }, async ({ page, request }) => {
+    test.setTimeout(270_000);
+    let user: { email: string; username: string };
+    const title = `QA Movie ${Date.now()}`;
+
+    await test.step('Create user and login', async () => {
+        user = await new AuthApi(request).createUserFast();
+        await new AuthFlow(page).loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
+    });
+
+    await test.step('Upload a large (>50mb) Movie end-to-end', async () => {
+        const flow = new ContentCreationFlow(page);
+        await flow.createMovie({
+            filePath: 'test-data/fixtures/video/Video_more50mb.mp4',
+            title,
+            visibility: 'unlisted',
+        });
+        await flow.modal.closeSuccess();
+    });
+
+    await test.step('Verify the large Movie appears on the Movies tab', async () => {
+        const content = new StudioContentPage(page);
+        const responsePromise = page.waitForResponse(
+            (r) => r.url().includes('studio-videos') && r.status() === 200,
+            { timeout: 20_000 },
+        );
+        await page.goto(`${process.env.STUDIO_URL}/content`, { waitUntil: 'domcontentloaded' });
+        await responsePromise;
+        await content.clickVideosTab();
+        await content.assertVideoRowContainsTitle(title);
+    });
+});
