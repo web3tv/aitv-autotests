@@ -11,7 +11,7 @@ npx playwright test --project=functional
 
 **Run a single test file:**
 ```
-npx playwright test tests/auth/auth.spec.ts --project=functional
+npx playwright test tests/auth/emailAuth.spec.ts --project=functional
 ```
 
 **Run a single test by name:**
@@ -89,17 +89,27 @@ Required variables:
 
 ### Layer structure
 
+Tests are organized **by product domain** (folders), and **cross-cutting slices are
+tags, not folders** (e.g. run all input-validation with `--grep @validation`). A
+type-specific top-level folder is used only when it maps to a distinct Playwright
+project/runtime: `visual/` (Docker projects), `production/` (prod env), `api/`
+(no-browser contract tests).
+
 ```
 tests/
-  auth/         — Authentication tests (login, registration, 2FA, reset, email templates)
-  user.fixme/   — Account settings tests (currently disabled / WIP)
-  subscription/ — Subscription & paid content tests
-  studio/       — Video upload, player, channel tests
-  validation/   — Input validation tests
+  auth/         — Authentication (login, registration, 2FA, reset, email templates) + registration-page validation
+  account/      — Account & profile settings, notifications (profile/notifications are test.fixme WIP)
+  content/      — Creator: create & manage video content
+    upload/     — Movie/Series/Shorts/Taxonomy upload + upload validation
+    manage/     — Visibility, description, analytics, NFT conversion, studio search
+    channel/    — Channel create/edit settings + edit-page validation
+  player/       — Viewer: video player, embed player, series playback
+  api/          — Contract tests hitting endpoints directly (no browser)
   production/   — Production setup + smoke specs (prodSmoke project)
-  visualSuite/
+  visual/
     desktop/    — Desktop visual regression specs (Docker only)
     mobile/     — Mobile visual regression specs (Docker only)
+  skip/         — Parked/disabled specs (excluded via testIgnore `**/skip/**`)
 src/
   flows/        — High-level user journey orchestrators
   pages/        — Page Object Model classes
@@ -134,7 +144,7 @@ test-data/
 - `visual-desktop-large-chromium` — desktop visual regression 2560×1080, Docker only
 - `visual-mobile-webkit` — mobile visual regression (iPhone 15 Pro Max), Docker only
 
-**Tags:** set via `{ tag: '@...' }` in `test()`/`test.describe()`, run with `--grep @tag`. Current tags: `@critical` (pre-deploy smoke), `@db` (needs DB port-forward), `@emails` (email template content).
+**Tags:** set via `{ tag: '@...' }` in `test()`/`test.describe()`, run with `--grep @tag`. Tags carry cross-cutting slices that would otherwise fragment the domain folders. Current tags: `@critical` (pre-deploy smoke), `@db` (needs DB port-forward), `@emails` (email template content), `@validation` (input-validation specs across auth/content).
 
 ## Coding Rules
 

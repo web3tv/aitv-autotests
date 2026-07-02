@@ -1,0 +1,93 @@
+import { test, expect } from '@playwright/test';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { ContentCreationFlow } from '../../../src/flows/ContentCreationFlow';
+import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
+
+const VERTICAL_VIDEO = 'test-data/fixtures/video/shortsVideo.mp4';
+
+test('Shorts details lock the category to "Shorts" and expose a single cover', {
+    tag: '@critical',
+    annotation: { type: 'TC', description: 'SHORTS-001' },
+}, async ({ page, request }) => {
+    test.setTimeout(180_000);
+    let user: { email: string; username: string };
+
+    await test.step('Create user and login', async () => {
+        user = await new AuthApi(request).createUserFast();
+        await new AuthFlow(page).loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
+    });
+
+    await test.step('Open the Shorts flow and verify Shorts-specific details', async () => {
+        const flow = new ContentCreationFlow(page);
+        await flow.openNewShort();
+        await flow.modal.selectFile(VERTICAL_VIDEO);
+        await flow.modal.selectType('shorts');
+
+        await flow.modal.assertCategoryLockedToShorts();
+        await expect(flow.modal.shortsThumbnail, 'Single multi-aspect Shorts cover slot is not visible')
+            .toBeVisible();
+    });
+
+    await test.step('Upload a cover into the single Shorts slot', async () => {
+        const flow = new ContentCreationFlow(page);
+        await flow.modal.uploadShortsCover();
+    });
+});
+
+test('Associated movie/series toggle reveals the selector on a Short', {
+    annotation: { type: 'TC', description: 'SHORTS-002' },
+}, async ({ page, request }) => {
+    test.setTimeout(120_000);
+    let user: { email: string; username: string };
+
+    await test.step('Create user and login', async () => {
+        user = await new AuthApi(request).createUserFast();
+        await new AuthFlow(page).loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
+    });
+
+    await test.step('Toggle Associated movie/series and check the selector appears', async () => {
+        const flow = new ContentCreationFlow(page);
+        await flow.openNewShort();
+        await flow.modal.selectFile(VERTICAL_VIDEO);
+        await flow.modal.selectType('shorts');
+        await flow.modal.toggleAssociated();
+    });
+});
+
+test('Publish a Short end-to-end', {
+    tag: '@critical',
+    annotation: { type: 'TC', description: 'SHORTS-003' },
+}, async ({ page, request }) => {
+    test.setTimeout(240_000);
+    let user: { email: string; username: string };
+    const title = `QA Short ${Date.now()}`;
+
+    await test.step('Create user and login', async () => {
+        user = await new AuthApi(request).createUserFast();
+        await new AuthFlow(page).loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
+    });
+
+    await test.step('Create and publish a Short end-to-end', async () => {
+        const flow = new ContentCreationFlow(page);
+        await flow.createShort({
+            filePath: VERTICAL_VIDEO,
+            title,
+            description: 'QA autotest short description',
+            visibility: 'public',
+        });
+        await flow.modal.closeSuccess();
+    });
+
+    await test.step('Verify the Short appears on the Shorts tab', async () => {
+        const content = new StudioContentPage(page);
+        const responsePromise = page.waitForResponse(
+            (r) => r.url().includes('studio-videos') && r.status() === 200,
+            { timeout: 20_000 },
+        );
+        await page.goto(`${process.env.STUDIO_URL}/content`, { waitUntil: 'domcontentloaded' });
+        await responsePromise;
+        await content.clickShortsTab();
+        await content.assertVideoRowContainsTitle(title);
+    });
+});

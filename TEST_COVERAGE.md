@@ -67,7 +67,7 @@ EMAIL TEMPLATES (W3-2662)
 ├── Password reset email — content, link & security [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-003
 ├── Password changed email — content                [AUTO] tests/auth/emailTemplates.spec.ts EMAIL-004
 ├── New device / suspicious login email             [BLOCKED] не реализовано в бэке (W3-2662) EMAIL-005
-└── Coming-soon (pre-subscribed) video release email [AUTO] tests/studio/comingSoonEmail.spec.ts EMAIL-006
+└── Coming-soon (pre-subscribed) video release email [AUTO] tests/api/comingSoonEmail.spec.ts EMAIL-006
 
 ────────────────────────────────────────────────────────────────
 ACCOUNT SETTINGS (/account)
@@ -113,55 +113,72 @@ CHANNELS
 ├── Delete channel                                  [TODO]                                   CHANNEL-013
 ├── Set Highlight video                             [TODO]                                   CHANNEL-014
 ├── Import video via external URL (Video Importer)  [TODO]                                   CHANNEL-015
-├── Set default video description in channel settings — saved successfully  [AUTO][CRITICAL] tests/studio/channel.spec.ts  CHANNEL-017
-├── Default description auto-fills description field when opening upload popup  [AUTO] tests/studio/channel.spec.ts  CHANNEL-018
-├── Override pre-filled description — video saved with custom description  [AUTO] tests/studio/channel.spec.ts  CHANNEL-019
-└── Clear default description — upload popup opens with empty description  [AUTO] tests/studio/channel.spec.ts  CHANNEL-020
+├── Set default video description in channel settings — saved successfully  [AUTO][CRITICAL] tests/content/channel/channel.spec.ts  CHANNEL-017
+├── Default description auto-fills description field when opening upload popup  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-018
+├── Override pre-filled description — video saved with custom description  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-019
+└── Clear default description — upload popup opens with empty description  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-020
 
 ────────────────────────────────────────────────────────────────
 NFT
   Wallet user registers, opens Studio Settings → NFT section, converts channel
   via HeroPay mock payment, verifies minting status and NFT details (ERC 721,
   token contract, explorer link)
-├── Convert channel to NFT via mock payment                [AUTO] tests/studio/nftConversion.spec.ts  NFT-001
-└── Email user without wallet sees add wallet popup       [AUTO] tests/studio/nftConversion.spec.ts  NFT-002
+├── Convert channel to NFT via mock payment                [AUTO] tests/content/manage/nftConversion.spec.ts  NFT-001
+└── Email user without wallet sees add wallet popup       [AUTO] tests/content/manage/nftConversion.spec.ts  NFT-002
 
 ────────────────────────────────────────────────────────────────
 VIDEO UPLOAD
-├── Upload horizontal video (public)                [AUTO][CRITICAL] tests/studio/uploadVideoUI.spec.ts   UPLOAD-001
+├── Upload horizontal video (public)                [TODO] (covered by MOVIE-001)               UPLOAD-001
 ├── Upload horizontal video (private)               [TODO]                                      UPLOAD-002
 ├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
 ├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
-├── Upload Shorts                                   [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-005
-├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-006
+├── Upload Shorts                                   [TODO] (covered by SHORTS-003)              UPLOAD-005
+├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
 ├── Upload thumbnail manually                       [AUTO] tests/studio/content.spec.ts         UPLOAD-007
 ├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
-├── Required fields validation (title/desc/cat)     [AUTO] tests/validation/uploadVideoValidation.spec.ts  UPLOAD-009
+├── Required fields validation (title/desc/cat)     [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  UPLOAD-009
 ├── Delete video during upload                      [TODO]                                      UPLOAD-010
 ├── Save video as draft                             [TODO]                                      UPLOAD-011
 ├── Select auto-generated thumbnail                 [AUTO] tests/studio/content.spec.ts         UPLOAD-012
-└── Publish video while still processing            [AUTO] tests/studio/uploadVideoUI.spec.ts   UPLOAD-013
+└── Publish video while still processing            [TODO] (obsolete by design — stepped modal blocks publish until processed)  UPLOAD-013
+
+────────────────────────────────────────────────────────────────
+CONTENT CREATION FLOW — Movie / Series / Shorts (W3-2702)
+├── Create a Movie end-to-end (type→details→2 covers→finalize→success)  [AUTO][CRITICAL] tests/content/upload/uploadMovie.spec.ts   MOVIE-001
+├── Shorts type disabled for a landscape video               [AUTO] tests/content/upload/uploadMovie.spec.ts    MOVIE-002
+├── Create a new Series with its first episode (New Series)   [AUTO][CRITICAL] tests/content/upload/uploadSeries.spec.ts  SERIES-001
+├── Add a new Episode to an existing Series (New Episode)     [AUTO][CRITICAL] tests/content/upload/uploadSeries.spec.ts   SERIES-002
+├── Shorts details: category locked to "Shorts", single cover [AUTO][CRITICAL] tests/content/upload/uploadShorts.spec.ts  SHORTS-001
+├── Shorts: Associated movie/series toggle reveals selector   [AUTO] tests/content/upload/uploadShorts.spec.ts   SHORTS-002
+└── Publish a Short end-to-end                                [AUTO][CRITICAL] tests/content/upload/uploadShorts.spec.ts  SHORTS-003
+
+────────────────────────────────────────────────────────────────
+UPLOAD TAXONOMY — categories & genres in the modal (W3-2729)
+├── Movie: Category dropdown == expected video categories      [AUTO] tests/content/upload/uploadTaxonomy.spec.ts   CATEGORIES-UI-001
+├── Series: Category dropdown == expected episode categories   [AUTO] tests/content/upload/uploadTaxonomy.spec.ts   CATEGORIES-UI-002
+└── Genres dropdown == expected genres (59)                    [AUTO] tests/content/upload/uploadTaxonomy.spec.ts   GENRES-UI-001
 
 ────────────────────────────────────────────────────────────────
 VIDEO VISIBILITY
-├── Public: visible on channel page                 [AUTO][CRITICAL] tests/studio/videoVisibility.spec.ts  VIS-001
-├── Public: visible to anonymous guest              [AUTO][CRITICAL] tests/studio/videoVisibility.spec.ts  VIS-001
-├── Public: visible to other registered user        [AUTO] tests/studio/videoVisibility.spec.ts  VIS-002
-├── Private: not shown on channel page              [AUTO] tests/studio/videoVisibility.spec.ts  VIS-003
-├── Private: blocked on direct link (anonymous)     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-003
-├── Private: blocked on direct link (other user)    [AUTO] tests/studio/videoVisibility.spec.ts  VIS-004
-├── Unlisted: not shown on channel page             [AUTO] tests/studio/videoVisibility.spec.ts  VIS-005
-├── Unlisted: accessible via direct link (anon)     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-005
-├── Unlisted: accessible via direct link (user)     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-006
-├── Paid: badges on channel page                    [AUTO] tests/studio/videoVisibility.spec.ts  VIS-007
-├── Paid: paywall for anonymous                     [AUTO] tests/studio/videoVisibility.spec.ts  VIS-007
-└── Paid: subscribe button for other user           [AUTO] tests/studio/videoVisibility.spec.ts  VIS-008
+├── Public: visible on channel page                 [AUTO][CRITICAL] tests/content/manage/videoVisibility.spec.ts  VIS-001
+├── Public: visible to anonymous guest              [AUTO][CRITICAL] tests/content/manage/videoVisibility.spec.ts  VIS-001
+├── Public: visible to other registered user        [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-002
+├── Private: not shown on channel page              [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-003
+├── Private: blocked on direct link (anonymous)     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-003
+├── Private: blocked on direct link (other user)    [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-004
+├── Unlisted: not shown on channel page             [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-005
+├── Unlisted: accessible via direct link (anon)     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-005
+├── Unlisted: accessible via direct link (user)     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-006
+├── Paid: badges on channel page                    [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-007
+├── Paid: paywall for anonymous                     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-007
+└── Paid: subscribe button for other user           [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-008
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Regular Player
-├── Play / pause                                    [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-001
-├── currentTime advances while playing              [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-002
-├── Progress bar advances while playing             [AUTO][CRITICAL] tests/studio/videoPlayer.spec.ts  PLAYER-003
+├── Play / pause                                    [AUTO][CRITICAL] tests/player/videoPlayer.spec.ts  PLAYER-001
+├── currentTime advances while playing              [AUTO][CRITICAL] tests/player/videoPlayer.spec.ts  PLAYER-002
+├── Progress bar advances while playing             [AUTO][CRITICAL] tests/player/videoPlayer.spec.ts  PLAYER-003
+├── Series: episode auto-advances to next on end    [AUTO][CRITICAL] tests/player/seriesPlayback.spec.ts  SERIES-003
 ├── Dubbing available for video <1 min              [TODO]                                   PLAYER-004
 ├── Dubbing: switch language                        [TODO]                                   PLAYER-005
 ├── Hot-spots: owner sets hot-spot area             [TODO]                                   PLAYER-006
@@ -169,17 +186,17 @@ VIDEO PLAYER — Regular Player
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Shorts Player
-├── Shorts play (manual click, no autoplay)         [AUTO] tests/studio/videoPlayer.spec.ts  SHORTS-001
-├── currentTime advances after click                [AUTO] tests/studio/videoPlayer.spec.ts  SHORTS-002
+├── Shorts play (manual click, no autoplay)         [AUTO] tests/player/videoPlayer.spec.ts  SHORTS-001
+├── currentTime advances after click                [AUTO] tests/player/videoPlayer.spec.ts  SHORTS-002
 ├── Shorts: swiper slide navigation                 [TODO]                                   SHORTS-003
 └── Shorts: dubbing                                 [TODO]                                   SHORTS-004
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Embed Player
-├── Embed player: video plays                       [AUTO][CRITICAL] tests/studio/embedPlayer.spec.ts   EMBED-001
-├── Embed player: short plays                       [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-002
-├── Embed player: dubbing available                 [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-003
-└── Embed player: no hot-spots                      [AUTO] tests/studio/embedPlayer.spec.ts   EMBED-004
+├── Embed player: video plays                       [AUTO][CRITICAL] tests/player/embedPlayer.spec.ts   EMBED-001
+├── Embed player: short plays                       [AUTO] tests/player/embedPlayer.spec.ts   EMBED-002
+├── Embed player: dubbing available                 [AUTO] tests/player/embedPlayer.spec.ts   EMBED-003
+└── Embed player: no hot-spots                      [AUTO] tests/player/embedPlayer.spec.ts   EMBED-004
 
 ────────────────────────────────────────────────────────────────
 SUBSCRIPTIONS — Free (channel follow)
@@ -257,9 +274,9 @@ STUDIO CONTENT PAGE
 ├── Filter: multiple checkboxes combined            [TODO]                                   STUDIO-014
 ├── Filter: Reset clears all filters                [TODO]                                   STUDIO-015
 ├── Action menu: edit video                         [TODO]                                   STUDIO-016
-├── Search filters videos by title                  [AUTO] tests/studio/studioSearch.spec.ts STUDIO-017
-├── Search does NOT match by description            [AUTO] tests/studio/studioSearch.spec.ts STUDIO-018
-└── Search filters shorts by title                  [AUTO] tests/studio/studioSearch.spec.ts STUDIO-019
+├── Search filters videos by title                  [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-017
+├── Search does NOT match by description            [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-018
+└── Search filters shorts by title                  [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-019
 
 ────────────────────────────────────────────────────────────────
 HOME PAGE
@@ -285,9 +302,9 @@ VALIDATION
 ├── Handle — min/max length                         [AUTO] tests/validation/handleValidation.spec.ts    VAL-003
 ├── Handle — allowed characters (lowercase, no spaces) [AUTO] tests/validation/handleValidation.spec.ts VAL-004
 ├── Handle — uniqueness check                       [AUTO] tests/validation/handleValidation.spec.ts    VAL-005
-├── Video title — required field                    [AUTO] tests/validation/uploadVideoValidation.spec.ts  VAL-006
-├── Video description — required field              [AUTO] tests/validation/uploadVideoValidation.spec.ts  VAL-007
-├── Video category — required field                 [AUTO] tests/validation/uploadVideoValidation.spec.ts  VAL-008
+├── Video title — required field                    [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  VAL-006
+├── Video description — required field              [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  VAL-007
+├── Video category — required field                 [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  VAL-008
 ├── Video category — no error shown when empty      [BLOCKED] W3-2066                        VAL-008a
 ├── Channel name — max 32 chars                     [TODO]                                   VAL-009
 ├── Channel description — max 1000 chars            [TODO]                                   VAL-010
@@ -318,27 +335,27 @@ STUDIO DOMAIN (studio.web3tv.dev) — W3-1943
 ANALYTICS (studio.web3tv.dev/analytics) — W3-881
   Channel owner views analytics dashboard with seeded statistics.
   Data seeded via DB: views, likes, comments, subscribers across multiple days.
-├── Summary cards: Views and Subscribers displayed             [AUTO] tests/studio/analytics.spec.ts  ANALY-001
-├── Charts: main chart (views) and engagement chart visible    [AUTO] tests/studio/analytics.spec.ts  ANALY-001
-├── Chart switch: click Subscribers card → subscribers chart   [AUTO] tests/studio/analytics.spec.ts  ANALY-001
-├── Engagement (48h): likes count matches seeded data          [AUTO] tests/studio/analytics.spec.ts  ANALY-001
-├── Latest Uploaded Content: title, views, likes, comments     [AUTO] tests/studio/analytics.spec.ts  ANALY-001
-├── Top Content: uploaded video present in table               [AUTO] tests/studio/analytics.spec.ts  ANALY-001
-├── Period: Last 7 days — chart data + newSubscribers filtered [AUTO] tests/studio/analytics.spec.ts  ANALY-001
-├── Period: Last 28 days — chart data includes all views       [AUTO] tests/studio/analytics.spec.ts  ANALY-001
+├── Summary cards: Views and Subscribers displayed             [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
+├── Charts: main chart (views) and engagement chart visible    [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
+├── Chart switch: click Subscribers card → subscribers chart   [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
+├── Engagement (48h): likes count matches seeded data          [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
+├── Latest Uploaded Content: title, views, likes, comments     [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
+├── Top Content: uploaded video present in table               [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
+├── Period: Last 7 days — chart data + newSubscribers filtered [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
+├── Period: Last 28 days — chart data includes all views       [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
 ├── Summary for selected period (not lifetime)                 [TODO] W3-2449 (BE task)               ANALY-002
 ├── topContent includes video links                            [TODO] W3-2449 (BE task)               ANALY-003
 ├── Non-owner access → 403                                     [TODO]                                  ANALY-004
 ├── Unauthenticated access → 401                               [TODO]                                  ANALY-005
-└── Channel with no videos — empty state                       [AUTO] tests/studio/analytics.spec.ts  ANALY-006
+└── Channel with no videos — empty state                       [AUTO] tests/content/manage/analytics.spec.ts  ANALY-006
 
 ────────────────────────────────────────────────────────────────
 VIDEO CHAPTERS (W3-2434)
-├── English video → chapters non-empty, sorted, enabled       [AUTO] tests/studio/videoChapters.spec.ts  CHAP-001
-├── English video → chapters_generation_success notification  [AUTO] tests/studio/videoChapters.spec.ts  CHAP-002
-├── Short video → no chapters generated                       [AUTO] tests/studio/videoChapters.spec.ts  CHAP-003
+├── English video → chapters non-empty, sorted, enabled       [AUTO] tests/api/videoChapters.spec.ts  CHAP-001
+├── English video → chapters_generation_success notification  [AUTO] tests/api/videoChapters.spec.ts  CHAP-002
+├── Short video → no chapters generated                       [AUTO] tests/api/videoChapters.spec.ts  CHAP-003
 ├── Non-English video → no chapters                           [TODO] test.fixme, no fixture              CHAP-004
-├── chapters_enabled=false → chapters still returned          [AUTO] tests/studio/videoChapters.spec.ts  CHAP-005
+├── chapters_enabled=false → chapters still returned          [AUTO] tests/api/videoChapters.spec.ts  CHAP-005
 ├── Re-transcription → old chapters replaced atomically       [TODO] test.fixme, no re-trigger API       CHAP-006
 ├── ML failure → chapters_generation_failed notification      [BLOCKED] not in MVP (no failed notif type) CHAP-007
 └── Empty ML response → chapters untouched                    [BLOCKED] cannot control OpenAI response    CHAP-008

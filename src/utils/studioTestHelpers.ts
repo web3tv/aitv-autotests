@@ -100,3 +100,81 @@ export async function setupVideoViaApi(
         membershipDescription,
     };
 }
+
+export interface SeriesEpisode {
+    id: string;
+    slug: string;
+    title: string;
+    categorySlug: string;
+    watchUrl: string;
+}
+
+export interface SeriesSetupResult {
+    user: { email: string; username: string };
+    token: string;
+    channelId: string;
+    seriesId: string;
+    seriesSlug: string;
+    seriesTitle: string;
+    episodes: SeriesEpisode[];
+}
+
+/**
+ * Creates, via API, a public SERIES with `episodeCount` published+processed episodes,
+ * and returns the series plus its episodes (ordered by playlist position) with ready
+ * public watch URLs. Used by the series-playback (auto-advance) test.
+ */
+export async function setupSeriesWithEpisodes(
+    request: APIRequestContext,
+    options: {
+        episodeCount?: number;
+        filePath?: string;
+        seriesTitle?: string;
+        categorySlug?: string;
+        genres?: string[];
+    } = {}
+): Promise<SeriesSetupResult> {
+    const authApi = new AuthApi(request);
+    const videoApi = new VideoApi(request);
+    const password = process.env.USER_PASSWORD!;
+    const episodeCount = options.episodeCount ?? 2;
+    const filePath = options.filePath ?? 'test-data/fixtures/video/5secVideo.mp4';
+    const seriesTitle = options.seriesTitle ?? `QA Series ${Date.now()}`;
+    const categorySlug = options.categorySlug ?? 'education';
+    const genres = options.genres ?? ['Action', 'Adventure', 'Comedy'];
+
+    const user = await authApi.createUserFast();
+    const token = await authApi.getUserToken(user.email, password);
+    const channelId = await videoApi.getChannelId(token);
+    const categoryId = await videoApi.getCategoryIdBySlug(categorySlug);
+
+    const series = await videoApi.createSeries(token, { title: seriesTitle, channelId });
+
+    for (let i = 0; i < episodeCount; i++) {
+        await videoApi.uploadVideo(token, filePath, {
+            title: `Episode ${i + 1}`,
+            description: `Episode ${i + 1} of ${seriesTitle}`,
+            privacySetting: 'public',
+            categoryId,
+            tags: genres,
+            seriesId: series.id,
+            isSeriesRoot: i === 0,
+            waitForProcessing: true,
+        });
+    }
+
+    const episodes = await videoApi.getSeriesEpisodes(token, series.slug);
+    if (episodes.length < episodeCount) {
+        throw new Error(`Expected ${episodeCount} episodes in series ${series.slug}, got ${episodes.length}`);
+    }
+
+    return {
+        user,
+        token,
+        channelId,
+        seriesId: series.id,
+        seriesSlug: series.slug,
+        seriesTitle,
+        episodes,
+    };
+}

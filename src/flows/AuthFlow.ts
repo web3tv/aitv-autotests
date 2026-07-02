@@ -7,6 +7,7 @@ import { Page } from '@playwright/test';
 import { MailTmHelper } from "../utils/mailTmHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
+import { AccountPage } from "../pages/account/AccountPage";
 import { TestPopupsPage } from "../pages/testPopups/TestPopupsPage";
 import { LoginPopupPage } from "../pages/testPopups/LoginPopupPage";
 import { DataGenerator } from "../utils/dataGenerator";
@@ -213,6 +214,30 @@ export class AuthFlow {
     return wallet;
   }
 
+  async addWalletFromAccountSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
+    const walletType = options?.walletType ?? 'metamask';
+    const wallet = options?.skipInjection && options.wallet
+      ? options.wallet
+      : await injectEthereumMock(this.page, options?.wallet, walletType);
+
+    const accountPage = new AccountPage(this.page);
+    await this.page.goto('/account', { waitUntil: 'domcontentloaded' });
+    await accountPage.clickAddWalletBtn();
+
+    const addWalletResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/add-wallet'),
+      { timeout: 15_000 }
+    );
+    await this.loginPage.clickWalletOption(walletType);
+    const res = await addWalletResponse;
+    expect(res.status(), `auth/add-wallet returned ${res.status()}`).toBe(200);
+
+    await accountPage.assertWalletAddedToast();
+    await accountPage.assertDisplayedWalletAddress(wallet.address);
+
+    return wallet;
+  }
+
   async walletRegisterSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<{ wallet: WalletInfo; username: string }> {
     const walletType = options?.walletType ?? 'metamask';
     const wallet = options?.skipInjection && options.wallet
@@ -233,12 +258,12 @@ export class AuthFlow {
 
     const username = DataGenerator.generateUsername();
     await this.loginPopupPage.fillChooseHandle(username);
-    await this.loginPopupPage.clickFinish();
 
     const whoamiPromise = this.page.waitForResponse(
       (res) => res.url().includes('/api/users/whoami') && res.status() === 200,
       { timeout: 40_000 }
     );
+    await this.loginPopupPage.clickFinish();
     await this.page.waitForURL((url) => url.pathname === '/');
     await whoamiPromise;
 
@@ -278,28 +303,58 @@ export class AuthFlow {
   async telegramLoginSuccess(user: { email: string; username: string }): Promise<void> {
     const baseUrl = process.env.BASE_URL!;
 
-    // Mock: intercept Telegram OAuth redirect → return page that redirects to callback with mock token
+    // A realistic (but unsigned) Telegram auth payload. The backend hash check can't be
+    // forged, so we mock the /api/auth/start response below — the token content is only
+    // here so the callback page has a well-formed tgAuthResult to forward.
+    const tgAuthResult = Buffer.from(
+      JSON.stringify({
+        id: 665563338,
+        first_name: 'Test',
+        username: user.username,
+        auth_date: Math.floor(Date.now() / 1000),
+        hash: 'mock_hash',
+      }),
+    ).toString('base64');
+
+    // Mock: intercept Telegram OAuth redirect → return page that redirects to the app's
+    // /oauth/callback with the tgAuthResult in the hash (Telegram redirect-mode contract).
     await this.page.route('**/oauth.telegram.org/**', async route => {
       await route.fulfill({
         status: 200,
         contentType: 'text/html',
-        body: `<html><script>window.location.href = "${baseUrl}/login#tgAuthResult=mock_tg_token";</script></html>`,
+        body: `<html><script>window.location.href = "${baseUrl}/oauth/callback#tgAuthResult=${tgAuthResult}";</script></html>`,
       });
     });
 
     // Flag to enable whoami mock only after social login succeeds
     let authenticated = false;
 
-    // Mock: intercept social login API → return success and enable whoami mock
-    await this.page.route('**/auth/login/social', async route => {
-      if (route.request().method() === 'POST') {
+    // Mock: intercept the social-login call. The frontend posts the Telegram token to
+    // POST /api/auth/start with { method: 'social', provider: 'telegram', token }.
+    // Return the same success shape the real backend does ({ success, state: 'tokens', user }).
+    await this.page.route('**/api/auth/start', async route => {
+      const request = route.request();
+      let body: { method?: string; provider?: string } = {};
+      try {
+        body = request.postDataJSON() ?? {};
+      } catch {
+        // non-JSON body — let it through untouched
+      }
+
+      if (request.method() === 'POST' && body.method === 'social' && body.provider === 'telegram') {
         authenticated = true;
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
             success: true,
-            data: { cookie: 'mock_session', requiredEmail2fa: false, success: true },
+            state: 'tokens',
+            user: {
+              id: 'mock-tg-user-id',
+              handle: user.username,
+              username: user.username,
+              email: user.email,
+            },
           }),
         });
       } else {
@@ -348,6 +403,13 @@ export class AuthFlow {
     // Wait for the mock redirect chain: Telegram → callback → socialAuth → router.push('/')
     await this.page.waitForURL((url) => url.pathname === '/', { timeout: 30_000 });
     await expect(this.headerPage.userIcon, 'Profile button is not visible after Telegram login').toBeVisible({ timeout: 15_000 });
+  }
+
+  /** Opens the profile dropdown and navigates to Account Settings (/account). */
+  async openAccountSettings(){
+    await this.headerPage.clickUserIcon();
+    await expect(this.userDropdownPage.dropdown, 'Profile dropdown is not visible').toBeVisible();
+    await this.userDropdownPage.clickAccountLink();
   }
 
   async logout(){

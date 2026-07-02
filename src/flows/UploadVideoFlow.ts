@@ -20,8 +20,8 @@ export class UploadVideoFlow {
 
     async uploadVideo(pathToFileURL:string,videoName:string){
         await ensureOnStudioDomain(this.page);
+        // The header "Create"/"+" button now opens the upload modal directly (no "New Video/New Short" submenu).
         await this.headerPage.clickCreateBtn();
-        await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
         const initResponsePromise = this.uploadVideoPage.page.waitForResponse(
             (response) =>
@@ -51,7 +51,6 @@ export class UploadVideoFlow {
     async uploadVideoToForm(pathToFileURL: string, videoName: string) {
         await ensureOnStudioDomain(this.page);
         await this.headerPage.clickCreateBtn();
-        await this.headerPage.clickNewVideoBtn();
         await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
         const initResponsePromise = this.uploadVideoPage.page.waitForResponse(
             (response) =>
@@ -77,9 +76,9 @@ export class UploadVideoFlow {
 
     async uploadShort(pathToFileURL:string,videoName:string){
         await ensureOnStudioDomain(this.page);
+        // The submenu is gone — "Create"/"+" opens the single upload modal; a vertical file is treated as a Short.
         await this.headerPage.clickCreateBtn();
-        await this.headerPage.clickNewShortBtn();
-        await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Short' })).toBeVisible();
+        await expect(this.headerPage.page.getByRole('dialog', { name: 'Upload Video' })).toBeVisible();
         const mimeType = pathToFileURL.toLowerCase().endsWith('.mov') ? 'video/quicktime' : undefined;
         const initResponsePromise = this.uploadVideoPage.page.waitForResponse(
             (response) =>

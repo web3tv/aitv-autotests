@@ -35,6 +35,13 @@ export class UserDropdownPage {
         await expect(this.page.getByText('Create Your Ai.tv Channel')).toBeVisible();
     }
 
+    async clickAccountLink() {
+        await expect(this.accountLink, 'Account Settings link is not visible').toBeVisible();
+        await expect(this.accountLink, 'Account Settings link is not enabled').toBeEnabled();
+        await this.accountLink.click();
+        await expect(this.page).toHaveURL(/\/account$/);
+    }
+
     async clickLogoutBtn() {
         await expect(this.logoutBtn, 'Log out button is not visible').toBeVisible();
         await expect(this.logoutBtn, 'Log out button is not enabled').toBeEnabled();

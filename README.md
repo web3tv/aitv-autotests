@@ -44,14 +44,27 @@ ENV_FILE=.env.prod npx playwright test --project=functional
 
 ### Структура
 
+Спеки разложены **по доменам продукта** (папки), а сквозные срезы — это **теги, а не папки** (например, всю валидацию ввода гоняешь через `--grep @validation`). Отдельная папка по типу выделяется, только когда это отдельный Playwright-проект/рантайм: `visual/` (Docker), `production/` (прод-среда), `api/` (контракт без браузера).
+
 ```
-tests/        — спеки по доменам (auth, user, subscription, studio, validation, visualSuite)
+tests/
+  auth/            — логин / регистрация / 2FA / сброс / email-шаблоны + валидация страницы регистрации
+  account/         — настройки аккаунта, профиль, уведомления (profile/notifications — test.fixme WIP)
+  content/         — креатор: создание и управление контентом
+    upload/        —   загрузка Movie/Series/Shorts/Taxonomy + валидация загрузки
+    manage/        —   видимость, описание, аналитика, NFT-конвертация, поиск по студии
+    channel/       —   создание/редактирование канала + валидация страницы редактирования
+  player/          — зритель: видео-плеер, embed-плеер, воспроизведение серий
+  api/             — контракт-тесты по эндпоинтам напрямую (без браузера)
+  production/      — прод-сетап и смоук (проект prodSmoke)
+  visual/          — визуалка desktop/ + mobile/ (только Docker)
+  skip/            — запаркованные спеки (исключены через testIgnore `**/skip/**`)
 src/
-  flows/      — оркестраторы пользовательских сценариев
-  pages/      — Page Object Model
-  api/        — API-хелперы (быстрый сетап в обход UI)
-  utils/      — утилиты (mail.tm, видео-плеер, генерация данных)
-test-data/    — фикстуры (видео, фото)
+  flows/           — оркестраторы пользовательских сценариев
+  pages/           — Page Object Model
+  api/             — API-хелперы (быстрый сетап в обход UI)
+  utils/           — утилиты (mail.tm, видео-плеер, генерация данных, videoTaxonomy)
+test-data/         — фикстуры (видео, фото)
 ```
 
 Карта покрытия тест-кейсами — [TEST_COVERAGE.md](TEST_COVERAGE.md).
@@ -86,7 +99,7 @@ test-data/    — фикстуры (видео, фото)
 
 ```bash
 npx playwright test --project=functional                          # все
-npx playwright test tests/auth/auth.spec.ts --project=functional  # один файл
+npx playwright test tests/auth/emailAuth.spec.ts --project=functional  # один файл
 npx playwright test --grep "Success login as user" --project=functional  # по имени
 ```
 
@@ -95,13 +108,33 @@ npx playwright test --grep "Success login as user" --project=functional  # по 
 ```bash
 npm run test:critical    # тесты с тегом @critical, гейт перед деплоем
 npm run test:regression  # вся регрессия
+npm run test:nodb        # всё, кроме @db (без port-forward к БД)
 ```
 
 **Тесты с БД (`@db`)** — сначала port-forward к базе:
 
 ```bash
-kubectl port-forward -n web3tv svc/mariadb 3307:3306
+kubectl port-forward -n web3tv svc/mariadb 3307:3306    # держи поднятым, пока гоняешь @db
 npx playwright test --project=functional --grep @db
+```
+
+Требуются DB-переменные в `.env` (`DB_HOST=127.0.0.1`, `DB_PORT=3307`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`). `DB_PORT=3307` соответствует локальному порту из port-forward выше.
+
+#### Порядок запуска и роль фикстур подготовки данных
+
+Некоторые `@db`-тесты используют **фикстуру подготовки данных** (например `seededAnalytics` в [tests/fixtures.ts](tests/fixtures.ts) для ANALY-001). Важно понимать порядок:
+
+1. **Один раз** подними port-forward (команда выше) — он должен работать всё время, пока гоняешь `@db`-тесты.
+2. **Дальше просто запускаешь тесты.** Фикстуру **отдельно запускать не нужно** — это не отдельная команда. Playwright сам вызывает её как setup перед телом теста.
+
+> Фикстура `seededAnalytics` — **test-scoped**: она отрабатывает **на каждый прогон теста заново** и создаёт **свои изолированные данные** (новый пользователь + видео + сид просмотров/лайков/комментов/подписчиков). Поэтому НЕ нужно «засидить один раз и гонять тесты, пока не очистят БД» — каждый прогон самодостаточен и не зависит от предыдущих данных. Минус — сетап (~1 мин) повторяется на каждый прогон.
+>
+> Если понадобится «засидить один раз и переиспользовать в нескольких тестах» — это другой паттерн (worker-scoped фикстура или отдельный seed-скрипт); текущая фикстура так не работает.
+
+Запуск теста с фикстурой (port-forward уже поднят):
+
+```bash
+npx playwright test tests/content/manage/analytics.spec.ts --grep @db --project=functional
 ```
 
 **Визуальные тесты** — только внутри Docker (для пиксель-стабильности):
@@ -120,11 +153,25 @@ npx playwright show-report
 
 ## Теги
 
-Тег задаётся в опциях `test()` или `test.describe()`: `{ tag: '@emails' }`. Запуск по тегу — `--grep`.
+Тег задаётся в опциях `test()` или `test.describe()`: `{ tag: '@emails' }`. Запуск по тегу — `--grep`. Теги несут **сквозные срезы**, которые иначе фрагментировали бы доменные папки (например, валидация лежит рядом со своей фичей, а гоняется целиком через `@validation`).
 
 | Тег | Назначение | Команда |
 |-----|------------|---------|
 | `@critical` | Смоук-сьют, гейт перед деплоем | `npm run test:critical` |
 | `@db` | Требует port-forward к БД | `--grep @db` |
 | `@emails` | Проверки контента email-шаблонов | `--grep @emails` |
+| `@validation` | Валидация ввода (auth + content) | `--grep @validation` |
 | _(без тега)_ | Полная регрессия | `npm run test:regression` |
+
+## CI (GitHub Actions)
+
+Workflows лежат в [.github/workflows/](.github/workflows/). Dev-стенды за VPN — воркфлоу поднимает WireGuard (секрет `WG_CLIENT_CONFIG`), env берётся из закоммиченных `.env.web3tv2`/`.env.web3tv`, результаты шлются в Slack (`SLACK_WEBHOOK_URL`).
+
+| Workflow | Триггер | Что гоняет |
+|----------|---------|------------|
+| `nightly-regression.yml` | Каждую ночь 02:00 UTC + вручную | `npm run test:nodb` (регрессия без `@db`) на dev2 |
+| `critical-manual.yml` | Вручную | `@critical`-смоук на dev1/dev2, с привязкой к Jira-задаче |
+| `prod-smoke.yml` | Каждую ночь 00:00 UTC | Прод-смоук (`prodSmoke`) |
+| `aitv-visual-manual.yml` | Вручную | Визуальная регрессия |
+
+**Ночная регрессия** (`nightly-regression.yml`): по умолчанию dev2, отчёт `playwright-report` сохраняется в артефактах, статус уходит в Slack. Cron активируется **только после мёржа в дефолтную ветку** — до этого запускай вручную через **Actions → Nightly Regression → Run workflow**.

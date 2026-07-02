@@ -61,7 +61,7 @@ export async function assertProgressBarMoves(page: Page) {
 
 
 export async function assertVideoIsPlaying(page: Page) {
-  
+
   await clickPlay(page);
 
   await waitForVideoJSPlaying(page);
@@ -70,4 +70,42 @@ export async function assertVideoIsPlaying(page: Page) {
 
   await assertProgressBarMoves(page);
 
+}
+
+/**
+ * Player-agnostic playback check (works for both the standard video.js player and the
+ * AiTv player with custom controls): starts the video if paused, then asserts the
+ * playhead advances.
+ */
+export async function assertVideoPlays(page: Page, timeoutMs = 15000) {
+  await page.locator('video.vjs-tech').waitFor({ state: 'visible', timeout: timeoutMs });
+  await page.evaluate(() => {
+    const video = document.querySelector('video.vjs-tech') as HTMLVideoElement | null;
+    if (video && video.paused) void video.play?.();
+  });
+  await assertVideoCurrentTimeMoves(page, timeoutMs);
+}
+
+/**
+ * Seeks the current video to just before its end and resumes playback, so the player's
+ * `ended` event fires. For a series episode this triggers the auto-advance to the next one.
+ */
+export async function seekToEnd(page: Page, offsetSeconds = 0.2) {
+  const videoLocator = page.locator('video.vjs-tech');
+  await videoLocator.waitFor({ state: 'visible', timeout: 5000 });
+  await page.waitForFunction(
+    () => {
+      const video = document.querySelector('video.vjs-tech') as HTMLVideoElement | null;
+      return !!video && Number.isFinite(video.duration) && video.duration > 0;
+    },
+    null,
+    { timeout: 10000 }
+  );
+  await page.evaluate((offset) => {
+    const video = document.querySelector('video.vjs-tech') as HTMLVideoElement | null;
+    if (video && Number.isFinite(video.duration)) {
+      video.currentTime = Math.max(0, video.duration - offset);
+      void video.play?.();
+    }
+  }, offsetSeconds);
 }

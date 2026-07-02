@@ -51,6 +51,24 @@ export class VideoApi {
         return this.defaultCategoryIdCache;
     }
 
+    /** Resolves a video category id by its slug (e.g. "education"). */
+    async getCategoryIdBySlug(slug: string): Promise<number> {
+        const response = await this.request.get(`${this.baseUrl}/videos/categories/`, {
+            headers: { Accept: "application/json" },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to fetch video categories: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const items = json?.items ?? json?.data?.items ?? [];
+        const match = items.find((c: any) => c?.slug === slug);
+        if (!match?.id) {
+            throw new Error(`Video category with slug "${slug}" not found`);
+        }
+        return match.id as number;
+    }
+
     async getChannelId(token: string): Promise<string> {
         const response = await this.request.get(`${this.baseUrl}/channels`, {
             headers: {
@@ -98,6 +116,75 @@ export class VideoApi {
 
         const handleStr = typeof channel.handle === 'string' ? channel.handle : channel.handle?.name;
         return { id: channel.id, name: channel.name, handle: handleStr };
+    }
+
+    /**
+     * Creates a SERIES (a playlist with type='series'). Episodes are attached to it
+     * later via {@link updateVideo} `seriesId`. Backend dedupes by user+type+title.
+     */
+    async createSeries(
+        token: string,
+        options: { title: string; channelId: string; description?: string; privacyStatus?: "public" | "private" | "unlisted" }
+    ): Promise<{ id: string; slug: string }> {
+        const response = await this.request.post(`${this.baseUrl}/playlists/`, {
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            data: {
+                title: options.title,
+                type: "series",
+                privacyStatus: options.privacyStatus ?? "public",
+                channelId: options.channelId,
+                description: options.description ?? "",
+            },
+        });
+
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to create series: ${response.status()} ${body}`);
+        }
+
+        const json = await response.json();
+        const series = json?.data ?? json;
+        if (!series?.id || !series?.slug) {
+            throw new Error(`Series created but id/slug missing: ${JSON.stringify(series)}`);
+        }
+        return { id: series.id, slug: series.slug };
+    }
+
+    /**
+     * Returns the ordered episodes of a series (by playlist position) with ready-to-open
+     * public watch URLs. Episodes use the `video` URL segment (backend maps EPISODE → 'video').
+     */
+    async getSeriesEpisodes(
+        token: string,
+        seriesSlug: string
+    ): Promise<Array<{ id: string; slug: string; title: string; categorySlug: string; watchUrl: string }>> {
+        const response = await this.request.get(`${this.baseUrl}/playlists/${seriesSlug}`, {
+            headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to fetch series ${seriesSlug}: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const playlist = json?.data ?? json;
+        const videos: any[] = playlist?.videos ?? [];
+        // Backend returns videos ordered by playlist position; sort defensively in case
+        // a `position` field is present and the transport reorders.
+        videos.sort((a, b) => (a?.position ?? 0) - (b?.position ?? 0));
+        return videos.map((v) => {
+            const categorySlug = v?.category?.slug ?? v?.categories?.[0]?.slug ?? "";
+            return {
+                id: v.id,
+                slug: v.slug,
+                title: v.title,
+                categorySlug,
+                watchUrl: `${process.env.BASE_URL}/video/${categorySlug}/${v.slug}`,
+            };
+        });
     }
 
     async setDefaultVideoDescription(
@@ -273,11 +360,25 @@ export class VideoApi {
             privacySetting?: "public" | "private" | "paid" | "unlisted";
             publishedAt?: string;
             coverVerticalImgPath?: string;
+            seriesId?: string;
+            isSeriesRoot?: boolean;
+            tags?: string[];
         }
     ): Promise<void> {
         const multipart: Record<string, string | { name: string; mimeType: string; buffer: Buffer }> = {};
         if (options.title) multipart.title = options.title;
         if (options.description) multipart.description = options.description;
+        // Genre tags (e.g. "Action", "Adventure") — sent as tags[0], tags[1], ...
+        (options.tags ?? []).forEach((tag, i) => {
+            multipart[`tags[${i}]`] = tag;
+        });
+        // Attach this video to a series playlist (turns it into an episode).
+        if (options.seriesId) {
+            multipart.seriesId = options.seriesId;
+            if (typeof options.isSeriesRoot === "boolean") {
+                multipart.isSeriesRoot = options.isSeriesRoot ? "true" : "false";
+            }
+        }
         const catId = options.categoryId ?? (await this.getDefaultCategoryId());
         multipart["categoryId"] = String(catId);
         if (options.privacySetting) multipart.privacySetting = options.privacySetting;
@@ -450,6 +551,9 @@ export class VideoApi {
             waitForProcessing?: boolean;
             coverVerticalImgPath?: string;
             publishedAt?: string;
+            seriesId?: string;
+            isSeriesRoot?: boolean;
+            tags?: string[];
         } = {}
     ): Promise<UploadedVideo> {
         const title = options.title ?? `Video_${Date.now()}`;
@@ -480,6 +584,9 @@ export class VideoApi {
             privacySetting: isPaid ? undefined : options.privacySetting,
             coverVerticalImgPath: options.coverVerticalImgPath,
             publishedAt,
+            seriesId: options.seriesId,
+            isSeriesRoot: options.isSeriesRoot,
+            tags: options.tags,
         });
 
         // 4b. Bind subscription for paid videos (via frontend proxy)
@@ -491,17 +598,26 @@ export class VideoApi {
             });
         }
 
-        // 5. Build video URL; if processing is required — wait for completion first
-        if (options.waitForProcessing) {
-            const builtUrl = await this.waitForProcessing(
-                token, id, options.contentType ?? "video"
-            );
-            if (!builtUrl) {
-                throw new Error(`No player URL available for video ${id} after processing`);
+        // 5. Build video URL; if processing is required — wait for completion first.
+        // Episodes (seriesId set) are listed under a different studio type, so the
+        // public URL is resolved from the series playlist instead — tolerate failure here.
+        try {
+            if (options.waitForProcessing) {
+                const builtUrl = await this.waitForProcessing(
+                    token, id, options.contentType ?? "video"
+                );
+                if (!builtUrl) {
+                    throw new Error(`No player URL available for video ${id} after processing`);
+                }
+                videoPlayerFeUrl = builtUrl;
+            } else {
+                videoPlayerFeUrl = await this.fetchVideoUrl(token, id, options.contentType ?? "video");
             }
-            videoPlayerFeUrl = builtUrl;
-        } else {
-            videoPlayerFeUrl = await this.fetchVideoUrl(token, id, options.contentType ?? "video");
+        } catch (e) {
+            // Only tolerate the "can't build episode URL" case; real processing failures must surface.
+            if (!options.seriesId) throw e;
+            if (e instanceof Error && /processing failed|timed out/i.test(e.message)) throw e;
+            videoPlayerFeUrl = "";
         }
 
         return { id, title, channelId, videoPlayerFeUrl };
