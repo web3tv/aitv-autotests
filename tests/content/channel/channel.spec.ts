@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { AuthApi } from '../../src/api/AuthApi';
-import { VideoApi } from '../../src/api/VideoApi';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { ContentCreationFlow } from '../../src/flows/ContentCreationFlow';
-import { SideBarPage } from '../../src/pages/components/SideBarPage';
-import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
-import { EditChannelPage } from '../../src/pages/studio/EditChannelPage';
-import { uploadWithChunkCheck } from '../../src/utils/studioTestHelpers';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { VideoApi } from '../../../src/api/VideoApi';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { ContentCreationFlow } from '../../../src/flows/ContentCreationFlow';
+import { SideBarPage } from '../../../src/pages/components/SideBarPage';
+import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
+import { EditChannelPage } from '../../../src/pages/studio/EditChannelPage';
+import { uploadWithChunkCheck } from '../../../src/utils/studioTestHelpers';
 
 //TODO: 1. Create channel
 //TODO: 2. Check channel is available in the list

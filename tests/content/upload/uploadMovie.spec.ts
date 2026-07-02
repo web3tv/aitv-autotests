@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { AuthApi } from '../../src/api/AuthApi';
-import { ContentCreationFlow } from '../../src/flows/ContentCreationFlow';
-import { ContentUploadModal } from '../../src/pages/studio/ContentUploadModal';
-import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { ContentCreationFlow } from '../../../src/flows/ContentCreationFlow';
+import { ContentUploadModal } from '../../../src/pages/studio/ContentUploadModal';
+import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
 
 const LANDSCAPE_VIDEO = 'test-data/fixtures/video/5secVideo.mp4';
 

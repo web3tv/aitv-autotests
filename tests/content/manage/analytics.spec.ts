@@ -1,7 +1,7 @@
-import { test, expect } from '../fixtures';
-import { AuthApi } from '../../src/api/AuthApi';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { StudioAnalyticsPage } from '../../src/pages/studio/StudioAnalyticsPage';
+import { test, expect } from '../../fixtures';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { StudioAnalyticsPage } from '../../../src/pages/studio/StudioAnalyticsPage';
 
 test('Analytics page displays seeded statistics', {
     tag: '@db',

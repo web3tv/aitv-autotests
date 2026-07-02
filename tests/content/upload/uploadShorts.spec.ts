@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { AuthApi } from '../../src/api/AuthApi';
-import { ContentCreationFlow } from '../../src/flows/ContentCreationFlow';
-import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { ContentCreationFlow } from '../../../src/flows/ContentCreationFlow';
+import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
 
 const VERTICAL_VIDEO = 'test-data/fixtures/video/shortsVideo.mp4';
 
@@ -28,6 +28,11 @@ test('Shorts details lock the category to "Shorts" and expose a single cover', {
         await expect(flow.modal.shortsThumbnail, 'Single multi-aspect Shorts cover slot is not visible')
             .toBeVisible();
     });
+
+    await test.step('Upload a cover into the single Shorts slot', async () => {
+        const flow = new ContentCreationFlow(page);
+        await flow.modal.uploadShortsCover();
+    });
 });
 
 test('Associated movie/series toggle reveals the selector on a Short', {
@@ -51,10 +56,8 @@ test('Associated movie/series toggle reveals the selector on a Short', {
 });
 
 test('Publish a Short end-to-end', {
-    annotation: [
-        { type: 'TC', description: 'SHORTS-003' },
-        { type: 'issue', description: 'BLOCKED by W3-2722: Shorts publish 400 categoryId null' },
-    ],
+    tag: '@critical',
+    annotation: { type: 'TC', description: 'SHORTS-003' },
 }, async ({ page, request }) => {
     test.setTimeout(240_000);
     let user: { email: string; username: string };

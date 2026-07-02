@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { AuthApi } from '../../src/api/AuthApi';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
-import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
-import { setupVideoViaApi, VideoSetupResult } from '../../src/utils/studioTestHelpers';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
+import { VideoPlayerPage } from '../../../src/pages/components/VideoPlayerPage';
+import { setupVideoViaApi, VideoSetupResult } from '../../../src/utils/studioTestHelpers';
 
 test.describe('Public video visibility', () => {
     let setup: VideoSetupResult;

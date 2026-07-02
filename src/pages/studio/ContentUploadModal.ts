@@ -139,7 +139,9 @@ export class ContentUploadModal {
         this.seriesParentInput = this.seriesParentContainer;
 
         this.shortsThumbnail = page.getByTestId('aitv-upload-shorts-thumbnail');
-        this.shortsThumbnailInput = this.shortsThumbnail;
+        // The visible slot (`...-thumbnail`) is a wrapper div; the actual file <input> is the
+        // `...-thumbnail-zone` element (unlike Movie covers, whose testid sits on the input itself).
+        this.shortsThumbnailInput = page.getByTestId('aitv-upload-shorts-thumbnail-zone');
         this.shortsAssociated = page.getByTestId('aitv-upload-shorts-associated');
         this.shortsAssociatedToggle = page.getByTestId('aitv-upload-shorts-associated-toggle');
         this.shortsAssociatedSelectContainer = page.getByTestId('aitv-upload-shorts-associated-select');
@@ -270,6 +272,49 @@ export class ContentUploadModal {
     /** Picks a genre only if the field is still editable (inherited/locked for episodes). */
     async selectGenreIfEditable(optionText?: string): Promise<void> {
         if (await this.genresInput.isEnabled().catch(() => false)) await this.selectGenre(optionText);
+    }
+
+    /**
+     * Opens a MUI Autocomplete and returns every displayed option label, then closes the popup.
+     * Scrolls to the bottom of the listbox between reads so a virtualized list still yields
+     * all of its options.
+     */
+    private async collectAutocompleteOptions(input: Locator, name: string): Promise<string[]> {
+        await expect(input, `${name} input is not visible`).toBeVisible();
+        await expect(input, `${name} input is not enabled`).toBeEnabled();
+        await input.click();
+
+        const listbox = this.page.locator('[role="listbox"]');
+        await expect(listbox, `${name} options list did not open`).toBeVisible({ timeout: 10_000 });
+
+        const seen = new Set<string>();
+        // Read the rendered options, scroll the last one into view, and repeat until the set
+        // of collected labels stops growing (handles both plain and virtualized listboxes).
+        // Each option renders its label as the first <p> (a category option adds a second
+        // <p> with the description) — take that primary line, not the whole option text.
+        await expect(async () => {
+            const sizeBefore = seen.size;
+            const labels = await listbox.getByRole('option').evaluateAll((els) =>
+                els.map((el) => (el.querySelector('p') ?? el).textContent?.trim() ?? ''),
+            );
+            for (const label of labels) if (label) seen.add(label);
+            await listbox.getByRole('option').last().scrollIntoViewIfNeeded().catch(() => {});
+            expect(seen.size, `${name} options list is still growing`).toBe(sizeBefore);
+        }, `${name} options list did not settle`).toPass({ timeout: 15_000 });
+
+        await this.page.keyboard.press('Escape');
+        await expect(listbox, `${name} options list did not close`).toBeHidden({ timeout: 5_000 });
+        return [...seen];
+    }
+
+    /** Returns every category label offered in the Category dropdown (for the current content type). */
+    async collectCategoryOptions(): Promise<string[]> {
+        return this.collectAutocompleteOptions(this.categoryInput, 'Category');
+    }
+
+    /** Returns every genre label offered in the Genres dropdown. */
+    async collectGenreOptions(): Promise<string[]> {
+        return this.collectAutocompleteOptions(this.genresInput, 'Genre');
     }
 
     /** Uploads a cover image into a thumbnail slot and confirms the crop modal. */

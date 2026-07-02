@@ -1,0 +1,105 @@
+name: Nightly Regression (no @db)
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # каждую ночь в 02:00 UTC
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Стенд для запуска тестов'
+        required: true
+        default: 'dev2'
+        type: choice
+        options:
+          - dev2
+          - dev1
+
+env:
+  # На schedule inputs пустые — падаем на dev2 по умолчанию.
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'dev2' }}
+
+jobs:
+
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load environment config
+        run: |
+          if [ "$ENVIRONMENT" = "dev1" ]; then
+            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv >> $GITHUB_ENV
+          else
+            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv2 >> $GITHUB_ENV
+          fi
+
+      - name: Run summary
+        run: |
+          echo "### Nightly Regression (no @db)" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** $ENVIRONMENT" >> $GITHUB_STEP_SUMMARY
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install WireGuard
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wireguard-tools iproute2
+
+      - name: Connect VPN
+        env:
+          WG_CLIENT_CONFIG: ${{ secrets.WG_CLIENT_CONFIG }}
+        run: |
+          printf "%s\n" "$WG_CLIENT_CONFIG" > wg0.conf
+          sudo install -m 600 wg0.conf /etc/wireguard/wg0.conf
+          sudo wg-quick up wg0
+          sudo ip route replace 10.3.0.0/16 dev wg0
+          rm -f wg0.conf
+
+      - run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps
+
+      - name: Run regression (no @db)
+        run: npm run test:nodb
+        env:
+          CI: true
+
+      - if: always()
+        run: sudo wg-quick down wg0
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-regression-report
+          path: playwright-report
+
+      - name: Send Slack notification
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            --data "{\"message\":\"Nightly Regression [$ENVIRONMENT]\nStatus: $STATUS\n$RUN_URL\"}" \
+            "$WEBHOOK"

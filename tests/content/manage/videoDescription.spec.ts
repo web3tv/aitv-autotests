@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
-import { setupVideoViaApi } from '../../src/utils/studioTestHelpers';
+import { VideoPlayerPage } from '../../../src/pages/components/VideoPlayerPage';
+import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 
 const PARAGRAPHS = [
     'First paragraph of the video description',

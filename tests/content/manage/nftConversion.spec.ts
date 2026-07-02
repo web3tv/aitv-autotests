@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { AuthApi } from '../../src/api/AuthApi';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { SideBarPage } from '../../src/pages/components/SideBarPage';
-import { StudioSettingsPage } from '../../src/pages/studio/StudioSettingsPage';
-import { HeroPayPage } from '../../src/pages/heroPay/HeroPayPage';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { SideBarPage } from '../../../src/pages/components/SideBarPage';
+import { StudioSettingsPage } from '../../../src/pages/studio/StudioSettingsPage';
+import { HeroPayPage } from '../../../src/pages/heroPay/HeroPayPage';
 
 test.fixme('Convert channel to NFT via mock payment',
     { annotation: { type: 'TC', description: 'NFT-001' } },

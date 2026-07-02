@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../../../src/flows/AuthFlow';
-import { AuthApi } from '../../../src/api/AuthApi';
-import { VideoApi } from '../../../src/api/VideoApi';
-import { SideBarPage } from '../../../src/pages/components/SideBarPage';
-import { StudioMembershipPage } from '../../../src/pages/studio/StudioMembershipPage';
-import { UploadVideoFlow } from '../../../src/flows/UploadVideoFlow';
-import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
-import { NotificationsPage } from '../../../src/pages/account/NotificationsPage';
+import { AuthFlow } from '../../src/flows/AuthFlow';
+import { AuthApi } from '../../src/api/AuthApi';
+import { VideoApi } from '../../src/api/VideoApi';
+import { SideBarPage } from '../../src/pages/components/SideBarPage';
+import { StudioMembershipPage } from '../../src/pages/studio/StudioMembershipPage';
+import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
+import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
+import { NotificationsPage } from '../../src/pages/account/NotificationsPage';
 
 
 test.fixme('Verify default notification states and toggle settings', { annotation: { type: 'TC', description: 'NOTIF-001' } }, async ({ page, request }) => {

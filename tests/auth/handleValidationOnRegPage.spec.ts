@@ -4,7 +4,7 @@ import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
 import { MailTmHelper } from '../../src/utils/mailTmHelper';
 import { AuthApi } from '../../src/api/AuthApi';
 
-test.describe('Handle validation on registration page', { annotation: [{ type: 'TC', description: 'VAL-001' }, { type: 'TC', description: 'VAL-002' }] }, () => {
+test.describe('Handle validation on registration page', { tag: '@validation', annotation: [{ type: 'TC', description: 'VAL-001' }, { type: 'TC', description: 'VAL-002' }] }, () => {
 
   test.beforeEach(async ({ page, request }) => {
     const mailTmHelper = new MailTmHelper(request);

@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { AuthApi } from '../../src/api/AuthApi';
-import { VideoApi } from '../../src/api/VideoApi';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { SideBarPage } from '../../src/pages/components/SideBarPage';
-import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
-import { setupVideoViaApi } from '../../src/utils/studioTestHelpers';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { VideoApi } from '../../../src/api/VideoApi';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { SideBarPage } from '../../../src/pages/components/SideBarPage';
+import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
+import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
 
 test.describe('Studio Content Search', () => {
 

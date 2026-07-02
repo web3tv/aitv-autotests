@@ -67,7 +67,7 @@ export default defineConfig({
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
     {
       name: 'visual-desktop-chromium',
-      testMatch: /visualSuite\/desktop\/.*\.spec\.ts$/,
+      testMatch: /visual\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
       use: {
         browserName: 'chromium',
@@ -83,7 +83,7 @@ export default defineConfig({
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-large-chromium
     {
       name: 'visual-desktop-large-chromium',
-      testMatch: /visualSuite\/desktop\/.*\.spec\.ts$/,
+      testMatch: /visual\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
       use: {
         browserName: 'chromium',
@@ -99,7 +99,7 @@ export default defineConfig({
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
     {
       name: 'visual-mobile-webkit',
-      testMatch: /visualSuite\/mobile\/.*\.spec\.ts$/,
+      testMatch: /visual\/mobile\/.*\.spec\.ts$/,
       fullyParallel: false,
       use: {
         ...devices['iPhone 15 Pro Max'],

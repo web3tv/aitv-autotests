@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { SideBarPage } from '../../src/pages/components/SideBarPage';
-import { HeaderPage } from '../../src/pages/components/HeaderPage';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
-import { UserDropdownPage } from '../../src/pages/components/UserDropdownPage';
-import { CreateChannelPage } from '../../src/pages/studio/CreateChannelPage';
-import { AuthApi } from '../../src/api/AuthApi';
+import { SideBarPage } from '../../../src/pages/components/SideBarPage';
+import { HeaderPage } from '../../../src/pages/components/HeaderPage';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { StudioProfilePage } from '../../../src/pages/studio/StudioProfilePage';
+import { UserDropdownPage } from '../../../src/pages/components/UserDropdownPage';
+import { CreateChannelPage } from '../../../src/pages/studio/CreateChannelPage';
+import { AuthApi } from '../../../src/api/AuthApi';
 
-test.describe.fixme('Handle validation on Edit Channel Page', { annotation: [{ type: 'TC', description: 'VAL-003' }, { type: 'TC', description: 'VAL-004' }, { type: 'TC', description: 'VAL-005' }] }, () => {
+test.describe.fixme('Handle validation on Edit Channel Page', { tag: '@validation', annotation: [{ type: 'TC', description: 'VAL-003' }, { type: 'TC', description: 'VAL-004' }, { type: 'TC', description: 'VAL-005' }] }, () => {
 
     test.beforeEach(async ({ page, request }) => {
         const authApi = new AuthApi(request);

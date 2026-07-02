@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { AuthApi } from '../../src/api/AuthApi';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { ContentCreationFlow } from '../../src/flows/ContentCreationFlow';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { ContentCreationFlow } from '../../../src/flows/ContentCreationFlow';
 
-test('Upload video — required fields validation', { annotation: { type: 'TC', description: 'UPLOAD-009' } }, async ({ page, request }) => {
+test('Upload video — required fields validation', { tag: '@validation', annotation: { type: 'TC', description: 'UPLOAD-009' } }, async ({ page, request }) => {
     test.setTimeout(90_000);
 
     const flow = new ContentCreationFlow(page);
