@@ -161,9 +161,9 @@ async function uploadVideo(token: string): Promise<string> {
 (async () => {
     console.log('Creating user...');
     const { email, username, token } = await createAndVerifyUser();
-    console.log(`User: ${email}`);
+    // console.log(`User: ${email}`);
 
-    console.log('Uploading video...');
+    // console.log('Uploading video...');
     await uploadVideo(token);
 
     const browser = await chromium.launch({ headless: true });

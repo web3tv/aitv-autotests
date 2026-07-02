@@ -93,6 +93,7 @@ export class ContentUploadModal {
     // Success step
     readonly successRoot: Locator;
     readonly successClose: Locator;
+    readonly successShareUrl: Locator;
     readonly successViewVideo: Locator;
     readonly successVisitStudio: Locator;
     readonly successUploadAnother: Locator;
@@ -168,6 +169,8 @@ export class ContentUploadModal {
 
         this.successRoot = page.getByTestId('aitv-upload-success-root');
         this.successClose = page.getByTestId('aitv-upload-success-close');
+        // Auto-generated per-video share link (random slug) — masked in visual tests.
+        this.successShareUrl = page.getByTestId('aitv-upload-success-share-url');
         this.successViewVideo = page.getByTestId('aitv-upload-success-view-video');
         this.successVisitStudio = page.getByTestId('aitv-upload-success-visit-studio');
         this.successUploadAnother = page.getByTestId('aitv-upload-success-upload-another');

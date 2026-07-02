@@ -76,7 +76,11 @@ test.describe('Wallet and email tests',()=>{
     });
   });
 
-  test('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
+  // BLOCKED by W3-2730: email verification link / mail delivery — the 2nd added email's
+  // "Your verification link" message is not delivered to the new address (misrouted), so the
+  // "Add second email" step times out waiting for it. Same root cause as ACCOUNT-008.
+  // https://stretch-com.atlassian.net/browse/W3-2730
+  test.fixme('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
     let firstVerificationUrl: string;
