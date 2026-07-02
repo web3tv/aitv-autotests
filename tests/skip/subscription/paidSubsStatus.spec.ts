@@ -1,12 +1,12 @@
 import { test, expect, request as playwrightRequest, APIRequestContext } from '@playwright/test';
-import { AuthApi } from '../../src/api/AuthApi';
-import { SubscriptionApi } from '../../src/api/SubscriptionApi';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { DatabaseHelper } from '../../src/api/DatabaseHelper';
-import { SideBarPage } from '../../src/pages/components/SideBarPage';
-import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
-import { MyPaidSubsPage } from '../../src/pages/account/MyPaidSubsPage';
-import { setupVideoViaApi, VideoSetupResult } from '../../src/utils/studioTestHelpers';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { SubscriptionApi } from '../../../src/api/SubscriptionApi';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { DatabaseHelper } from '../../../src/api/DatabaseHelper';
+import { SideBarPage } from '../../../src/pages/components/SideBarPage';
+import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
+import { MyPaidSubsPage } from '../../../src/pages/account/MyPaidSubsPage';
+import { setupVideoViaApi, VideoSetupResult } from '../../../src/utils/studioTestHelpers';
 
 test.describe('Paid subscription status on /my-paid-subs', () => {
     let apiContext: APIRequestContext;

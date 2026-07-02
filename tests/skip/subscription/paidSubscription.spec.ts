@@ -1,16 +1,16 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../../src/flows/AuthFlow';
-import { AuthApi } from '../../src/api/AuthApi';
-import { DatabaseHelper } from '../../src/api/DatabaseHelper';
-import { SideBarPage } from '../../src/pages/components/SideBarPage';
-import { StudioMembershipPage } from '../../src/pages/studio/StudioMembershipPage';
-import { UploadVideoFlow } from '../../src/flows/UploadVideoFlow';
-import { StudioContentPage } from '../../src/pages/studio/StudioContentPage';
-import { StudioProfilePage } from '../../src/pages/studio/StudioProfilePage';
-import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
-import { VideoPlayerPage } from '../../src/pages/components/VideoPlayerPage';
-import { MyPaidSubsPage } from '../../src/pages/account/MyPaidSubsPage';
-import { setupVideoViaApi, VideoSetupResult } from '../../src/utils/studioTestHelpers';
+import { AuthFlow } from '../../../src/flows/AuthFlow';
+import { AuthApi } from '../../../src/api/AuthApi';
+import { DatabaseHelper } from '../../../src/api/DatabaseHelper';
+import { SideBarPage } from '../../../src/pages/components/SideBarPage';
+import { StudioMembershipPage } from '../../../src/pages/studio/StudioMembershipPage';
+import { UploadVideoFlow } from '../../../src/flows/UploadVideoFlow';
+import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
+import { StudioProfilePage } from '../../../src/pages/studio/StudioProfilePage';
+import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
+import { VideoPlayerPage } from '../../../src/pages/components/VideoPlayerPage';
+import { MyPaidSubsPage } from '../../../src/pages/account/MyPaidSubsPage';
+import { setupVideoViaApi, VideoSetupResult } from '../../../src/utils/studioTestHelpers';
 
 test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' }, { type: 'TC', description: 'PAID-002' }, { type: 'TC', description: 'PAID-003' }] }, async ({ page, request }) => {
     test.setTimeout(210_000);

@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { ChannelMainPage } from '../../src/pages/channel/ChannelMainPage';
-import { AuthPopupPage } from '../../src/pages/components/AuthPopupPage';
-import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
-import { setupVideoViaApi, VideoSetupResult } from '../../src/utils/studioTestHelpers';
+import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
+import { AuthPopupPage } from '../../../src/pages/components/AuthPopupPage';
+import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
+import { setupVideoViaApi, VideoSetupResult } from '../../../src/utils/studioTestHelpers';
 
 test.describe('Authorization popup on paid subscription', () => {
     let setup: VideoSetupResult;
