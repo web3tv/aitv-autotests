@@ -76,8 +76,7 @@ test.describe('Wallet and email tests',()=>{
     });
   });
 
-  // https://stretch-com.atlassian.net/browse/W3-2730
-  test.fixme('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
+  test('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
     let firstVerificationUrl: string;

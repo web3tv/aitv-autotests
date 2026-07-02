@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { AuthFlow } from '../../../src/flows/AuthFlow';
-import { AuthApi } from '../../../src/api/AuthApi';
-import { SideBarPage } from '../../../src/pages/components/SideBarPage';
-import { AccountPage } from '../../../src/pages/account/AccountPage';
-import { MailTmHelper } from '../../../src/utils/mailTmHelper';
+import { AuthFlow } from '../../src/flows/AuthFlow';
+import { AuthApi } from '../../src/api/AuthApi';
+import { AccountPage } from '../../src/pages/account/AccountPage';
+import { MailTmHelper } from '../../src/utils/mailTmHelper';
 
+// BLOCKED by W3-2731: password change confirmation link is rejected as expired/invalid
+// https://stretch-com.atlassian.net/browse/W3-2731
 test.fixme('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   const newPassword = 'NewPassword1@';
@@ -17,11 +18,10 @@ test.fixme('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-
 
   await test.step('Update password without verifying via email', async () => {
     const authFlow = new AuthFlow(page);
-    const sideBarPage = new SideBarPage(page);
     const accountPage = new AccountPage(page);
 
     await authFlow.loginSuccess(user.email, user.password, user.username);
-    await sideBarPage.clickSettingsAccount();
+    await authFlow.openAccountSettings();
     await accountPage.changePassword(user.password, newPassword);
     await authFlow.logout();
   });
@@ -56,6 +56,8 @@ test.fixme('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-
   });
 });
 
+// BLOCKED by W3-2731: password change confirmation link is rejected as expired/invalid
+// https://stretch-com.atlassian.net/browse/W3-2731
 test.fixme('Change password twice in one session', { annotation: { type: 'TC', description: 'ACCOUNT-006' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   const firstNewPassword = 'FirstNew1@@';
@@ -69,9 +71,8 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
 
   await test.step('Login and navigate to account settings', async () => {
     const authFlow = new AuthFlow(page);
-    const sideBarPage = new SideBarPage(page);
     await authFlow.loginSuccess(user.email, user.password, user.username);
-    await sideBarPage.clickSettingsAccount();
+    await authFlow.openAccountSettings();
   });
 
   await test.step('Change password first time', async () => {
@@ -114,6 +115,8 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
   });
 });
 
+// BLOCKED by W3-2732: password change confirmation link is invalid after an unverified email change
+// https://stretch-com.atlassian.net/browse/W3-2732
 test.fixme('Change email without verification then change password', { annotation: { type: 'TC', description: 'ACCOUNT-007' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   const newPassword = 'NewPassword1@@';
@@ -126,9 +129,8 @@ test.fixme('Change email without verification then change password', { annotatio
 
   await test.step('Login and navigate to account settings', async () => {
     const authFlow = new AuthFlow(page);
-    const sideBarPage = new SideBarPage(page);
     await authFlow.loginSuccess(user.email, user.password, user.username);
-    await sideBarPage.clickSettingsAccount();
+    await authFlow.openAccountSettings();
   });
 
   await test.step('Change email without verification', async () => {
@@ -155,6 +157,8 @@ test.fixme('Change email without verification then change password', { annotatio
   });
 });
 
+// BLOCKED by W3-2730: email change verification link / mail delivery
+// https://stretch-com.atlassian.net/browse/W3-2730
 test.fixme('Change email twice without verification', { annotation: { type: 'TC', description: 'ACCOUNT-008' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   let firstNewEmail: string;
@@ -170,9 +174,8 @@ test.fixme('Change email twice without verification', { annotation: { type: 'TC'
 
   await test.step('Login and navigate to account settings', async () => {
     const authFlow = new AuthFlow(page);
-    const sideBarPage = new SideBarPage(page);
     await authFlow.loginSuccess(user.email, user.password, user.username);
-    await sideBarPage.clickSettingsAccount();
+    await authFlow.openAccountSettings();
   });
 
   await test.step('Change email first time and get verification link', async () => {
@@ -215,6 +218,8 @@ test.fixme('Change email twice without verification', { annotation: { type: 'TC'
   });
 });
 
+// BLOCKED by W3-2730: email change verification link / mail delivery
+// https://stretch-com.atlassian.net/browse/W3-2730
 test.fixme('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   let newEmailToken: string;
@@ -229,13 +234,12 @@ test.fixme('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001
 
   await test.step('Change email', async () => {
     const authFlow = new AuthFlow(page);
-    const sideBarPage = new SideBarPage(page);
     const accountPage = new AccountPage(page);
     const mailTmHelper = new MailTmHelper(request);
     newEmail = await mailTmHelper.generateEmail();
 
     await authFlow.loginSuccess(user.email, user.password, user.username);
-    await sideBarPage.clickSettingsAccount();
+    await authFlow.openAccountSettings();
     await mailTmHelper.createMailbox();
     newEmailToken = await mailTmHelper.getToken(newEmail, mailTmHelper['password']);
     await accountPage.assertDisplayedEmail(user.email);

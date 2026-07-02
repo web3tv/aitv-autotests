@@ -405,6 +405,13 @@ export class AuthFlow {
     await expect(this.headerPage.userIcon, 'Profile button is not visible after Telegram login').toBeVisible({ timeout: 15_000 });
   }
 
+  /** Opens the profile dropdown and navigates to Account Settings (/account). */
+  async openAccountSettings(){
+    await this.headerPage.clickUserIcon();
+    await expect(this.userDropdownPage.dropdown, 'Profile dropdown is not visible').toBeVisible();
+    await this.userDropdownPage.clickAccountLink();
+  }
+
   async logout(){
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();
