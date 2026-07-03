@@ -723,6 +723,55 @@ export class VideoApi {
         );
     }
 
+    /** Поллит, пока крон не опубликует запланированное видео (privacySettings → public). */
+    async waitForVideoPublished(
+        videoId: string,
+        token: string,
+        maxAttempts = 40,
+        intervalMs = 5000
+    ): Promise<boolean> {
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            const v = await this.getVideoById(videoId, token);
+            if (v?.privacySettings === "public") return true;
+            if (attempt < maxAttempts - 1) await new Promise(r => setTimeout(r, intervalMs));
+        }
+        return false;
+    }
+
+    /** Поллит on-platform уведомления в поисках video_release по конкретному videoId. */
+    async waitForReleaseNotification(
+        token: string,
+        videoId: string,
+        maxAttempts = 20,
+        intervalMs = 3000
+    ): Promise<boolean> {
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            const notifs = await this.getNotifications(token);
+            if (notifs.some(n => n?.type === "video_release" && n?.payload?.videoId === videoId)) return true;
+            if (attempt < maxAttempts - 1) await new Promise(r => setTimeout(r, intervalMs));
+        }
+        return false;
+    }
+
+    /**
+     * Список "coming soon" (запланированных) видео с главной AI.TV: GET /videos/coming-soon.
+     * Возвращает только id + обложку + per-user флаг подписки (без title/slug — их в ответе нет).
+     * Токен опционален: без него `isNotifyOnReleaseSubscribed` всегда false (аноним).
+     */
+    async getComingSoon(
+        token?: string
+    ): Promise<Array<{ id: string; coverPicture: Record<string, string> | null; coverVerticalImg: Record<string, string> | null; isNotifyOnReleaseSubscribed: boolean }>> {
+        const headers: Record<string, string> = { Accept: "application/json" };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const response = await this.request.get(`${this.baseUrl}/videos/coming-soon`, { headers });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to get coming-soon videos: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        return json?.items ?? json?.data?.items ?? [];
+    }
+
     /** Pre-subscribe на релиз "coming soon" видео: POST /videos/{id}/notify-on-release */
     async subscribeToVideoRelease(token: string, videoId: string): Promise<void> {
         const response = await this.request.post(
