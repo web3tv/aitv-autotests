@@ -369,4 +369,6 @@ VIDEO CHAPTERS (W3-2434)
 VISUAL REGRESSION
 ├── Desktop Chromium: main domain (9 tests)         [AUTO] Docker only                       VISUAL-001
 ├── Desktop Chromium: studio domain (2 tests)       [AUTO] Docker only                       VISUAL-002
-└── Mobile iPhone 15 WebKit (6 tests)               [AUTO] Docker only                       VISUAL-003
+├── Mobile iPhone 15 WebKit (6 tests)               [AUTO] Docker only                       VISUAL-003
+├── Listing dropdowns desktop: movies/series/shorts [AUTO] tests/visual/desktop/listingVisual.spec.ts (Docker only)  VIS-LIST-001..003
+└── Listing dropdowns mobile: movies/series/shorts  [AUTO] tests/visual/mobile/listingVisual.spec.ts (Docker only)   VIS-LIST-MOB-001..003
