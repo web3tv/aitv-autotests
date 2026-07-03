@@ -97,6 +97,11 @@ NOTIFICATIONS (/notifications)
 └── Notification on paid channel paid video upload  [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-005
 
 ────────────────────────────────────────────────────────────────
+AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641)
+├── Subscribed user gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
+└── Unsubscribed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+
+────────────────────────────────────────────────────────────────
 CHANNELS
 ├── Channel created automatically on registration   [TODO]                                   CHANNEL-001
 ├── Create additional channel                       [TODO]                                   CHANNEL-002
