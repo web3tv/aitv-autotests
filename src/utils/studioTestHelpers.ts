@@ -158,7 +158,6 @@ export async function setupSeriesWithEpisodes(
             categoryId,
             tags: genres,
             seriesId: series.id,
-            isSeriesRoot: i === 0,
             waitForProcessing: true,
         });
     }

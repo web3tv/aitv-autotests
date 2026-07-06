@@ -136,8 +136,6 @@ export class VideoPlayerPage {
   }
 
   async assertVideoIsPlaying(): Promise<void> {
-    await this.clickPlay();
-
     await this.page.waitForSelector('.vjs-playing', { timeout: 5_000 });
 
     await this.page.waitForFunction(

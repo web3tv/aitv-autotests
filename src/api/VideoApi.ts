@@ -361,7 +361,6 @@ export class VideoApi {
             publishedAt?: string;
             coverVerticalImgPath?: string;
             seriesId?: string;
-            isSeriesRoot?: boolean;
             tags?: string[];
         }
     ): Promise<void> {
@@ -373,11 +372,11 @@ export class VideoApi {
             multipart[`tags[${i}]`] = tag;
         });
         // Attach this video to a series playlist (turns it into an episode).
+        // NOTE: the /videos/{id} form does NOT accept `isSeriesRoot` — sending it
+        // fails with "This form should not contain extra fields." Episode order/root
+        // is derived by the backend from playlist position, so we only send seriesId.
         if (options.seriesId) {
             multipart.seriesId = options.seriesId;
-            if (typeof options.isSeriesRoot === "boolean") {
-                multipart.isSeriesRoot = options.isSeriesRoot ? "true" : "false";
-            }
         }
         const catId = options.categoryId ?? (await this.getDefaultCategoryId());
         multipart["categoryId"] = String(catId);
@@ -552,7 +551,6 @@ export class VideoApi {
             coverVerticalImgPath?: string;
             publishedAt?: string;
             seriesId?: string;
-            isSeriesRoot?: boolean;
             tags?: string[];
         } = {}
     ): Promise<UploadedVideo> {
@@ -585,7 +583,6 @@ export class VideoApi {
             coverVerticalImgPath: options.coverVerticalImgPath,
             publishedAt,
             seriesId: options.seriesId,
-            isSeriesRoot: options.isSeriesRoot,
             tags: options.tags,
         });
 

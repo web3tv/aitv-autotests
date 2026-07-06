@@ -8,7 +8,20 @@ if (process.env.ENV_FILE || !process.env.CI) {
 }
 
 
+// Build identifier shown in the HTML report header.
+// Now: falls back to the GitHub Actions run number / commit of this test run.
+// Later: Argo can pass the deployed prod build via `BUILD_NUMBER` (workflow_dispatch input).
+const buildNumber =
+  process.env.BUILD_NUMBER ||
+  process.env.GITHUB_RUN_NUMBER ||
+  'local';
+const buildCommit = process.env.BUILD_COMMIT || process.env.GITHUB_SHA || '';
+
 export default defineConfig({
+  metadata: {
+    build: buildNumber,
+    ...(buildCommit ? { commit: buildCommit } : {}),
+  },
   testDir: './tests',
   // `tests/skip/**` is parked (disabled) code kept for reference — never collected/run.
   testIgnore: '**/skip/**',
