@@ -30,8 +30,11 @@ const SHOT_OPTS = { maxDiffPixelRatio: 0.02 } as const;
 /** Dynamic upload-status line (spinner / percentage) shown on the Details step. */
 const detailsMasks = (modal: ContentUploadModal) => [modal.processing];
 
-/** Video player with a non-deterministic poster frame on the Finalize step. */
-const finalizeMasks = (modal: ContentUploadModal) => [modal.preview];
+/**
+ * Finalize step: video player with a non-deterministic poster frame, plus the three
+ * static hotspot illustration images that load lazily and aren't always ready in time.
+ */
+const finalizeMasks = (modal: ContentUploadModal) => [modal.preview, modal.hotspotPreviews];
 
 /** Auto-generated per-video share link (random slug) on the Success screen. */
 const successMasks = (modal: ContentUploadModal) => [modal.successShareUrl];

@@ -87,6 +87,7 @@ export class ContentUploadModal {
     readonly contentRatingContainer: Locator;
     readonly contentRatingInput: Locator;
     readonly hotspotsToggle: Locator;
+    readonly hotspotPreviews: Locator;
     readonly preview: Locator;
     readonly previewPlay: Locator;
 
@@ -164,6 +165,10 @@ export class ContentUploadModal {
         this.contentRatingContainer = page.getByTestId('aitv-upload-finalize-content-rating');
         this.contentRatingInput = this.contentRatingContainer.locator('input').first();
         this.hotspotsToggle = page.getByTestId('aitv-upload-finalize-hotspots-toggle');
+        // Three static hotspot illustration cards whose images load lazily (flaky) — masked in
+        // visual tests. Target the fixed-size card container so the mask box is stable whether or
+        // not the image has finished loading.
+        this.hotspotPreviews = this.finalizeStep.locator('div:has(> img[src*="hotspot"])');
         this.preview = page.getByTestId('aitv-upload-finalize-preview');
         this.previewPlay = page.getByTestId('aitv-upload-finalize-preview-play');
 
