@@ -1,5 +1,5 @@
 {
   "playwright.env": {
-    "ENV_FILE": ".env.prod"
+    "ENV_FILE": ".env.web3tv2"
   }
 }
