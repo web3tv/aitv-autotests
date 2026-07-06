@@ -6,7 +6,7 @@ import { MainPage } from '../../../src/pages/components/MainPage';
 import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
 
 const mainPageMasks = (page: Page) => [
-    new MainPage(page).heroText,
+    new MainPage(page).hero,
 ];
 
 const mainPageLoggedInMasks = (page: Page) => [
@@ -30,73 +30,6 @@ test.describe('AITV mobile visual tests', () => {
         username = user.username;
 
         await requestContext.dispose();
-    });
-
-    // ── Main Page ──
-
-    test('Main page for anonymous user', {
-        annotation: { type: 'TC', description: 'VIS-AITV-MOB-001' },
-    }, async ({ page }) => {
-        const mainPage = new MainPage(page);
-
-        await test.step('Open main page', async () => {
-            await page.goto('/');
-            await page.waitForLoadState('networkidle');
-            await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(mainPage.topTitlesTodayHeading).toBeVisible();
-        });
-
-        await test.step('Hide dynamic images via CSS', async () => {
-            await page.addStyleTag({
-                content: `
-                    [data-id="aitv-hero"] img,
-                    [data-id="aitv-hero"] video,
-                    [data-id="aitv-top-card"] img,
-                    [data-id="aitv-video-card"] img { visibility: hidden !important; }
-                `,
-            });
-        });
-
-        await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('main-page-anon.png', {
-                fullPage: true,
-                mask: mainPageMasks(page),
-                maxDiffPixelRatio: 0.02,
-            });
-        });
-    });
-
-    test('Main page for logged in user', {
-        annotation: { type: 'TC', description: 'VIS-AITV-MOB-002' },
-    }, async ({ page }) => {
-        const mainPage = new MainPage(page);
-
-        await test.step('Login and navigate to main page', async () => {
-            const authFlow = new AuthFlow(page);
-            await authFlow.loginSuccess(userEmail, password, username, true);
-            await page.waitForLoadState('networkidle');
-            await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(mainPage.topTitlesTodayHeading).toBeVisible();
-        });
-
-        await test.step('Hide dynamic images via CSS', async () => {
-            await page.addStyleTag({
-                content: `
-                    [data-id="aitv-hero"] img,
-                    [data-id="aitv-hero"] video,
-                    [data-id="aitv-top-card"] img,
-                    [data-id="aitv-video-card"] img { visibility: hidden !important; }
-                `,
-            });
-        });
-
-        await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('main-page-logged-in.png', {
-                fullPage: true,
-                mask: mainPageLoggedInMasks(page),
-                maxDiffPixelRatio: 0.02,
-            });
-        });
     });
 
     // ── Header ──

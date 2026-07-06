@@ -4,6 +4,7 @@ import { Page, Locator } from '@playwright/test';
 export class MainPage {
     readonly page: Page;
 
+    readonly hero: Locator;
     readonly heroText: Locator;
     readonly heroImage: Locator;
     readonly heroVideo: Locator;
@@ -15,6 +16,8 @@ export class MainPage {
     constructor(page: Page) {
         this.page = page;
 
+        // Auto-rotating hero swiper — masked as a whole in visual tests (fixed CSS height, no reflow below).
+        this.hero = page.locator('[data-id="aitv-hero"]');
         this.heroText = page.locator('[data-id="aitv-hero"] .MuiTypography-root');
         this.heroImage = page.locator('[data-id="aitv-hero"] img');
         this.heroVideo = page.locator('[data-id="aitv-hero"] video');

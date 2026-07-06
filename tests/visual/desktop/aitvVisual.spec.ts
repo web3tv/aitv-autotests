@@ -6,7 +6,7 @@ import { MainPage } from '../../../src/pages/components/MainPage';
 import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
 
 const mainPageMasks = (page: Page) => [
-    new MainPage(page).heroText,
+    new MainPage(page).hero,
 ];
 
 const mainPageLoggedInMasks = (page: Page) => [
@@ -17,9 +17,7 @@ const mainPageLoggedInMasks = (page: Page) => [
 const videoCardHoverMasks = (page: Page) => {
     const mainPage = new MainPage(page);
     return [
-        mainPage.heroImage,
-        mainPage.heroVideo,
-        mainPage.heroText,
+        mainPage.hero,
         mainPage.topCardImage,
         mainPage.videoCardImage,
     ];
