@@ -25,12 +25,6 @@ npx playwright test --grep "Success login as user" --project=functional
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
 ```
 
-**Run visual tests (desktop 2560×1080):**
-```
-# Must be run inside Docker
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-large-chromium
-```
-
 **Run visual tests (mobile iPhone 15 Pro Max):**
 ```
 # Must be run inside Docker
@@ -141,7 +135,6 @@ test-data/
 - `functional` — all non-visual specs, Chromium 1920×1080
 - `prodSmoke` — smoke tests for prod (`ENV_FILE=.env.prod`), Chromium 1920×1080
 - `visual-desktop-chromium` — desktop visual regression 1920×1080, Docker only
-- `visual-desktop-large-chromium` — desktop visual regression 2560×1080, Docker only
 - `visual-mobile-webkit` — mobile visual regression (iPhone 15 Pro Max), Docker only
 
 **Tags:** set via `{ tag: '@...' }` in `test()`/`test.describe()`, run with `--grep @tag`. Tags carry cross-cutting slices that would otherwise fragment the domain folders. Current tags: `@critical` (pre-deploy smoke), `@db` (needs DB port-forward), `@emails` (email template content), `@validation` (input-validation specs across auth/content).

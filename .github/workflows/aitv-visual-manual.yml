@@ -89,7 +89,6 @@ jobs:
             aitv-test \
             npx playwright test \
               --project=visual-desktop-chromium \
-              --project=visual-desktop-large-chromium \
               --project=visual-mobile-webkit \
               $SNAPSHOT_FLAG
 

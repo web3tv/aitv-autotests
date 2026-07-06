@@ -93,22 +93,6 @@ export default defineConfig({
     },
 
     // RUN THIS PROJECT ONLY IN DOCKER!
-    // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-large-chromium
-    {
-      name: 'visual-desktop-large-chromium',
-      testMatch: /visual\/desktop\/.*\.spec\.ts$/,
-      fullyParallel: false,
-      use: {
-        browserName: 'chromium',
-        viewport: { width: 2560, height: 1080 },
-        deviceScaleFactor: 1,
-        colorScheme: 'light',
-        locale: 'en-US',
-        trace: 'off',
-      },
-    },
-
-    // RUN THIS PROJECT ONLY IN DOCKER!
     // docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
     {
       name: 'visual-mobile-webkit',

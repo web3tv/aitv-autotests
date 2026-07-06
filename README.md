@@ -92,7 +92,6 @@ test-data/         — фикстуры (видео, фото)
 | `functional` | Chromium | 1920×1080 | Все функциональные тесты |
 | `prodSmoke` | Chromium | 1920×1080 | Прод-смоук (`ENV_FILE=.env.prod`) |
 | `visual-desktop-chromium` | Chromium | 1920×1080 | Визуал, только Docker |
-| `visual-desktop-large-chromium` | Chromium | 2560×1080 | Визуал, только Docker |
 | `visual-mobile-webkit` | WebKit | iPhone 15 Pro Max | Визуал, только Docker |
 
 **Функциональные тесты:**
@@ -141,7 +140,6 @@ npx playwright test tests/content/manage/analytics.spec.ts --grep @db --project=
 
 ```bash
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-large-chromium
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
 ```
 
