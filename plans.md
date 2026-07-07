@@ -14,3 +14,5 @@
 15. Тест визуальный для аплоада видео [DONE]
 16. Critical тесты - визибилити, Е2Е загрузка видео/серий/шортс [DONE]
 17. Edit video test 
+18. Visual test - Channel Page
+19. Visual test - Shorts Page ( mobile + desktop )

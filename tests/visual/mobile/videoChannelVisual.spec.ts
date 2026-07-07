@@ -4,6 +4,7 @@ import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { VideoPlayerPage } from '../../../src/pages/components/VideoPlayerPage';
 import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
 import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
+import { AuthApi } from '../../../src/api/AuthApi';
 import {
     VISUAL_VIDEO_TITLE,
     VISUAL_VIDEO_DESCRIPTION,
@@ -24,15 +25,16 @@ const videoDetailsMasks = (page: Page) => {
     ];
 };
 
-const channelPageMasks = (page: Page) => {
-    const channel = new ChannelMainPage(page);
+// See the desktop spec: after the 2026 redesign the grid (`aitv-video-card`) is
+// cover-only and seeded, so it is screenshot unmasked. Only the random name/@handle
+// and the authed header trigger are masked. `username` targets the hero name/@handle,
+// which carry no data-id attributes.
+const channelPageMasks = (page: Page, username: string) => {
+    const header = new HeaderPage(page);
     return [
-        channel.videos,
-        channel.avatar,
-        channel.videoCount,
-        channel.subscribersCount,
-        channel.channelName,
-        channel.channelHandle,
+        page.getByRole('heading', { name: username }),
+        page.getByText(`@${username}`, { exact: true }),
+        header.userIcon,
     ];
 };
 
@@ -43,6 +45,9 @@ test.describe('Mobile video & channel visual tests', () => {
     let username: string;
     let videoUrl: string;
     let channelUrl: string;
+    // Second, channel-less account for the logged-in non-owner ("user") channel view.
+    let viewerEmail: string;
+    let viewerUsername: string;
 
     test.beforeAll(async () => {
         // 3 video uploads + processing exceed the 90s default hook timeout (and this
@@ -65,6 +70,10 @@ test.describe('Mobile video & channel visual tests', () => {
         username = setup.user.username;
         videoUrl = setup.videoUrl;
         channelUrl = setup.channelUrl;
+
+        const viewer = await new AuthApi(requestContext).createUserFast();
+        viewerEmail = viewer.email;
+        viewerUsername = viewer.username;
 
         await requestContext.dispose();
     });
@@ -111,60 +120,70 @@ test.describe('Mobile video & channel visual tests', () => {
         });
     });
 
-    // ── Channel page ──
-    // TODO(channel-redesign): rework after the upcoming channel redesign — identity
-    // header is random per run and grid tiles carry relative dates, so both stay
-    // masked. The fixed 3-video seed keeps the tile count/height deterministic.
+    // ── Channel page (2026 redesign) ──
+    // Three viewer states — anonymous, logged-in non-owner ("user"), and owner. The
+    // seeded 3-video grid is screenshot unmasked; only the random name/@handle and the
+    // authed header trigger are masked. State is told apart by the hero action button:
+    // visitors see "Follow", the owner sees "Edit".
+
+    // Open the owner's channel, wait for the grid covers to paint, and screenshot the
+    // viewport. `ownerView` selects the hero-button anchor so the shot waits for the
+    // intended UI.
+    async function shootChannel(page: Page, name: string, ownerView: boolean): Promise<void> {
+        const channelPage = new ChannelMainPage(page);
+        const header = new HeaderPage(page);
+
+        await page.goto(channelUrl, { waitUntil: 'domcontentloaded' });
+        await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
+        await expect(channelPage.channelNameHeading.first(), 'Channel name is not visible')
+            .toBeVisible({ timeout: 15_000 });
+        const stateAnchor = ownerView ? channelPage.editBtn : channelPage.followBtn;
+        await expect(stateAnchor, `Expected ${ownerView ? 'owner (Edit)' : 'visitor (Follow)'} hero control`)
+            .toBeVisible({ timeout: 15_000 });
+        await expect(channelPage.videoCards.first(), 'Channel video grid did not render')
+            .toBeVisible({ timeout: 15_000 });
+        await page.waitForFunction(() => {
+            const imgs = Array.from(document.querySelectorAll('[data-id="aitv-video-card"] img')).slice(0, 6);
+            return imgs.length > 0 && imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0);
+        }, { timeout: 20_000 });
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await page.waitForTimeout(2000);
+        await expect(page).toHaveScreenshot(name, {
+            fullPage: false,
+            mask: channelPageMasks(page, username),
+            maxDiffPixelRatio: 0.02,
+        });
+    }
 
     test('Channel page for anonymous user', {
         annotation: { type: 'TC', description: 'VIS-MOB-003' },
     }, async ({ page }) => {
-        const channelPage = new ChannelMainPage(page);
-        const header = new HeaderPage(page);
-
-        await test.step('Open channel page', async () => {
-            await page.goto(channelUrl);
-            await page.waitForLoadState('domcontentloaded');
-            await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
-            await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(channelPage.forYouHeading).toBeVisible({ timeout: 10_000 });
-            await expect(channelPage.channelSubscribeBtn).toBeVisible();
-            await page.waitForTimeout(2000);
-        });
-
-        await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('channel-page-anon.png', {
-                fullPage: false,
-                mask: channelPageMasks(page),
-                maxDiffPixelRatio: 0.02,
-            });
+        await test.step('Open channel page and screenshot', async () => {
+            await shootChannel(page, 'channel-page-anon.png', false);
         });
     });
 
-    test('Channel page for logged in user', {
+    test('Channel page for logged-in user (not owner)', {
+        annotation: { type: 'TC', description: 'VIS-MOB-005' },
+    }, async ({ page }) => {
+        await test.step('Login as non-owner', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(viewerEmail, password, viewerUsername, true);
+        });
+        await test.step('Open channel page and screenshot', async () => {
+            await shootChannel(page, 'channel-page-user.png', false);
+        });
+    });
+
+    test('Channel page for channel owner', {
         annotation: { type: 'TC', description: 'VIS-MOB-004' },
     }, async ({ page }) => {
-        const channelPage = new ChannelMainPage(page);
-        const header = new HeaderPage(page);
-
-        await test.step('Login and open channel page', async () => {
+        await test.step('Login as owner', async () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username, true);
-            await page.goto(channelUrl);
-            await page.waitForLoadState('domcontentloaded');
-            await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
-            await page.evaluate(async () => { await document.fonts.ready; });
-            await expect(channelPage.forYouHeading).toBeVisible({ timeout: 10_000 });
-            await expect(channelPage.editChannelBtn).toBeVisible();
-            await page.waitForTimeout(2000);
         });
-
-        await test.step('Take screenshot', async () => {
-            await expect(page).toHaveScreenshot('channel-page-logged-in.png', {
-                fullPage: false,
-                mask: channelPageMasks(page),
-                maxDiffPixelRatio: 0.02,
-            });
+        await test.step('Open channel page and screenshot', async () => {
+            await shootChannel(page, 'channel-page-owner.png', true);
         });
     });
 

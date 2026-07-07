@@ -6,7 +6,7 @@ E2E-тесты платформы AITV на [Playwright](https://playwright.dev/
 
 - **Playwright** — раннер и автоматизация браузера
 - **TypeScript** — язык тестов
-- **mail.tm** — одноразовые ящики для флоу с письмами (регистрация, сброс пароля)
+- **Gmail (IMAP)** — чтение писем во флоу с почтой (регистрация, сброс пароля, 2FA); один ящик + plus-addressing, доступ по App Password
 - **mysql2** — прямой доступ к БД для тестов с тегом `@db`
 
 ### Установка
@@ -42,6 +42,11 @@ ENV_FILE=.env.prod npx playwright test --project=functional
 
 После изменения обнови список тестов кнопкой ↺ в Test Explorer.
 
+**Почтовый ящик для тестов.** Флоу с письмами читают один реальный Gmail-ящик по IMAP. В каждом `.env` нужны:
+
+- `EMAIL_ACCOUNT` — адрес ящика (например `aitvtests@gmail.com`); письма изолируются между тестами через plus-addressing (`aitvtests+qa_<rnd>@gmail.com`).
+- `EMAIL_PASSWORD` — Gmail **App Password** (16 символов). Требует включённой 2FA на аккаунте (обычный пароль Google для IMAP не работает). Генерится в Google Account → Security → App passwords.
+
 ### Структура
 
 Спеки разложены **по доменам продукта** (папки), а сквозные срезы — это **теги, а не папки** (например, всю валидацию ввода гоняешь через `--grep @validation`). Отдельная папка по типу выделяется, только когда это отдельный Playwright-проект/рантайм: `visual/` (Docker), `production/` (прод-среда), `api/` (контракт без браузера).
@@ -63,7 +68,7 @@ src/
   flows/           — оркестраторы пользовательских сценариев
   pages/           — Page Object Model
   api/             — API-хелперы (быстрый сетап в обход UI)
-  utils/           — утилиты (mail.tm, видео-плеер, генерация данных, videoTaxonomy)
+  utils/           — утилиты (чтение почты Gmail по IMAP, видео-плеер, генерация данных, videoTaxonomy)
 test-data/         — фикстуры (видео, фото)
 ```
 

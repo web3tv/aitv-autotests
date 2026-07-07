@@ -21,7 +21,18 @@ export class ChannelMainPage {
     readonly channelHandle: Locator;
     readonly forYouHeading: Locator;
     readonly editChannelBtn: Locator;
-   
+
+    // 2026 channel redesign — the public channel view was rebuilt with new markup.
+    // The identity hero carries no data-id attributes, so name/handle are matched by
+    // role/text; the grid tiles are `aitv-video-card` (cover-only at rest). Viewer
+    // state is told apart by the hero action button: visitors/anon see "Follow",
+    // the owner sees "Edit"/"Share".
+    readonly videoCards: Locator;
+    readonly channelNameHeading: Locator;
+    readonly followBtn: Locator;
+    readonly editBtn: Locator;
+    readonly shareBtn: Locator;
+
 
 
 
@@ -50,6 +61,15 @@ export class ChannelMainPage {
         this.channelHandle = page.locator('[data-id="handle"]');
         this.forYouHeading = page.getByRole('heading', { name: 'For you' });
         this.editChannelBtn = page.getByRole('button', { name: 'Edit channel' });
+
+        // 2026 redesign locators. `.first()` guards against the per-tile hover
+        // overlays that also expose Follow/Edit controls — the hero button is first
+        // in DOM order.
+        this.videoCards = page.locator('[data-id="aitv-video-card"]');
+        this.channelNameHeading = page.getByRole('heading', { level: 1 });
+        this.followBtn = page.getByRole('button', { name: 'Follow', exact: true }).first();
+        this.editBtn = page.getByRole('button', { name: 'Edit', exact: true }).first();
+        this.shareBtn = page.getByRole('button', { name: 'Share', exact: true }).first();
 
         this.exclusiveBadge = page.locator('div').filter({ hasText: /^Exclusive Content$/ }).first();
         this.lockedBadge = this.firstVideo.locator('.locked');
