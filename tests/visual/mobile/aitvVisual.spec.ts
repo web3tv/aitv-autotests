@@ -14,6 +14,28 @@ const mainPageLoggedInMasks = (page: Page) => [
     new HeaderPage(page).userIcon,
 ];
 
+/**
+ * Settle the mobile header before a screenshot. `toHaveScreenshot` runs its
+ * "wait for element to be stable" check BEFORE the animation-freeze CSS is applied,
+ * so the home page's auto-rotating hero swiper + autoplaying video keep the header's
+ * bounding box moving and, on mobile webkit, it can fail to converge within the 10s
+ * timeout (flaky). Pausing the hero videos and resetting scroll removes the motion
+ * source (without changing layout — the hero media stays visibility:hidden), and a
+ * short settle mirrors the pattern used by the other stable mobile visual tests.
+ */
+async function settleMobileHeader(page: Page, headerPage: HeaderPage): Promise<void> {
+    await page.evaluate(() => {
+        document
+            .querySelectorAll('[data-id="aitv-hero"] video')
+            .forEach((v) => (v as HTMLVideoElement).pause());
+        window.scrollTo(0, 0);
+    });
+    await expect(headerPage.mobileHeader, 'Mobile header is not visible').toBeVisible();
+    await expect(headerPage.mobileDropdownTrigger, 'Mobile header dropdown trigger is not visible')
+        .toBeVisible();
+    await page.waitForTimeout(1000);
+}
+
 test.describe('AITV mobile visual tests', () => {
 
     let userEmail: string;
@@ -55,7 +77,7 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Take header screenshot', async () => {
-            await expect(headerPage.mobileHeader).toBeVisible();
+            await settleMobileHeader(page, headerPage);
             await expect(headerPage.mobileHeader).toHaveScreenshot('header-anon.png', { maxDiffPixelRatio: 0.02 });
         });
     });
@@ -82,7 +104,7 @@ test.describe('AITV mobile visual tests', () => {
         });
 
         await test.step('Take header screenshot', async () => {
-            await expect(headerPage.mobileHeader).toBeVisible();
+            await settleMobileHeader(page, headerPage);
             await expect(headerPage.mobileHeader).toHaveScreenshot('header-logged-in.png', {
                 mask: [headerPage.userIcon],
                 maxDiffPixelRatio: 0.02,
