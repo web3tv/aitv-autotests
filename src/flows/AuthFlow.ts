@@ -4,7 +4,7 @@ import { ResetPasswordPage } from "../pages/auth/ResetPasswordPage";
 import { UserDropdownPage } from "../pages/components/UserDropdownPage";
 import { expect } from '@playwright/test';
 import { Page } from '@playwright/test';
-import { MailTmHelper } from "../utils/mailTmHelper";
+import { GmailHelper } from "../utils/gmailHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
 import { AccountPage } from "../pages/account/AccountPage";
@@ -99,7 +99,7 @@ export class AuthFlow {
   }
 
   async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
-    const mailTmHelper = new MailTmHelper(this.page.request);
+    const mailHelper = new GmailHelper(this.page.request);
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickGetStarted();
     await this.loginPopupPage.assertPopupVisible();
@@ -110,8 +110,8 @@ export class AuthFlow {
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
     await expect(this.page.locator('body')).toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
-    const messageId = await mailTmHelper.waitForMessage(token, 'Authentication Code', 10, 3000, requestedAt);
-    const [d1, d2, d3, d4] = await mailTmHelper.extract2FACode(messageId,token);
+    const messageId = await mailHelper.waitForMessage(token, 'Authentication Code', 10, 3000, requestedAt);
+    const [d1, d2, d3, d4] = await mailHelper.extract2FACode(messageId,token);
     console.log(`Extracted 2FA code: ${d1}${d2}${d3}${d4}`);
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 1' }).fill(d1);
     await this.page.waitForTimeout(500);

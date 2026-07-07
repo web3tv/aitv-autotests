@@ -1,5 +1,5 @@
 import { Page, APIRequestContext, test } from '@playwright/test';
-import { MailTmHelper } from '../utils/mailTmHelper.ts';
+import { GmailHelper } from '../utils/gmailHelper.ts';
 import { AuthFlow } from './AuthFlow';
 import { LoginPage } from '../pages/auth/LoginPage.ts';
 import { expect } from '@playwright/test';
@@ -9,7 +9,7 @@ import { DataGenerator } from '../utils/dataGenerator';
 
 export class RegistrationFlow {
   readonly loginPage: LoginPage;
-  readonly mailTmHelper: MailTmHelper;
+  readonly mailHelper: GmailHelper;
   readonly headerPage: HeaderPage;
   readonly loginPopupPage: LoginPopupPage;
 
@@ -18,7 +18,7 @@ export class RegistrationFlow {
     private request: APIRequestContext
   ) {
     this.loginPage = new LoginPage(page);
-    this.mailTmHelper = new MailTmHelper(request);
+    this.mailHelper = new GmailHelper(request);
     this.headerPage = new HeaderPage(page);
     this.loginPopupPage = new LoginPopupPage(page);
   }
@@ -40,26 +40,22 @@ export class RegistrationFlow {
 
   async registerAndVerifyUserViaEmail() {
     const password = 'Admin1@@'
-    const mailTmPassword = 'StrongPass123!';
-    const email = await this.mailTmHelper.generateEmail();
-    await this.mailTmHelper.createMailbox();
+    const email = await this.mailHelper.generateEmail();
     const username = await this.registerViaEmail(email,password);
-    const token = await this.mailTmHelper.getToken(email, mailTmPassword);
-    const messageId = await this.mailTmHelper.waitForMessage(token,'Email Verification');
-    const verificationUrl = await this.mailTmHelper.extractVerificationUrl(messageId, token);
+    const token = await this.mailHelper.getToken(email);
+    const messageId = await this.mailHelper.waitForMessage(token,'Email Verification');
+    const verificationUrl = await this.mailHelper.extractVerificationUrl(messageId, token);
     await this.page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(this.page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
-    return { email, password, username, mailTmPassword, token };
+    return { email, password, username, token };
   }
 
-  async registerAndVerifyUserViaPopup(): Promise<{ email: string; password: string; username: string; mailTmPassword: string; token: string }> {
+  async registerAndVerifyUserViaPopup(): Promise<{ email: string; password: string; username: string; token: string }> {
     const password = 'Admin1@@';
-    const mailTmPassword = 'StrongPass123!';
     const username = DataGenerator.generateUsername();
 
-    const email = await this.mailTmHelper.generateEmail();
-    await this.mailTmHelper.createMailbox();
-    const token = await this.mailTmHelper.getToken(email, mailTmPassword);
+    const email = await this.mailHelper.generateEmail();
+    const token = await this.mailHelper.getToken(email);
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickGetStarted();
@@ -68,8 +64,8 @@ export class RegistrationFlow {
     await this.loginPopupPage.fillEmailOrUsername(email);
     await this.loginPopupPage.clickContinue();
 
-    const messageId = await this.mailTmHelper.waitForMessage(token, 'Email Verification', 15, 3000);
-    const code = await this.mailTmHelper.extractVerificationCode(messageId, token);
+    const messageId = await this.mailHelper.waitForMessage(token, 'Email Verification', 20, 3000);
+    const code = await this.mailHelper.extractVerificationCode(messageId, token);
     await this.loginPopupPage.fillCode(code);
 
     await this.loginPopupPage.fillCreatePassword(password);
@@ -80,7 +76,7 @@ export class RegistrationFlow {
     await this.page.waitForURL('/');
     await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
 
-    return { email, password, username, mailTmPassword, token };
+    return { email, password, username, token };
   }
 
   async registerViaPhoneFast(phone: string, staticCode = '1111'): Promise<{ phone: string; password: string; username: string }> {
@@ -111,7 +107,7 @@ export class RegistrationFlow {
   async registerAndVerifyUserViaPopupFast(staticCode = '1111'): Promise<{ email: string; password: string; username: string }> {
     const password = 'Admin1@@';
     const username = DataGenerator.generateUsername();
-    const email = await this.mailTmHelper.generateEmail();
+    const email = await this.mailHelper.generateEmail();
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickGetStarted();

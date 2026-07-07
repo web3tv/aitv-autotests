@@ -77,7 +77,9 @@ Required variables:
 - `USER_LOGIN_ADMIN` — admin username for admin-token operations
 - `USER_PASSWORD` — default password used by `AuthApi.createAndVerifyUser()` (`Admin1@@`)
 - `DB_HOST` / `DB_PORT` — DB connection for `@db` tests (`127.0.0.1` / `3307`, via the kubectl port-forward above)
-- `EMAIL_DOMAIN` — domain used in generated test emails
+- `EMAIL_DOMAIN` — domain for locally-built addresses in fast/static-OTP flows that never read a mailbox (`AuthApi.createUserFast`)
+- `EMAIL_ACCOUNT` — the real Gmail inbox used for email reading, e.g. `aitvtests@gmail.com` (all test mail lands here via plus-addressing)
+- `EMAIL_PASSWORD` — Gmail **App Password** (16 chars, requires 2FA on the account) used for IMAP access by `GmailHelper`
 
 ## Architecture
 
@@ -114,7 +116,7 @@ src/
     components/ — Shared components (Header, Sidebar, UserDropdown, UploadVideo)
     heroPay/    — Payment integration page
   api/          — Direct API helpers (bypass UI for setup)
-  utils/        — Utilities (mail.tm, data generation, video player, incognito)
+  utils/        — Utilities (Gmail IMAP mail reading, data generation, video player, incognito)
 test-data/
   fixtures/     — Static test assets (video files, photos)
 ```
@@ -122,14 +124,14 @@ test-data/
 ### Key design patterns
 
 **Two user creation strategies:**
-1. **API-based (preferred for speed):** `AuthApi.createAndVerifyUser()` — registers via the email OTP flow over REST (`/auth/start` → read code from mail.tm → `/auth/verify` → `/auth/complete`). Password is always `Admin1@@` (`process.env.USER_PASSWORD`). (PKCE admin token via `getAdminToken()` is separate — used for admin-only operations, not for this flow.)
-2. **UI-based (for registration flow tests):** `RegistrationFlow.registerAndVerifyUserViaEmail()` — registers via browser, then reads verification link from a real mailbox using the `mail.tm` disposable email service.
+1. **API-based (preferred for speed):** `AuthApi.createAndVerifyUser()` — registers via the email OTP flow over REST (`/auth/start` → read code from the Gmail inbox via IMAP → `/auth/verify` → `/auth/complete`). Password is always `Admin1@@` (`process.env.USER_PASSWORD`). (PKCE admin token via `getAdminToken()` is separate — used for admin-only operations, not for this flow.)
+2. **UI-based (for registration flow tests):** `RegistrationFlow.registerAndVerifyUserViaEmail()` — registers via browser, then reads the verification link from the real Gmail inbox over IMAP.
 
 **Flows wrap Pages:** `AuthFlow`, `RegistrationFlow`, `UploadVideoFlow` compose multiple Page Objects into end-to-end sequences. Use flows for complex, reusable multi-step journeys (login, registration, upload). For everything else, tests instantiate Page Objects directly, and use API helpers (`AuthApi`, `VideoApi`) for fast setup that bypasses the UI. Mixing flows + direct Page Objects in one test is normal.
 
 **Serial describes for stateful tests:** Multi-step feature tests (e.g., upload then verify visibility) use `test.describe.serial` with shared `let` variables to pass state (URLs, usernames) between test steps.
 
-**Email verification via mail.tm:** `MailTmHelper` creates real disposable mailboxes at `api.mail.tm` and polls for verification emails (verification links, password reset links, 2FA codes).
+**Email verification via Gmail IMAP:** `GmailHelper` reads a single real Gmail inbox (`EMAIL_ACCOUNT`) over IMAP using a Gmail App Password (`EMAIL_PASSWORD`). Per-test isolation comes from **plus-addressing** — `generateEmail()` returns `<account>+qa_<rnd>@gmail.com`, so every test gets a unique address while all mail lands in one inbox. The "token" threaded through `waitForMessage`/`extract*` is the recipient address itself (it's the filter key in the shared inbox). Searches run against `[Gmail]/All Mail` + `[Gmail]/Spam` (not just INBOX — under bursts Gmail delivers some mail past the inbox). Extracts verification links, password-reset links, verification/2FA codes. `createMailbox()`/`getToken()` are compatibility no-ops. Prereq: 2FA + App Password on the Gmail account.
 
 **Playwright projects:**
 - `functional` — all non-visual specs, Chromium 1920×1080
@@ -213,4 +215,4 @@ await page.goto(url, { waitUntil: 'domcontentloaded' });
 All locators must be defined in the constructor. Never create locators inline in methods.
 
 **Don't hardcode the environment/domain:**
-Tests must work across dev1/dev2/prod. Don't hardcode hosts like `web3tv2.dev` — rely on `BASE_URL`/relative paths, and keep helpers domain-agnostic (e.g. email URL extractors in `MailTmHelper` match `https://[^/]+/...`). Email subject matching in `waitForMessage` is case-insensitive.
+Tests must work across dev1/dev2/prod. Don't hardcode hosts like `web3tv2.dev` — rely on `BASE_URL`/relative paths, and keep helpers domain-agnostic (e.g. email URL extractors in `GmailHelper` match `https://[^/]+/...`). Email subject matching in `waitForMessage` is case-insensitive.

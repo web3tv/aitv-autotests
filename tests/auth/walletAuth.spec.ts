@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
-import { MailTmHelper } from '../../src/utils/mailTmHelper';
+import { GmailHelper } from '../../src/utils/gmailHelper';
 import { AccountPage } from '../../src/pages/account/AccountPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletInfo } from '../../src/utils/walletMock';
@@ -91,10 +91,9 @@ test.describe('Wallet and email tests',()=>{
     });
 
     await test.step('Add first email and save verification URL', async () => {
-      const mailHelper1 = new MailTmHelper(request);
+      const mailHelper1 = new GmailHelper(request);
       const firstEmail = await mailHelper1.generateEmail();
-      await mailHelper1.createMailbox();
-      const firstToken = await mailHelper1.getToken(firstEmail, mailHelper1['password']);
+      const firstToken = await mailHelper1.getToken(firstEmail);
 
       await page.goto('/account', { waitUntil: 'domcontentloaded' });
       await accountPage.clickAddEmailBtn();
@@ -108,10 +107,9 @@ test.describe('Wallet and email tests',()=>{
     });
 
     await test.step('Add second email and save verification URL', async () => {
-      const mailHelper2 = new MailTmHelper(request);
+      const mailHelper2 = new GmailHelper(request);
       const secondEmail = await mailHelper2.generateEmail();
-      await mailHelper2.createMailbox();
-      const secondToken = await mailHelper2.getToken(secondEmail, mailHelper2['password']);
+      const secondToken = await mailHelper2.getToken(secondEmail);
 
       await accountPage.clickAddEmailBtn();
       const addEmailInput = page.getByRole('textbox', { name: 'Enter email' });
@@ -137,14 +135,14 @@ test.describe('Wallet and email tests',()=>{
   test('Add email to wallet account', { annotation: { type: 'TC', description: 'AUTH-011' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
-    const mailTmHelper = new MailTmHelper(request);
+    const mailHelper = new GmailHelper(request);
     let email: string;
     let mailToken: string;
 
     await test.step('Create disposable email', async () => {
-      email = await mailTmHelper.generateEmail();
-      await mailTmHelper.createMailbox();
-      mailToken = await mailTmHelper.getToken(email, mailTmHelper['password']);
+      email = await mailHelper.generateEmail();
+      await mailHelper.createMailbox();
+      mailToken = await mailHelper.getToken(email);
     });
 
     await test.step('Register via wallet', async () => {
@@ -160,9 +158,9 @@ test.describe('Wallet and email tests',()=>{
       await accountPage.clickSubmitBtn();
     });
 
-    await test.step('Verify email via mail.tm', async () => {
-      const messageId = await mailTmHelper.waitForMessage(mailToken, 'Your verification link');
-      const verificationUrl = await mailTmHelper.extractVerificationUrl(messageId, mailToken);
+    await test.step('Verify email via Gmail', async () => {
+      const messageId = await mailHelper.waitForMessage(mailToken, 'Your verification link');
+      const verificationUrl = await mailHelper.extractVerificationUrl(messageId, mailToken);
       await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
       await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
     });

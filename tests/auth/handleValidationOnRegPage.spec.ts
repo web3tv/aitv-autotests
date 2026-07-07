@@ -1,17 +1,17 @@
 import { test, expect } from '@playwright/test';
 import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
-import { MailTmHelper } from '../../src/utils/mailTmHelper';
+import { GmailHelper } from '../../src/utils/gmailHelper';
 import { AuthApi } from '../../src/api/AuthApi';
 
 test.describe('Handle validation on registration page', { tag: '@validation', annotation: [{ type: 'TC', description: 'VAL-001' }, { type: 'TC', description: 'VAL-002' }] }, () => {
 
   test.beforeEach(async ({ page, request }) => {
-    const mailTmHelper = new MailTmHelper(request);
+    const mailHelper = new GmailHelper(request);
     const headerPage = new HeaderPage(page);
     const loginPopupPage = new LoginPopupPage(page);
 
-    const email = await mailTmHelper.generateEmail();
+    const email = await mailHelper.generateEmail();
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await headerPage.clickGetStarted();

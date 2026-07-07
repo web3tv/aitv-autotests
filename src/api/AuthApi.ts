@@ -1,10 +1,9 @@
 import { APIRequestContext } from "@playwright/test";
 import { DataGenerator } from "../utils/dataGenerator";
-import { MailTmHelper } from "../utils/mailTmHelper";
+import { GmailHelper } from "../utils/gmailHelper";
 import * as crypto from "node:crypto";
 
 const OAUTH_CLIENT_ID = "fa281fa9-ea9c-467e-a0f1-776876c3ad76";
-const MAILTM_PASSWORD = "StrongPass123!";
 
 export class AuthApi {
     constructor(
@@ -98,10 +97,9 @@ export class AuthApi {
     }
 
     async createAndVerifyUser() {
-        const mailTm = new MailTmHelper(this.request);
-        const email = await mailTm.generateEmail();
-        await mailTm.createMailbox();
-        const mailToken = await mailTm.getToken(email, MAILTM_PASSWORD);
+        const mailHelper = new GmailHelper(this.request);
+        const email = await mailHelper.generateEmail();
+        const mailToken = await mailHelper.getToken(email);
 
         const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
             headers: { "Content-Type": "application/json" },
@@ -110,8 +108,8 @@ export class AuthApi {
         if (!startRes.ok()) throw new Error(`❌ /auth/start failed: ${startRes.status()}`);
         const { otpChallengeId } = await startRes.json();
 
-        const messageId = await mailTm.waitForMessage(mailToken, "verification", 15, 3000);
-        const code = await mailTm.extractVerificationCode(messageId, mailToken);
+        const messageId = await mailHelper.waitForMessage(mailToken, "verification", 15, 3000);
+        const code = await mailHelper.extractVerificationCode(messageId, mailToken);
 
         const verifyRes = await this.request.post(`${this.baseUrl}/auth/verify`, {
             headers: { "Content-Type": "application/json" },
@@ -166,9 +164,8 @@ export class AuthApi {
 
     async createUserFast(staticCode = '1111') {
         // No real mailbox is needed here: /auth/verify below uses a static OTP, so
-        // the inbox is never polled. Building the address locally (instead of the
-        // external mail.tm `GET /domains`) removes that service's intermittent
-        // `socket hang up` as a setup-flake source. Timestamp + random keeps it unique.
+        // the inbox is never polled. The address is built locally under EMAIL_DOMAIN
+        // (no IMAP/Gmail round-trip at all). Timestamp + random keeps it unique.
         const domain = process.env.EMAIL_DOMAIN ?? 'aitv-test.com';
         const email = `qa_${Date.now()}_${DataGenerator.randomString(6)}@${domain}`;
 

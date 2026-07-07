@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { AuthApi } from '../../src/api/AuthApi';
 import { RegistrationFlow } from '../../src/flows/RegistrationFlow';
-import { MailTmHelper } from '../../src/utils/mailTmHelper';
+import { GmailHelper } from '../../src/utils/gmailHelper';
 
 
 test.describe('Login tests', () => {
@@ -72,11 +72,11 @@ test.describe('Registration tests', () => {
 
     test('Can`t verify email with wrong code 4 times — too many attempts error', { annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page, request }) => {
         const authFlow = new AuthFlow(page);
-        const mailTmHelper = new MailTmHelper(request);
+        const mailHelper = new GmailHelper(request);
         let email: string;
 
         await test.step('Generate email for registration', async () => {
-            email = await mailTmHelper.generateEmail();
+            email = await mailHelper.generateEmail();
         });
 
         await test.step('Enter wrong verification code 4 times and verify attempt messages', async () => {
@@ -92,7 +92,7 @@ test.describe('Reset password tests', () => {
     test('Reset password via popup: old password fails, new password succeeds', { annotation: { type: 'TC', description: 'AUTH-007' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const mailTmHelper = new MailTmHelper(request);
+        const mailHelper = new GmailHelper(request);
         const oldPassword = process.env.USER_PASSWORD!;
         const newPassword = 'Admin1234@@';
 
@@ -109,8 +109,8 @@ test.describe('Reset password tests', () => {
         });
 
         await test.step('Extract reset URL from email and set new password', async () => {
-            const messageId = await mailTmHelper.waitForMessage(mailToken, 'password', 15, 3000);
-            const url = await mailTmHelper.extractPasswordResetnUrl(messageId, mailToken);
+            const messageId = await mailHelper.waitForMessage(mailToken, 'password', 15, 3000);
+            const url = await mailHelper.extractPasswordResetnUrl(messageId, mailToken);
             await page.goto(url, { waitUntil: 'domcontentloaded' });
             await authFlow.loginPopupPage.fillResetPassword(newPassword);
             await authFlow.loginPopupPage.clickResetFinish();
@@ -128,7 +128,7 @@ test.describe('Reset password tests', () => {
     test('Can`t reset password with mismatched passwords in popup', { annotation: { type: 'TC', description: 'AUTH-008' } }, async ({ page, request }) => {
         const authFlow = new AuthFlow(page);
         const authApi = new AuthApi(request);
-        const mailTmHelper = new MailTmHelper(request);
+        const mailHelper = new GmailHelper(request);
         const newPassword = 'Admin1234@@';
         const wrongPassword = 'Admin1233@@';
 
@@ -145,8 +145,8 @@ test.describe('Reset password tests', () => {
         });
 
         await test.step('Extract reset URL and enter new passwords with mismatch', async () => {
-            const messageId = await mailTmHelper.waitForMessage(mailToken, 'password', 15, 3000);
-            const url = await mailTmHelper.extractPasswordResetnUrl(messageId, mailToken);
+            const messageId = await mailHelper.waitForMessage(mailToken, 'password', 15, 3000);
+            const url = await mailHelper.extractPasswordResetnUrl(messageId, mailToken);
             await page.goto(url, { waitUntil: 'domcontentloaded' });
             await authFlow.loginPopupPage.fillResetPassword(newPassword);
             await authFlow.loginPopupPage.repeatResetPasswordInput.fill(wrongPassword);
@@ -166,7 +166,7 @@ test.describe('Reset password tests', () => {
 test.describe.skip('2FA tests', () => {
 
     test('Enable 2FA and verify code', { annotation: [{ type: 'TC', description: '2FA-001' }, { type: 'TC', description: '2FA-002' }, { type: 'TC', description: '2FA-003' }] }, async ({ page, request }) => {
-        let user = { email: '', username: '', password: '', token: '', mailTmPassword: '' };
+        let user = { email: '', username: '', password: '', token: '' };
 
         await test.step('Register user and enable 2FA', async () => {
             const registrationFlow = new RegistrationFlow(page, request);
@@ -188,7 +188,7 @@ test.describe.skip('2FA tests', () => {
     });
 
     test('Disable 2FA and verify login without 2FA', { annotation: { type: 'TC', description: '2FA-004' } }, async ({ page, request }) => {
-        let user = { email: '', username: '', password: '', token: '', mailTmPassword: '' };
+        let user = { email: '', username: '', password: '', token: '' };
 
         await test.step('Register user and enable 2FA', async () => {
             const registrationFlow = new RegistrationFlow(page, request);
