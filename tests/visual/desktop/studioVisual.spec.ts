@@ -16,6 +16,10 @@ const studioHeaderMasks = (page: Page) => {
     ];
 };
 
+// Intentional LAYOUT check: the dashboard/content screenshots mask the dynamic
+// analytics values, latest-video title/cover and per-row image/title/date/description.
+// Page structure, labels, tabs, search and controls are still verified — the changing
+// data values are not, and that is by design.
 const studioDashboardMasks = (page: Page) => {
     const analytics = new StudioAnalyticsPage(page);
     return [

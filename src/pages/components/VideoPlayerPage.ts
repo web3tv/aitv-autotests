@@ -24,6 +24,17 @@ export class VideoPlayerPage {
 
   readonly playerContainer: Locator;
   readonly recommendedVideos: Locator;
+  // The details block below the player (title + views/date + description + genre
+  // chips + channel byline + action buttons). Its comments section is a sibling,
+  // NOT a child, so this container's height is deterministic — used as the
+  // element-scoped target for the video-page visual screenshot.
+  readonly videoDescriptionBlock: Locator;
+  // Channel identity byline (avatar + random handle + follower count) — masked.
+  readonly channelByline: Locator;
+  // Category / genre chips under the description — deterministic when the video is
+  // seeded with a fixed category + genres.
+  readonly categoryChip: Locator;
+  readonly tagChips: Locator;
   readonly videoTitle: Locator;
   readonly authorAvatar: Locator;
   readonly channelName: Locator;
@@ -44,6 +55,10 @@ export class VideoPlayerPage {
 
     this.playerContainer = page.locator('[aria-label="Video Player"]');
     this.recommendedVideos = page.locator('[data-id="aitv-related-videos"]');
+    this.videoDescriptionBlock = page.locator('[data-id="aitv-video-description"]');
+    this.channelByline = page.locator('[data-testid="aitv-channel"]');
+    this.categoryChip = page.locator('[data-id="aitv-category-chip"]');
+    this.tagChips = page.locator('[data-id="aitv-tag-chip"]');
     this.videoTitle = page.locator('h1');
     this.authorAvatar = page.locator('[data-testid="aitv-channel"] .MuiAvatar-circular');
     this.channelName = page.locator('[data-testid="aitv-channel"] p').first();

@@ -5,6 +5,11 @@ import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { MainPage } from '../../../src/pages/components/MainPage';
 import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
 
+// Intentional LAYOUT check: the home page hero + card imagery are SSR-driven and
+// non-deterministic, so the hero is masked and all images are CSS-hidden (see the
+// "Hide dynamic images" steps). Because `visibility:hidden` preserves layout, this
+// screenshot still verifies the full-page structure, typography and spacing — it does
+// NOT verify imagery, and that is by design.
 const mainPageMasks = (page: Page) => [
     new MainPage(page).hero,
 ];

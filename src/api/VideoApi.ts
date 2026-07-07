@@ -362,11 +362,13 @@ export class VideoApi {
             coverVerticalImgPath?: string;
             seriesId?: string;
             tags?: string[];
+            contentRating?: number;
         }
     ): Promise<void> {
         const multipart: Record<string, string | { name: string; mimeType: string; buffer: Buffer }> = {};
         if (options.title) multipart.title = options.title;
         if (options.description) multipart.description = options.description;
+        if (options.contentRating !== undefined) multipart.contentRating = String(options.contentRating);
         // Genre tags (e.g. "Action", "Adventure") — sent as tags[0], tags[1], ...
         (options.tags ?? []).forEach((tag, i) => {
             multipart[`tags[${i}]`] = tag;
@@ -552,6 +554,7 @@ export class VideoApi {
             publishedAt?: string;
             seriesId?: string;
             tags?: string[];
+            contentRating?: number;
         } = {}
     ): Promise<UploadedVideo> {
         const title = options.title ?? `Video_${Date.now()}`;
@@ -584,6 +587,7 @@ export class VideoApi {
             publishedAt,
             seriesId: options.seriesId,
             tags: options.tags,
+            contentRating: options.contentRating,
         });
 
         // 4b. Bind subscription for paid videos (via frontend proxy)

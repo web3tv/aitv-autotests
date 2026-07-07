@@ -40,6 +40,17 @@ export async function setupVideoViaApi(
         coverVerticalImgPath?: string;
         waitForProcessing?: boolean;
         subscriptionOptions?: { title: string; description: string; price: string; duration?: number };
+        // Seed a fixed category + genres so the watch-page category/tag chips render
+        // deterministically (needed by the visual tests). Omitted → backend default
+        // category, no tags (existing behaviour, unchanged for other callers).
+        categorySlug?: string;
+        genres?: string[];
+        // Content rating (e.g. 18) — renders the age badge next to the title.
+        contentRating?: number;
+        // Upload this many identical videos for the same channel (default 1). Used by
+        // the channel visual test to seed a deterministic multi-tile grid. The FIRST
+        // uploaded video is the one returned as `videoUrl`/`videoId`.
+        videoCount?: number;
     }
 ): Promise<VideoSetupResult> {
     const authApi = new AuthApi(request);
@@ -53,6 +64,9 @@ export async function setupVideoViaApi(
 
     const videoName = options.title ?? Date.now().toString();
     const description = options.description ?? (Date.now() + 1).toString();
+    const categoryId = options.categorySlug
+        ? await videoApi.getCategoryIdBySlug(options.categorySlug)
+        : undefined;
 
     let subId: string | undefined;
     let membershipName: string | undefined;
@@ -76,22 +90,30 @@ export async function setupVideoViaApi(
         ? 'test-data/fixtures/video/shortsVideo.mp4'
         : 'test-data/fixtures/video/5secVideo.mp4';
 
-    const video = await videoApi.uploadVideo(token, filePath, {
-        title: videoName,
-        description,
-        privacySetting: options.privacySetting,
-        contentType,
-        subId,
-        coverVerticalImgPath: options.coverVerticalImgPath ?? 'test-data/fixtures/photo/cat.jpg',
-        waitForProcessing: options.waitForProcessing ?? true,
-    });
+    const videoCount = Math.max(1, options.videoCount ?? 1);
+    let firstVideo: { id: string; videoPlayerFeUrl: string } | undefined;
+    for (let i = 0; i < videoCount; i++) {
+        const uploaded = await videoApi.uploadVideo(token, filePath, {
+            title: videoName,
+            description,
+            privacySetting: options.privacySetting,
+            contentType,
+            subId,
+            categoryId,
+            tags: options.genres,
+            contentRating: options.contentRating,
+            coverVerticalImgPath: options.coverVerticalImgPath ?? 'test-data/fixtures/photo/cat.jpg',
+            waitForProcessing: options.waitForProcessing ?? true,
+        });
+        if (!firstVideo) firstVideo = uploaded;
+    }
 
     return {
         user,
         token,
         channelId,
-        videoId: video.id,
-        videoUrl: video.videoPlayerFeUrl,
+        videoId: firstVideo!.id,
+        videoUrl: firstVideo!.videoPlayerFeUrl,
         videoName,
         description,
         channelUrl: `${baseUrl}/@${user.username}`,

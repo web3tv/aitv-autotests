@@ -165,8 +165,12 @@ export class AuthApi {
     }
 
     async createUserFast(staticCode = '1111') {
-        const mailTm = new MailTmHelper(this.request);
-        const email = await mailTm.generateEmail();
+        // No real mailbox is needed here: /auth/verify below uses a static OTP, so
+        // the inbox is never polled. Building the address locally (instead of the
+        // external mail.tm `GET /domains`) removes that service's intermittent
+        // `socket hang up` as a setup-flake source. Timestamp + random keeps it unique.
+        const domain = process.env.EMAIL_DOMAIN ?? 'aitv-test.com';
+        const email = `qa_${Date.now()}_${DataGenerator.randomString(6)}@${domain}`;
 
         const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
             headers: { "Content-Type": "application/json" },
