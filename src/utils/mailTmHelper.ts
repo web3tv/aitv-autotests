@@ -85,7 +85,7 @@ export class MailTmHelper {
   async waitForMessage(
     token: string,
     subjectText: string,
-    retries = 10,
+    retries = 20,
     delayMs = 3000,
     afterTimestamp?: number
   ) {
