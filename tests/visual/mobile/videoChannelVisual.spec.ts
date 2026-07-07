@@ -118,7 +118,7 @@ test.describe('Mobile video & channel visual tests', () => {
 
         await test.step('Open channel page', async () => {
             await page.goto(channelUrl);
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
             await page.evaluate(async () => { await document.fonts.ready; });
             await expect(channelPage.forYouHeading).toBeVisible({ timeout: 10_000 });
@@ -145,7 +145,7 @@ test.describe('Mobile video & channel visual tests', () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username, true);
             await page.goto(channelUrl);
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 });
             await page.evaluate(async () => { await document.fonts.ready; });
             await expect(channelPage.forYouHeading).toBeVisible({ timeout: 10_000 });

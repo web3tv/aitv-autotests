@@ -67,7 +67,7 @@ test.describe('Studio visual tests', () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username);
             await page.goto(`${studioBaseUrl}/dashboard`);
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 
@@ -87,7 +87,7 @@ test.describe('Studio visual tests', () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username);
             await page.goto(`${studioBaseUrl}/dashboard`);
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 
@@ -110,7 +110,7 @@ test.describe('Studio visual tests', () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username);
             await page.goto(`${studioBaseUrl}/dashboard`);
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 
@@ -131,7 +131,7 @@ test.describe('Studio visual tests', () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username);
             await page.goto(`${studioBaseUrl}/content`);
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 

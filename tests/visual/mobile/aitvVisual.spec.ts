@@ -41,7 +41,7 @@ test.describe('AITV mobile visual tests', () => {
 
         await test.step('Open main page', async () => {
             await page.goto('/');
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 
@@ -68,7 +68,7 @@ test.describe('AITV mobile visual tests', () => {
         await test.step('Login and navigate to main page', async () => {
             const authFlow = new AuthFlow(page);
             await authFlow.loginSuccess(userEmail, password, username, true);
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 
@@ -97,7 +97,7 @@ test.describe('AITV mobile visual tests', () => {
 
         await test.step('Open main page', async () => {
             await page.goto('/');
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await page.evaluate(async () => { await document.fonts.ready; });
         });
 
@@ -133,7 +133,7 @@ test.describe('AITV mobile visual tests', () => {
 
         await test.step('Open main page and click Get Started', async () => {
             await page.goto('/');
-            await page.waitForLoadState('networkidle');
+            await page.waitForLoadState('domcontentloaded');
             await headerPage.clickGetStarted();
         });
 

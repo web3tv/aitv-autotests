@@ -79,8 +79,13 @@ test.describe('Main domain visual tests', () => {
             await document.fonts.ready;
         });
         await page.waitForTimeout(1000);
+        // Viewport-only (not fullPage): everything below the fold — recommended
+        // videos, category sections, shorts — is masked dynamic content whose
+        // ROW COUNT and total height vary per load, which changes the fullPage
+        // image height and fails the size check before pixels are even compared.
+        // The meaningful surface (player, title, actions) is above the fold.
         await expect(page).toHaveScreenshot('video-page-anon.png', {
-            fullPage: true,
+            fullPage: false,
             mask: videoPageMasks(page),
             maxDiffPixelRatio: 0.02
         });
@@ -100,8 +105,9 @@ test.describe('Main domain visual tests', () => {
             await document.fonts.ready;
         });
         await page.waitForTimeout(1000);
+        // Viewport-only — see the anon video-page note above.
         await expect(page).toHaveScreenshot('video-page-logged-in.png', {
-            fullPage: true,
+            fullPage: false,
             mask: videoPageMasks(page),
             maxDiffPixelRatio: 0.02
         });
@@ -114,7 +120,7 @@ test.describe('Main domain visual tests', () => {
         const header = new HeaderPage(page);
 
         await page.goto(channelUrl);
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
         await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 });
         await page.evaluate(async () => {
             await document.fonts.ready;
@@ -134,7 +140,7 @@ test.describe('Main domain visual tests', () => {
         await authFlow.loginSuccess(userEmail, password, username);
 
         await page.goto(channelUrl);
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
         await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 });
         await page.evaluate(async () => {
             await document.fonts.ready;

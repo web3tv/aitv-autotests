@@ -36,18 +36,24 @@ const detailsMasks = (modal: ContentUploadModal) => [modal.processing];
  */
 const finalizeMasks = (modal: ContentUploadModal) => [modal.preview, modal.hotspotPreviews];
 
-/** Auto-generated per-video share link (random slug) on the Success screen. */
-const successMasks = (modal: ContentUploadModal) => [modal.successShareUrl];
+/**
+ * Success screen non-deterministic regions: the hero banner (blurred cover that
+ * loads asynchronously) and the auto-generated per-video share link (random slug).
+ */
+const successMasks = (modal: ContentUploadModal) => [modal.successHero, modal.successShareUrl];
 
 async function readyForShot(page: Page): Promise<void> {
     await page.evaluate(async () => { await document.fonts.ready; });
 }
 
-test.describe.configure({ mode: 'serial' });
+// Each content-type block shares one page across its Details → Finalize → Success
+// steps, so those steps must run in order and stop on the first failure. Serial is
+// scoped PER describe (not file-wide) so a flake in one type does not skip the others.
 
 // ─────────────────────────────────────────────────────────────── Movie
 
 test.describe('Upload modal — Movie', () => {
+    test.describe.configure({ mode: 'serial' });
     let page: Page;
     let modal: ContentUploadModal;
 
@@ -108,6 +114,7 @@ test.describe('Upload modal — Movie', () => {
 // ─────────────────────────────────────────────────────────────── Series
 
 test.describe('Upload modal — Series', () => {
+    test.describe.configure({ mode: 'serial' });
     let page: Page;
     let modal: ContentUploadModal;
 
@@ -169,6 +176,7 @@ test.describe('Upload modal — Series', () => {
 // ─────────────────────────────────────────────────────────────── Shorts
 
 test.describe('Upload modal — Shorts', () => {
+    test.describe.configure({ mode: 'serial' });
     let page: Page;
     let modal: ContentUploadModal;
 

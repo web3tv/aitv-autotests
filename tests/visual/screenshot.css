@@ -1,0 +1,32 @@
+/*
+ * Injected by Playwright (via expect.toHaveScreenshot.stylePath) only while a
+ * screenshot is captured — it never persists into the running page. Purpose: strip
+ * the last sources of pixel non-determinism that survive `animations: 'disabled'`:
+ * in-flight transitions/animations, the blinking text caret, and scrollbars whose
+ * presence/width shifts layout between runs.
+ */
+
+*,
+*::before,
+*::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  caret-color: transparent !important;
+  scroll-behavior: auto !important;
+}
+
+/* Hide scrollbars so their appearance/width can't cause layout shift or diffs. */
+::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+html,
+body,
+* {
+  scrollbar-width: none !important;
+}

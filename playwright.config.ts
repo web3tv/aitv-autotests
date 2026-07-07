@@ -27,6 +27,17 @@ export default defineConfig({
   testIgnore: '**/skip/**',
   expect: {
     timeout: 10_000,
+    // Defaults for every visual assertion. `animations`/`caret`/`scale` are the
+    // Playwright defaults spelled out explicitly; `stylePath` injects a shared
+    // stylesheet (only during capture) that freezes transitions and hides the
+    // caret + scrollbars so their timing/width can't leak into a diff.
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.02,
+      animations: 'disabled',
+      caret: 'hide',
+      scale: 'css',
+      stylePath: path.resolve(__dirname, 'tests/visual/screenshot.css'),
+    },
   },
   timeout: 90_000,
   forbidOnly: !!process.env.CI,
@@ -82,6 +93,9 @@ export default defineConfig({
       name: 'visual-desktop-chromium',
       testMatch: /visual\/desktop\/.*\.spec\.ts$/,
       fullyParallel: false,
+      // Retry to absorb transient shared-env hiccups (slow nav / 5xx) so a single
+      // network blip doesn't red a run. A stable screenshot diff still fails on retry.
+      retries: 2,
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
@@ -89,6 +103,9 @@ export default defineConfig({
         colorScheme: 'light',
         locale: 'en-US',
         trace: 'off',
+        // The shared dev env is occasionally slow to first-byte; give navigation
+        // more headroom than the 30s default that timed out on /movies.
+        navigationTimeout: 60_000,
       },
     },
 
@@ -98,9 +115,11 @@ export default defineConfig({
       name: 'visual-mobile-webkit',
       testMatch: /visual\/mobile\/.*\.spec\.ts$/,
       fullyParallel: false,
+      retries: 2,
       use: {
         ...devices['iPhone 15 Pro Max'],
         trace: 'off',
+        navigationTimeout: 60_000,
       },
     },
   ]

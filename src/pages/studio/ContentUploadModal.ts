@@ -94,6 +94,7 @@ export class ContentUploadModal {
     // Success step
     readonly successRoot: Locator;
     readonly successClose: Locator;
+    readonly successHero: Locator;
     readonly successShareUrl: Locator;
     readonly successViewVideo: Locator;
     readonly successVisitStudio: Locator;
@@ -174,6 +175,10 @@ export class ContentUploadModal {
 
         this.successRoot = page.getByTestId('aitv-upload-success-root');
         this.successClose = page.getByTestId('aitv-upload-success-close');
+        // Banner behind the "Congratulations" card. It renders the just-uploaded
+        // video's cover as a blurred background that loads asynchronously — present
+        // in some runs, not yet in others — so it is masked in visual tests.
+        this.successHero = page.getByTestId('aitv-upload-success-hero');
         // Auto-generated per-video share link (random slug) — masked in visual tests.
         this.successShareUrl = page.getByTestId('aitv-upload-success-share-url');
         this.successViewVideo = page.getByTestId('aitv-upload-success-view-video');
