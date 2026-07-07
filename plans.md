@@ -16,3 +16,4 @@
 17. Edit video test 
 18. Visual test - Channel Page
 19. Visual test - Shorts Page ( mobile + desktop )
+20. Сделать фикстуру для визуальных тестов( юзер с каналом/видео/сериалами/шорстами/подписчиками и просмотрами )
