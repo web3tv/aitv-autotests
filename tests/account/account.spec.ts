@@ -4,9 +4,7 @@ import { AuthApi } from '../../src/api/AuthApi';
 import { AccountPage } from '../../src/pages/account/AccountPage';
 import { GmailHelper } from '../../src/utils/gmailHelper';
 
-// BLOCKED by W3-2731: password change confirmation link is rejected as expired/invalid
-// https://stretch-com.atlassian.net/browse/W3-2731
-test.fixme('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
+test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   const newPassword = 'NewPassword1@';
 
