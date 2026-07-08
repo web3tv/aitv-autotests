@@ -19,9 +19,26 @@ npx playwright test tests/auth/emailAuth.spec.ts --project=functional
 npx playwright test --grep "Success login as user" --project=functional
 ```
 
+**Seed the shared fixture — run LOCALLY once per stand (needs the DB port-forward):**
+```
+kubectl port-forward -n web3tv svc/mariadb 3307:3306   # DB for content-wipe + subscribers
+npm run seed:fixture                                    # ENV_FILE=.env.web3tv npm run seed:fixture for dev1
+```
+This get-or-creates a FIXED channel (`@qavischan`) and refreshes its content — public/short/private/unlisted videos (+ a multi-paragraph-description one), a series with episodes, and a follower count. It writes
+**nothing** to commit: all read-only specs (visual + functional) call
+`resolveSharedFixture()` (`tests/fixtures/sharedFixture.ts`), which logs in as the
+fixed owner and looks the content up **by title from the current stand at runtime**. So
+the fixture is **env-agnostic** (same code works on dev1 and dev2 — the account is
+deterministic, only the content slugs differ per stand) and **CI never seeds nor touches
+the DB**: it resolves live over the network, and the `fixture-check` setup project
+(a dependency of `functional`/visual) fails the run fast with a re-seed hint if the
+content is missing. The fixed accounts are created once and reused (never deleted — the
+auth service permanently reserves a handle), so re-seed only after a DB drop / content
+change. The DB is needed **only when seeding** (locally).
+
 **Run visual tests (desktop 1920×1080):**
 ```
-# Must be run inside Docker
+# Must be run inside Docker; needs the visual fixture seeded first (see above)
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
 ```
 
@@ -105,6 +122,11 @@ tests/
   visual/
     desktop/    — Desktop visual regression specs (Docker only)
     mobile/     — Mobile visual regression specs (Docker only)
+    shared/     — Reusable visual test bodies (listingVisualScenarios) — not a spec, imported by entry points
+  fixtures/     — SHARED FIXTURES (see "Fixtures" below)
+    sharedFixture.ts     — shared read-only channel @qavischan: resolveSharedFixture() + fixed creds
+    videoSeed.ts         — seeded-content constants (titles/category/genres) — single source of truth
+    fixtureCheck.setup.ts — `fixture-check` setup project: validates the shared fixture is live before a run
   skip/         — Parked/disabled specs (excluded via testIgnore `**/skip/**`)
 src/
   flows/        — High-level user journey orchestrators
@@ -117,9 +139,17 @@ src/
     heroPay/    — Payment integration page
   api/          — Direct API helpers (bypass UI for setup)
   utils/        — Utilities (Gmail IMAP mail reading, data generation, video player, incognito)
+scripts/        — one-off tools: seedFixture.ts (seed the shared fixture), deleteUser.ts
 test-data/
-  fixtures/     — Static test assets (video files, photos)
+  fixtures/     — STATIC assets (video files, photos) — NOT to be confused with tests/fixtures/
 ```
+
+### Fixtures (don't conflate the two "fixture" meanings)
+
+- **`tests/fixtures/sharedFixture.ts`** — the single **read-only** channel `@qavischan` for visual + view-only functional tests. `resolveSharedFixture()` logs in as the fixed owner and resolves content URLs **by title from the current stand** (env-agnostic, nothing committed): `channelUrl`, `videoUrl`, `shortUrl`, `privateVideoUrl`, `unlistedVideoUrl`, `descriptionVideoUrl`, `seriesId`/`seriesSlug`/`episodeUrls`, owner + non-owner creds. Read-only — never mutate it (see the "Independent user per test" exception).
+- **`tests/fixtures/videoSeed.ts`** — seeded-content constants (`FIXTURE_VIDEO_TITLE`, `FIXTURE_SERIES_TITLE`, category, genres, rating…). Single source of truth: `scripts/seedFixture.ts` creates the content by them, `resolveSharedFixture()` and assertions find it by them.
+- **`tests/fixtures/fixtureCheck.setup.ts`** — the `fixture-check` setup project (a dependency of `functional`/visual). Calls `resolveSharedFixture()` once; if content is missing it fails the run with a re-seed hint.
+- **`test-data/fixtures/`** — NOT Playwright fixtures: **static assets** (video files, photos) uploaded during tests.
 
 ### Key design patterns
 
@@ -186,6 +216,11 @@ test('My test', async ({ page }) => {
 
 **Independent user per test:**
 Each `test()` creates its own user via `AuthApi.createAndVerifyUser()`. Never share users or state between tests.
+
+**Exception — shared read-only fixture:** a `test()` that only VIEWS content may reuse the shared pre-seeded channel `@qavischan` via `resolveSharedFixture()` (`tests/fixtures/sharedFixture.ts`) instead of seeding its own — it exposes public/short/private/unlisted/description video URLs, a series (`seriesId` + `episodeUrls`), and non-owner viewer creds. Two hard rules: (1) **never mutate the fixture** (no upload/edit/visibility change/follow/password change on `@qavischan` — the `functional` project runs in parallel, so a mutation is a cross-worker race and also breaks the visual baselines); any mutating test MUST seed its own resource (`AuthApi.createAndVerifyUser()` / `setupVideoViaApi()`). (2) The fixture is seeded locally with `npm run seed:fixture` (see Commands) and resolved live per-stand by `resolveSharedFixture()` — nothing is committed, and CI never touches the DB. The `fixture-check` setup project validates liveness over the network and fails the run fast with a re-seed hint if the content is missing (e.g. after a DB drop).
+
+**Re-check the shared fixture against every task's changes (MANDATORY):**
+Whenever a task touches anything the shared `@qavischan` fixture relies on, you MUST verify the fixture still holds — do NOT assume it survived a UI/API change. Ask on every task: *could this change break or outdate the fixture?* Triggers to watch: channel / video-page / player DOM (locators, `data-id`s used by `ChannelMainPage`, masks, `resolveSharedFixture`), the studio/playlist listing endpoints (`VideoApi.listStudioContent` / `listMyPlaylists` — the resolver reads them), the seeded-content shape (a new content type/field, renamed titles), or the account/auth/registration flow (fixed-account creation). Action: run `npx playwright test --project=fixture-check`; if it fails or the change alters what tests read/screenshot, update `tests/fixtures/sharedFixture.ts` (resolver), `tests/fixtures/videoSeed.ts` (seed constants) and/or `scripts/seedFixture.ts`, then re-seed (`npm run seed:fixture`) and re-run the affected specs. This is part of the pipeline (Phase 2 — see `.claude/PIPELINE_FLOW.md`), but applies to any change, pipeline or not.
 
 **`waitForResponse` before trigger action:**
 Register `page.waitForResponse` **before** the action that triggers the request, otherwise it's a race condition.

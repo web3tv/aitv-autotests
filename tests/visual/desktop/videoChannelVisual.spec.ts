@@ -1,22 +1,20 @@
-import { test, expect, request as playwrightRequest, Page } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { VideoPlayerPage } from '../../../src/pages/components/VideoPlayerPage';
 import { ChannelMainPage } from '../../../src/pages/channel/ChannelMainPage';
-import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
-import { AuthApi } from '../../../src/api/AuthApi';
-import {
-    VISUAL_VIDEO_TITLE,
-    VISUAL_VIDEO_DESCRIPTION,
-    VISUAL_VIDEO_CATEGORY_SLUG,
-    VISUAL_VIDEO_GENRES,
-    VISUAL_VIDEO_CONTENT_RATING,
-} from '../shared/videoSeed';
+import { resolveSharedFixture } from '../../fixtures/sharedFixture';
+
+// NOTE: this file is intentionally a near-duplicate of its mobile twin
+// (tests/visual/mobile/videoChannelVisual.spec.ts). Keep the two in sync — they share
+// one skeleton and differ ONLY in the lines marked `// platform:` (header anchor,
+// isMobile login flag, describe title, TC prefix, mobile settle).
 
 // The video-page screenshot is scoped to the details block (title + 18+ badge +
-// description + genre chips + action buttons), which is seeded with fixed content.
-// Only the genuinely non-deterministic fields inside it are masked: the channel
-// byline (random handle + follower count) and the relative views/date line.
+// description + genre chips + action buttons), seeded with fixed content. The views/
+// date line stays masked (relative "N views • X ago" is non-deterministic); the channel
+// byline is the fixed fixture handle + follower count, but stays masked so this spec's
+// video shot is independent of channel-identity churn.
 const videoDetailsMasks = (page: Page) => {
     const video = new VideoPlayerPage(page);
     return [
@@ -26,81 +24,57 @@ const videoDetailsMasks = (page: Page) => {
     ];
 };
 
-// After the 2026 channel redesign the grid tiles (`aitv-video-card`) are cover-only
-// at rest and seeded with the fixed cat.jpg cover, so the grid is screenshot for real
-// — no longer masked. Only genuinely non-deterministic regions stay masked: the
-// identity name/@handle (a random username per run) and the authed header's profile
-// trigger. The hero avatar is the default silhouette (identical across users) and the
-// followers count is a fixed "0", so both are left visible. `username` is the seeded
-// owner's handle, used to target the name heading and @handle text (the hero carries
-// no data-id attributes).
-const channelPageMasks = (page: Page, username: string) => {
+// The channel comes from a FIXED seeded fixture (deterministic handle, name and follower
+// count — see tests/fixtures/sharedFixture.ts), so the identity header is
+// screenshot UNMASKED alongside the cover grid. Only the authed header controls stay
+// masked (profile trigger / studio channel trigger — no-op matches when anonymous), and
+// the seeded short auto-plays so it is masked too.
+const channelPageMasks = (page: Page) => {
     const header = new HeaderPage(page);
+    const channel = new ChannelMainPage(page);
     return [
-        page.getByRole('heading', { name: username }),   // channel name (rendered as h1)
-        page.getByText(`@${username}`, { exact: true }),  // @handle
-        header.userIcon,          // authed profile trigger (no-op match when anonymous)
+        header.userIcon,
         header.channelTriggerBtn,
+        channel.shortCards,
     ];
 };
 
-test.describe('Main domain visual tests', () => {
+// platform: describe title
+test.describe('Video & channel visual tests (desktop)', () => {
 
     let userEmail: string;
     let password: string;
     let username: string;
     let videoUrl: string;
     let channelUrl: string;
-    // A second account that does NOT own the seeded channel — used for the logged-in
-    // non-owner ("user") channel screenshot.
+    // The fixed logged-in NON-owner used for the "user" channel screenshot.
     let viewerEmail: string;
     let viewerUsername: string;
 
     test.beforeAll(async () => {
-        // Seeding uploads 3 videos and waits for each to process — well over the 90s
-        // default hook timeout, and this hook re-runs on every test retry.
-        test.setTimeout(240_000);
-        const requestContext = await playwrightRequest.newContext();
-        password = process.env.USER_PASSWORD!;
-
-        // Fixed title/description/category/genres → the watch-page details block
-        // renders deterministically. videoCount: 3 → the channel grid has a stable
-        // multi-tile layout to screenshot.
-        const setup = await setupVideoViaApi(requestContext, {
-            privacySetting: 'public',
-            title: VISUAL_VIDEO_TITLE,
-            description: VISUAL_VIDEO_DESCRIPTION,
-            categorySlug: VISUAL_VIDEO_CATEGORY_SLUG,
-            genres: VISUAL_VIDEO_GENRES,
-            contentRating: VISUAL_VIDEO_CONTENT_RATING,
-            videoCount: 3,
-        });
-        userEmail = setup.user.email;
-        username = setup.user.username;
-        videoUrl = setup.videoUrl;
-        channelUrl = setup.channelUrl;
-
-        // Second, channel-less account for the non-owner channel view.
-        const viewer = await new AuthApi(requestContext).createUserFast();
-        viewerEmail = viewer.email;
-        viewerUsername = viewer.username;
-
-        await requestContext.dispose();
+        // Resolve the pre-seeded fixture from the current stand (no per-run uploads).
+        // Seed once with `npm run seed:fixture`; the fixture-check preflight fails fast
+        // with a re-seed hint if it's missing.
+        const fx = await resolveSharedFixture();
+        userEmail = fx.ownerEmail;
+        username = fx.ownerUsername;
+        password = fx.password;
+        videoUrl = fx.videoUrl;
+        channelUrl = fx.channelUrl;
+        viewerEmail = fx.viewerEmail;
+        viewerUsername = fx.viewerUsername;
     });
 
-
     // ── Video page ──
-
     // Screenshot the seeded, deterministic details block (title/18+ badge/description/
-    // genre chips/action buttons) rather than the whole page. The player poster
-    // (backend-derived) and the algorithmic recommendation sections below are outside
-    // this element, so they never enter the frame.
+    // genre chips/action buttons) rather than the whole page — the player poster and the
+    // algorithmic recommendation sections stay outside this element, out of frame.
     async function shootVideoDetails(page: Page, name: string): Promise<void> {
         const videoPlayer = new VideoPlayerPage(page);
         const header = new HeaderPage(page);
 
         await page.goto(videoUrl, { waitUntil: 'domcontentloaded' });
-        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 });
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 }); // platform: header anchor
         await expect(videoPlayer.videoDescriptionBlock, 'Video details block is not visible')
             .toBeVisible({ timeout: 15_000 });
         await expect(videoPlayer.videoTitle).toBeVisible({ timeout: 15_000 });
@@ -113,33 +87,18 @@ test.describe('Main domain visual tests', () => {
         });
     }
 
-    test('Video page for anonymous user', async ({ page }) => {
-        await shootVideoDetails(page, 'video-page-anon.png');
-    });
-
-    test('Video page for logged in user', async ({ page }) => {
-        const authFlow = new AuthFlow(page);
-        await authFlow.loginSuccess(userEmail, password, username);
-        await shootVideoDetails(page, 'video-page-logged-in.png');
-    });
-
     // ── Channel page (2026 redesign) ──
-    //
     // Three viewer states of the public channel view: anonymous, a logged-in non-owner
-    // ("user"), and the channel owner. The seeded 3-video grid (cat.jpg covers, fixed
-    // titles) is screenshot unmasked; only the random name/@handle and the authed
-    // header trigger are masked (see channelPageMasks). State is distinguished by the
-    // hero action button — visitors see "Follow", the owner sees "Edit"/"Share".
-
-    // Open the owner's channel, wait for the grid covers to finish loading, and
-    // screenshot the viewport. `ownerView` picks the hero-button anchor so the shot is
-    // only taken once the intended (owner vs visitor) UI has rendered.
+    // ("user"), and the channel owner. The seeded grid (cat.jpg covers, fixed titles) is
+    // screenshot unmasked; state is distinguished by the hero action button — visitors
+    // see "Follow", the owner sees "Edit"/"Share". `ownerView` picks that anchor so the
+    // shot is only taken once the intended UI has rendered.
     async function shootChannel(page: Page, name: string, ownerView: boolean): Promise<void> {
         const channelPage = new ChannelMainPage(page);
         const header = new HeaderPage(page);
 
         await page.goto(channelUrl, { waitUntil: 'domcontentloaded' });
-        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 });
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 }); // platform: header anchor
         await expect(channelPage.channelNameHeading.first(), 'Channel name is not visible')
             .toBeVisible({ timeout: 15_000 });
         const stateAnchor = ownerView ? channelPage.editBtn : channelPage.followBtn;
@@ -154,27 +113,64 @@ test.describe('Main domain visual tests', () => {
             return imgs.length > 0 && imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0);
         }, { timeout: 20_000 });
         await page.evaluate(async () => { await document.fonts.ready; });
+        // platform: no extra settle on desktop (mobile/webkit adds a waitForTimeout here)
         await expect(page).toHaveScreenshot(name, {
             fullPage: false,
-            mask: channelPageMasks(page, username),
+            mask: channelPageMasks(page),
             maxDiffPixelRatio: 0.02,
         });
     }
 
-    test('Channel page for anonymous user', async ({ page }) => {
-        await shootChannel(page, 'channel-page-anon.png', false);
+    test('Video page for anonymous user', {
+        annotation: { type: 'TC', description: 'VIS-VCH-001' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Open video page and screenshot details block', async () => {
+            await shootVideoDetails(page, 'video-page-anon.png');
+        });
     });
 
-    test('Channel page for logged-in user (not owner)', async ({ page }) => {
-        const authFlow = new AuthFlow(page);
-        await authFlow.loginSuccess(viewerEmail, password, viewerUsername);
-        await shootChannel(page, 'channel-page-user.png', false);
+    test('Video page for logged in user', {
+        annotation: { type: 'TC', description: 'VIS-VCH-002' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Login', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(userEmail, password, username, false); // platform: isMobile flag
+        });
+        await test.step('Open video page and screenshot details block', async () => {
+            await shootVideoDetails(page, 'video-page-logged-in.png');
+        });
     });
 
-    test('Channel page for channel owner', async ({ page }) => {
-        const authFlow = new AuthFlow(page);
-        await authFlow.loginSuccess(userEmail, password, username);
-        await shootChannel(page, 'channel-page-owner.png', true);
+    test('Channel page for anonymous user', {
+        annotation: { type: 'TC', description: 'VIS-VCH-003' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Open channel page and screenshot', async () => {
+            await shootChannel(page, 'channel-page-anon.png', false);
+        });
     });
 
-})
+    test('Channel page for logged-in user (not owner)', {
+        annotation: { type: 'TC', description: 'VIS-VCH-004' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Login as non-owner', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(viewerEmail, password, viewerUsername, false); // platform: isMobile flag
+        });
+        await test.step('Open channel page and screenshot', async () => {
+            await shootChannel(page, 'channel-page-user.png', false);
+        });
+    });
+
+    test('Channel page for channel owner', {
+        annotation: { type: 'TC', description: 'VIS-VCH-005' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Login as owner', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(userEmail, password, username, false); // platform: isMobile flag
+        });
+        await test.step('Open channel page and screenshot', async () => {
+            await shootChannel(page, 'channel-page-owner.png', true);
+        });
+    });
+
+});

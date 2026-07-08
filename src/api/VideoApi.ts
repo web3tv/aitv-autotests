@@ -187,6 +187,52 @@ export class VideoApi {
         });
     }
 
+    /**
+     * Lists the authenticated owner's studio content of a given type (the same
+     * `/videos/studio/` endpoint as {@link waitForProcessing} but WITHOUT an `id`, so it
+     * returns all items). Used to resolve the shared visual fixture's watch URLs at
+     * runtime by title, so the fixture is env-agnostic (no committed per-env slugs).
+     * NB: `type=video` also returns series episodes (item.type === 'episode').
+     */
+    async listStudioContent(
+        token: string,
+        type: 'video' | 'short'
+    ): Promise<Array<{ title: string; slug: string; type: string; categorySlug: string }>> {
+        const response = await this.request.get(`${this.baseUrl}/videos/studio/`, {
+            headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+            params: { withFacets: 'true', type },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to list studio content (type=${type}): ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const items: any[] = json?.data?.items ?? json?.items ?? [];
+        return items.map((v) => ({
+            title: v?.title,
+            slug: v?.slug,
+            type: v?.type,
+            categorySlug: v?.category?.slug ?? v?.categories?.[0]?.slug ?? '',
+        }));
+    }
+
+    /** Lists the authenticated owner's playlists/series (`GET /playlists/?mine=true`). */
+    async listMyPlaylists(
+        token: string
+    ): Promise<Array<{ id: string; title: string; slug: string; type: string }>> {
+        const response = await this.request.get(`${this.baseUrl}/playlists/`, {
+            headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+            params: { mine: 'true' },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to list playlists: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const items: any[] = json?.data?.items ?? json?.items ?? [];
+        return items.map((p) => ({ id: p?.id, title: p?.title, slug: p?.slug, type: p?.type }));
+    }
+
     async setDefaultVideoDescription(
         token: string,
         channelId: string,

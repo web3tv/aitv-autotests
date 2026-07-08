@@ -61,6 +61,17 @@ export default defineConfig({
   
   projects: [
 
+    // Preflight for the shared read-only fixture (`@qavischan`). A stale/missing fixture
+    // aborts dependent projects with a clear "re-seed" message. Matches only the
+    // `*.setup.ts` file (never a `.spec.ts`), so it's collected only here. `retries: 2`
+    // absorbs a transient dev-env blip so the whole suite isn't aborted by one flake.
+    {
+      name: 'fixture-check',
+      testMatch: /fixtureCheck\.setup\.ts$/,
+      retries: 2,
+      use: { browserName: 'chromium' },
+    },
+
     {
       name: 'aitv',
       testMatch: /ai\.tv\/.*\.spec\.ts$/,
@@ -72,6 +83,7 @@ export default defineConfig({
     {
       name: 'functional',
       testMatch: /^(?!.*visual)(?!.*production)(?!.*ai\.tv).*\.spec\.ts$/,
+      dependencies: ['fixture-check'],
       use: {
         browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
@@ -92,6 +104,7 @@ export default defineConfig({
     {
       name: 'visual-desktop-chromium',
       testMatch: /visual\/desktop\/.*\.spec\.ts$/,
+      dependencies: ['fixture-check'],
       fullyParallel: false,
       // Retry to absorb transient shared-env hiccups (slow nav / 5xx) so a single
       // network blip doesn't red a run. A stable screenshot diff still fails on retry.
@@ -114,6 +127,7 @@ export default defineConfig({
     {
       name: 'visual-mobile-webkit',
       testMatch: /visual\/mobile\/.*\.spec\.ts$/,
+      dependencies: ['fixture-check'],
       fullyParallel: false,
       retries: 2,
       use: {

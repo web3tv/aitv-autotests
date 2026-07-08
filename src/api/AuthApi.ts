@@ -162,12 +162,14 @@ export class AuthApi {
         };
     }
 
-    async createUserFast(staticCode = '1111') {
+    async createUserFast(staticCode = '1111', opts: { email?: string; username?: string } = {}) {
         // No real mailbox is needed here: /auth/verify below uses a static OTP, so
         // the inbox is never polled. The address is built locally under EMAIL_DOMAIN
         // (no IMAP/Gmail round-trip at all). Timestamp + random keeps it unique.
+        // `opts.email`/`opts.username` pin a deterministic account (used by the
+        // visual-fixture seed script); omitted → random, as before.
         const domain = process.env.EMAIL_DOMAIN ?? 'aitv-test.com';
-        const email = `qa_${Date.now()}_${DataGenerator.randomString(6)}@${domain}`;
+        const email = opts.email ?? `qa_${Date.now()}_${DataGenerator.randomString(6)}@${domain}`;
 
         const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
             headers: { "Content-Type": "application/json" },
@@ -183,7 +185,7 @@ export class AuthApi {
         if (!verifyRes.ok()) throw new Error(`❌ /auth/verify failed: ${verifyRes.status()}`);
         const { ticket } = await verifyRes.json();
 
-        const username = DataGenerator.generateUsername();
+        const username = opts.username ?? DataGenerator.generateUsername();
         const completeRes = await this.request.post(`${this.baseUrl}/auth/complete`, {
             headers: { "Content-Type": "application/json" },
             data: { ticket, handle: username, password: process.env.USER_PASSWORD ?? "Admin1@@" },

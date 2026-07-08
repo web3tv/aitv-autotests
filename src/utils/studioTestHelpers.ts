@@ -51,6 +51,9 @@ export async function setupVideoViaApi(
         // the channel visual test to seed a deterministic multi-tile grid. The FIRST
         // uploaded video is the one returned as `videoUrl`/`videoId`.
         videoCount?: number;
+        // Reuse an already-created account instead of registering a fresh random one.
+        // Used by the visual-fixture seed script to attach videos to a fixed owner.
+        existingUser?: { email: string; username: string };
     }
 ): Promise<VideoSetupResult> {
     const authApi = new AuthApi(request);
@@ -58,7 +61,7 @@ export async function setupVideoViaApi(
     const password = process.env.USER_PASSWORD!;
     const baseUrl = process.env.BASE_URL!;
 
-    const user = await authApi.createUserFast();
+    const user = options.existingUser ?? await authApi.createUserFast();
     const token = await authApi.getUserToken(user.email, password);
     const channelId = await videoApi.getChannelId(token);
 
@@ -154,6 +157,9 @@ export async function setupSeriesWithEpisodes(
         seriesTitle?: string;
         categorySlug?: string;
         genres?: string[];
+        // Reuse an already-created account instead of registering a fresh random one
+        // (e.g. attach the series to the fixed visual-fixture owner).
+        existingUser?: { email: string; username: string };
     } = {}
 ): Promise<SeriesSetupResult> {
     const authApi = new AuthApi(request);
@@ -165,7 +171,7 @@ export async function setupSeriesWithEpisodes(
     const categorySlug = options.categorySlug ?? 'education';
     const genres = options.genres ?? ['Action', 'Adventure', 'Comedy'];
 
-    const user = await authApi.createUserFast();
+    const user = options.existingUser ?? await authApi.createUserFast();
     const token = await authApi.getUserToken(user.email, password);
     const channelId = await videoApi.getChannelId(token);
     const categoryId = await videoApi.getCategoryIdBySlug(categorySlug);

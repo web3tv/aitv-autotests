@@ -53,24 +53,41 @@ ENV_FILE=.env.prod npx playwright test --project=functional
 
 ```
 tests/
-  auth/            — логин / регистрация / 2FA / сброс / email-шаблоны + валидация страницы регистрации
-  account/         — настройки аккаунта, профиль, уведомления (profile/notifications — test.fixme WIP)
-  content/         — креатор: создание и управление контентом
-    upload/        —   загрузка Movie/Series/Shorts/Taxonomy + валидация загрузки
-    manage/        —   видимость, описание, аналитика, NFT-конвертация, поиск по студии
-    channel/       —   создание/редактирование канала + валидация страницы редактирования
-  player/          — зритель: видео-плеер, embed-плеер, воспроизведение серий
-  api/             — контракт-тесты по эндпоинтам напрямую (без браузера)
-  production/      — прод-сетап и смоук (проект prodSmoke)
-  visual/          — визуалка desktop/ + mobile/ (только Docker)
-  skip/            — запаркованные спеки (исключены через testIgnore `**/skip/**`)
+  auth/                    — логин / регистрация / сброс / email-шаблоны + валидация страницы регистрации
+  account/                 — настройки аккаунта, профиль, уведомления (profile/notifications — test.fixme WIP)
+  content/                 — креатор: создание и управление контентом
+    upload/                —   загрузка Movie/Series/Shorts/Taxonomy + валидация загрузки
+    manage/                —   видимость, описание, аналитика, NFT-конвертация, поиск по студии
+    channel/               —   создание/редактирование канала + валидация страницы редактирования
+  player/                  — зритель: видео-плеер, embed-плеер, воспроизведение серий
+  api/                     — контракт-тесты по эндпоинтам напрямую (без браузера)
+  production/              — прод-сетап и смоук (проект prodSmoke)
+  visual/                  — визуалка desktop/ + mobile/ (только Docker); shared/ — переиспользуемые тела визуалок
+  fixtures/                — ОБЩИЕ ФИКСТУРЫ (см. раздел «Фикстуры» ниже)
+    sharedFixture.ts       —   общий read-only канал @qavischan: resolveSharedFixture() + фикс-креды
+    videoSeed.ts           —   константы засеянного контента (титулы/категория/жанры) — общий источник правды
+    fixtureCheck.setup.ts  —   preflight-проект fixture-check: проверяет живость общей фикстуры перед прогоном
+  skip/                    — запаркованные спеки (исключены через testIgnore `**/skip/**`)
 src/
-  flows/           — оркестраторы пользовательских сценариев
-  pages/           — Page Object Model
-  api/             — API-хелперы (быстрый сетап в обход UI)
-  utils/           — утилиты (чтение почты Gmail по IMAP, видео-плеер, генерация данных, videoTaxonomy)
-test-data/         — фикстуры (видео, фото)
+  flows/                   — оркестраторы пользовательских сценариев
+  pages/                   — Page Object Model
+  api/                     — API-хелперы (быстрый сетап в обход UI)
+  utils/                   — утилиты (чтение почты Gmail по IMAP, видео-плеер, генерация данных, videoTaxonomy)
+scripts/                   — one-off утилиты: seedFixture.ts (сид общей фикстуры), deleteUser.ts
+test-data/
+  fixtures/                — СТАТИЧЕСКИЕ ассеты (видеофайлы, фото) — НЕ путать с tests/fixtures/
 ```
+
+### Фикстуры
+
+Не путай два «фикстурных» понятия:
+
+- **`tests/fixtures/sharedFixture.ts`** — единый **read-only** канал `@qavischan` для visual + функциональных view-only тестов. `resolveSharedFixture()` логинится фиксированным владельцем и **резолвит URL контента по титулам** с текущего стенда (env-agnostic, ничего не коммитится). Отдаёт `channelUrl`, `videoUrl`, `shortUrl`, `privateVideoUrl`, `unlistedVideoUrl`, `descriptionVideoUrl`, `seriesId`/`seriesSlug`/`episodeUrls`, креды владельца и не-владельца. Правило: **только чтение, не мутировать** (см. CLAUDE.md).
+- **`tests/fixtures/videoSeed.ts`** — константы засеянного контента (`FIXTURE_VIDEO_TITLE`, `FIXTURE_SERIES_TITLE`, категория, жанры, рейтинг и т.д.). Общий **источник правды**: по ним `scripts/seedFixture.ts` создаёт контент, а `resolveSharedFixture()` и ассерты его находят.
+- **`tests/fixtures/fixtureCheck.setup.ts`** — setup-проект `fixture-check` (зависимость `functional`/visual). Один раз зовёт `resolveSharedFixture()`; если контента нет — валит прогон с «пересей: `npm run seed:fixture`».
+- **`test-data/fixtures/`** — это НЕ Playwright-фикстуры, а **статические ассеты** (видеофайлы, фото), которые грузятся в тестах.
+
+Отдельно: **`tests/visual/shared/listingVisualScenarios.ts`** — не данные, а переиспользуемые **тела** визуальных тестов листингов (desktop и mobile зовут один регистратор).
 
 Карта покрытия тест-кейсами — [TEST_COVERAGE.md](TEST_COVERAGE.md).
 
@@ -126,14 +143,14 @@ npx playwright test --project=functional --grep @db
 
 #### Порядок запуска и роль фикстур подготовки данных
 
-Некоторые `@db`-тесты используют **фикстуру подготовки данных** (например `seededAnalytics` в [tests/fixtures.ts](tests/fixtures.ts) для ANALY-001). Важно понимать порядок:
+Некоторые `@db`-тесты **сами готовят изолированные данные в начале теста** (например ANALY-001 зовёт `setupSeededAnalytics(request)` из [src/utils/analyticsSeed.ts](src/utils/analyticsSeed.ts)). Важно понимать порядок:
 
 1. **Один раз** подними port-forward (команда выше) — он должен работать всё время, пока гоняешь `@db`-тесты.
-2. **Дальше просто запускаешь тесты.** Фикстуру **отдельно запускать не нужно** — это не отдельная команда. Playwright сам вызывает её как setup перед телом теста.
+2. **Дальше просто запускаешь тесты** — сид зовётся прямо в теле теста (`beforeAll`/шаг), отдельной команды нет.
 
-> Фикстура `seededAnalytics` — **test-scoped**: она отрабатывает **на каждый прогон теста заново** и создаёт **свои изолированные данные** (новый пользователь + видео + сид просмотров/лайков/комментов/подписчиков). Поэтому НЕ нужно «засидить один раз и гонять тесты, пока не очистят БД» — каждый прогон самодостаточен и не зависит от предыдущих данных. Минус — сетап (~1 мин) повторяется на каждый прогон.
+> `setupSeededAnalytics` отрабатывает **на каждый прогон теста заново** и создаёт **свои изолированные данные** (новый пользователь + видео + сид просмотров/лайков/комментов/подписчиков). Поэтому НЕ нужно «засидить один раз и гонять тесты, пока не очистят БД» — каждый прогон самодостаточен. Минус — сетап (~1 мин) повторяется на каждый прогон.
 >
-> Если понадобится «засидить один раз и переиспользовать в нескольких тестах» — это другой паттерн (worker-scoped фикстура или отдельный seed-скрипт); текущая фикстура так не работает.
+> Если понадобится «засидить один раз и переиспользовать в нескольких тестах» — это другой паттерн (общий пред-засеянный ресурс, как `@qavischan` ниже).
 
 Запуск теста с фикстурой (port-forward уже поднят):
 
@@ -141,7 +158,36 @@ npx playwright test --project=functional --grep @db
 npx playwright test tests/content/manage/analytics.spec.ts --grep @db --project=functional
 ```
 
-**Визуальные тесты** — только внутри Docker (для пиксель-стабильности):
+### Общая фикстура `@qavischan` (visual + read-only функциональные)
+
+Сид гоняется **локально один раз на стенд** (нужен порт-форвард к БД) — get-or-create
+создаёт ФИКСИРОВАННЫЙ канал `@qavischan` и обновляет его контент: public-видео, short,
+private+unlisted+description видео, **сериал** с эпизодами и счётчик подписчиков. **Коммитить
+нечего**: тесты вызывают `resolveSharedFixture()`, который логинится владельцем и
+**резолвит URL контента по титулам с текущего стенда в рантайме**. Поэтому фикстура
+**env-agnostic** (один и тот же код работает на dev1 и dev2 — аккаунт детерминирован,
+разнятся только слаги), а **CI к БД не притрагивается** — резолвит по сети (VPN).
+Фикс-аккаунты создаются один раз и переиспользуются (auth-сервис навсегда резервирует
+хендл) → пере-сеивать нужно только после дропа БД / смены контента.
+См. `tests/fixtures/sharedFixture.ts`.
+
+```bash
+kubectl port-forward -n web3tv svc/mariadb 3307:3306   # БД нужна ТОЛЬКО для локального сида
+npm run seed:fixture                                    # ENV_FILE=.env.web3tv npm run seed:fixture — для dev1
+```
+
+**Кто читает фикстуру.** `resolveSharedFixture()` отдаёт `channelUrl`, `videoUrl`,
+`shortUrl`, `privateVideoUrl`, `unlistedVideoUrl`, `descriptionVideoUrl`, `seriesId`/`seriesSlug`/`episodeUrls`,
+креды владельца и не-владельца (`viewerEmail`). Её используют визуальные спеки и
+**read-only функциональные** (плеер, авто-переход серии, видимость видео). Правило —
+**только чтение, не мутировать `@qavischan`** (см. CLAUDE.md); мутирующие тесты сеют
+своё через `createAndVerifyUser`/`setupVideoViaApi`.
+
+**Preflight.** Setup-проект `fixture-check` (зависимость `functional` и визуальных
+проектов) один раз резолвит фикстуру по сети (без БД) и валит прогон с понятным
+«пересей: `npm run seed:fixture`», если контент отсутствует (напр. после дропа БД).
+
+Визуальные тесты — только в Docker:
 
 ```bash
 docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
@@ -178,3 +224,59 @@ Workflows лежат в [.github/workflows/](.github/workflows/). Dev-стенд
 | `aitv-visual-manual.yml` | Вручную | Визуальная регрессия |
 
 **Ночная регрессия** (`nightly-regression.yml`): по умолчанию dev2, отчёт `playwright-report` сохраняется в артефактах, статус уходит в Slack. Cron активируется **только после мёржа в дефолтную ветку** — до этого запускай вручную через **Actions → Nightly Regression → Run workflow**.
+
+## Быстрый старт: что нужно для запуска тестов
+
+### 1. Клонировать и установить
+
+```bash
+git clone <repo-url> && cd aitv-autotests
+npm install
+npx playwright install        # браузеры Playwright
+```
+
+Env-файлы (`.env.web3tv2` — dev2 по умолчанию, `.env.web3tv` — dev1) уже в репозитории. Для писем/2FA заполни `EMAIL_ACCOUNT`/`EMAIL_PASSWORD` (см. «Окружение»).
+
+### 2. Фикстура — одна, `@qavischan`
+
+Проект `functional` и визуальные проекты **зависят от preflight-проекта `fixture-check`**, который проверяет, что общий read-only канал `@qavischan` жив на стенде. Канал **персистентный** — обычно он уже засеян, и тогда этот шаг пропускается.
+
+Засевать вручную нужно, **только если `fixture-check` падает** (канала нет / после дропа БД):
+
+```bash
+kubectl port-forward -n web3tv svc/mariadb 3307:3306   # БД нужна ТОЛЬКО для сида
+npm run seed:fixture                                    # ~5–8 мин (загрузка + транскод)
+```
+
+Это **единственная фикстура, которую сеют командой**. `@db`-тесты (например ANALY-001) готовят свои изолированные данные **сами в рантайме** — отдельной команды не нужно, но port-forward к БД должен быть поднят, пока их гоняешь. Эталоны визуалки (`*.png`) уже в репозитории — засевать не нужно.
+
+### 3. Запуск и отчёт
+
+**Функциональные** (реальный браузер, dev2 по умолчанию):
+
+```bash
+npx playwright test --project=functional     # все
+npm run test:critical                        # @critical смоук
+npm run test:nodb                            # всё, кроме @db (без port-forward)
+npx playwright test tests/player/videoPlayer.spec.ts --project=functional   # один файл
+```
+
+**`@db`-тесты** — сначала port-forward (см. шаг 2), затем:
+
+```bash
+npx playwright test --project=functional --grep @db
+```
+
+**Визуальные** — только в Docker (пиксель-стабильность):
+
+```bash
+docker build -t test .        # один раз собрать образ
+docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
+docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
+```
+
+**Отчёт** — HTML-репорт последнего прогона:
+
+```bash
+npx playwright show-report    # откроет отчёт из папки playwright-report/
+```

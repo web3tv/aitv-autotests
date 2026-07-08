@@ -6,7 +6,9 @@ Phase 0    Branch Setup              — creates test/<name> branch from main
 Phase 1    Jira Analysis             — jira-reader agent parses task
      │
 Phase 2    Code Analysis             — checkout task branch + codebase-analyzer (Symfony + Next.js)
-     │
+     │                                 + shared-fixture impact check: run fixture-check; if the task
+     │                                   touches channel/player DOM, listing endpoints, seeded content
+     │                                   or auth — update the fixture + re-seed (see CLAUDE.md)
 Phase 3    Test Design               — clarifying questions + test cases + ASCII diagrams
      │
      ⏸ answers to clarifying questions

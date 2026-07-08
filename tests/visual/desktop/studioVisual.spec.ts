@@ -1,10 +1,10 @@
-import { test, expect, request as playwrightRequest, Page } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { StudioNavigationPage } from '../../../src/pages/studio/StudioNavigationPage';
 import { StudioAnalyticsPage } from '../../../src/pages/studio/StudioAnalyticsPage';
 import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
-import { setupVideoViaApi } from '../../../src/utils/studioTestHelpers';
+import { resolveSharedFixture } from '../../fixtures/sharedFixture';
 
 const studioBaseUrl = process.env.STUDIO_URL!;
 
@@ -48,18 +48,12 @@ test.describe('Studio visual tests', () => {
     let username: string;
 
     test.beforeAll(async () => {
-        const requestContext = await playwrightRequest.newContext();
-        password = process.env.USER_PASSWORD!;
-
-        const setup = await setupVideoViaApi(requestContext, {
-            privacySetting: 'public',
-            title: `Visual_${Date.now()}`,
-            description: 'Visual test video',
-        });
-        userEmail = setup.user.email;
-        username = setup.user.username;
-
-        await requestContext.dispose();
+        // Studio views need an owner with ≥1 video — reuse the shared visual fixture
+        // owner (its content is masked below anyway) instead of seeding a fresh one.
+        const fx = await resolveSharedFixture();
+        userEmail = fx.ownerEmail;
+        username = fx.ownerUsername;
+        password = fx.password;
     });
 
     // ── SideBar ──

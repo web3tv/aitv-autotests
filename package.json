@@ -7,7 +7,8 @@
     "test:critical": "playwright test --project=functional --grep @critical",
     "test:regression": "playwright test --project=functional",
     "test:nodb": "playwright test --project=functional --grep-invert @db",
-    "delete-user": "npx ts-node scripts/deleteUser.ts"
+    "delete-user": "npx ts-node scripts/deleteUser.ts",
+    "seed:fixture": "npx ts-node scripts/seedFixture.ts"
   },
   "keywords": [],
   "author": "",

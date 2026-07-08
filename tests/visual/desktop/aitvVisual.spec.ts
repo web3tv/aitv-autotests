@@ -1,9 +1,9 @@
-import { test, expect, request as playwrightRequest, Page } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
-import { AuthApi } from '../../../src/api/AuthApi';
 import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { MainPage } from '../../../src/pages/components/MainPage';
 import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
+import { resolveSharedFixture } from '../../fixtures/sharedFixture';
 
 // Intentional LAYOUT check: the home page hero + card imagery are SSR-driven and
 // non-deterministic, so the hero is masked and all images are CSS-hidden (see the
@@ -35,15 +35,12 @@ test.describe('AITV visual tests', () => {
     let username: string;
 
     test.beforeAll(async () => {
-        const requestContext = await playwrightRequest.newContext();
-        password = process.env.USER_PASSWORD!;
-
-        const authApi = new AuthApi(requestContext);
-        const user = await authApi.createUserFast();
-        userEmail = user.email;
-        username = user.username;
-
-        await requestContext.dispose();
+        // Logged-in views only need any real account — reuse the shared visual
+        // fixture owner instead of registering a fresh user each run.
+        const fx = await resolveSharedFixture();
+        userEmail = fx.ownerEmail;
+        username = fx.ownerUsername;
+        password = fx.password;
     });
 
     // ── Main Page ──

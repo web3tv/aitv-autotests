@@ -1,16 +1,21 @@
-import { test, expect } from '../../fixtures';
+import { test, expect } from '@playwright/test';
 import { AuthApi } from '../../../src/api/AuthApi';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { StudioAnalyticsPage } from '../../../src/pages/studio/StudioAnalyticsPage';
+import { setupSeededAnalytics } from '../../../src/utils/analyticsSeed';
 
 test('Analytics page displays seeded statistics', {
     tag: '@db',
     annotation: { type: 'TC', description: 'ANALY-001' },
-}, async ({ page, seededAnalytics }) => {
+}, async ({ page, request }) => {
     test.setTimeout(300_000);
     const authFlow = new AuthFlow(page);
     const analyticsPage = new StudioAnalyticsPage(page);
 
+    // Seed the isolated channel + video + analytics (API + DB) directly — this used to be
+    // a `seededAnalytics` Playwright fixture, but it had a single consumer, so a plain
+    // per-test call is simpler and keeps the test on the standard `@playwright/test` `test`.
+    const seededAnalytics = await test.step('Seed analytics data (API + DB)', () => setupSeededAnalytics(request));
     const { owner, videoTitle, totals } = seededAnalytics;
 
     await test.step('Login and navigate to analytics', async () => {

@@ -4,41 +4,65 @@ import mysql from 'mysql2/promise';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env.web3tv2') });
 
-const arg = process.argv[2];
-if (!arg) {
-    console.error('Usage:');
-    console.error('  npm run delete-user user@example.com          — delete one user by email');
-    console.error('  npm run delete-user 1F108FC4E1506B9E...        — delete one user by hex ID');
-    console.error('  npm run delete-user aitv-test.com             — delete all users with this domain');
-    process.exit(1);
-}
+// A DB reached over a local kubectl port-forward (127.0.0.1/localhost) speaks plain
+// TCP and rejects a forced TLS handshake ("Server does not support secure
+// connection"); a remote host needs TLS. Pick per host so both work.
+const dbSsl = ['127.0.0.1', 'localhost'].includes(process.env.DB_HOST ?? '')
+    ? undefined
+    : { rejectUnauthorized: false };
 
-const isHexId = /^[0-9a-fA-F]{32}$/.test(arg);
-
-async function deleteUser(emailOrHexId: string, byId = false) {
+export async function deleteUser(
+    emailOrHexId: string,
+    byId = false,
+    opts: { contentOnly?: boolean } = {},
+) {
+    // contentOnly: wipe the user's CONTENT (videos, playlists/series, incoming channel
+    // subscriptions) and reset the channel stat counters, but KEEP the account, its
+    // channel and profile. The visual-fixture seed needs this because the auth/identity
+    // service permanently reserves a handle/email once registered — a deleted account
+    // can never be recreated (409), so the fixed fixture account must be reused, not
+    // recreated, with only its content refreshed.
+    const contentOnly = opts.contentOnly ?? false;
     const connection = await mysql.createConnection({
         host: process.env.DB_HOST!,
         port: Number(process.env.DB_PORT) || 3306,
         user: process.env.DB_USER!,
         password: process.env.DB_PASSWORD!,
         database: process.env.DB_NAME!,
-        ssl: { rejectUnauthorized: false },
+        ssl: dbSsl,
     });
 
+    // The cascade lists tables that don't exist on every environment's schema
+    // (e.g. `video_category_videos` is absent on dev2). Skip a missing table instead
+    // of aborting the whole delete half-way — otherwise the account is left in a
+    // partially-deleted state.
+    const ignoreMissingTable = (err: any) => {
+        if (err?.code === 'ER_NO_SUCH_TABLE' || err?.errno === 1146) return;
+        throw err;
+    };
+
     const del = async (table: string, condition: string, params: any[]) => {
-        const [result] = await connection.execute(`DELETE FROM ${table} WHERE ${condition}`, params) as any;
-        if (result.affectedRows > 0) {
-            console.log(`  ✓ ${table}: ${result.affectedRows} row(s)`);
+        try {
+            const [result] = await connection.execute(`DELETE FROM ${table} WHERE ${condition}`, params) as any;
+            if (result.affectedRows > 0) {
+                console.log(`  ✓ ${table}: ${result.affectedRows} row(s)`);
+            }
+        } catch (err) {
+            ignoreMissingTable(err);
         }
     };
 
     const delByVideoIds = async (table: string, params: any[]) => {
-        const [result] = await connection.execute(
-            `DELETE FROM ${table} WHERE video_id IN (SELECT id FROM videos WHERE uploaded_by = ?)`,
-            params
-        ) as any;
-        if (result.affectedRows > 0) {
-            console.log(`  ✓ ${table} (user's videos): ${result.affectedRows} row(s)`);
+        try {
+            const [result] = await connection.execute(
+                `DELETE FROM ${table} WHERE video_id IN (SELECT id FROM videos WHERE uploaded_by = ?)`,
+                params
+            ) as any;
+            if (result.affectedRows > 0) {
+                console.log(`  ✓ ${table} (user's videos): ${result.affectedRows} row(s)`);
+            }
+        } catch (err) {
+            ignoreMissingTable(err);
         }
     };
 
@@ -51,15 +75,18 @@ async function deleteUser(emailOrHexId: string, byId = false) {
         ) as any;
 
         if (!rows.length) {
-            console.error(`User not found: ${emailOrHexId}`);
-            process.exit(1);
+            // Not an error for reuse (e.g. seed script wiping an account that was
+            // never created yet) — nothing to delete, just return.
+            console.log(`User not found (nothing to delete): ${emailOrHexId}`);
+            return;
         }
 
         const userId = rows[0].id;
         const userHex = rows[0].hex_id;
-        console.log(`\nDeleting user: ${rows[0].email} (${userHex})\n`);
+        console.log(`\n${contentOnly ? 'Wiping content of' : 'Deleting user'}: ${rows[0].email} (${userHex})\n`);
 
-        // ── 1. Простые прямые связи user → users ─────────────────
+        // ── 1. Простые прямые связи user → users (account-level; skipped for contentOnly) ─
+        if (!contentOnly) {
         await del('live_streams',                'user_id = ?',    [userId]);
         await del('user_video_recommendations',  'user_id = ?',    [userId]);
         await del('user_notification_history',   'user_id = ?',    [userId]);
@@ -86,6 +113,7 @@ async function deleteUser(emailOrHexId: string, byId = false) {
         await del('channel_transfer_log',        'old_owner_id = ? OR new_owner_id = ?', [userId, userId]);
         await del('reports',                     'author_id = ?',  [userId]);
         await del('subscriptions',               'user_id = ?',    [userId]);
+        }
 
         // ── 2. Картинки (сначала зависимые таблицы) ──────────────
         await del('video_upload_thumbnails',
@@ -164,24 +192,48 @@ async function deleteUser(emailOrHexId: string, byId = false) {
         await del('videos', 'uploaded_by = ?', [userId]);
 
         // ── 7. Каналы этого юзера ─────────────────────────────────
+        // Incoming channel subscriptions (followers) are content — always cleared.
         await del('subscriptions',
             `channel_id IN (SELECT id FROM channels WHERE user_id = ?)`, [userId]);
-        await del('user_channel_access',
-            `channel_id IN (SELECT id FROM channels WHERE user_id = ?)`, [userId]);
-        await del('blog_posts',
-            `author_id = ?`, [userId]);
-        await del('channels', 'user_id = ?', [userId]);
 
-        // ── 8. Сам юзер ───────────────────────────────────────────
-        await del('users', 'id = ?', [userId]);
+        if (contentOnly) {
+            // Keep the channel/account; just reset the denormalized stat counters so a
+            // re-seed sets them fresh (followers/video counts).
+            await connection.execute(
+                `UPDATE channels SET statistics_subscriber_count = 0, statistics_video_count = 0,
+                    statistics_view_count = 0, statistics_paid_video_count = 0
+                 WHERE user_id = ?`,
+                [userId]
+            );
+            console.log('\nContent wiped (account kept).');
+        } else {
+            await del('user_channel_access',
+                `channel_id IN (SELECT id FROM channels WHERE user_id = ?)`, [userId]);
+            await del('blog_posts',
+                `author_id = ?`, [userId]);
+            await del('channels', 'user_id = ?', [userId]);
 
-        console.log('\nDone.');
+            // ── 8. Сам юзер ───────────────────────────────────────────
+            await del('users', 'id = ?', [userId]);
+
+            console.log('\nDone.');
+        }
     } finally {
         await connection.end();
     }
 }
 
 async function main() {
+    const arg = process.argv[2];
+    if (!arg) {
+        console.error('Usage:');
+        console.error('  npm run delete-user user@example.com          — delete one user by email');
+        console.error('  npm run delete-user 1F108FC4E1506B9E...        — delete one user by hex ID');
+        console.error('  npm run delete-user aitv-test.com             — delete all users with this domain');
+        process.exit(1);
+    }
+
+    const isHexId = /^[0-9a-fA-F]{32}$/.test(arg);
     if (isHexId) {
         await deleteUser(arg, true);
         return;
@@ -200,7 +252,7 @@ async function main() {
         user: process.env.DB_USER!,
         password: process.env.DB_PASSWORD!,
         database: process.env.DB_NAME!,
-        ssl: { rejectUnauthorized: false },
+        ssl: dbSsl,
     });
 
     const [rows] = await connection.execute(
@@ -220,7 +272,11 @@ async function main() {
     }
 }
 
-main().catch((err) => {
-    console.error('Error:', err.message);
-    process.exit(1);
-});
+// Run the CLI only when invoked directly (`npm run delete-user …`), so this module
+// can also be imported for reuse (e.g. scripts/seedSharedFixture.ts).
+if (require.main === module) {
+    main().catch((err) => {
+        console.error('Error:', err.message);
+        process.exit(1);
+    });
+}
