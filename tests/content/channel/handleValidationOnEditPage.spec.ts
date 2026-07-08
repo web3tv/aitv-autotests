@@ -3,9 +3,9 @@ import { SideBarPage } from '../../../src/pages/components/SideBarPage';
 import { HeaderPage } from '../../../src/pages/components/HeaderPage';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { StudioProfilePage } from '../../../src/pages/studio/StudioProfilePage';
-import { UserDropdownPage } from '../../../src/pages/components/UserDropdownPage';
 import { CreateChannelPage } from '../../../src/pages/studio/CreateChannelPage';
 import { AuthApi } from '../../../src/api/AuthApi';
+import { ensureOnStudioDomain } from '../../../src/utils/studioNavigation';
 
 test.describe.fixme('Handle validation on Edit Channel Page', { tag: '@validation', annotation: [{ type: 'TC', description: 'VAL-003' }, { type: 'TC', description: 'VAL-004' }, { type: 'TC', description: 'VAL-005' }] }, () => {
 
@@ -127,7 +127,6 @@ test.describe.fixme('Handle validation on Edit Channel Page', { tag: '@validatio
 
 test.describe('Handle validation on Create Channel Page', { annotation: [{ type: 'TC', description: 'VAL-003' }, { type: 'TC', description: 'VAL-004' }, { type: 'TC', description: 'VAL-005' }] }, () => {
     test.beforeEach(async ({ page, request }) => {
-        const userDropdownPage = new UserDropdownPage(page);
         const headerPage = new HeaderPage(page);
         const createChannelPage = new CreateChannelPage(page)
         const authApi = new AuthApi(request);
@@ -136,8 +135,11 @@ test.describe('Handle validation on Create Channel Page', { annotation: [{ type:
 
         const user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, password, user.username);
-        await headerPage.clickUserIcon();
-        await userDropdownPage.clickAddChannelBtn();
+        // Channel creation moved to the Studio channel switcher (Studio subdomain):
+        // Studio → channel switcher → "Add new channel" → /create-channel.
+        await ensureOnStudioDomain(page);
+        await headerPage.openChannelSwitcher();
+        await headerPage.clickAddNewChannel();
         await createChannelPage.clickStartSetup();
         await createChannelPage.fillName('test_name')
     });

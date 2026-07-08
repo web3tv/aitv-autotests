@@ -287,10 +287,15 @@ export class AuthFlow {
   }
 
   async assertLoggedInAs(username: string) {
+    // The profile dropdown header shows the user's default-channel NAME (which equals the
+    // account handle) on the first line and the CHANNEL handle (with "@") on the second.
+    // The channel handle can differ from the account handle — for wallet-created default
+    // channels the backend derives it as "w" + handle.slice(2) (e.g. "zgscx8420" →
+    // "@wscx8420") — so we match the display NAME (== account handle), not "@handle".
     const isWallet = username.startsWith('0x');
     const displayValue = isWallet
       ? `${username.slice(0, 4)}...${username.slice(-4)}`
-      : `@${username}`;
+      : username;
     await expect(this.headerPage.userIcon, 'Profile button is not visible').toBeVisible();
     await this.headerPage.clickUserIcon();
     await expect(this.userDropdownPage.dropdown, 'Profile dropdown is not visible').toBeVisible();

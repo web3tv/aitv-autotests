@@ -6,33 +6,47 @@ export class UserDropdownPage {
     readonly page: Page;
 
     readonly dropdown: Locator;
-    readonly switchChannelBtn: Locator;
-    readonly createChannelBtn: Locator;
     readonly studioLink: Locator;
-    readonly purchasesLink: Locator;
+    readonly watchHistoryLink: Locator;
+    readonly likedVideosLink: Locator;
+    readonly followedAuthorsLink: Locator;
     readonly accountLink: Locator;
-    readonly supportLink: Locator;
     readonly logoutBtn: Locator;
 
     constructor(page: Page) {
         this.page = page;
 
         this.dropdown = page.locator('[aria-labelledby="aitv-profile-button"]');
-        this.switchChannelBtn = page.locator('[data-id="aitv-profile-menu-switch-channel"]');
-        this.createChannelBtn = page.locator('[data-id="aitv-profile-menu-create-channel"]');
         this.studioLink = page.locator('[data-id="aitv-profile-menu-studio"]');
-        this.purchasesLink = page.locator('[data-id="aitv-profile-menu-purchases"]');
+        this.watchHistoryLink = page.locator('[data-id="aitv-profile-menu-watch-history"]');
+        this.likedVideosLink = page.locator('[data-id="aitv-profile-menu-liked"]');
+        this.followedAuthorsLink = page.locator('[data-id="aitv-profile-menu-followed"]');
         this.accountLink = page.locator('[data-id="aitv-profile-menu-account"]');
-        this.supportLink = page.locator('[data-id="aitv-profile-menu-support"]');
         this.logoutBtn = page.locator('[data-id="aitv-profile-menu-logout"]');
     }
 
-    async clickAddChannelBtn() {
-        await expect(this.createChannelBtn, 'Add Channel button is not visible').toBeVisible();
-        await expect(this.createChannelBtn, 'Add Channel button is not enabled').toBeEnabled();
-        await this.createChannelBtn.click();
-        await this.page.waitForURL('**/create-channel');
-        await expect(this.page.getByText('Create Your Ai.tv Channel')).toBeVisible();
+    async clickStudioLink() {
+        await expect(this.studioLink, 'Open Studio link is not visible').toBeVisible();
+        await expect(this.studioLink, 'Open Studio link is not enabled').toBeEnabled();
+        await this.studioLink.click();
+    }
+
+    async clickWatchHistoryLink() {
+        await expect(this.watchHistoryLink, 'Watch history link is not visible').toBeVisible();
+        await expect(this.watchHistoryLink, 'Watch history link is not enabled').toBeEnabled();
+        await this.watchHistoryLink.click();
+    }
+
+    async clickLikedVideosLink() {
+        await expect(this.likedVideosLink, 'Liked videos link is not visible').toBeVisible();
+        await expect(this.likedVideosLink, 'Liked videos link is not enabled').toBeEnabled();
+        await this.likedVideosLink.click();
+    }
+
+    async clickFollowedAuthorsLink() {
+        await expect(this.followedAuthorsLink, 'Followed authors link is not visible').toBeVisible();
+        await expect(this.followedAuthorsLink, 'Followed authors link is not enabled').toBeEnabled();
+        await this.followedAuthorsLink.click();
     }
 
     async clickAccountLink() {

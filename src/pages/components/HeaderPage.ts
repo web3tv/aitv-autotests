@@ -26,6 +26,7 @@ export class HeaderPage {
   readonly newShortBtn: Locator;
   readonly userIcon: Locator;
   readonly channelTriggerBtn: Locator;
+  readonly addNewChannelBtn: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -50,6 +51,23 @@ export class HeaderPage {
     this.newShortBtn = page.getByText('New short');
     this.userIcon = page.locator('[data-id="aitv-profile-menu-trigger"]');
     this.channelTriggerBtn = page.locator('[data-id="aitv-studio-channel-trigger-button"]');
+    this.addNewChannelBtn = page.locator('[data-id="aitv-studio-channel-new"]');
+  }
+
+  /** Opens the Studio channel switcher (top-left of the Studio header). Studio pages only. */
+  async openChannelSwitcher() {
+    await expect(this.channelTriggerBtn, 'Channel switcher trigger is not visible').toBeVisible();
+    await expect(this.channelTriggerBtn, 'Channel switcher trigger is not enabled').toBeEnabled();
+    await this.channelTriggerBtn.click();
+  }
+
+  /** Clicks "Add new channel" in the open channel switcher → navigates to /create-channel. */
+  async clickAddNewChannel() {
+    await expect(this.addNewChannelBtn, 'Add new channel button is not visible').toBeVisible();
+    await expect(this.addNewChannelBtn, 'Add new channel button is not enabled').toBeEnabled();
+    await this.addNewChannelBtn.click();
+    await this.page.waitForURL('**/create-channel');
+    await expect(this.page.getByText('Create Your Ai.tv Channel'), 'Create Channel page did not open').toBeVisible();
   }
 
   async clickGetStarted(): Promise<void> {
