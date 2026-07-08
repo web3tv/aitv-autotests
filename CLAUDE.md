@@ -61,11 +61,6 @@ kubectl port-forward -n web3tv svc/mariadb 3307:3306    # local 3307 matches DB_
 npx playwright test --project=functional --grep @db
 ```
 
-**Setup production accounts (run once):**
-```
-ENV_FILE=.env.prod npx playwright test tests/production/setup.spec.ts --project=prodSmoke
-```
-
 **Run production smoke tests:**
 ```
 ENV_FILE=.env.prod npx playwright test --project=prodSmoke
@@ -78,7 +73,7 @@ npx playwright show-report
 
 ## Environment Setup
 
-Three environments, each with its own `.env` file (all gitignored). Default is `.env.web3tv2`.
+Three environments, each with its own `.env` file (committed to the repo — they contain no secrets; fill in `EMAIL_ACCOUNT`/`EMAIL_PASSWORD` locally if you need mail/2FA flows). Default is `.env.web3tv2`.
 
 | Env | File | Host |
 |-----|------|------|
