@@ -9,6 +9,7 @@ export class StudioProfilePage {
 
 
     readonly saveBtn: Locator;
+    readonly privateCheckbox: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -17,6 +18,7 @@ export class StudioProfilePage {
 
 
         this.saveBtn = page.getByRole('button', { name: 'Save' });
+        this.privateCheckbox = page.getByRole('checkbox', { name: 'Private' });
 
     }
 
@@ -64,8 +66,10 @@ export class StudioProfilePage {
 
 
     async changePrivacyToPublic(){
-        await this.page.getByRole('checkbox', { name: 'Private' }).uncheck();
-        await this.page.getByRole('button', { name: 'Save' }).click();
+        await expect(this.privateCheckbox, 'Private checkbox is not visible').toBeVisible();
+        await this.privateCheckbox.uncheck();
+        await expect(this.saveBtn, 'Save button is not enabled').toBeEnabled();
+        await this.saveBtn.click();
       }
     
 

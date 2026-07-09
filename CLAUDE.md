@@ -244,5 +244,7 @@ await page.goto(url, { waitUntil: 'domcontentloaded' });
 **Page Object locators — constructor only:**
 All locators must be defined in the constructor. Never create locators inline in methods.
 
+*Exception — parameterized locators:* a locator that depends on a method argument (e.g. ``page.getByTestId(`wallet-selector-${rdns}`)``) cannot live in the constructor and may be built inside the method. Anything static must still go in the constructor.
+
 **Don't hardcode the environment/domain:**
 Tests must work across dev1/dev2/prod. Don't hardcode hosts like `web3tv2.dev` — rely on `BASE_URL`/relative paths, and keep helpers domain-agnostic (e.g. email URL extractors in `GmailHelper` match `https://[^/]+/...`). Email subject matching in `waitForMessage` is case-insensitive.

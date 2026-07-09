@@ -21,6 +21,7 @@ export class VideoPlayerPage {
   // Backwards-compatible aliases
   readonly playButton: Locator;
   readonly shortsPlayButton: Locator;
+  readonly activeShortPlaying: Locator;
 
   readonly playerContainer: Locator;
   readonly recommendedVideos: Locator;
@@ -84,6 +85,7 @@ export class VideoPlayerPage {
     this.playButton = this.playerCenterPlayBtn;
     this.shortsPlayButton = page.locator('.swiper-slide-active').getByTestId('aitv-player-center-play');
     this.shortsVideoElement = page.locator('.swiper-slide-active video.vjs-tech');
+    this.activeShortPlaying = page.locator('.swiper-slide-active .vjs-playing');
 
     this.showMoreBtn = page.locator('[data-id="aitv-description-more"]');
     this.showLessBtn = page.locator('[data-id="aitv-description-more"]');
@@ -112,7 +114,7 @@ export class VideoPlayerPage {
   async assertShortsIsPlaying(): Promise<void> {
     await expect(this.shortsVideoElement, 'Shorts video element is not visible').toBeVisible({ timeout: 15_000 });
 
-    const alreadyPlaying = await this.page.locator('.swiper-slide-active .vjs-playing').isVisible();
+    const alreadyPlaying = await this.activeShortPlaying.isVisible();
     if (!alreadyPlaying) {
       await expect(this.shortsPlayButton, 'Shorts play button is not visible').toBeVisible({ timeout: 10_000 });
       await expect(this.shortsPlayButton, 'Shorts play button is not enabled').toBeEnabled();
