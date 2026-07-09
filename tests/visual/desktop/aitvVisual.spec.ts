@@ -205,6 +205,7 @@ test.describe('AITV visual tests', () => {
         await test.step('Scroll to first category section', async () => {
             await expect(mainPage.categorySection.first(), 'First category section is not visible').toBeVisible();
             await mainPage.categorySection.first().scrollIntoViewIfNeeded();
+            // Visual settle: let the hover/animation finish before the screenshot.
             await page.waitForTimeout(500);
         });
 
@@ -212,6 +213,7 @@ test.describe('AITV visual tests', () => {
             const card = mainPage.categorySection.first().locator('[data-id="aitv-video-card"]').first();
             await expect(card, 'First video card in category section is not visible').toBeVisible();
             await card.hover();
+            // Visual settle: let the carousel transition finish before the screenshot.
             await page.waitForTimeout(600);
             await page.addStyleTag({
                 content: `

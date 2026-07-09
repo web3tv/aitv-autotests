@@ -233,18 +233,15 @@ export class ChannelMainPage {
         const heroPay = new HeroPayPage(this.page);
         await heroPay.testnetPayment();
 
-        // Poll for Active status — blockchain confirmation may take time
-        const deadline = Date.now() + 120_000;
-        let attempt = 0;
-        const start = Date.now();
-        while (Date.now() < deadline) {
+        // Poll for Active status — blockchain confirmation may take time:
+        // check the page, reloading between attempts, until Active (up to 120s).
+        await expect(async () => {
             const body = await this.body.innerText();
-            if (body.includes('Active') && !body.includes('Inactive')) break;
-            attempt++;
-            console.log(`[subscription poll] attempt ${attempt}, elapsed: ${Math.round((Date.now() - start) / 1000)}s`);
-            await this.page.reload({ waitUntil: 'domcontentloaded' });
-            await this.page.waitForTimeout(5_000);
-        }
+            if (!(body.includes('Active') && !body.includes('Inactive'))) {
+                await this.page.reload({ waitUntil: 'domcontentloaded' });
+                throw new Error('Subscription is not Active yet');
+            }
+        }, 'Subscription did not become Active after testnet payment').toPass({ intervals: [5_000], timeout: 120_000 });
     }
 
     async checkPaidVideoAttributes(){

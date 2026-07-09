@@ -139,17 +139,18 @@ export class VideoPlayerPage {
       return video ? video.currentTime : 0;
     });
 
-    await this.page.waitForTimeout(1500);
-
-    const end = await this.page.evaluate(() => {
-      const activeSlide = document.querySelector('.swiper-slide-active');
-      const video = activeSlide?.querySelector('video.vjs-tech') as HTMLVideoElement;
-      return video ? video.currentTime : 0;
-    });
-
-    if (end <= start) {
+    // Poll until the playhead advances (instead of a fixed sleep).
+    await this.page.waitForFunction(
+      (startTime) => {
+        const activeSlide = document.querySelector('.swiper-slide-active');
+        const video = activeSlide?.querySelector('video.vjs-tech') as HTMLVideoElement;
+        return !!video && video.currentTime > startTime;
+      },
+      start,
+      { timeout: 10_000 }
+    ).catch(() => {
       throw new Error('❌ Shorts не проигрывается (currentTime не изменился)!');
-    }
+    });
   }
 
   async assertVideoIsPlaying(): Promise<void> {
@@ -169,23 +170,25 @@ export class VideoPlayerPage {
       return video ? video.currentTime : 0;
     });
 
-    await this.page.waitForTimeout(1500);
-
-    const end = await this.page.evaluate(() => {
-      const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
-      return video ? video.currentTime : 0;
+    // Poll until the playhead advances (instead of a fixed sleep).
+    await this.page.waitForFunction(
+      (startTime) => {
+        const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
+        return !!video && video.currentTime > startTime;
+      },
+      start,
+      { timeout: 10_000 }
+    ).catch(() => {
+      throw new Error('❌ Видео не проигрывается (currentTime не изменился)!');
     });
 
-    if (end <= start) {
-      throw new Error('❌ Видео не проигрывается (currentTime не изменился)!');
-    }
-
     const progressStart = parseFloat(await this.playerProgress.getAttribute('aria-valuenow') || '0');
-    await this.page.waitForTimeout(3000);
-    const progressEnd = parseFloat(await this.playerProgress.getAttribute('aria-valuenow') || '0');
-
-    if (progressEnd <= progressStart) {
-      throw new Error(`❌ Прогресс-бар не движется. Было: ${progressStart}, стало: ${progressEnd}`);
-    }
+    // Poll until the progress bar advances (instead of a fixed sleep).
+    await expect
+      .poll(async () => parseFloat(await this.playerProgress.getAttribute('aria-valuenow') || '0'), {
+        message: `Прогресс-бар не движется (был ${progressStart})`,
+        timeout: 10_000,
+      })
+      .toBeGreaterThan(progressStart);
   }
 }

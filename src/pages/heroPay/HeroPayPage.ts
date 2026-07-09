@@ -119,7 +119,7 @@ export class HeroPayPage {
 
         // Do NOT click "+1 Confirmation" — leave payment in Pending state
         await this.page.evaluate(() => window.history.go(-2));
-        await this.page.waitForTimeout(1000);
+        await this.page.waitForLoadState('domcontentloaded');
     }
 
     async testnetPaymentWithEmail(email: string) {

@@ -30,16 +30,18 @@ export async function assertVideoCurrentTimeMoves(page: Page, timeoutMs = 3000) 
     return video ? video.currentTime : 0;
   });
 
-  await page.waitForTimeout(1500);
-
-  const end = await page.evaluate(() => {
-    const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
-    return video ? video.currentTime : 0;
-  });
-
-  if (end <= start) {
+  // Poll until the playhead actually advances (instead of a fixed sleep) — passes as
+  // soon as playback moves, and tolerates a slow stand up to the timeout.
+  await page.waitForFunction(
+    (startTime) => {
+      const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
+      return !!video && video.currentTime > startTime;
+    },
+    start,
+    { timeout: Math.max(timeoutMs, 10_000) }
+  ).catch(() => {
     throw new Error('❌ Видео не проигрывается (currentTime не изменился)!');
-  }
+  });
 }
 
 
@@ -47,16 +49,13 @@ export async function assertProgressBarMoves(page: Page) {
   const slider = page.locator('.vjs-progress-holder');
 
   const start = parseFloat(await slider.getAttribute('aria-valuenow') || '0');
-  await page.waitForTimeout(5000);
-  const end = parseFloat(await slider.getAttribute('aria-valuenow') || '0');
-
-  if (end <= start) {
-    throw new Error(
-      `❌ Прогресс-бар не движется. Было: ${start}, стало: ${end}`
-    );
-  }
-
-  // console.log(`Прогресс-бар движется: ${start} → ${end}`);
+  // Poll until the progress bar advances (instead of a fixed sleep).
+  await expect
+    .poll(async () => parseFloat(await slider.getAttribute('aria-valuenow') || '0'), {
+      message: `Прогресс-бар не движется (был ${start})`,
+      timeout: 10_000,
+    })
+    .toBeGreaterThan(start);
 }
 
 

@@ -112,6 +112,8 @@ export class AuthFlow {
     const messageId = await mailHelper.waitForMessage(token, 'Authentication Code', 10, 3000, requestedAt);
     const [d1, d2, d3, d4] = await mailHelper.extract2FACode(messageId,token);
     console.log(`Extracted 2FA code: ${d1}${d2}${d3}${d4}`);
+    // 500ms pauses between OTP characters: the input auto-advances focus and swallows
+    // keystrokes typed too fast. Re-evaluate when the skipped 2FA suite is revived.
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 1' }).fill(d1);
     await this.page.waitForTimeout(500);
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 2' }).fill(d2);

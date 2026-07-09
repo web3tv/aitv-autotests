@@ -74,24 +74,26 @@ export class EmbedPlayerPage {
             return video ? video.currentTime : 0;
         });
 
-        await this.page.waitForTimeout(1500);
-
-        const end = await this.frame.evaluate(() => {
-            const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
-            return video ? video.currentTime : 0;
+        // Poll until the playhead advances (instead of a fixed sleep).
+        await this.frame.waitForFunction(
+            (startTime) => {
+                const video = document.querySelector('video.vjs-tech') as HTMLVideoElement;
+                return !!video && video.currentTime > startTime;
+            },
+            start,
+            { timeout: 10_000 }
+        ).catch(() => {
+            throw new Error('Embed video is not playing (currentTime did not advance)');
         });
 
-        if (end <= start) {
-            throw new Error('Embed video is not playing (currentTime did not advance)');
-        }
-
         const progressStart = parseFloat(await this.progressBar.getAttribute('aria-valuenow') || '0');
-        await this.page.waitForTimeout(3000);
-        const progressEnd = parseFloat(await this.progressBar.getAttribute('aria-valuenow') || '0');
-
-        if (progressEnd <= progressStart) {
-            throw new Error(`Embed progress bar is not moving. Was: ${progressStart}, now: ${progressEnd}`);
-        }
+        // Poll until the progress bar advances (instead of a fixed sleep).
+        await expect
+            .poll(async () => parseFloat(await this.progressBar.getAttribute('aria-valuenow') || '0'), {
+                message: `Embed progress bar is not moving (was ${progressStart})`,
+                timeout: 10_000,
+            })
+            .toBeGreaterThan(progressStart);
     }
 
     async assertAudioTracksAvailable(): Promise<void> {
@@ -100,6 +102,7 @@ export class EmbedPlayerPage {
         await this.playButton.click();
 
         await this.frame.waitForSelector('.vjs-playing', { timeout: 10_000 });
+        // Control bar renders/settles shortly after playback starts — give it a beat.
         await this.page.waitForTimeout(2000);
 
         await expect(this.audioTrackButton, 'Audio track button is not visible').toBeVisible({ timeout: 5_000 });
@@ -122,6 +125,7 @@ export class EmbedPlayerPage {
         await this.playButton.click();
 
         await this.frame.waitForSelector('.vjs-playing', { timeout: 10_000 });
+        // Control bar renders/settles shortly after playback starts — give it a beat.
         await this.page.waitForTimeout(2000);
 
         const hotspotSvg = this.frame.locator('video-js svg');

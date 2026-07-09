@@ -33,6 +33,7 @@ async function settleMobileHeader(page: Page, headerPage: HeaderPage): Promise<v
     await expect(headerPage.mobileHeader, 'Mobile header is not visible').toBeVisible();
     await expect(headerPage.mobileDropdownTrigger, 'Mobile header dropdown trigger is not visible')
         .toBeVisible();
+    // Visual settle: let the mobile layout/animations finish before the screenshot.
     await page.waitForTimeout(1000);
 }
 
