@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import mysql from 'mysql2/promise';
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env.web3tv2') });
+dotenv.config({ path: path.resolve(process.cwd(), process.env.ENV_FILE ?? '.env.web3tv2') });
 
 // A DB reached over a local kubectl port-forward (127.0.0.1/localhost) speaks plain
 // TCP and rejects a forced TLS handshake ("Server does not support secure
@@ -224,12 +224,16 @@ export async function deleteUser(
 }
 
 async function main() {
-    const arg = process.argv[2];
+    const args = process.argv.slice(2);
+    const confirmed = args.includes('--yes');
+    const arg = args.find((a) => a !== '--yes');
     if (!arg) {
         console.error('Usage:');
         console.error('  npm run delete-user user@example.com          — delete one user by email');
         console.error('  npm run delete-user 1F108FC4E1506B9E...        — delete one user by hex ID');
-        console.error('  npm run delete-user aitv-test.com             — delete all users with this domain');
+        console.error('  npm run delete-user aitv-test.com             — LIST all users with this domain (dry-run)');
+        console.error('  npm run delete-user aitv-test.com -- --yes    — actually delete them');
+        console.error('Env: ENV_FILE=.env.web3tv|.env.web3tv2|.env.prod selects the stand (default .env.web3tv2).');
         process.exit(1);
     }
 
@@ -267,13 +271,20 @@ async function main() {
     }
 
     console.log(`Found ${rows.length} user(s) with domain @${arg}\n`);
+    for (const row of rows) console.log(`  ${row.email}`);
+
+    // Mass deletion is destructive — without --yes this is a dry-run listing only.
+    if (!confirmed) {
+        console.log(`\nDry-run: nothing deleted. Re-run with \`-- --yes\` to delete all ${rows.length} user(s).`);
+        return;
+    }
     for (const row of rows) {
         await deleteUser(row.email);
     }
 }
 
 // Run the CLI only when invoked directly (`npm run delete-user …`), so this module
-// can also be imported for reuse (e.g. scripts/seedSharedFixture.ts).
+// can also be imported for reuse (e.g. scripts/seedFixture.ts).
 if (require.main === module) {
     main().catch((err) => {
         console.error('Error:', err.message);

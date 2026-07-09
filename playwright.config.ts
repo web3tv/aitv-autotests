@@ -73,16 +73,8 @@ export default defineConfig({
     },
 
     {
-      name: 'aitv',
-      testMatch: /ai\.tv\/.*\.spec\.ts$/,
-      use: {
-        browserName: 'chromium',
-      },
-    },
-
-    {
       name: 'functional',
-      testMatch: /^(?!.*visual)(?!.*production)(?!.*ai\.tv).*\.spec\.ts$/,
+      testMatch: /^(?!.*visual)(?!.*production).*\.spec\.ts$/,
       dependencies: ['fixture-check'],
       use: {
         browserName: 'chromium',

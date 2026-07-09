@@ -14,10 +14,8 @@ export class AuthApi {
     private baseUrl = process.env.API_URL,
     ) {}
 
-    async getAdminToken() {
-        const adminUsername = process.env.USER_LOGIN_ADMIN!;
-        const adminPassword = process.env.USER_PASSWORD!;
-
+    /** PKCE authorize → token exchange shared by the admin/user token getters. */
+    private async getPkceToken(username: string, password: string, who: string): Promise<string> {
         const verifier = crypto.randomBytes(32).toString("base64url");
         const challenge = crypto
             .createHash("sha256")
@@ -29,14 +27,14 @@ export class AuthApi {
             `&response_type=json&code_challenge=${challenge}&code_challenge_method=S256&scope=user`,
             {
             headers: { "Content-Type": "application/json" },
-            data: { username: adminUsername, password: adminPassword }
+            data: { username, password }
             }
         );
 
         const authJson = await authorize.json();
 
         if (!authJson.code) {
-            throw new Error("❌ Admin authorize failed: no auth code returned");
+            throw new Error(`❌ ${who} authorize failed: no auth code returned`);
         }
 
         const tokenRes = await this.request.post(`${this.baseUrl}/auth/token`, {
@@ -52,51 +50,57 @@ export class AuthApi {
         const tokenJson = await tokenRes.json();
 
         if (!tokenJson.access_token) {
-            throw new Error("❌ Failed to get admin access_token");
+            throw new Error(`❌ Failed to get ${who} access_token`);
         }
 
         return tokenJson.access_token;
     }
 
+    async getAdminToken() {
+        return this.getPkceToken(process.env.USER_LOGIN_ADMIN!, process.env.USER_PASSWORD!, "Admin");
+    }
+
     async getUserToken(email: string, password: string) {
-        const verifier = crypto.randomBytes(32).toString("base64url");
-        const challenge = crypto
-            .createHash("sha256")
-            .update(verifier)
-            .digest("base64url");
+        return this.getPkceToken(email, password, "User");
+    }
 
-        const authorize = await this.request.post(
-            `${this.baseUrl}/auth/authorize?client_id=${OAUTH_CLIENT_ID}` +
-            `&response_type=json&code_challenge=${challenge}&code_challenge_method=S256&scope=user`,
-            {
+    /**
+     * Shared registration chain: /auth/start → /auth/verify → /auth/complete.
+     * `code` is either the OTP itself (static-OTP flows) or a provider called with the
+     * challengeId after /auth/start (mailbox flows read the code from the inbox).
+     * `label` only decorates error messages (e.g. "(phone)").
+     */
+    private async registerViaOtp(
+        method: "email" | "phone",
+        identifier: string,
+        code: string | (() => Promise<string>),
+        username: string,
+        label = "",
+    ): Promise<{ username: string }> {
+        const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
             headers: { "Content-Type": "application/json" },
-            data: { username: email, password }
-            }
-        );
-
-        const authJson = await authorize.json();
-
-        if (!authJson.code) {
-            throw new Error("❌ User authorize failed: no auth code returned");
-        }
-
-        const tokenRes = await this.request.post(`${this.baseUrl}/auth/token`, {
-            headers: { "Content-Type": "application/json" },
-            data: {
-            grant_type: "authorization_code",
-            client_id: OAUTH_CLIENT_ID,
-            code: authJson.code,
-            code_verifier: verifier
-            }
+            data: { method, identifier, clientId: OAUTH_CLIENT_ID },
         });
+        if (!startRes.ok()) throw new Error(`❌ /auth/start${label} failed: ${startRes.status()}`);
+        const { otpChallengeId } = await startRes.json();
 
-        const tokenJson = await tokenRes.json();
+        const otp = typeof code === "function" ? await code() : code;
 
-        if (!tokenJson.access_token) {
-            throw new Error("❌ Failed to get user access_token");
-        }
+        const verifyRes = await this.request.post(`${this.baseUrl}/auth/verify`, {
+            headers: { "Content-Type": "application/json" },
+            data: { challengeId: otpChallengeId, code: otp },
+        });
+        if (!verifyRes.ok()) throw new Error(`❌ /auth/verify${label} failed: ${verifyRes.status()}`);
+        const { ticket } = await verifyRes.json();
 
-        return tokenJson.access_token;
+        const completeRes = await this.request.post(`${this.baseUrl}/auth/complete`, {
+            headers: { "Content-Type": "application/json" },
+            data: { ticket, handle: username, password: process.env.USER_PASSWORD ?? "Admin1@@" },
+        });
+        if (!completeRes.ok()) throw new Error(`❌ /auth/complete${label} failed: ${completeRes.status()}`);
+        const completeJson = await completeRes.json();
+
+        return { username: (completeJson.user?.username as string) ?? username };
     }
 
     async createAndVerifyUser() {
@@ -104,101 +108,47 @@ export class AuthApi {
         const email = await mailHelper.generateEmail();
         const mailToken = await mailHelper.getToken(email);
 
-        const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
-            headers: { "Content-Type": "application/json" },
-            data: { method: "email", identifier: email, clientId: OAUTH_CLIENT_ID },
-        });
-        if (!startRes.ok()) throw new Error(`❌ /auth/start failed: ${startRes.status()}`);
-        const { otpChallengeId } = await startRes.json();
-
-        const messageId = await mailHelper.waitForMessage(mailToken, "verification", 15, 3000);
-        const code = await mailHelper.extractVerificationCode(messageId, mailToken);
-
-        const verifyRes = await this.request.post(`${this.baseUrl}/auth/verify`, {
-            headers: { "Content-Type": "application/json" },
-            data: { challengeId: otpChallengeId, code },
-        });
-        if (!verifyRes.ok()) throw new Error(`❌ /auth/verify failed: ${verifyRes.status()}`);
-        const { ticket } = await verifyRes.json();
-
-        const username = DataGenerator.generateUsername();
-        const completeRes = await this.request.post(`${this.baseUrl}/auth/complete`, {
-            headers: { "Content-Type": "application/json" },
-            data: { ticket, handle: username, password: process.env.USER_PASSWORD ?? "Admin1@@" },
-        });
-        if (!completeRes.ok()) throw new Error(`❌ /auth/complete failed: ${completeRes.status()}`);
-        const completeJson = await completeRes.json();
-
-        return {
+        const { username } = await this.registerViaOtp(
+            "email",
             email,
-            username: (completeJson.user?.username as string) ?? username,
-            mailToken,
-        };
+            async () => {
+                const messageId = await mailHelper.waitForMessage(mailToken, "verification", 15, 3000);
+                return mailHelper.extractVerificationCode(messageId, mailToken);
+            },
+            DataGenerator.generateUsername(),
+        );
+
+        return { email, username, mailToken };
     }
 
     async createUserFastViaPhone(phone: string, staticCode = STATIC_OTP_CODE) {
-        const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
-            headers: { "Content-Type": "application/json" },
-            data: { method: "phone", identifier: phone, clientId: OAUTH_CLIENT_ID },
-        });
-        if (!startRes.ok()) throw new Error(`❌ /auth/start (phone) failed: ${startRes.status()}`);
-        const { otpChallengeId } = await startRes.json();
-
-        const verifyRes = await this.request.post(`${this.baseUrl}/auth/verify`, {
-            headers: { "Content-Type": "application/json" },
-            data: { challengeId: otpChallengeId, code: staticCode },
-        });
-        if (!verifyRes.ok()) throw new Error(`❌ /auth/verify (phone) failed: ${verifyRes.status()}`);
-        const { ticket } = await verifyRes.json();
-
-        const username = DataGenerator.generateUsername();
-        const completeRes = await this.request.post(`${this.baseUrl}/auth/complete`, {
-            headers: { "Content-Type": "application/json" },
-            data: { ticket, handle: username, password: process.env.USER_PASSWORD ?? "Admin1@@" },
-        });
-        if (!completeRes.ok()) throw new Error(`❌ /auth/complete (phone) failed: ${completeRes.status()}`);
-        const completeJson = await completeRes.json();
-
-        return {
+        const { username } = await this.registerViaOtp(
+            "phone",
             phone,
-            username: (completeJson.user?.username as string) ?? username,
-        };
+            staticCode,
+            DataGenerator.generateUsername(),
+            " (phone)",
+        );
+
+        return { phone, username };
     }
 
     async createUserFast(staticCode = STATIC_OTP_CODE, opts: { email?: string; username?: string } = {}) {
-        // No real mailbox is needed here: /auth/verify below uses a static OTP, so
-        // the inbox is never polled. The address is built locally under EMAIL_DOMAIN
-        // (no IMAP/Gmail round-trip at all). Timestamp + random keeps it unique.
+        // No real mailbox is needed here: /auth/verify uses a static OTP, so the inbox
+        // is never polled. The address is built locally under EMAIL_DOMAIN (no
+        // IMAP/Gmail round-trip at all). Timestamp + random keeps it unique.
         // `opts.email`/`opts.username` pin a deterministic account (used by the
         // visual-fixture seed script); omitted → random, as before.
         const domain = process.env.EMAIL_DOMAIN ?? 'aitv-test.com';
         const email = opts.email ?? `qa_${Date.now()}_${DataGenerator.randomString(6)}@${domain}`;
 
-        const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
-            headers: { "Content-Type": "application/json" },
-            data: { method: "email", identifier: email, clientId: OAUTH_CLIENT_ID },
-        });
-        if (!startRes.ok()) throw new Error(`❌ /auth/start failed: ${startRes.status()}`);
-        const { otpChallengeId } = await startRes.json();
-
-        const verifyRes = await this.request.post(`${this.baseUrl}/auth/verify`, {
-            headers: { "Content-Type": "application/json" },
-            data: { challengeId: otpChallengeId, code: staticCode },
-        });
-        if (!verifyRes.ok()) throw new Error(`❌ /auth/verify failed: ${verifyRes.status()}`);
-        const { ticket } = await verifyRes.json();
-
-        const username = opts.username ?? DataGenerator.generateUsername();
-        const completeRes = await this.request.post(`${this.baseUrl}/auth/complete`, {
-            headers: { "Content-Type": "application/json" },
-            data: { ticket, handle: username, password: process.env.USER_PASSWORD ?? "Admin1@@" },
-        });
-        if (!completeRes.ok()) throw new Error(`❌ /auth/complete failed: ${completeRes.status()}`);
-        const completeJson = await completeRes.json();
-
-        return {
+        const { username } = await this.registerViaOtp(
+            "email",
             email,
-            username: (completeJson.user?.username as string) ?? username,
-        };
+            staticCode,
+            opts.username ?? DataGenerator.generateUsername(),
+        );
+
+        return { email, username };
     }
 }

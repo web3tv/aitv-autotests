@@ -104,31 +104,35 @@
 
 ## 4. Мёртвый код и зависимости
 
-### 4.1. Неиспользуемые/недекларированные зависимости
-- `@synthetixio/synpress` (`package.json:19`, `^4.1.2`) — **0 ссылок** в `src/`, `tests/`, `scripts/` (проверено grep). Тяжёлая зависимость, тянет лишнее в `npm ci`. **Что делать.** Удалить, если Web3-кошельки не тестируются через synpress.
-- `ts-node` используется в npm-скриптах (`package.json:10` `delete-user`, `:11` `seed:fixture` — оба через `npx ts-node`), но **не объявлен в `devDependencies`**. **Чем грозит.** Работает только пока `npx` дотягивает пакет из сети/кэша; на чистой машине/в CI — неожиданный отказ. **Что делать.** Добавить `ts-node` в `devDependencies` явно.
+### 4.1. Неиспользуемые/недекларированные зависимости **[ИСПРАВЛЕНО]**
+- `@synthetixio/synpress` (`package.json:19`, `^4.1.2`) — **0 ссылок** в `src/`, `tests/`, `scripts/` (проверено grep). Тяжёлая зависимость, тянет лишнее в `npm ci`.
+- **Что сделано (2026-07-09).** synpress удалён (−257 пакетов из node_modules; npm-уязвимости упали с 16 до 6); `ts-node` явно добавлен в `devDependencies`.
+- `ts-node` использовался в npm-скриптах (`delete-user`, `seed:fixture`), но не был объявлен в `devDependencies` — работал только пока `npx` дотягивал пакет из сети/кэша. Исправлено (см. выше).
 
-### 4.2. Неиспользуемые модули и мёртвые строки
-- `src/utils/incognitoHelper.ts` — не импортируется нигде.
-- `src/pages/auth/LoginPage.ts:53` — `registerEmailBtn` присваивается, затем переопределяется на `:60` (`page.locator('[data-id="register-email"]')`) — строка 53 мёртвая. Также дубли `fillUsernameInput`/`fillUsernameInput2` и `removeFocusFromElement`/`blur`.
-- `src/pages/channel/ChannelMainPage.ts` — старые локаторы до-редизайна соседствуют с новыми `aitv-*`; старые питают только `.skip`-нутые методы (мёртвый пласт после редизайна DOM канала).
+### 4.2. Неиспользуемые модули и мёртвые строки **[ИСПРАВЛЕНО]**
+- `src/utils/incognitoHelper.ts` — не импортировался нигде. **Удалён.**
+- `src/pages/auth/LoginPage.ts:53` — мёртвая строка `registerEmailBtn` (удалена ещё в PR #16); дубли `fillUsernameInput2` и `removeFocusFromElement` (0 использований) — **удалены** (2026-07-09).
+- `src/pages/channel/ChannelMainPage.ts` — старые локаторы до-редизайна соседствовали с новыми `aitv-*`.
+- **Что сделано (2026-07-09).** Удалены 8 мёртвых методов старого DOM (`checkVideoIsExist`, `clickFirstVideo`, `checkShortsIsExist`, `clickFirstShort`, `checkChannelWithoutVideo`, `checkPrivateVideoOnChannelPage`, `checkUnlistedVideoNotAvailable`, `clickRegisterLoginBtn`) и 11 мёртвых локаторов (`videos`, `firstShort`, `avatar`, `videoCount`, `subscribersCount`, `channelName`, `channelHandle`, `forYouHeading`, `editChannelBtn`, `noContentBlock`, `pageUnavailableParagraph`). Оставлены `firstVideo`/`exclusiveBadge`/`lockedBadge` — их требует `checkPaidVideoAttributes`, вызываемый из скипнутого Paid-suite (нужен для компиляции).
 
-### 4.3. Проект `aitv` в конфиге матчит несуществующую папку
-- `playwright.config.ts:75-81` — проект `aitv` с `testMatch: /ai\.tv\/.*\.spec\.ts$/`. Папки `tests/ai.tv/` **не существует** (проверено), проект матчит 0 спеков и нигде не документирован. **Что делать.** Либо создать/наполнить папку и задокументировать назначение проекта, либо удалить проект из конфига. (Замечу: `functional` в `:85` уже исключает `ai.tv` из своего match — то есть про этот проект «помнили», но он пуст.)
+### 4.3. Проект `aitv` в конфиге матчит несуществующую папку **[ИСПРАВЛЕНО]**
+- `playwright.config.ts:75-81` — проект `aitv` матчил несуществующую папку `tests/ai.tv/` (0 спеков, нигде не документирован).
+- **Что сделано (2026-07-09).** Проект удалён из конфига; из `testMatch` проекта `functional` убран ставший лишним lookahead `(?!.*ai\.tv)`.
 
-### 4.4. Дублирование логики
-- В `src/api/AuthApi.ts` — дубли PKCE-логики (`getAdminToken`/`getUserToken`) и тройное повторение цепочки `start → verify → complete`. **Что делать.** Вынести общий helper, чтобы правка OTP-флоу делалась в одном месте.
+### 4.4. Дублирование логики **[ИСПРАВЛЕНО]**
+- В `src/api/AuthApi.ts` были дубли PKCE-логики (`getAdminToken`/`getUserToken`) и тройное повторение цепочки `start → verify → complete`.
+- **Что сделано (2026-07-09).** Выделены приватные хелперы: `getPkceToken(username, password, who)` (общий для admin/user токенов) и `registerViaOtp(method, identifier, code|codeProvider, username, label)` — все три метода создания пользователя (`createAndVerifyUser`, `createUserFastViaPhone`, `createUserFast`) теперь композиция над одной цепочкой; правка OTP-флоу делается в одном месте. Публичный API не изменился.
 
-### 4.5. `scripts/deleteUser.ts` — опасные острые углы
+### 4.5. `scripts/deleteUser.ts` — опасные острые углы **[ИСПРАВЛЕНО]**
 - `scripts/deleteUser.ts:5` — хардкод `.env.web3tv2`, игнорирует `ENV_FILE` (нельзя удалить пользователя на dev1/prod штатным способом).
 - Массовое удаление по домену **без подтверждения** — риск снести лишнее одним запуском.
 - `:276` — ссылка на несуществующий `seedSharedFixture.ts` (актуальный скрипт — `scripts/seedFixture.ts`).
-- **Что делать.** Уважать `ENV_FILE`, добавить подтверждение/`--dry-run` для массовых операций, поправить ссылку на сид-скрипт.
+- **Что сделано (2026-07-09).** Скрипт уважает `ENV_FILE` (дефолт `.env.web3tv2` сохранён); массовое удаление по домену без флага `--yes` — только dry-run-листинг найденных пользователей; ссылка в комментарии исправлена на `scripts/seedFixture.ts`; usage-подсказка дополнена.
 
-### 4.6. Устаревшие артефакты
-- `src/utils/gmailHelper.ts` — остались комментарии из эпохи mail.tm (после миграции на Gmail IMAP вводят в заблуждение).
-- `.claude/steady-growing-fern.md` — неисполненный план монорепо (шум).
-- `package.json` — `name: web3tv-autotests` при том, что проект/репозиторий называется `aitv-autotests` (историческое имя web3tv).
+### 4.6. Устаревшие артефакты **[ИСПРАВЛЕНО]**
+- `src/utils/gmailHelper.ts` — комментарии эпохи mail.tm переписаны под текущую модель (plus-addressing, «token» = адрес-получатель; имя историческое, сохранено ради сигнатур); упоминаний mail.tm в коде больше нет.
+- `.claude/steady-growing-fern.md` — неисполненный план монорепо. **Удалён.**
+- `package.json` — `name` переименован в `aitv-autotests` (вместе с `package-lock.json`).
 
 ---
 

@@ -7,20 +7,11 @@ export class ChannelMainPage {
     readonly page: Page;    
 
 
-    readonly videos: Locator;
     readonly firstVideo: Locator;
-    readonly firstShort: Locator;
 
     readonly exclusiveBadge: Locator;
     readonly lockedBadge: Locator;
 
-    readonly avatar: Locator;
-    readonly videoCount: Locator;
-    readonly subscribersCount: Locator;
-    readonly channelName: Locator;
-    readonly channelHandle: Locator;
-    readonly forYouHeading: Locator;
-    readonly editChannelBtn: Locator;
 
     // 2026 channel redesign — the public channel view was rebuilt with new markup.
     // The identity hero carries no data-id attributes, so name/handle are matched by
@@ -50,24 +41,13 @@ export class ChannelMainPage {
 
     // Empty / unavailable states
     readonly body: Locator;
-    readonly noContentBlock: Locator;
     readonly pageUnavailableText: Locator;
-    readonly pageUnavailableParagraph: Locator;
 
     constructor(page: Page) {
         this.page = page;
 
-        this.videos = page.locator('[data-id="video"]');
         this.firstVideo = page.locator('[data-id="video"]').first();
-        this.firstShort = page.locator('[data-id="clip"]').first();
 
-        this.avatar = page.locator('[data-id="avatar"]');
-        this.videoCount = page.locator('[data-id="count"]');
-        this.subscribersCount = page.locator('[data-id="subscribers"]');
-        this.channelName = page.locator('[data-id="name"]');
-        this.channelHandle = page.locator('[data-id="handle"]');
-        this.forYouHeading = page.getByRole('heading', { name: 'For you' });
-        this.editChannelBtn = page.getByRole('button', { name: 'Edit channel' });
 
         // 2026 redesign locators. `.first()` guards against the per-tile hover
         // overlays that also expose Follow/Edit controls — the hero button is first
@@ -96,31 +76,11 @@ export class ChannelMainPage {
 
         // Empty / unavailable states
         this.body = page.locator('body');
-        this.noContentBlock = page.locator('div').filter({ hasText: /^This channel doesn`t have any content$/ });
         this.pageUnavailableText = page.getByText('This page isn\'t available.');
-        this.pageUnavailableParagraph = page.getByRole('paragraph');
     }
 
 
     // PUBLIC VIDEO/ SHORTS
-
-    async checkVideoIsExist(name: string){
-        await expect(this.firstVideo, 'First video does not contain expected text').toContainText(name);
-    }
-
-    async clickFirstVideo(){
-        await expect(this.firstVideo, 'First video is not visible').toBeVisible();
-        await this.firstVideo.click();
-    }
-
-    async checkShortsIsExist(name: string){
-        await expect(this.firstShort, 'First short does not contain expected text').toContainText(name);
-    }
-
-    async clickFirstShort(){
-        await expect(this.firstShort, 'First short is not visible').toBeVisible();
-        await this.firstShort.click();
-    }
 
     // PUBLIC VIDEO — 2026 redesign. Grid cards are cover-only anchors
     // (`<a data-id="aitv-video-card" href="/video/<category>/<slug>">`) — the title is
@@ -150,24 +110,11 @@ export class ChannelMainPage {
 
     //PRIVATE VIDEO
 
-    async checkChannelWithoutVideo(){
-        await expect(this.noContentBlock, 'No-content block is not visible').toBeVisible();
-        await expect(this.firstVideo, 'First video count mismatch').toHaveCount(0);
-    }
-
-    async checkPrivateVideoOnChannelPage(){
-        await expect(this.body, 'No-content message is not shown').toContainText('This channel doesn`t have any content');
-    }
-
     async checkPrivateVideoViaDirectLink(){
         await expect(this.pageUnavailableText, 'Page-unavailable message is not visible').toBeVisible();
     }
 
     // UNLISTED VIDEO
-
-    async checkUnlistedVideoNotAvailable(){
-        await expect(this.body, 'No-content message is not shown').toContainText('This channel doesn`t have any content');
-    }
 
 
     // PAID VIDEO ON MEMBERSHIP PAGE
@@ -176,12 +123,6 @@ export class ChannelMainPage {
         await expect(this.subscriptionCard, 'Subscription card is not visible').toBeVisible();
         await expect(this.subscriptionCard, 'Subscription card does not contain membership name').toContainText(name);
         await expect(this.subscriptionCard, 'Subscription card does not contain membership description').toContainText(description);
-    }
-
-    async clickRegisterLoginBtn(){
-        await this.checkRegisterLoginBtn();
-        await expect(this.registerLoginBtn, 'Login button is not enabled').toBeEnabled();
-        await this.registerLoginBtn.click();
     }
 
     async clickButtonSubscribeNow(){
