@@ -20,7 +20,7 @@ Review the provided test files and Page Objects for quality and correctness.
 - `test.step()` wraps every logical step
 - `waitUntil: 'domcontentloaded'` — NEVER `networkidle`
 - `waitForResponse` set up BEFORE the action that triggers the request
-- TC annotation format: `test('TC-ID: Title', ...)`
+- TC-ID only in `annotation: { type: 'TC', description: 'TC-ID' }` — NEVER in the test name
 
 ### 2. Test independence
 - Each `test()` creates its own user via `AuthApi.createAndVerifyUser()`

@@ -35,7 +35,7 @@ You will receive:
 - Use `test.step()` for logical steps within a test
 - Prefer API setup (`AuthApi.createAndVerifyUser()`) over UI setup
 - Explicit logout after login steps
-- TC annotation: `test('TC-ID: Title', ...)`
+- TC-ID only in `annotation: { type: 'TC', description: 'TC-ID' }` — NEVER in the test name
 
 ## Output format
 
