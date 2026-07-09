@@ -45,9 +45,6 @@ test('Create a Movie through the full upload flow', {
     });
 });
 
-// W3-2714 (Horizontal shorts support): orientation no longer restricts the content
-// type — any of Movie/Series/Shorts is selectable for both landscape and vertical
-// files (the backend accepts an explicit `type` and no longer coerces by aspect ratio).
 test('Any content type is selectable regardless of video orientation', {
     annotation: { type: 'TC', description: 'MOVIE-002' },
 }, async ({ page, request }) => {

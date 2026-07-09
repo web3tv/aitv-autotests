@@ -188,11 +188,12 @@ npm run seed:fixture                                    # ENV_FILE=.env.web3tv n
 проектов) один раз резолвит фикстуру по сети (без БД) и валит прогон с понятным
 «пересей: `npm run seed:fixture`», если контент отсутствует (напр. после дропа БД).
 
-Визуальные тесты — только в Docker:
+Визуальные тесты — только в Docker (npm-скрипты оборачивают `docker run`, образ `test` должен быть собран):
 
 ```bash
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
+npm run test:visual            # desktop + mobile
+npm run test:visual:desktop    # только desktop (visual-desktop-chromium)
+npm run test:visual:mobile     # только mobile (visual-mobile-webkit)
 ```
 
 **Отчёт:**
@@ -274,8 +275,7 @@ npx playwright test --project=functional --grep @db
 
 ```bash
 docker build -t test .        # один раз собрать образ
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
+npm run test:visual           # desktop + mobile (или :desktop / :mobile по отдельности)
 ```
 
 **Отчёт** — HTML-репорт последнего прогона:

@@ -36,16 +36,11 @@ content is missing. The fixed accounts are created once and reused (never delete
 auth service permanently reserves a handle), so re-seed only after a DB drop / content
 change. The DB is needed **only when seeding** (locally).
 
-**Run visual tests (desktop 1920×1080):**
+**Run visual tests (Docker only; needs the visual fixture seeded first — see above):**
 ```
-# Must be run inside Docker; needs the visual fixture seeded first (see above)
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-desktop-chromium
-```
-
-**Run visual tests (mobile iPhone 15 Pro Max):**
-```
-# Must be run inside Docker
-docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-webkit
+npm run test:visual            # desktop + mobile (wraps docker run; image `test` must be built)
+npm run test:visual:desktop    # desktop 1920×1080 (visual-desktop-chromium)
+npm run test:visual:mobile     # mobile iPhone 15 Pro Max (visual-mobile-webkit)
 ```
 
 **Run tests by tag:**

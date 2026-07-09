@@ -30,9 +30,12 @@ async function settleMobileHeader(page: Page, headerPage: HeaderPage): Promise<v
             .forEach((v) => (v as HTMLVideoElement).pause());
         window.scrollTo(0, 0);
     });
-    await expect(headerPage.mobileHeader, 'Mobile header is not visible').toBeVisible();
+    // On the live stand mobile webkit can render the header well past the default
+    // 10s (the hero video loads first and the page stays black) — wait longer.
+    await expect(headerPage.mobileHeader, 'Mobile header is not visible')
+        .toBeVisible({ timeout: 30000 });
     await expect(headerPage.mobileDropdownTrigger, 'Mobile header dropdown trigger is not visible')
-        .toBeVisible();
+        .toBeVisible({ timeout: 30000 });
     // Visual settle: let the mobile layout/animations finish before the screenshot.
     await page.waitForTimeout(1000);
 }
