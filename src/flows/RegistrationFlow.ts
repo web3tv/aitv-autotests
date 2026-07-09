@@ -6,6 +6,7 @@ import { expect } from '@playwright/test';
 import { HeaderPage } from '../pages/components/HeaderPage';
 import { LoginPopupPage } from '../pages/testPopups/LoginPopupPage';
 import { DataGenerator } from '../utils/dataGenerator';
+import { STATIC_OTP_CODE } from '../api/AuthApi';
 
 export class RegistrationFlow {
   readonly loginPage: LoginPage;
@@ -39,7 +40,7 @@ export class RegistrationFlow {
   }
 
   async registerAndVerifyUserViaEmail() {
-    const password = 'Admin1@@'
+    const password = process.env.USER_PASSWORD!;
     const email = await this.mailHelper.generateEmail();
     const username = await this.registerViaEmail(email,password);
     const token = await this.mailHelper.getToken(email);
@@ -51,7 +52,7 @@ export class RegistrationFlow {
   }
 
   async registerAndVerifyUserViaPopup(): Promise<{ email: string; password: string; username: string; token: string }> {
-    const password = 'Admin1@@';
+    const password = process.env.USER_PASSWORD!;
     const username = DataGenerator.generateUsername();
 
     const email = await this.mailHelper.generateEmail();
@@ -80,8 +81,8 @@ export class RegistrationFlow {
     return { email, password, username, token };
   }
 
-  async registerViaPhoneFast(phone: string, staticCode = '1111'): Promise<{ phone: string; password: string; username: string }> {
-    const password = 'Admin1@@';
+  async registerViaPhoneFast(phone: string, staticCode = STATIC_OTP_CODE): Promise<{ phone: string; password: string; username: string }> {
+    const password = process.env.USER_PASSWORD!;
     const username = DataGenerator.generateUsername();
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
@@ -106,8 +107,8 @@ export class RegistrationFlow {
     return { phone, password, username };
   }
 
-  async registerAndVerifyUserViaPopupFast(staticCode = '1111'): Promise<{ email: string; password: string; username: string }> {
-    const password = 'Admin1@@';
+  async registerAndVerifyUserViaPopupFast(staticCode = STATIC_OTP_CODE): Promise<{ email: string; password: string; username: string }> {
+    const password = process.env.USER_PASSWORD!;
     const username = DataGenerator.generateUsername();
     const email = await this.mailHelper.generateEmail();
 

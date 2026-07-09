@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
 import { GmailHelper } from '../../src/utils/gmailHelper';
-import { AuthApi } from '../../src/api/AuthApi';
+import { AuthApi, STATIC_OTP_CODE } from '../../src/api/AuthApi';
 
 test.describe('Handle validation on registration page', { tag: '@validation', annotation: [{ type: 'TC', description: 'VAL-001' }, { type: 'TC', description: 'VAL-002' }] }, () => {
 
@@ -20,9 +20,9 @@ test.describe('Handle validation on registration page', { tag: '@validation', an
     await loginPopupPage.fillEmailOrUsername(email);
     await loginPopupPage.clickContinue();
 
-    await loginPopupPage.fillCode('1111');
+    await loginPopupPage.fillCode(STATIC_OTP_CODE);
 
-    await loginPopupPage.fillCreatePassword('Admin1@@');
+    await loginPopupPage.fillCreatePassword(process.env.USER_PASSWORD!);
     await loginPopupPage.clickSetNewPassword();
 
     await expect(loginPopupPage.chooseHandleInput, 'Handle input is not visible after password step').toBeVisible({ timeout: 10_000 });

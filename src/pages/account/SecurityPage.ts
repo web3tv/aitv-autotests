@@ -33,7 +33,7 @@ export class SecurityPage {
         await this.setUpBtn.click();
         await expect(this.passwordMessage).toContainText(`After enabling two-factor authorization you have to confirm every authorization using ${email}`);
         await this.passwordInput.click();
-        await this.passwordInput.fill('Admin1@@');
+        await this.passwordInput.fill(process.env.USER_PASSWORD!);
         if (enable) {
             await this.twoFaCheckbox.check();
         } else {

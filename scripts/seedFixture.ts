@@ -19,7 +19,7 @@ import * as path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), process.env.ENV_FILE || '.env.web3tv2') });
 
 import { request } from '@playwright/test';
-import { AuthApi } from '../src/api/AuthApi';
+import { AuthApi, STATIC_OTP_CODE } from '../src/api/AuthApi';
 import { DatabaseHelper } from '../src/api/DatabaseHelper';
 import { setupVideoViaApi, setupSeriesWithEpisodes } from '../src/utils/studioTestHelpers';
 import { deleteUser } from './deleteUser';
@@ -61,7 +61,7 @@ async function getOrCreateUser(
         return account;
     } catch {
         console.log(`  · creating @${account.username}`);
-        return authApi.createUserFast('1111', { email: account.email, username: account.username });
+        return authApi.createUserFast(STATIC_OTP_CODE, { email: account.email, username: account.username });
     }
 }
 
