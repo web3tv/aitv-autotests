@@ -39,11 +39,13 @@ export class SecurityPage {
         } else {
             await this.twoFaCheckbox.uncheck();
         }
-        await this.submitBtn.click();
-        await this.page.waitForResponse(res =>
+        const setResponse = this.page.waitForResponse(res =>
             res.url().includes('/api/account/email-2fa/set') &&
-            res.status() === 200
+            res.status() === 200,
+            { timeout: 15000 }
         );
+        await this.submitBtn.click();
+        await setResponse;
         await expect(this.successToast).toBeVisible();
     }
 }

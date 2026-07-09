@@ -113,7 +113,19 @@ test.describe('Reset password tests', () => {
             const url = await mailHelper.extractPasswordResetnUrl(messageId, mailToken);
             await page.goto(url, { waitUntil: 'domcontentloaded' });
             await authFlow.loginPopupPage.fillResetPassword(newPassword);
+            const verifyResponse = page.waitForResponse(
+                r => r.url().includes('/api/auth/verify-reset-code'),
+                { timeout: 15000 }
+            );
+            const updateResponse = page.waitForResponse(
+                r => r.url().includes('/api/auth/update-password'),
+                { timeout: 15000 }
+            );
             await authFlow.loginPopupPage.clickResetFinish();
+            const verifyRes = await verifyResponse;
+            expect(verifyRes.status(), `verify-reset-code returned ${verifyRes.status()}`).toBe(200);
+            const updateRes = await updateResponse;
+            expect(updateRes.status(), `update-password returned ${updateRes.status()}`).toBe(200);
         });
 
         await test.step('Login with old password — expect error', async () => {

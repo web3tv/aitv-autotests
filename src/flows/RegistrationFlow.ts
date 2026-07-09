@@ -71,10 +71,11 @@ export class RegistrationFlow {
     await this.loginPopupPage.fillCreatePassword(password);
     await this.loginPopupPage.clickSetNewPassword();
     await this.loginPopupPage.fillChooseHandle(username);
+    const whoamiPromise = this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
     await this.loginPopupPage.clickFinish();
 
     await this.page.waitForURL('/');
-    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
+    await whoamiPromise;
 
     return { email, password, username, token };
   }
@@ -96,10 +97,11 @@ export class RegistrationFlow {
     await this.loginPopupPage.fillCreatePassword(password);
     await this.loginPopupPage.clickSetNewPassword();
     await this.loginPopupPage.fillChooseHandle(username);
+    const whoamiPromise = this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
     await this.loginPopupPage.clickFinish();
 
     await this.page.waitForURL('/');
-    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
+    await whoamiPromise;
 
     return { phone, password, username };
   }
@@ -121,10 +123,11 @@ export class RegistrationFlow {
     await this.loginPopupPage.fillCreatePassword(password);
     await this.loginPopupPage.clickSetNewPassword();
     await this.loginPopupPage.fillChooseHandle(username);
+    const whoamiPromise = this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
     await this.loginPopupPage.clickFinish();
 
     await this.page.waitForURL('/');
-    await this.page.waitForResponse('/api/users/whoami', { timeout: 40_000 });
+    await whoamiPromise;
 
     return { email, password, username };
   }
