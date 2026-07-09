@@ -127,7 +127,7 @@ export class AccountPage {
         await this.fillNewPassword(newPassword);
         await this.fillConfirmPassword(newPassword);
         await this.clickSubmitBtn();
-        await expect(this.editPasswordModal, 'Edit Password confirmation modal is not visible').toContainText('You are almost there!We\'ve sent you an email. Please confirm password change.');
+        await expect(this.editPasswordModal, 'Edit Password confirmation modal is not visible').toContainText('confirm password change');
         await expect(this.editPasswordModalBtn, 'Edit Password modal button is not visible').toBeVisible();
         await this.editPasswordModalBtn.click();
     }

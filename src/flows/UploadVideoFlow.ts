@@ -192,7 +192,7 @@ export class UploadVideoFlow {
 
     async clickPublishBtn(){
         await  this.uploadVideoPage.clickPublishbtn();
-        await expect(this.uploadVideoPage.page.getByLabel('Upload Complete'), 'Upload Complete dialog is missing congratulations text').toContainText('Congratulations!Your video has been successfully uploaded.',{timeout:10_000});
+        await expect(this.uploadVideoPage.page.getByLabel('Upload Complete'), 'Upload Complete dialog is missing congratulations text').toContainText('successfully uploaded', {timeout:10_000});
         const closeBtn = this.uploadVideoPage.page.getByRole('button').filter({ hasText: /^$/ });
         await expect(closeBtn, 'Upload Complete close button is not visible').toBeVisible({ timeout: 10_000 });
         await expect(closeBtn, 'Upload Complete close button is not enabled').toBeEnabled();

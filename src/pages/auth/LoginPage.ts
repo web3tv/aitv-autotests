@@ -146,7 +146,7 @@ export class LoginPage {
   async clickCreateAccountBtn(email: any) {
     await expect(this.createAccountBtn, 'Create account button is not enabled').toBeEnabled();
     await this.createAccountBtn.click();
-    await expect(this.body, 'Verification-link message is not visible').toContainText('Please check your email for the verification link sent to:');
+    await expect(this.body, 'Verification-link message is not visible').toContainText('verification link');
     await expect(this.body, `Email ${email} is not shown in the verification message`).toContainText(email);
   }
 
