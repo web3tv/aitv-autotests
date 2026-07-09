@@ -32,7 +32,7 @@ export class AuthFlow {
 
   async loginSuccess(credentials: string | { phone: string }, password: string, username: string, isMobile = false) {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     if (typeof credentials === 'object') {
@@ -44,8 +44,9 @@ export class AuthFlow {
       await this.loginPopupPage.clickContinue();
     }
     await this.loginPopupPage.fillPassword(password);
+    // W3-2725: the password step submits to /api/auth/legacy-login (/api/auth/login is the identifier step)
     const loginResponse = this.page.waitForResponse(
-      async r => r.url().includes('/api/auth/login') && (await r.json().catch(() => null))?.message === 'Login successfull',
+      async r => r.url().includes('/api/auth/legacy-login') && (await r.json().catch(() => null))?.message === 'Login successfull',
       { timeout: 40_000 }
     );
     await this.loginPopupPage.clickContinue2();
@@ -59,14 +60,14 @@ export class AuthFlow {
 
   async loginFailed(email: string, password: string): Promise<void> {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
     await this.loginPopupPage.clickContinue();
     await this.loginPopupPage.fillPassword(password);
     const failResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/login') && r.status() === 400,
+      r => r.url().includes('/api/auth/legacy-login') && r.status() === 400,
       { timeout: 40_000 }
     );
     await this.loginPopupPage.clickContinue2();
@@ -76,7 +77,7 @@ export class AuthFlow {
 
   async loginWith2FaFailed(email:string,password:string){
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
@@ -100,7 +101,7 @@ export class AuthFlow {
   async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
     const mailHelper = new GmailHelper(this.page.request);
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
@@ -130,14 +131,15 @@ export class AuthFlow {
     await this.assertLoggedInAs(username);
   }
 
-  async usernameError (email:string) {
+  /** Submits a nonexistent username/email in the Login modal and asserts the not-found error. */
+  async usernameError(identifier: string) {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
-    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.fillEmailOrUsername(identifier);
     await this.loginPopupPage.clickContinue();
-    await expect(this.page.locator('body'), 'Username-not-found error is not shown').toContainText('Username not found. Try another one.');
+    await expect(this.page.locator('body'), 'Account-not-found error is not shown').toContainText('No account found', { timeout: 10_000 });
   }
 
   async walletLoginSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
@@ -148,17 +150,18 @@ export class AuthFlow {
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickWalletEntry();
 
-    const authStartResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/start'),
+    // W3-2725: the wallet login submits to /api/auth/login (was /api/auth/start)
+    const authLoginResponse = this.page.waitForResponse(
+      r => r.url().includes('/api/auth/login'),
       { timeout: 15_000 }
     );
     await this.loginPage.clickWalletOption(walletType);
-    const authStartRes = await authStartResponse;
-    expect(authStartRes.status(), `auth/start returned ${authStartRes.status()}`).toBe(200);
+    const authLoginRes = await authLoginResponse;
+    expect(authLoginRes.status(), `auth/login returned ${authLoginRes.status()}`).toBe(200);
 
     await this.page.waitForURL((url) => url.pathname === '/');
     // await this.page.waitForResponse(
@@ -214,16 +217,17 @@ export class AuthFlow {
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickSignup();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickWalletEntry();
 
-    const authStartPromise = this.page.waitForResponse(
-      (res) => res.url().includes('/api/auth/start'),
+    // W3-2725: the wallet registration submits to /api/auth/signup (was /api/auth/start)
+    const authSignupPromise = this.page.waitForResponse(
+      (res) => res.url().includes('/api/auth/signup'),
       { timeout: 15_000 }
     );
     await this.loginPage.clickWalletOption(walletType);
-    await authStartPromise;
+    await authSignupPromise;
 
     const username = DataGenerator.generateUsername();
     await this.loginPopupPage.fillChooseHandle(username);
@@ -370,7 +374,7 @@ export class AuthFlow {
     });
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickTelegramEntry();
 
@@ -390,12 +394,13 @@ export class AuthFlow {
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();
     await expect(this.page, 'Did not navigate to home page after logout').toHaveURL('/');
-    await expect(this.headerPage.getStartedBtn, 'GetStarted button should be visible after logout').toBeVisible();
+    await expect(this.headerPage.loginBtn, 'Login button should be visible after logout').toBeVisible();
   }
 
   async enterWrongCodeMaxAttemptsViaPopup(email: string): Promise<void> {
+    // Registration OTP scenario — a fresh email only gets a code in the Sign Up intent
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickSignup();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
@@ -422,7 +427,7 @@ export class AuthFlow {
 
   async passwordErrorViaPopup(credentials: string | { phone: string }, password: string): Promise<void> {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     if (typeof credentials === 'object') {
@@ -443,7 +448,7 @@ export class AuthFlow {
 
   async emailNotFoundViaPopup(email: string): Promise<void> {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
@@ -451,12 +456,12 @@ export class AuthFlow {
     await expect(
       this.page.locator('body'),
       'Error message not visible in popup'
-    ).toContainText('not found', { timeout: 10_000 });
+    ).toContainText('No account found for this email.', { timeout: 10_000 });
   }
 
   async submitForgotPasswordViaPopup(email: string): Promise<void> {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);

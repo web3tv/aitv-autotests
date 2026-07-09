@@ -170,16 +170,16 @@ test.describe('AITV visual tests', () => {
 
     // ── Auth modal ──
 
-    test('Auth modal on Get Started click', {
+    test('Auth modal on Login click', {
         annotation: { type: 'TC', description: 'VIS-AITV-005' },
     }, async ({ page }) => {
         const headerPage = new HeaderPage(page);
         const loginPopupPage = new LoginPopupPage(page);
 
-        await test.step('Open main page and click Get Started', async () => {
+        await test.step('Open main page and click Login', async () => {
             await page.goto('/');
             await page.waitForLoadState('domcontentloaded');
-            await headerPage.clickGetStarted();
+            await headerPage.clickLogin();
         });
 
         await test.step('Wait for auth modal and take screenshot', async () => {

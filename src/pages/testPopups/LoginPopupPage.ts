@@ -10,20 +10,26 @@ export class LoginPopupPage {
     readonly appleEntryBtn: Locator;
     readonly telegramEntryBtn: Locator;
     readonly walletEntryBtn: Locator;
+    readonly entrySwitchIntentBtn: Locator;
+    readonly backBtn: Locator;
 
     // Step 2: Email / phone input
     readonly emailUsernameeInput: Locator;
     readonly continueBtn: Locator;
     readonly switchToPhoneBtn: Locator;
+    readonly emailSwitchIntentBtn: Locator;
 
     // Step 2 (phone): Phone input
     readonly phoneInput: Locator;
     readonly phoneContinueBtn: Locator;
 
-    // Step 3a: Password (existing user)
+    // Step 3a: Password (existing user, login intent)
     readonly passwordInput: Locator;
+    readonly passwordToggleBtn: Locator;
     readonly loginBtn: Locator;
     readonly resetPasswordBtn: Locator;
+    readonly loginChangeBtn: Locator;
+    readonly loginSwitchSignupBtn: Locator;
     readonly continueBtn2: Locator;
     readonly continueBtn3: Locator;
 
@@ -61,7 +67,10 @@ export class LoginPopupPage {
         this.appleEntryBtn    = page.getByTestId('aitv-auth-entry-apple');
         this.telegramEntryBtn = page.getByTestId('aitv-auth-entry-telegram');
         this.walletEntryBtn   = page.getByTestId('aitv-auth-entry-wallet');
+        this.entrySwitchIntentBtn = page.getByTestId('aitv-auth-entry-switch-intent');
+        this.backBtn          = page.getByTestId('aitv-auth-back');
         this.switchToPhoneBtn = page.getByTestId('aitv-auth-email-switch-phone');
+        this.emailSwitchIntentBtn = page.getByTestId('aitv-auth-email-switch-intent');
 
         this.phoneInput       = page.getByTestId('aitv-auth-phone-input');
         this.phoneContinueBtn = page.getByTestId('aitv-auth-phone-continue');
@@ -70,9 +79,12 @@ export class LoginPopupPage {
         this.continueBtn      = page.getByTestId('aitv-auth-email-continue')
         this.continueBtn2      = page.getByTestId('aitv-auth-login-continue')
 
-        this.passwordInput    = page.locator('input[type="password"]');
+        this.passwordInput    = page.getByTestId('aitv-auth-login-password');
+        this.passwordToggleBtn = page.getByTestId('aitv-auth-login-password-toggle');
         this.loginBtn         = page.getByTestId('login');
         this.resetPasswordBtn = page.getByTestId('aitv-auth-login-forgot');
+        this.loginChangeBtn   = page.getByTestId('aitv-auth-login-change');
+        this.loginSwitchSignupBtn = page.getByTestId('aitv-auth-login-switch-signup');
         this.forgotContinueBtn = page.getByRole('dialog').getByRole('button', { name: 'Continue' });
 
         this.otpInputs        = page.locator('[data-testid^="aitv-auth-otp-input-"]');

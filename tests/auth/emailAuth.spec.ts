@@ -3,6 +3,8 @@ import { AuthFlow } from '../../src/flows/AuthFlow';
 import { AuthApi } from '../../src/api/AuthApi';
 import { RegistrationFlow } from '../../src/flows/RegistrationFlow';
 import { GmailHelper } from '../../src/utils/gmailHelper';
+import { HeaderPage } from '../../src/pages/components/HeaderPage';
+import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
 
 
 test.describe('Login tests', () => {
@@ -28,6 +30,22 @@ test.describe('Login tests', () => {
 
         await test.step('Logout and verify redirect to home', async () => {
             await authFlow.logout();
+        });
+    });
+
+    test('Can`t login with nonexistent email', { annotation: { type: 'TC', description: 'AUTH-018' } }, async ({ page }) => {
+        const authFlow = new AuthFlow(page);
+
+        await test.step('Open login popup, submit nonexistent email and verify error', async () => {
+            await authFlow.emailNotFoundViaPopup(`qa_nonexistent_${Date.now()}@${process.env.EMAIL_DOMAIN}`);
+        });
+    });
+
+    test('Can`t login with nonexistent username', { annotation: { type: 'TC', description: 'AUTH-003' } }, async ({ page }) => {
+        const authFlow = new AuthFlow(page);
+
+        await test.step('Open login popup, submit nonexistent username and verify error', async () => {
+            await authFlow.usernameError(`qa_nonexistent_${Date.now()}`);
         });
     });
 
@@ -67,6 +85,37 @@ test.describe('Registration tests', () => {
 
         await test.step('Login via popup with API-created user', async () => {
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
+        });
+    });
+
+    test('Can`t sign up with already registered email', { annotation: { type: 'TC', description: 'AUTH-017' } }, async ({ page, request }) => {
+        const authApi = new AuthApi(request);
+        const headerPage = new HeaderPage(page);
+        const loginPopupPage = new LoginPopupPage(page);
+        let email: string;
+
+        await test.step('Create user via API', async () => {
+            ({ email } = await authApi.createUserFast());
+        });
+
+        await test.step('Open Sign Up modal and submit the taken email', async () => {
+            await page.goto('/', { waitUntil: 'domcontentloaded' });
+            await headerPage.clickSignup();
+            await loginPopupPage.assertPopupVisible();
+            await loginPopupPage.clickEmailEntry();
+            await loginPopupPage.fillEmailOrUsername(email);
+            await loginPopupPage.clickContinue();
+        });
+
+        await test.step('Verify "account already exists" error and Log In switch', async () => {
+            await expect(
+                page.locator('body'),
+                'Account-already-exists error is not shown'
+            ).toContainText('An account already exists for this email.', { timeout: 10_000 });
+            await expect(
+                loginPopupPage.emailSwitchIntentBtn,
+                'Log In instead button is not visible'
+            ).toBeVisible();
         });
     });
 

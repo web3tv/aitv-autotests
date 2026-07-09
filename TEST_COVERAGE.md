@@ -15,12 +15,16 @@
 AUTH — EMAIL
 ├── Login (email) — success                         [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-001
 ├── Login (email) — wrong password                  [AUTO] tests/auth/emailAuth.spec.ts      AUTH-002
+├── Login — nonexistent username → not-found error  [AUTO] tests/auth/emailAuth.spec.ts (красный до фикса: фронт кажет generic «Something went wrong» вместо «No account found», баг зарепорчен W3-2725 c.43239 п.2)  AUTH-003
+├── Login — nonexistent email → not-found error     [AUTO] tests/auth/emailAuth.spec.ts      AUTH-018
 ├── Logout                                          [AUTO] tests/auth/emailAuth.spec.ts      AUTH-004
 ├── Registration via email (UI popup)               [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-005
 ├── Registration via API + login via popup          [AUTO] tests/auth/emailAuth.spec.ts      AUTH-006
 ├── Password reset — success (old fails, new works) [AUTO] tests/auth/emailAuth.spec.ts      AUTH-007
 ├── Password reset — password mismatch              [AUTO] tests/auth/emailAuth.spec.ts      AUTH-008
+├── Password reset — phone number in reset form     [TODO] ждёт решения команды: убрать телефон или сделать reset по телефону (W3-2725 c.43239 п.3)  AUTH-019
 ├── Wrong verification code ×5 → too many attempts  [AUTO] tests/auth/emailAuth.spec.ts      AUTH-009
+├── Sign Up with already registered email (W3-2725) [AUTO] tests/auth/emailAuth.spec.ts      AUTH-017
 └── Login via Telegram (mocked OAuth)               [AUTO] tests/auth/telegramAuth.spec.ts   AUTH-015
 
 ────────────────────────────────────────────────────────────────
@@ -308,7 +312,9 @@ VALIDATION (tag: @validation)
 ├── Channel description — max 1000 chars            [TODO]                                   VAL-010
 ├── Channel short description — max 100 chars       [TODO]                                   VAL-011
 ├── Biography — max 1000 chars                      [TODO]                                   VAL-012
-└── Social links — max 100 chars each               [TODO]                                   VAL-013
+├── Social links — max 100 chars each               [TODO]                                   VAL-013
+├── Sign Up — username instead of email → error     [AUTO] tests/auth/handleValidationOnRegPage.spec.ts  VAL-014
+└── Sign Up — invalid email format → error          [AUTO] tests/auth/handleValidationOnRegPage.spec.ts (красный до фикса: фронт кажет generic «Something went wrong» вместо ошибки валидации, баг зарепорчен W3-2725 c.43239 п.2)  VAL-015
 
 ────────────────────────────────────────────────────────────────
 STUDIO DOMAIN (studio.web3tv.dev) — W3-1943

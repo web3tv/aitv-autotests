@@ -11,7 +11,8 @@ export class HeaderPage {
   readonly mobileProfileMenuChannelLink: Locator;
 
   // Unauthenticated header
-  readonly getStartedBtn: Locator;
+  readonly loginBtn: Locator;
+  readonly signupBtn: Locator;
   readonly searchBtn: Locator;
   readonly homeLink: Locator;
   readonly seriesLink: Locator;
@@ -38,7 +39,8 @@ export class HeaderPage {
     this.mobileDropdownMenu = page.locator('ul[role="menu"]');
     this.mobileProfileMenuChannelLink = page.locator('[data-id="aitv-profile-menu-channel-link"]');
 
-    this.getStartedBtn = page.locator('[data-id="aitv-header"], [data-id="aitv-header-mobile"]').getByRole('button', { name: 'Get Started' });
+    this.loginBtn = page.getByTestId('aitv-auth-header-login');
+    this.signupBtn = page.getByTestId('aitv-auth-header-signup');
     this.searchBtn = page.locator('[data-id="aitv-header-search"]');
     this.homeLink = page.locator('[data-id="home"]');
     this.seriesLink = page.locator('[data-id="series"]');
@@ -72,12 +74,22 @@ export class HeaderPage {
     await expect(this.createChannelHeading, 'Create Channel page did not open').toBeVisible();
   }
 
-  async clickGetStarted(): Promise<void> {
+  /** Opens the Login modal via the header Login button (login intent). */
+  async clickLogin(): Promise<void> {
     await this.page.waitForLoadState('load');
     await expect(this.header.or(this.mobileHeader), 'Header is not visible').toBeVisible({ timeout: 30_000 });
-    await expect(this.getStartedBtn, 'Get Started button is not visible').toBeVisible({ timeout: 15_000 });
-    await expect(this.getStartedBtn, 'Get Started button is not enabled').toBeEnabled();
-    await this.getStartedBtn.click();
+    await expect(this.loginBtn, 'Login button is not visible').toBeVisible({ timeout: 15_000 });
+    await expect(this.loginBtn, 'Login button is not enabled').toBeEnabled();
+    await this.loginBtn.click();
+  }
+
+  /** Opens the Sign Up modal via the header Sign up button (registration intent). */
+  async clickSignup(): Promise<void> {
+    await this.page.waitForLoadState('load');
+    await expect(this.header.or(this.mobileHeader), 'Header is not visible').toBeVisible({ timeout: 30_000 });
+    await expect(this.signupBtn, 'Sign up button is not visible').toBeVisible({ timeout: 15_000 });
+    await expect(this.signupBtn, 'Sign up button is not enabled').toBeEnabled();
+    await this.signupBtn.click();
   }
 
   async clickCreateBtn() {

@@ -14,7 +14,7 @@ test.describe('Handle validation on registration page', { tag: '@validation', an
     const email = await mailHelper.generateEmail();
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await headerPage.clickGetStarted();
+    await headerPage.clickSignup();
     await loginPopupPage.assertPopupVisible();
     await loginPopupPage.clickEmailEntry();
     await loginPopupPage.fillEmailOrUsername(email);
@@ -98,6 +98,54 @@ test.describe('Handle validation on registration page', { tag: '@validation', an
     await page.keyboard.press('Tab');
 
     await expect(loginPopupPage.chooseHandleInput).toHaveValue('fewfwftesting');
+  });
+
+});
+
+
+test.describe('Email validation on registration modal', { tag: '@validation' }, () => {
+
+  test.beforeEach(async ({ page }) => {
+    const headerPage = new HeaderPage(page);
+    const loginPopupPage = new LoginPopupPage(page);
+
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await headerPage.clickSignup();
+    await loginPopupPage.assertPopupVisible();
+    await loginPopupPage.clickEmailEntry();
+    await expect(loginPopupPage.emailUsernameeInput, 'Email input is not visible after opening email step').toBeVisible();
+  });
+
+  test('Username instead of email → username-not-allowed error', { annotation: { type: 'TC', description: 'VAL-014' } }, async ({ page }) => {
+    const loginPopupPage = new LoginPopupPage(page);
+
+    await test.step('Submit a username-shaped identifier', async () => {
+      await loginPopupPage.fillEmailOrUsername(`qa_not_an_email_${Date.now()}`);
+      await loginPopupPage.clickContinue();
+    });
+
+    await test.step('Verify username-not-allowed error', async () => {
+      await expect(
+        page.getByText("A username can't be used to sign up. Enter an email instead, or log in."),
+        'Username-not-allowed error is not shown'
+      ).toBeVisible({ timeout: 10_000 });
+    });
+  });
+
+  test('Invalid email format → validation error', { annotation: { type: 'TC', description: 'VAL-015' } }, async ({ page }) => {
+    const loginPopupPage = new LoginPopupPage(page);
+
+    await test.step('Submit an invalid-format email', async () => {
+      await loginPopupPage.fillEmailOrUsername('a@b');
+      await loginPopupPage.clickContinue();
+    });
+
+    await test.step('Verify email-format validation error', async () => {
+      await expect(
+        page.getByText('This value is not a valid email address.'),
+        'Email-format validation error is not shown'
+      ).toBeVisible({ timeout: 10_000 });
+    });
   });
 
 });
