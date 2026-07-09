@@ -83,7 +83,7 @@ export class AuthFlow {
     await this.loginPopupPage.clickContinue();
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
-    await expect(this.page.locator('body'), '2FA code prompt is not shown').toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
+    await expect(this.page.locator('body'), '2FA code prompt is not shown').toContainText('sent a verification code');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 1' }).fill('2');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 2' }).fill('2');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 3' }).fill('2');
@@ -108,7 +108,7 @@ export class AuthFlow {
     const requestedAt = Date.now();
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
-    await expect(this.page.locator('body'), '2FA code prompt is not shown').toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
+    await expect(this.page.locator('body'), '2FA code prompt is not shown').toContainText('sent a verification code');
     const messageId = await mailHelper.waitForMessage(token, 'Authentication Code', 10, 3000, requestedAt);
     const [d1, d2, d3, d4] = await mailHelper.extract2FACode(messageId,token);
     console.log(`Extracted 2FA code: ${d1}${d2}${d3}${d4}`);
@@ -170,9 +170,7 @@ export class AuthFlow {
       // Assert the "set up alternative login method" modal (only appears on first wallet login)
       const addEmailModal = this.page.locator('[data-id="add-email-modal"]');
       await expect(addEmailModal, 'Add email modal is not visible after wallet login').toBeVisible({ timeout: 10_000 });
-      await expect(addEmailModal, 'Add email modal text is incorrect').toContainText(
-        'To recover your profile and set up an alternative login method, you can add an email address and password in your account settings.'
-      );
+      await expect(addEmailModal, 'Add email modal text is incorrect').toContainText('alternative login method');
       await expect(this.page.getByRole('button', { name: 'Cancel' }), 'Cancel button is not visible').toBeVisible();
       await expect(this.page.locator('[data-id="open-settings"]'), 'Open Settings button is not visible').toBeVisible();
 

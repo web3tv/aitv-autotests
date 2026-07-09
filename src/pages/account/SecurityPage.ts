@@ -33,7 +33,8 @@ export class SecurityPage {
         await expect(this.setUpBtn, 'Set Up button is not visible').toBeVisible();
         await expect(this.setUpBtn, 'Set Up button is not enabled').toBeEnabled();
         await this.setUpBtn.click();
-        await expect(this.passwordMessage, 'Password message does not contain expected text').toContainText(`After enabling two-factor authorization you have to confirm every authorization using ${email}`);
+        await expect(this.passwordMessage, '2FA description is not shown').toContainText('two-factor authorization');
+        await expect(this.passwordMessage, 'User email is not shown in the 2FA description').toContainText(email);
         await expect(this.passwordInput, 'Password input is not visible').toBeVisible();
         await expect(this.passwordInput, 'Password input is not editable').toBeEditable();
         await this.passwordInput.click();

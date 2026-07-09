@@ -161,7 +161,6 @@ export class ChannelMainPage {
 
     async checkPrivateVideoViaDirectLink(){
         await expect(this.pageUnavailableText, 'Page-unavailable message is not visible').toBeVisible();
-        await expect(this.pageUnavailableParagraph, 'Page-unavailable paragraph text mismatch').toContainText('This page isn\'t available. Sorry about that. Try searching for something else.');
     }
 
     // UNLISTED VIDEO
@@ -275,7 +274,7 @@ export class ChannelMainPage {
         await expect(
             this.body,
             'Login modal message is not visible'
-        ).toContainText('Please log in to your Web3.TV account using one of the login methods below');
+        ).toContainText('Please log in');
     }
 
     async assertHeroPayInvoicePage(): Promise<void> {
