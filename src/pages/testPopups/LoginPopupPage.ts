@@ -22,6 +22,7 @@ export class LoginPopupPage {
     // Step 2 (phone): Phone input
     readonly phoneInput: Locator;
     readonly phoneContinueBtn: Locator;
+    readonly phoneSwitchIntentBtn: Locator;
 
     // Step 3a: Password (existing user, login intent)
     readonly passwordInput: Locator;
@@ -74,6 +75,7 @@ export class LoginPopupPage {
 
         this.phoneInput       = page.getByTestId('aitv-auth-phone-input');
         this.phoneContinueBtn = page.getByTestId('aitv-auth-phone-continue');
+        this.phoneSwitchIntentBtn = page.getByTestId('aitv-auth-phone-switch-intent');
 
         this.emailUsernameeInput  = page.getByTestId('aitv-auth-email-input');
         this.continueBtn      = page.getByTestId('aitv-auth-email-continue')

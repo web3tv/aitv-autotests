@@ -314,7 +314,9 @@ VALIDATION (tag: @validation)
 ├── Biography — max 1000 chars                      [TODO]                                   VAL-012
 ├── Social links — max 100 chars each               [TODO]                                   VAL-013
 ├── Sign Up — username instead of email → error     [AUTO] tests/auth/handleValidationOnRegPage.spec.ts  VAL-014
-└── Sign Up — invalid email format → error          [AUTO] tests/auth/handleValidationOnRegPage.spec.ts (красный до фикса: фронт кажет generic «Something went wrong» вместо ошибки валидации, баг зарепорчен W3-2725 c.43239 п.2)  VAL-015
+├── Sign Up — invalid email format → error          [AUTO] tests/auth/handleValidationOnRegPage.spec.ts (красный до фикса: фронт кажет generic «Something went wrong» вместо ошибки валидации, баг зарепорчен W3-2725 c.43239 п.2)  VAL-015
+├── Sign Up — existing username → error             [AUTO] tests/auth/handleValidationOnRegPage.spec.ts  VAL-016
+└── Sign Up — existing phone number → error         [AUTO] tests/auth/handleValidationOnRegPage.spec.ts  VAL-017
 
 ────────────────────────────────────────────────────────────────
 STUDIO DOMAIN (studio.web3tv.dev) — W3-1943

@@ -139,7 +139,7 @@ export class AuthFlow {
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(identifier);
     await this.loginPopupPage.clickContinue();
-    await expect(this.page.locator('body'), 'Account-not-found error is not shown').toContainText('No account found', { timeout: 10_000 });
+    await expect(this.page.locator('body'), 'Account-not-found error is not shown').toContainText('We couldn\'t find an account for that handle.', { timeout: 10_000 });
   }
 
   async walletLoginSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
