@@ -22,6 +22,8 @@ export class LoginPage {
   readonly firstPassword: Locator;
   readonly secondPassword: Locator;
   readonly createAccountBtn: Locator;
+  readonly enterEmailPrompt: Locator;
+  readonly body: Locator;
 
 
   readonly registerWalletBtn: Locator;
@@ -50,11 +52,12 @@ export class LoginPage {
     this.usernameInput = page.getByRole('textbox', { name: 'Enter username' });
     this.errorMessage = page.getByText(/handle|username/i);
     this.checkbox = page.getByRole('checkbox');
-    this.registerEmailBtn = page.getByRole('button', { name: 'Continue with email' });
     this.emailInputRegistration = page.getByRole('textbox', { name: 'Enter email' });
     this.firstPassword = page.getByRole('textbox', { name: 'Enter password' });
     this.secondPassword = page.getByRole('textbox', { name: 'Retype Password' });
     this.createAccountBtn = page.getByRole('button', { name: 'Create Account' });
+    this.enterEmailPrompt = page.getByText('Enter your email address');
+    this.body = page.locator('body');
 
     this.registerWalletBtn = page.locator('[data-id="register-wallet"]');
     this.registerEmailBtn = page.locator('[data-id="register-email"]');
@@ -122,8 +125,7 @@ export class LoginPage {
   async clickContinueWithEmail() {
     await expect(this.registerEmailBtn).toBeEnabled();
     await this.registerEmailBtn.click();
-    await expect(this.page.getByText('Enter your email address')).toBeVisible();
-    // await expect(this.page.getByText('Enter your email address,')).toBeVisible();
+    await expect(this.enterEmailPrompt, 'Enter-email prompt is not visible').toBeVisible();
   }
 
   async fillEmailRegistrationInput(email: any) {
@@ -144,8 +146,8 @@ export class LoginPage {
   async clickCreateAccountBtn(email: any) {
     await expect(this.createAccountBtn).toBeEnabled();
     await this.createAccountBtn.click();
-    await expect(this.page.locator('body')).toContainText('Please check your email for the verification link sent to:');
-    await expect(this.page.locator('body')).toContainText(email);
+    await expect(this.body, 'Verification-link message is not visible').toContainText('Please check your email for the verification link sent to:');
+    await expect(this.body, `Email ${email} is not shown in the verification message`).toContainText(email);
   }
 
   async blur() {

@@ -19,6 +19,8 @@ export class HeroPayPage {
     readonly mockPaymentLink: Locator;
     readonly confirmationLink: Locator;
     readonly returnToMerchantLink: Locator;
+    /** QR code image; its title attr carries "tron:{address}?amount={amount}" */
+    readonly qrImg: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -32,6 +34,7 @@ export class HeroPayPage {
         this.mockPaymentLink = page.getByRole('link', { name: 'Mock Payment' });
         this.confirmationLink = page.getByRole('link', { name: '+1 Confirmation' });
         this.returnToMerchantLink = page.getByRole('link', { name: 'Return to Merchant' });
+        this.qrImg = page.locator('img[title^="tron:"]');
     }
 
     async mockPaymentWithEmail(email: string){
@@ -134,9 +137,8 @@ export class HeroPayPage {
 
         // Parse recipient address and amount from QR code title attribute
         // Format: "tron:{address}?amount={amount}"
-        const qrImg = this.page.locator('img[title^="tron:"]');
-        await qrImg.waitFor({ state: 'visible', timeout: 15_000 });
-        const titleAttr = await qrImg.getAttribute('title');
+        await this.qrImg.waitFor({ state: 'visible', timeout: 15_000 });
+        const titleAttr = await this.qrImg.getAttribute('title');
         if (!titleAttr) throw new Error('Could not find QR code with tron: title on Hero Pay page');
 
         const match = titleAttr.match(/tron:([^?]+)\?amount=([0-9.]+)/);
@@ -166,9 +168,8 @@ export class HeroPayPage {
 
         // Parse recipient address and amount from QR code title attribute
         // Format: "tron:{address}?amount={amount}"
-        const qrImg = this.page.locator('img[title^="tron:"]');
-        await qrImg.waitFor({ state: 'visible', timeout: 15_000 });
-        const titleAttr = await qrImg.getAttribute('title');
+        await this.qrImg.waitFor({ state: 'visible', timeout: 15_000 });
+        const titleAttr = await this.qrImg.getAttribute('title');
         if (!titleAttr) throw new Error('Could not find QR code with tron: title on Hero Pay page');
 
         const match = titleAttr.match(/tron:([^?]+)\?amount=([0-9.]+)/);

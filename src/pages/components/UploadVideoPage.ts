@@ -29,6 +29,8 @@ export class UploadVideoPage {
 
   readonly membershipBtn: Locator;
   readonly descriptionEditor: Locator;
+  readonly uploadForm: Locator;
+  readonly body: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -55,6 +57,8 @@ export class UploadVideoPage {
     this.paidRadioBtn = page.getByRole('radio', { name: 'Paid' });
     
     this.membershipBtn = page.getByRole('checkbox').first();
+    this.uploadForm = page.locator('form');
+    this.body = page.locator('body');
   }
 
 
@@ -89,7 +93,7 @@ export class UploadVideoPage {
   async selectVideoCategory(){
     await this.videoCategoryDropdown.click();
     await this.videoCategory.click();
-    await expect(this.page.getByRole('combobox', { name: 'Choose value' })).toHaveValue('Documentaries');
+    await expect(this.videoCategoryDropdown, 'Category dropdown should show "Documentaries"').toHaveValue('Documentaries');
   }
 
   async selectVideoGenres() {
@@ -99,10 +103,10 @@ export class UploadVideoPage {
     await this.videoGenreAction.click();
     await this.videoGenreAdventure.click();
     await this.videoGenreBiographical.click();
-    await expect(this.page.locator('form'), 'Form should contain genre "Action"').toContainText('Action');
+    await expect(this.uploadForm, 'Form should contain genre "Action"').toContainText('Action');
     await this.videoGenreAdventureChip.click();
-    await expect(this.page.locator('form'), 'Form should contain genre "Adventure"').toContainText('Adventure');
-    await expect(this.page.locator('form'), 'Form should contain genre "Biographical"').toContainText('Biographical');
+    await expect(this.uploadForm, 'Form should contain genre "Adventure"').toContainText('Adventure');
+    await expect(this.uploadForm, 'Form should contain genre "Biographical"').toContainText('Biographical');
   }
 
   async clickNextBtn(){
@@ -174,7 +178,7 @@ export class UploadVideoPage {
   }
 
   async blur(){
-    await this.page.locator('body').click();
+    await this.body.click();
   }
 
   async assertDescriptionContains(expectedText: string) {

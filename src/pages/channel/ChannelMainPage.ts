@@ -48,6 +48,12 @@ export class ChannelMainPage {
     readonly registerLoginBtn: Locator;
     readonly payWithBtn: Locator;
 
+    // Empty / unavailable states
+    readonly body: Locator;
+    readonly noContentBlock: Locator;
+    readonly pageUnavailableText: Locator;
+    readonly pageUnavailableParagraph: Locator;
+
     constructor(page: Page) {
         this.page = page;
 
@@ -87,6 +93,12 @@ export class ChannelMainPage {
         this.channelSubscribeBtn = page.getByRole('button', { name: 'Subscribe', exact: true });
         this.registerLoginBtn = page.getByRole('button', { name: 'Login' });
         this.payWithBtn = page.getByRole('button', { name: /Pay With/ });
+
+        // Empty / unavailable states
+        this.body = page.locator('body');
+        this.noContentBlock = page.locator('div').filter({ hasText: /^This channel doesn`t have any content$/ });
+        this.pageUnavailableText = page.getByText('This page isn\'t available.');
+        this.pageUnavailableParagraph = page.getByRole('paragraph');
     }
 
 
@@ -139,23 +151,23 @@ export class ChannelMainPage {
     //PRIVATE VIDEO
 
     async checkChannelWithoutVideo(){
-        await expect(this.page.locator('div').filter({ hasText: /^This channel doesn`t have any content$/ })).toBeVisible(); 
+        await expect(this.noContentBlock, 'No-content block is not visible').toBeVisible();
         await expect(this.firstVideo).toHaveCount(0);
     }
 
     async checkPrivateVideoOnChannelPage(){
-        await expect(this.page.locator('body')).toContainText('This channel doesn`t have any content');
+        await expect(this.body, 'No-content message is not shown').toContainText('This channel doesn`t have any content');
     }
 
     async checkPrivateVideoViaDirectLink(){
-        await expect(this.page.getByText('This page isn\'t available.')).toBeVisible();
-        await expect(this.page.getByRole('paragraph')).toContainText('This page isn\'t available. Sorry about that. Try searching for something else.');
+        await expect(this.pageUnavailableText, 'Page-unavailable message is not visible').toBeVisible();
+        await expect(this.pageUnavailableParagraph, 'Page-unavailable paragraph text mismatch').toContainText('This page isn\'t available. Sorry about that. Try searching for something else.');
     }
 
     // UNLISTED VIDEO
 
     async checkUnlistedVideoNotAvailable(){
-        await expect(this.page.locator('body')).toContainText('This channel doesn`t have any content');
+        await expect(this.body, 'No-content message is not shown').toContainText('This channel doesn`t have any content');
     }
 
 
@@ -199,7 +211,7 @@ export class ChannelMainPage {
     }
 
     async assertSubscriptionStatus(expectedStatus: string): Promise<void> {
-        await expect(this.page.locator('body'), `Expected subscription status "${expectedStatus}" not found`).toContainText(expectedStatus);
+        await expect(this.body, `Expected subscription status "${expectedStatus}" not found`).toContainText(expectedStatus);
     }
 
     async initiatePurchaseWithoutPayment(){
@@ -225,7 +237,7 @@ export class ChannelMainPage {
         let attempt = 0;
         const start = Date.now();
         while (Date.now() < deadline) {
-            const body = await this.page.locator('body').innerText();
+            const body = await this.body.innerText();
             if (body.includes('Active') && !body.includes('Inactive')) break;
             attempt++;
             console.log(`[subscription poll] attempt ${attempt}, elapsed: ${Math.round((Date.now() - start) / 1000)}s`);
@@ -262,7 +274,7 @@ export class ChannelMainPage {
 
     async assertLoginModalVisible(): Promise<void> {
         await expect(
-            this.page.locator('body'),
+            this.body,
             'Login modal message is not visible'
         ).toContainText('Please log in to your Web3.TV account using one of the login methods below');
     }

@@ -16,7 +16,7 @@ Review the provided test files and Page Objects for quality and correctness.
 
 ### 1. Coding rules compliance (CLAUDE.md)
 - `toBeVisible()` + `toBeEnabled()` before every element interaction (click, fill, etc.)
-- All locators defined in Page Object **constructor** — NEVER inline in methods
+- All locators defined in Page Object **constructor** — NEVER inline in methods (exception: locators parameterized by a method argument may be built inside the method)
 - `test.step()` wraps every logical step
 - `waitUntil: 'domcontentloaded'` — NEVER `networkidle`
 - `waitForResponse` set up BEFORE the action that triggers the request

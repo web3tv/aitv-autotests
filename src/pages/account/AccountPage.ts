@@ -32,6 +32,10 @@ export class AccountPage {
     // Messages
     readonly emailConfirmationAlert: Locator;
 
+    // "Edit Password" confirmation modal
+    readonly editPasswordModal: Locator;
+    readonly editPasswordModalBtn: Locator;
+
     constructor(page: Page) {
         this.page = page;
 
@@ -61,6 +65,10 @@ export class AccountPage {
 
         // Alert messages
         this.emailConfirmationAlert = page.getByRole('alert').filter({ hasText: 'Please check your email for' });
+
+        // "Edit Password" confirmation modal
+        this.editPasswordModal = page.getByLabel('Edit Password');
+        this.editPasswordModalBtn = this.editPasswordModal.getByRole('button');
     }
 
     // DISPLAY ASSERTIONS
@@ -119,8 +127,9 @@ export class AccountPage {
         await this.fillNewPassword(newPassword);
         await this.fillConfirmPassword(newPassword);
         await this.clickSubmitBtn();
-        await expect(this.page.getByLabel('Edit Password')).toContainText('You are almost there!We\'ve sent you an email. Please confirm password change.');
-        await this.page.getByRole('button').click();
+        await expect(this.editPasswordModal, 'Edit Password confirmation modal is not visible').toContainText('You are almost there!We\'ve sent you an email. Please confirm password change.');
+        await expect(this.editPasswordModalBtn, 'Edit Password modal button is not visible').toBeVisible();
+        await this.editPasswordModalBtn.click();
     }
 
     // ADD EMAIL (wallet-only user)

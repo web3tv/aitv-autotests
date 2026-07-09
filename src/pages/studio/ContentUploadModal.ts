@@ -99,6 +99,8 @@ export class ContentUploadModal {
     readonly successViewVideo: Locator;
     readonly successVisitStudio: Locator;
     readonly successUploadAnother: Locator;
+    /** MUI Autocomplete options popup (category/genre/parent-series pickers). */
+    readonly listbox: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -184,6 +186,7 @@ export class ContentUploadModal {
         this.successViewVideo = page.getByTestId('aitv-upload-success-view-video');
         this.successVisitStudio = page.getByTestId('aitv-upload-success-visit-studio');
         this.successUploadAnother = page.getByTestId('aitv-upload-success-upload-another');
+        this.listbox = page.locator('[role="listbox"]');
     }
 
     // ---------------------------------------------------------------- Upload step
@@ -250,7 +253,7 @@ export class ContentUploadModal {
         await expect(input, `${name} input is not enabled`).toBeEnabled();
         await input.click();
 
-        const listbox = this.page.locator('[role="listbox"]');
+        const listbox = this.listbox;
         const option = optionText
             ? listbox.getByRole('option', { name: optionText }).first()
             : listbox.getByRole('option').first();
@@ -297,7 +300,7 @@ export class ContentUploadModal {
         await expect(input, `${name} input is not enabled`).toBeEnabled();
         await input.click();
 
-        const listbox = this.page.locator('[role="listbox"]');
+        const listbox = this.listbox;
         await expect(listbox, `${name} options list did not open`).toBeVisible({ timeout: 10_000 });
 
         const seen = new Set<string>();
