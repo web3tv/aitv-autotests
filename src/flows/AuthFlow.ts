@@ -90,11 +90,13 @@ export class AuthFlow {
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 1' }).fill('2');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 2' }).fill('2');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 3' }).fill('2');
-    await this.page.getByRole('textbox', { name: 'Please enter OTP character 4' }).fill('2');
-    await this.page.waitForResponse(res =>
+    const checkResponse = this.page.waitForResponse(res =>
             res.url().includes('/api/account/email-2fa/check') &&
-            res.status() === 403
+            res.status() === 403,
+            { timeout: 15000 }
         );
+    await this.page.getByRole('textbox', { name: 'Please enter OTP character 4' }).fill('2');
+    await checkResponse;
     await expect(this.page.locator('body')).toContainText('Error code. Check your code on email and try again.');
   }
 
@@ -119,11 +121,13 @@ export class AuthFlow {
     await this.page.waitForTimeout(500);
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 3' }).fill(d3);
     await this.page.waitForTimeout(500);
-    await this.page.getByRole('textbox', { name: 'Please enter OTP character 4' }).fill(d4);
-    await this.page.waitForResponse(res =>
+    const checkResponse = this.page.waitForResponse(res =>
             res.url().includes('/api/account/email-2fa/check') &&
-            res.status() === 200
+            res.status() === 200,
+            { timeout: 15000 }
         );
+    await this.page.getByRole('textbox', { name: 'Please enter OTP character 4' }).fill(d4);
+    await checkResponse;
     await this.assertLoggedInAs(username);
   }
 
