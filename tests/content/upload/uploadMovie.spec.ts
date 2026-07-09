@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { AuthApi } from '../../../src/api/AuthApi';
 import { ContentCreationFlow } from '../../../src/flows/ContentCreationFlow';
@@ -6,6 +6,7 @@ import { ContentUploadModal } from '../../../src/pages/studio/ContentUploadModal
 import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
 
 const LANDSCAPE_VIDEO = 'test-data/fixtures/video/5secVideo.mp4';
+const VERTICAL_VIDEO = 'test-data/fixtures/video/shortsVideo.mp4';
 
 test('Create a Movie through the full upload flow', {
     tag: '@critical',
@@ -44,10 +45,13 @@ test('Create a Movie through the full upload flow', {
     });
 });
 
-test('Shorts type is not selectable for a landscape video', {
+// W3-2714 (Horizontal shorts support): orientation no longer restricts the content
+// type — any of Movie/Series/Shorts is selectable for both landscape and vertical
+// files (the backend accepts an explicit `type` and no longer coerces by aspect ratio).
+test('Any content type is selectable regardless of video orientation', {
     annotation: { type: 'TC', description: 'MOVIE-002' },
 }, async ({ page, request }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     let user: { email: string; username: string };
 
     await test.step('Create user and login', async () => {
@@ -55,7 +59,7 @@ test('Shorts type is not selectable for a landscape video', {
         await new AuthFlow(page).loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
     });
 
-    await test.step('Open upload, pick a landscape video and check type availability', async () => {
+    await test.step('Landscape video: all three types are selectable', async () => {
         const flow = new ContentCreationFlow(page);
         const modal = flow.modal as ContentUploadModal;
         await flow.openNewVideo();
@@ -63,12 +67,26 @@ test('Shorts type is not selectable for a landscape video', {
 
         await modal.assertTypeAvailable('movie', true);
         await modal.assertTypeAvailable('series', true);
-        await modal.assertTypeAvailable('shorts', false);
+        await modal.assertTypeAvailable('shorts', true);
 
-        // Clicking the dimmed Shorts type must not switch the form.
-        await modal.typeShorts.click();
-        await expect(modal.typeShorts, 'Shorts must stay unselected for a landscape video')
-            .toHaveAttribute('aria-checked', 'false');
+        // Shorts must actually accept the selection for a landscape file (W3-2714).
+        await modal.selectType('shorts');
+    });
+
+    await test.step('Vertical video: all three types are selectable', async () => {
+        // Reload to reset the modal state, then start a fresh upload.
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        const flow = new ContentCreationFlow(page);
+        const modal = flow.modal as ContentUploadModal;
+        await flow.openNewVideo();
+        await modal.selectFile(VERTICAL_VIDEO);
+
+        await modal.assertTypeAvailable('movie', true);
+        await modal.assertTypeAvailable('series', true);
+        await modal.assertTypeAvailable('shorts', true);
+
+        // Movie must actually accept the selection for a vertical file.
+        await modal.selectType('movie');
     });
 });
 

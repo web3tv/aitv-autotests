@@ -139,7 +139,7 @@ VIDEO UPLOAD
 ────────────────────────────────────────────────────────────────
 CONTENT CREATION FLOW — Movie / Series / Shorts (W3-2702)
 ├── Create a Movie end-to-end (type→details→2 covers→finalize→success)  [AUTO][CRITICAL] tests/content/upload/uploadMovie.spec.ts   MOVIE-001
-├── Shorts type disabled for a landscape video               [AUTO] tests/content/upload/uploadMovie.spec.ts    MOVIE-002
+├── Any type selectable for any orientation (W3-2714)         [AUTO] tests/content/upload/uploadMovie.spec.ts    MOVIE-002
 ├── Create a new Series with its first episode (New Series)   [AUTO][CRITICAL] tests/content/upload/uploadSeries.spec.ts  SERIES-001
 ├── Add a new Episode to an existing Series (New Episode)     [AUTO][CRITICAL] tests/content/upload/uploadSeries.spec.ts   SERIES-002
 ├── Shorts details: category locked to "Shorts", single cover [AUTO][CRITICAL] tests/content/upload/uploadShorts.spec.ts  SHORTS-001
