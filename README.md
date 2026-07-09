@@ -67,15 +67,16 @@ tests/
     sharedFixture.ts       —   общий read-only канал @qavischan: resolveSharedFixture() + фикс-креды
     videoSeed.ts           —   константы засеянного контента (титулы/категория/жанры) — общий источник правды
     fixtureCheck.setup.ts  —   preflight-проект fixture-check: проверяет живость общей фикстуры перед прогоном
-  skip/                    — запаркованные спеки (исключены через testIgnore `**/skip/**`)
+  skip/                    — запаркованные спеки (исключены через testIgnore `**/skip/**`); инвентарь отложенного покрытия — строки [BLOCKED] в TEST_COVERAGE.md
 src/
   flows/                   — оркестраторы пользовательских сценариев
   pages/                   — Page Object Model
   api/                     — API-хелперы (быстрый сетап в обход UI)
-  utils/                   — утилиты (чтение почты Gmail по IMAP, видео-плеер, генерация данных, videoTaxonomy)
+  utils/                   — утилиты (почта Gmail по IMAP, генерация данных, плеер-хелперы, wallet-мок, сид-хелперы — полный список см. в папке)
 scripts/                   — one-off утилиты: seedFixture.ts (сид общей фикстуры), deleteUser.ts
 test-data/
   fixtures/                — СТАТИЧЕСКИЕ ассеты (видеофайлы, фото) — НЕ путать с tests/fixtures/
+docs/                      — TESTING_STRATEGY.md (стратегия), FIXTURES_AUDIT.md (аудит фикстур)
 ```
 
 ### Фикстуры

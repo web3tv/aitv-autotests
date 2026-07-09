@@ -31,7 +31,7 @@ nc -z 127.0.0.1 3307
 
 If the port is already in use (another port-forward is running), that's fine — skip to step 2.
 
-If port-forward fails (e.g., kubectl not configured, no access), warn the caller but still proceed to run tests — tests that don't need DB will pass, DB-dependent tests (`@needs-db-api`) will fail as expected.
+If port-forward fails (e.g., kubectl not configured, no access), warn the caller but still proceed to run tests — tests that don't need DB will pass, DB-dependent tests (`@db`) will fail as expected.
 
 ### 2. Run functional tests
 

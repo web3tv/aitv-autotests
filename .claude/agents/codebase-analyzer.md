@@ -16,7 +16,7 @@ You receive:
 
 ## Repository Paths
 
-- **Backend (Symfony):** `/Users/maksimpopov/Desktop/web3tv-api-symfony`
+- **Backend (Symfony):** локальный чекаут `web3tv-api-symfony` — путь передаёт вызывающий (не хардкодить: расположение отличается между машинами)
   - Controllers: `src/Controller/`
   - Entities: `src/Entity/`
   - DTOs: `src/Dto/`
@@ -27,7 +27,7 @@ You receive:
   - Security: `src/Security/`
   - Routes: `config/routes/` or annotations in controllers
 
-- **Frontend (Next.js):** `/Users/maksimpopov/Desktop/web3tv-main_app-nextjs`
+- **Frontend (Next.js):** локальный чекаут `web3tv-main_app-nextjs` — путь передаёт вызывающий (не хардкодить: расположение отличается между машинами)
   - Pages / Routes: `app/`
   - Components: search for relevant component directories
   - API calls: look for `fetch`, `axios`, API route handlers in `app/api/`

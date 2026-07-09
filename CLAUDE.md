@@ -52,6 +52,7 @@ docker run --rm -v "$PWD:/app" test npx playwright test --project=visual-mobile-
 ```
 npm run test:critical                                   # @critical smoke (functional --grep @critical)
 npm run test:regression                                 # full functional regression
+npm run test:nodb                                       # everything except @db (no DB port-forward needed)
 npx playwright test --project=functional --grep @emails # any tag
 ```
 
@@ -122,7 +123,7 @@ tests/
     sharedFixture.ts     — shared read-only channel @qavischan: resolveSharedFixture() + fixed creds
     videoSeed.ts         — seeded-content constants (titles/category/genres) — single source of truth
     fixtureCheck.setup.ts — `fixture-check` setup project: validates the shared fixture is live before a run
-  skip/         — Parked/disabled specs (excluded via testIgnore `**/skip/**`)
+  skip/         — Parked/disabled specs (excluded via testIgnore `**/skip/**`); deferred-coverage inventory (fixme/skip/parked) = [BLOCKED] rows in TEST_COVERAGE.md
 src/
   flows/        — High-level user journey orchestrators
   pages/        — Page Object Model classes
@@ -133,10 +134,11 @@ src/
     components/ — Shared components (Header, Sidebar, UserDropdown, UploadVideo)
     heroPay/    — Payment integration page
   api/          — Direct API helpers (bypass UI for setup)
-  utils/        — Utilities (Gmail IMAP mail reading, data generation, video player, incognito)
+  utils/        — Utilities (Gmail IMAP mail, data generation, player helpers, wallet mock, seed helpers — see the folder for the full set)
 scripts/        — one-off tools: seedFixture.ts (seed the shared fixture), deleteUser.ts
 test-data/
   fixtures/     — STATIC assets (video files, photos) — NOT to be confused with tests/fixtures/
+docs/           — TESTING_STRATEGY.md (strategy), FIXTURES_AUDIT.md (fixtures audit)
 ```
 
 ### Fixtures (don't conflate the two "fixture" meanings)
