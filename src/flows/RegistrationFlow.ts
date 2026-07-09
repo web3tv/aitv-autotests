@@ -47,7 +47,7 @@ export class RegistrationFlow {
     const messageId = await this.mailHelper.waitForMessage(token,'Email Verification');
     const verificationUrl = await this.mailHelper.extractVerificationUrl(messageId, token);
     await this.page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-    await expect(this.page.getByText(/Email Successfully Verified!/i)).toBeVisible({timeout: 40_000 });
+    await expect(this.page.getByText(/Email Successfully Verified!/i), 'Email-verified confirmation is not visible').toBeVisible({timeout: 40_000 });
     return { email, password, username, token };
   }
 

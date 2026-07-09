@@ -77,45 +77,45 @@ export class SideBarPage {
   // =========================
 
   async clickPlatformSubscription() {
-    await expect(this.platformSubscription).toBeVisible();
+    await expect(this.platformSubscription, 'Platform subscription is not visible').toBeVisible();
     await this.platformSubscription.click();
-    await expect(this.page).toHaveURL(/\/subscription$/);
+    await expect(this.page, 'Did not navigate to /subscription').toHaveURL(/\/subscription$/);
   }
 
   async clickPlatformLibrary() {
-    await expect(this.platformLibrary).toBeVisible();
+    await expect(this.platformLibrary, 'Platform library is not visible').toBeVisible();
     await this.platformLibrary.click();
-    await expect(this.page).toHaveURL(/\/library$/);
+    await expect(this.page, 'Did not navigate to /library').toHaveURL(/\/library$/);
   }
 
   async clickPlatformHistory() {
-    await expect(this.platformHistory).toBeVisible();
+    await expect(this.platformHistory, 'Platform history is not visible').toBeVisible();
     await this.platformHistory.click();
-    await expect(this.page).toHaveURL(/\/history$/);
+    await expect(this.page, 'Did not navigate to /history').toHaveURL(/\/history$/);
   }
 
   async clickPlatformContinueWatching() {
-    await expect(this.platformContinueWatching).toBeVisible();
+    await expect(this.platformContinueWatching, 'Platform continue watching is not visible').toBeVisible();
     await this.platformContinueWatching.click();
-    await expect(this.page).toHaveURL(/\/continue-watching$/);
+    await expect(this.page, 'Did not navigate to /continue-watching').toHaveURL(/\/continue-watching$/);
   }
 
   async clickPlatformMyPlaylists() {
-    await expect(this.platformMyPlaylists).toBeVisible();
+    await expect(this.platformMyPlaylists, 'Platform my playlists is not visible').toBeVisible();
     await this.platformMyPlaylists.click();
-    await expect(this.page).toHaveURL(/\/playlist$/);
+    await expect(this.page, 'Did not navigate to /playlist').toHaveURL(/\/playlist$/);
   }
 
   async clickPlatformWatchLater() {
-    await expect(this.platformWatchLater).toBeVisible();
+    await expect(this.platformWatchLater, 'Platform watch later is not visible').toBeVisible();
     await this.platformWatchLater.click();
-    await expect(this.page).toHaveURL(/\/watch-later$/);
+    await expect(this.page, 'Did not navigate to /watch-later').toHaveURL(/\/watch-later$/);
   }
 
   async clickPlatformLikedVideos() {
-    await expect(this.platformLikedVideos).toBeVisible();
+    await expect(this.platformLikedVideos, 'Platform liked videos is not visible').toBeVisible();
     await this.platformLikedVideos.click();
-    await expect(this.page).toHaveURL(/\/liked-videos$/);
+    await expect(this.page, 'Did not navigate to /liked-videos').toHaveURL(/\/liked-videos$/);
   }
 
   // =========================
@@ -124,51 +124,51 @@ export class SideBarPage {
 
   async clickStudioDashboard() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioDashboard).toBeVisible();
+    await expect(this.studioDashboard, 'Studio dashboard is not visible').toBeVisible();
     await this.studioDashboard.click();
-    await expect(this.page).toHaveURL(/\/dashboard$/);
+    await expect(this.page, 'Did not navigate to /dashboard').toHaveURL(/\/dashboard$/);
   }
 
   async clickStudioContent() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioContent).toBeVisible();
+    await expect(this.studioContent, 'Studio content is not visible').toBeVisible();
     await this.studioContent.click();
-    await expect(this.page).toHaveURL(/\/content$/);
+    await expect(this.page, 'Did not navigate to /content').toHaveURL(/\/content$/);
   }
 
   async clickStudioAnalytics() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioAnalytics).toBeVisible();
+    await expect(this.studioAnalytics, 'Studio analytics is not visible').toBeVisible();
     await this.studioAnalytics.click();
-    await expect(this.page).toHaveURL(/\/stats$/);
+    await expect(this.page, 'Did not navigate to /stats').toHaveURL(/\/stats$/);
   }
 
   async clickStudioSubscriptions() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioSubscriptions).toBeVisible();
+    await expect(this.studioSubscriptions, 'Studio subscriptions is not visible').toBeVisible();
     await this.studioSubscriptions.click();
-    await expect(this.page).toHaveURL(/\/membership$/);
+    await expect(this.page, 'Did not navigate to /membership').toHaveURL(/\/membership$/);
   }
 
   async clickStudioPlaylists() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioPlaylists).toBeVisible();
+    await expect(this.studioPlaylists, 'Studio playlists is not visible').toBeVisible();
     await this.studioPlaylists.click();
-    await expect(this.page).toHaveURL(/\/playlists$/);
+    await expect(this.page, 'Did not navigate to /playlists').toHaveURL(/\/playlists$/);
   }
 
   async clickStudioEditChannel() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioEditChannel).toBeVisible();
+    await expect(this.studioEditChannel, 'Studio edit channel is not visible').toBeVisible();
     await this.studioEditChannel.click();
-    await expect(this.page).toHaveURL(/\/channel$/);
+    await expect(this.page, 'Did not navigate to /channel').toHaveURL(/\/channel$/);
   }
 
   async clickStudioSettings() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioSettings).toBeVisible();
+    await expect(this.studioSettings, 'Studio settings is not visible').toBeVisible();
     await this.studioSettings.click();
-    await expect(this.page).toHaveURL(/\/settings$/);
+    await expect(this.page, 'Did not navigate to /settings').toHaveURL(/\/settings$/);
   }
 
   // =========================
@@ -176,33 +176,33 @@ export class SideBarPage {
   // =========================
 
   async clickSettingsAccount() {
-    await expect(this.settingsAccount).toBeVisible();
+    await expect(this.settingsAccount, 'Settings account is not visible').toBeVisible();
     await this.settingsAccount.click();
-    await expect(this.page).toHaveURL(/\/account$/);
+    await expect(this.page, 'Did not navigate to /account').toHaveURL(/\/account$/);
   }
 
   async clickSettingsProfile() {
-    await expect(this.settingsProfile).toBeVisible();
+    await expect(this.settingsProfile, 'Settings profile is not visible').toBeVisible();
     await this.settingsProfile.click();
-    await expect(this.page).toHaveURL(/\/profile$/);
+    await expect(this.page, 'Did not navigate to /profile').toHaveURL(/\/profile$/);
   }
 
   async clickSettingsPaidSubscriptions() {
-    await expect(this.settingsPaidSubscriptions).toBeVisible();
+    await expect(this.settingsPaidSubscriptions, 'Settings paid subscriptions is not visible').toBeVisible();
     await this.settingsPaidSubscriptions.click();
-    await expect(this.page).toHaveURL(/\/my-paid-subs$/);
+    await expect(this.page, 'Did not navigate to /my-paid-subs').toHaveURL(/\/my-paid-subs$/);
   }
 
   async clickSettingsNotifications() {
-    await expect(this.settingsNotifications).toBeVisible();
+    await expect(this.settingsNotifications, 'Settings notifications is not visible').toBeVisible();
     await this.settingsNotifications.click();
-    await expect(this.page).toHaveURL(/\/notifications$/);
+    await expect(this.page, 'Did not navigate to /notifications').toHaveURL(/\/notifications$/);
   }
 
   async clickSettingsSecurity() {
-    await expect(this.settingsSecurity).toBeVisible();
+    await expect(this.settingsSecurity, 'Settings security is not visible').toBeVisible();
     await this.settingsSecurity.click();
-    await expect(this.page).toHaveURL(/\/security$/);
+    await expect(this.page, 'Did not navigate to /security').toHaveURL(/\/security$/);
   }
 
   // =========================
@@ -210,21 +210,21 @@ export class SideBarPage {
   // =========================
 
   async clickSupportReport() {
-    await expect(this.supportReport).toBeVisible();
+    await expect(this.supportReport, 'Support report is not visible').toBeVisible();
     await this.supportReport.click();
-    await expect(this.page).toHaveURL(/\/report$/);
+    await expect(this.page, 'Did not navigate to /report').toHaveURL(/\/report$/);
   }
 
   async clickSupportHelp() {
-    await expect(this.supportHelp).toBeVisible();
+    await expect(this.supportHelp, 'Support help is not visible').toBeVisible();
     await this.supportHelp.click();
-    await expect(this.page).toHaveURL(/\/help$/);
+    await expect(this.page, 'Did not navigate to /help').toHaveURL(/\/help$/);
   }
 
   async clickSupportSendFeedback() {
-    await expect(this.supportSendFeedback).toBeVisible();
+    await expect(this.supportSendFeedback, 'Support send feedback is not visible').toBeVisible();
     await this.supportSendFeedback.click();
-    await expect(this.sendFeedbackModal).toBeVisible();
+    await expect(this.sendFeedbackModal, 'Send feedback modal is not visible').toBeVisible();
   }
 
 }

@@ -30,10 +30,16 @@ export class SecurityPage {
     }
 
     private async toggleTwoFA(email: string, enable: boolean) {
+        await expect(this.setUpBtn, 'Set Up button is not visible').toBeVisible();
+        await expect(this.setUpBtn, 'Set Up button is not enabled').toBeEnabled();
         await this.setUpBtn.click();
-        await expect(this.passwordMessage).toContainText(`After enabling two-factor authorization you have to confirm every authorization using ${email}`);
+        await expect(this.passwordMessage, 'Password message does not contain expected text').toContainText(`After enabling two-factor authorization you have to confirm every authorization using ${email}`);
+        await expect(this.passwordInput, 'Password input is not visible').toBeVisible();
+        await expect(this.passwordInput, 'Password input is not editable').toBeEditable();
         await this.passwordInput.click();
         await this.passwordInput.fill(process.env.USER_PASSWORD!);
+        await expect(this.twoFaCheckbox, '2FA checkbox is not visible').toBeVisible();
+        await expect(this.twoFaCheckbox, '2FA checkbox is not enabled').toBeEnabled();
         if (enable) {
             await this.twoFaCheckbox.check();
         } else {
@@ -44,8 +50,10 @@ export class SecurityPage {
             res.status() === 200,
             { timeout: 15000 }
         );
+        await expect(this.submitBtn, 'Submit button is not visible').toBeVisible();
+        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
         await this.submitBtn.click();
         await setResponse;
-        await expect(this.successToast).toBeVisible();
+        await expect(this.successToast, 'Success toast is not visible').toBeVisible();
     }
 }

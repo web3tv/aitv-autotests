@@ -17,20 +17,20 @@ export class ForgotPasswordPage {
   }
 
   async openForm() {
-    await expect(this.forgotPasswordLink).toBeVisible({ timeout: 15000 });
+    await expect(this.forgotPasswordLink, 'Forgot password link is not visible').toBeVisible({ timeout: 15000 });
     await this.forgotPasswordLink.click();
-    await expect(this.titleText).toBeVisible({ timeout: 15000 });
+    await expect(this.titleText, 'Title text is not visible').toBeVisible({ timeout: 15000 });
   }
 
   async fillEmail(email: string) {
-    await expect(this.emailInput).toBeEditable({ timeout: 15000 });
+    await expect(this.emailInput, 'Email input is not editable').toBeEditable({ timeout: 15000 });
     await this.emailInput.click();
     await this.emailInput.fill(email);
-    await expect(this.emailInput).toHaveValue(email);
+    await expect(this.emailInput, 'Email input has wrong value').toHaveValue(email);
   }
 
   async submitRequest() {
-    await expect(this.submitBtn).toBeEnabled({ timeout: 15000 });
+    await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled({ timeout: 15000 });
     await this.submitBtn.click();
   }
 }

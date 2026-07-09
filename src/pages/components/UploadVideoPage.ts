@@ -91,7 +91,10 @@ export class UploadVideoPage {
   }
 
   async selectVideoCategory(){
+    await expect(this.videoCategoryDropdown, 'Category dropdown is not visible').toBeVisible();
+    await expect(this.videoCategoryDropdown, 'Category dropdown is not enabled').toBeEnabled();
     await this.videoCategoryDropdown.click();
+    await expect(this.videoCategory, 'Category option is not visible').toBeVisible();
     await this.videoCategory.click();
     await expect(this.videoCategoryDropdown, 'Category dropdown should show "Documentaries"').toHaveValue('Documentaries');
   }
@@ -101,9 +104,12 @@ export class UploadVideoPage {
     await this.videoGenreDropdown.click();
     await expect(this.videoGenreAction, 'Action genre option is not visible').toBeVisible();
     await this.videoGenreAction.click();
+    await expect(this.videoGenreAdventure, 'Adventure genre option is not visible').toBeVisible();
     await this.videoGenreAdventure.click();
+    await expect(this.videoGenreBiographical, 'Biographical genre option is not visible').toBeVisible();
     await this.videoGenreBiographical.click();
     await expect(this.uploadForm, 'Form should contain genre "Action"').toContainText('Action');
+    await expect(this.videoGenreAdventureChip, 'Adventure genre chip is not visible').toBeVisible();
     await this.videoGenreAdventureChip.click();
     await expect(this.uploadForm, 'Form should contain genre "Adventure"').toContainText('Adventure');
     await expect(this.uploadForm, 'Form should contain genre "Biographical"').toContainText('Biographical');
@@ -122,34 +128,34 @@ export class UploadVideoPage {
 
   async clickPublicBtn() {
     await this.publicRadioBtn.waitFor({ state: 'visible' });
-    await expect(this.publicRadioBtn).toBeEnabled();
+    await expect(this.publicRadioBtn, 'Public radio button is not enabled').toBeEnabled();
     await this.publicRadioBtn.click();
-    await expect(this.publicRadioBtn).toBeChecked();
+    await expect(this.publicRadioBtn, 'Public radio button should be checked').toBeChecked();
   }
 
   async clickPrivateBtn() {
     await this.privateRadioBtn.waitFor({ state: 'visible' });
-    await expect(this.privateRadioBtn).toBeEnabled();
+    await expect(this.privateRadioBtn, 'Private radio button is not enabled').toBeEnabled();
     await this.privateRadioBtn.click();
-    await expect(this.privateRadioBtn).toBeChecked();
+    await expect(this.privateRadioBtn, 'Private radio button should be checked').toBeChecked();
   }
 
   async clickUnlistedBtn() {
     await this.unlistedRadioBtn.waitFor({ state: 'visible' });
-    await expect(this.unlistedRadioBtn).toBeEnabled();
+    await expect(this.unlistedRadioBtn, 'Unlisted radio button is not enabled').toBeEnabled();
     await this.unlistedRadioBtn.click();
-    await expect(this.unlistedRadioBtn).toBeChecked();
+    await expect(this.unlistedRadioBtn, 'Unlisted radio button should be checked').toBeChecked();
   }
 
   async clickPaidBtn() {
     await this.paidRadioBtn.waitFor({ state: 'visible' });
-    await expect(this.paidRadioBtn).toBeEnabled();
+    await expect(this.paidRadioBtn, 'Paid radio button is not enabled').toBeEnabled();
     await this.paidRadioBtn.click();
-    await expect(this.paidRadioBtn).toBeChecked();
+    await expect(this.paidRadioBtn, 'Paid radio button should be checked').toBeChecked();
   }
 
   async clickMembershipCheckbox(){
-    await expect(this.membershipBtn).toBeEnabled();
+    await expect(this.membershipBtn, 'Membership button is not enabled').toBeEnabled();
     await this.membershipBtn.check();
   }
 
@@ -178,6 +184,7 @@ export class UploadVideoPage {
   }
 
   async blur(){
+    await expect(this.body, 'Page body is not visible').toBeVisible();
     await this.body.click();
   }
 

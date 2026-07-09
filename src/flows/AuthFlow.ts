@@ -71,7 +71,7 @@ export class AuthFlow {
     );
     await this.loginPopupPage.clickContinue2();
     await failResponse;
-    await expect(this.page.locator('body')).toContainText('Invalid password. Please re-enter another password.');
+    await expect(this.page.locator('body'), 'Invalid-password error is not shown').toContainText('Invalid password. Please re-enter another password.');
   }
 
   async loginWith2FaFailed(email:string,password:string){
@@ -83,7 +83,7 @@ export class AuthFlow {
     await this.loginPopupPage.clickContinue();
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
-    await expect(this.page.locator('body')).toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
+    await expect(this.page.locator('body'), '2FA code prompt is not shown').toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 1' }).fill('2');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 2' }).fill('2');
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 3' }).fill('2');
@@ -94,7 +94,7 @@ export class AuthFlow {
         );
     await this.page.getByRole('textbox', { name: 'Please enter OTP character 4' }).fill('2');
     await checkResponse;
-    await expect(this.page.locator('body')).toContainText('Error code. Check your code on email and try again.');
+    await expect(this.page.locator('body'), 'Wrong-2FA-code error is not shown').toContainText('Error code. Check your code on email and try again.');
   }
 
   async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
@@ -108,7 +108,7 @@ export class AuthFlow {
     const requestedAt = Date.now();
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
-    await expect(this.page.locator('body')).toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
+    await expect(this.page.locator('body'), '2FA code prompt is not shown').toContainText('To ensure your identity, we`ve sent a verification code to your email. Please enter the code below to proceed.');
     const messageId = await mailHelper.waitForMessage(token, 'Authentication Code', 10, 3000, requestedAt);
     const [d1, d2, d3, d4] = await mailHelper.extract2FACode(messageId,token);
     console.log(`Extracted 2FA code: ${d1}${d2}${d3}${d4}`);
@@ -135,7 +135,7 @@ export class AuthFlow {
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
     await this.loginPopupPage.clickContinue();
-    await expect(this.page.locator('body')).toContainText('Username not found. Try another one.');
+    await expect(this.page.locator('body'), 'Username-not-found error is not shown').toContainText('Username not found. Try another one.');
   }
 
   async walletLoginSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
@@ -271,7 +271,7 @@ export class AuthFlow {
     await expect(this.userDropdownPage.dropdown, `Expected ${displayValue} in profile dropdown`).toContainText(displayValue);
     // Close dropdown to avoid blocking subsequent interactions
     await this.page.keyboard.press('Escape');
-    await expect(this.userDropdownPage.dropdown).toBeHidden();
+    await expect(this.userDropdownPage.dropdown, 'Profile dropdown should be hidden').toBeHidden();
   }
 
   async telegramLoginSuccess(user: { email: string; username: string }): Promise<void> {
@@ -389,7 +389,7 @@ export class AuthFlow {
   async logout(){
     await this.headerPage.clickUserIcon();
     await this.userDropdownPage.clickLogoutBtn();
-    await expect(this.page).toHaveURL('/');
+    await expect(this.page, 'Did not navigate to home page after logout').toHaveURL('/');
     await expect(this.headerPage.getStartedBtn, 'GetStarted button should be visible after logout').toBeVisible();
   }
 

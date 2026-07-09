@@ -53,7 +53,7 @@ export class UserDropdownPage {
         await expect(this.accountLink, 'Account Settings link is not visible').toBeVisible();
         await expect(this.accountLink, 'Account Settings link is not enabled').toBeEnabled();
         await this.accountLink.click();
-        await expect(this.page).toHaveURL(/\/account$/);
+        await expect(this.page, 'Did not navigate to /account').toHaveURL(/\/account$/);
     }
 
     async clickLogoutBtn() {
