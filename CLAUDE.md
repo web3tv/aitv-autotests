@@ -84,6 +84,8 @@ Three environments, each with its own `.env` file (committed to the repo — the
 
 Switch via `ENV_FILE` (`ENV_FILE=.env.prod npx playwright test ...`) or, in the VS Code Playwright extension, via `playwright.env` in `.vscode/settings.json`. See README for details.
 
+The committed `.env.prod` is the ONLY source of prod configuration (CI prod-smoke reads it directly) — change prod config by editing this file; there is no `PROD_ENV_FILE` secret anymore.
+
 Required variables:
 - `BASE_URL` — frontend URL (e.g. `https://web3tv2.dev`)
 - `API_URL` — backend API base URL
