@@ -44,7 +44,6 @@ jobs:
           echo "### Jira Task" >> $GITHUB_STEP_SUMMARY
           echo "[${{ inputs.task }}](${{ secrets.JIRA_BASE_URL }}/browse/${{ inputs.task }})" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Project:** ${{ inputs.project }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Install WireGuard
         run: |
@@ -114,7 +113,7 @@ jobs:
             exit 0
           fi
           
-          git add "tests/visualSuite/**/__snapshots__"
+          git add tests/visual
           git commit -m "chore: update visual snapshots"
           git push
 
