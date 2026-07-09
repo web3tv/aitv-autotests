@@ -1,5 +1,5 @@
 {
-  "name": "web3tv-autotests",
+  "name": "aitv-autotests",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -16,8 +16,8 @@
   "description": "",
   "devDependencies": {
     "@playwright/test": "^1.57.0",
-    "@synthetixio/synpress": "^4.1.2",
     "@types/node": "^24.10.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "dependencies": {

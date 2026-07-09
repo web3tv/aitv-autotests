@@ -95,9 +95,6 @@ export class LoginPage {
     await this.loginBtn.click();
   }
 
-  async removeFocusFromElement(){
-     await this.page.click('body');
-  }
   
   // Here we check the input for compliance.
   async fillUsernameInput(username?: string) {
@@ -110,13 +107,6 @@ export class LoginPage {
   }
 
   // Here we do not check the input for compliance. 
-  async fillUsernameInput2(username?: string) {
-    const finalUsername = username ?? `autotest_${Date.now()}`;
-
-    await expect(this.usernameInput, 'Username input is not editable').toBeEditable();
-    await this.usernameInput.fill(finalUsername);
-  }
-
   async clickCheckbox() {
     await expect(this.checkbox, 'Checkbox is not visible').toBeVisible();
     await this.checkbox.click({ force: true });
