@@ -8,7 +8,7 @@ const BASE_URL   = process.env.BASE_URL!;
 const STUDIO_URL = process.env.STUDIO_URL!;
 
 const USERNAME = 'sxqfa1561';
-const PASSWORD = 'Admin1@@';
+const PASSWORD = process.env.USER_PASSWORD!;
 
 (async () => {
     const browser = await chromium.launch({ headless: true });

@@ -5,6 +5,9 @@ import * as crypto from "node:crypto";
 
 const OAUTH_CLIENT_ID = "fa281fa9-ea9c-467e-a0f1-776876c3ad76";
 
+/** Static OTP accepted by dev stands for fast (no-mailbox) registration flows. */
+export const STATIC_OTP_CODE = '1111';
+
 export class AuthApi {
     constructor(
     private request: APIRequestContext,
@@ -133,7 +136,7 @@ export class AuthApi {
         };
     }
 
-    async createUserFastViaPhone(phone: string, staticCode = '1111') {
+    async createUserFastViaPhone(phone: string, staticCode = STATIC_OTP_CODE) {
         const startRes = await this.request.post(`${this.baseUrl}/auth/start`, {
             headers: { "Content-Type": "application/json" },
             data: { method: "phone", identifier: phone, clientId: OAUTH_CLIENT_ID },
@@ -162,7 +165,7 @@ export class AuthApi {
         };
     }
 
-    async createUserFast(staticCode = '1111', opts: { email?: string; username?: string } = {}) {
+    async createUserFast(staticCode = STATIC_OTP_CODE, opts: { email?: string; username?: string } = {}) {
         // No real mailbox is needed here: /auth/verify below uses a static OTP, so
         // the inbox is never polled. The address is built locally under EMAIL_DOMAIN
         // (no IMAP/Gmail round-trip at all). Timestamp + random keeps it unique.
