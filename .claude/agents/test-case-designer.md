@@ -18,7 +18,7 @@ You will receive:
 - Feature description (from Jira or user)
 - Existing infrastructure report (from test-analyzer agent)
 - TEST_COVERAGE.md mapping (which TC-IDs to implement)
-- Project conventions (from CLAUDE.md and MEMORY.md)
+- Project conventions (from CLAUDE.md)
 
 ## Design rules
 

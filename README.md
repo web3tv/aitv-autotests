@@ -67,15 +67,16 @@ tests/
     sharedFixture.ts       —   общий read-only канал @qavischan: resolveSharedFixture() + фикс-креды
     videoSeed.ts           —   константы засеянного контента (титулы/категория/жанры) — общий источник правды
     fixtureCheck.setup.ts  —   preflight-проект fixture-check: проверяет живость общей фикстуры перед прогоном
-  skip/                    — запаркованные спеки (исключены через testIgnore `**/skip/**`)
+  skip/                    — запаркованные спеки (исключены через testIgnore `**/skip/**`); инвентарь отложенного покрытия — строки [BLOCKED] в TEST_COVERAGE.md
 src/
   flows/                   — оркестраторы пользовательских сценариев
   pages/                   — Page Object Model
   api/                     — API-хелперы (быстрый сетап в обход UI)
-  utils/                   — утилиты (чтение почты Gmail по IMAP, видео-плеер, генерация данных, videoTaxonomy)
+  utils/                   — утилиты (почта Gmail по IMAP, генерация данных, плеер-хелперы, wallet-мок, сид-хелперы — полный список см. в папке)
 scripts/                   — one-off утилиты: seedFixture.ts (сид общей фикстуры), deleteUser.ts
 test-data/
   fixtures/                — СТАТИЧЕСКИЕ ассеты (видеофайлы, фото) — НЕ путать с tests/fixtures/
+docs/                      — TESTING_STRATEGY.md (стратегия), FIXTURES_AUDIT.md (аудит фикстур)
 ```
 
 ### Фикстуры
@@ -216,11 +217,13 @@ npx playwright show-report
 
 Workflows лежат в [.github/workflows/](.github/workflows/). Dev-стенды за VPN — воркфлоу поднимает WireGuard (секрет `WG_CLIENT_CONFIG`), env берётся из закоммиченных `.env.web3tv2`/`.env.web3tv`, результаты шлются в Slack (`SLACK_WEBHOOK_URL`).
 
+**Прод-конфигурация:** единственный источник — закоммиченный `.env.prod`; любые изменения прод-конфига делаются правкой этого файла (секрет `PROD_ENV_FILE` больше не используется и удалён).
+
 | Workflow | Триггер | Что гоняет |
 |----------|---------|------------|
 | `nightly-regression.yml` | Каждую ночь 02:00 UTC + вручную | `npm run test:nodb` (регрессия без `@db`) на dev2 |
 | `critical-manual.yml` | Вручную | `@critical`-смоук на dev1/dev2, с привязкой к Jira-задаче |
-| `prod-smoke.yml` | Каждую ночь 00:00 UTC | Прод-смоук (`prodSmoke`) |
+| `prod-smoke.yml` | Каждую ночь 00:00 UTC | Прод-смоук (`prodSmoke`), env из закоммиченного `.env.prod` |
 | `aitv-visual-manual.yml` | Вручную | Визуальная регрессия |
 
 **Ночная регрессия** (`nightly-regression.yml`): по умолчанию dev2, отчёт `playwright-report` сохраняется в артефактах, статус уходит в Slack. Cron активируется **только после мёржа в дефолтную ветку** — до этого запускай вручную через **Actions → Nightly Regression → Run workflow**.

@@ -1,64 +1,52 @@
-## TEST COVERAGE — web3.tv
+## TEST COVERAGE — ai.tv (web3.tv)
 
 Статусы:
   [AUTO]     — покрыто автотестом
   [CRITICAL] — входит в critical suite (smoke перед деплоем), tag: @critical
   [TODO]     — не покрыто, нужно автоматизировать
   [MANUAL]   — ручное тестирование (не автоматизируемо)
-  [BLOCKED]  — ждет фикса
+  [BLOCKED]  — ждет фикса / выключено (test.fixme, describe.skip, tests/skip/)
 
 Запуск:
   npm run test:critical    — только @critical тесты (smoke)
   npm run test:regression  — все функциональные тесты
 
 ────────────────────────────────────────────────────────────────
-AUTH
+AUTH — EMAIL
 ├── Login (email) — success                         [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-001
-├── Login (email) — wrong password                  [AUTO] tests/auth/login.spec.ts          AUTH-002
-├── Logout                                          [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-004
-├── Registration via email (UI)                     [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-005
-├── Registration via API                            [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-006
-├── Password reset — success                        [AUTO] tests/auth/resetPassword.spec.ts  AUTH-007
-├── Password reset — password mismatch              [AUTO] tests/auth/resetPassword.spec.ts  AUTH-008
-├── Login via Telegram (mocked OAuth)               [AUTO] tests/auth/telegramAuth.spec.ts   AUTH-015
-├── Add email to wallet account                     [AUTO] tests/auth/walletAuth.spec.ts     AUTH-011
-├── Registration via Web3 wallet                    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-012
-├── Register + Login via same wallet                [AUTO] tests/auth/walletAuth.spec.ts     AUTH-013
-├── Register and login via MetaMask                 [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-metamask
-├── Register and login via Hero Wallet              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-hero-wallet
-├── Register and login via Binance Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-binance-wallet
-├── Register and login via Trust Wallet             [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-trust-wallet
-├── Register and login via SafePal                  [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-safepal
-├── Register and login via Fireblocks               [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-fireblocks
-├── Register and login via OKX Wallet               [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-okx-wallet
-├── Register and login via TokenPocket              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-tokenpocket
-├── Register and login via Bitget Wallet            [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-bitget-wallet
-├── Register and login via Uniswap Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-uniswap-wallet
-├── Register and login via Ledger Live              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-ledger-live
-├── Register and login via Zerion                   [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-zerion
-├── Register and login via Best Wallet              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-best-wallet
-├── Register and login via Crypto.com Onchain       [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-crypto-com
-├── Register and login via Bifrost Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-bifrost-wallet
-├── Register and login via xPortal                  [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-xportal
-├── Register and login via Bitcoin.com Wallet       [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-bitcoin-com
-├── Register and login via 1inch Wallet             [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-1inch-wallet
-├── Register and login via Trezor Suite             [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-trezor-suite
-├── Register and login via Blockchain.com           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-blockchain-com
-├── Register and login via imToken                  [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-imtoken
-├── Register and login via BitPay Wallet            [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-bitpay-wallet
-├── Register and login via Gemini                   [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-gemini
-├── Register and login via Arculus Wallet           [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-arculus-wallet
-├── Register and login via Ctrl Wallet              [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-ctrl-wallet
-├── Register and login via Ronin Wallet             [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-ronin-wallet
-├── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
-└── Add email to wallet twice without verification  [BLOCKED] test.fixme                     AUTH-016
+├── Login (email) — wrong password                  [AUTO] tests/auth/emailAuth.spec.ts      AUTH-002
+├── Logout                                          [AUTO] tests/auth/emailAuth.spec.ts      AUTH-004
+├── Registration via email (UI popup)               [AUTO][CRITICAL] tests/auth/emailAuth.spec.ts  AUTH-005
+├── Registration via API + login via popup          [AUTO] tests/auth/emailAuth.spec.ts      AUTH-006
+├── Password reset — success (old fails, new works) [AUTO] tests/auth/emailAuth.spec.ts      AUTH-007
+├── Password reset — password mismatch              [AUTO] tests/auth/emailAuth.spec.ts      AUTH-008
+├── Wrong verification code ×5 → too many attempts  [AUTO] tests/auth/emailAuth.spec.ts      AUTH-009
+└── Login via Telegram (mocked OAuth)               [AUTO] tests/auth/telegramAuth.spec.ts   AUTH-015
 
 ────────────────────────────────────────────────────────────────
-2FA
-├── Setup 2FA via email                             [AUTO] tests/auth/2fa.spec.ts            2FA-001
-├── Login with correct 2FA code                     [AUTO] tests/auth/2fa.spec.ts            2FA-002
-├── Login with wrong 2FA code                       [AUTO] tests/auth/2fa.spec.ts            2FA-003
-└── Disable 2FA                                     [AUTO] tests/auth/2fa.spec.ts            2FA-004
+AUTH — PHONE
+├── Login via phone — success                       [AUTO][CRITICAL] tests/auth/phoneAuth.spec.ts  PHONE-AUTH-001
+├── Login via phone — wrong password                [AUTO] tests/auth/phoneAuth.spec.ts      PHONE-AUTH-003
+└── Registration via phone (UI popup, static OTP)   [AUTO][CRITICAL] tests/auth/phoneAuth.spec.ts  PHONE-AUTH-004
+
+────────────────────────────────────────────────────────────────
+AUTH — WALLET
+├── Registration via Web3 wallet (MetaMask)         [AUTO][CRITICAL] tests/auth/walletAuth.spec.ts AUTH-012
+├── Register + Login via same wallet                [AUTO] tests/auth/walletAuth.spec.ts     AUTH-013
+├── Add email to wallet account                     [AUTO] tests/auth/walletAuth.spec.ts     AUTH-011
+├── Register and login via 25+ wallets (loop)       [AUTO] tests/auth/walletAuth.spec.ts     SMOKE-WALLET-<type>
+│   MetaMask, Hero, Binance, Trust, SafePal, Fireblocks, OKX, TokenPocket, Bitget,
+│   Uniswap, Ledger Live, Zerion, Best, Crypto.com, Bifrost, xPortal, Bitcoin.com,
+│   1inch, Trezor, Blockchain.com, imToken, BitPay, Gemini, Arculus, Ctrl, Ronin
+├── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
+└── Add email to wallet twice without verification  [BLOCKED] test.fixme tests/auth/walletAuth.spec.ts  AUTH-016
+
+────────────────────────────────────────────────────────────────
+2FA — suite выключена (describe.skip в tests/auth/emailAuth.spec.ts)
+├── Setup 2FA via email                             [BLOCKED] describe.skip tests/auth/emailAuth.spec.ts  2FA-001
+├── Login with correct 2FA code                     [BLOCKED] describe.skip tests/auth/emailAuth.spec.ts  2FA-002
+├── Login with wrong 2FA code                       [BLOCKED] describe.skip tests/auth/emailAuth.spec.ts  2FA-003
+└── Disable 2FA                                     [BLOCKED] describe.skip tests/auth/emailAuth.spec.ts  2FA-004
 
 ────────────────────────────────────────────────────────────────
 EMAIL TEMPLATES (W3-2662)
@@ -71,30 +59,30 @@ EMAIL TEMPLATES (W3-2662)
 
 ────────────────────────────────────────────────────────────────
 ACCOUNT SETTINGS (/account)
-├── Edit email address — saved successfully         [AUTO] tests/user/account/account.spec.ts ACCOUNT-001
-├── Change password — saved successfully            [AUTO] tests/user/account/account.spec.ts ACCOUNT-002
-├── Display wallet address (read-only)              [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-003
-├── Add wallet to email account                     [AUTO] tests/auth/wallet.spec.ts          ACCOUNT-005
-├── Change password twice in one session            [BLOCKED] test.fixme                      ACCOUNT-006
-├── Change email then change password (unverified)  [BLOCKED] test.fixme                      ACCOUNT-007
-└── Change email twice without verification         [AUTO] tests/user/account/account.spec.ts  ACCOUNT-008
+├── Edit email address — saved successfully         [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-001
+├── Change password — saved successfully            [AUTO] tests/account/account.spec.ts     ACCOUNT-002
+├── Display wallet address (read-only)              [AUTO] tests/auth/walletAuth.spec.ts     ACCOUNT-003
+├── Add wallet to email account                     [AUTO] tests/auth/walletAuth.spec.ts     ACCOUNT-005
+├── Change password twice in one session            [BLOCKED] test.fixme W3-2731 tests/account/account.spec.ts  ACCOUNT-006
+├── Change email then change password (unverified)  [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-007
+└── Change email twice without verification         [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-008
 
 ────────────────────────────────────────────────────────────────
-PROFILE SETTINGS (/profile)
-├── Upload profile avatar — saved successfully      [BLOCKED] W3-2082 (CDN migration)        PROFILE-001
-├── Avatar displayed in header after upload         [BLOCKED] W3-2082 (CDN migration)        PROFILE-002
-├── Edit biography — saved successfully             [AUTO] tests/user/profile/profile.spec.ts PROFILE-003
-├── Add/edit social links (FB, TW, IG, TikTok)     [AUTO] tests/user/profile/profile.spec.ts PROFILE-004
-├── Biography max length validation (1000 chars)    [AUTO] tests/user/profile/profile.spec.ts PROFILE-005
-└── Social links max length validation (100 chars)  [AUTO] tests/user/profile/profile.spec.ts PROFILE-006
+PROFILE SETTINGS (/profile) — suite в test.fixme (WIP)
+├── Upload profile avatar — saved successfully      [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-001
+├── Avatar displayed in header after upload         [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-002
+├── Edit biography — saved successfully             [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-003
+├── Add/edit social links (FB, TW, IG, TikTok)      [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-004
+├── Biography max length validation (1000 chars)    [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-005
+└── Social links max length validation (100 chars)  [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-006
 
 ────────────────────────────────────────────────────────────────
-NOTIFICATIONS (/notifications)
-├── Toggle all notification settings on/off         [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-001
-├── Notification on channel subscription            [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-002
-├── Notification on paid subscription purchase      [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-003
-├── Notification when subscribed channel uploads    [BLOCKED] test.fixme                                   NOTIF-004
-└── Notification on paid channel paid video upload  [AUTO] tests/user/notifications/notifications.spec.ts  NOTIF-005
+NOTIFICATIONS (/notifications) — suite в test.fixme (WIP)
+├── Toggle all notification settings on/off         [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-001
+├── Notification on channel subscription            [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-002
+├── Notification on paid subscription purchase      [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-003
+├── Notification when subscribed channel uploads    [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-004
+└── Notification on paid channel paid video upload  [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-005
 
 ────────────────────────────────────────────────────────────────
 AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641)
@@ -118,18 +106,19 @@ CHANNELS
 ├── Delete channel                                  [TODO]                                   CHANNEL-013
 ├── Set Highlight video                             [TODO]                                   CHANNEL-014
 ├── Import video via external URL (Video Importer)  [TODO]                                   CHANNEL-015
-├── Set default video description in channel settings — saved successfully  [AUTO][CRITICAL] tests/content/channel/channel.spec.ts  CHANNEL-017
+├── Set default video description in channel settings — saved successfully  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-017
 ├── Default description auto-fills description field when opening upload popup  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-018
 ├── Override pre-filled description — video saved with custom description  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-019
-└── Clear default description — upload popup opens with empty description  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-020
+├── Clear default description — upload popup opens with empty description  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-020
+└── Auto-created channel: handle as name, без суффикса "Channel"  [AUTO] tests/content/channel/channel.spec.ts  CHANNEL-021
 
 ────────────────────────────────────────────────────────────────
-NFT
+NFT — suite в test.fixme
   Wallet user registers, opens Studio Settings → NFT section, converts channel
   via HeroPay mock payment, verifies minting status and NFT details (ERC 721,
   token contract, explorer link)
-├── Convert channel to NFT via mock payment                [AUTO] tests/content/manage/nftConversion.spec.ts  NFT-001
-└── Email user without wallet sees add wallet popup       [AUTO] tests/content/manage/nftConversion.spec.ts  NFT-002
+├── Convert channel to NFT via mock payment          [BLOCKED] test.fixme tests/content/manage/nftConversion.spec.ts  NFT-001
+└── Email user without wallet sees add wallet popup  [BLOCKED] test.fixme tests/content/manage/nftConversion.spec.ts  NFT-002
 
 ────────────────────────────────────────────────────────────────
 VIDEO UPLOAD
@@ -139,12 +128,12 @@ VIDEO UPLOAD
 ├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
 ├── Upload Shorts                                   [TODO] (covered by SHORTS-003)              UPLOAD-005
 ├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
-├── Upload thumbnail manually                       [AUTO] tests/studio/content.spec.ts         UPLOAD-007
+├── Upload thumbnail manually                       [TODO] (спек удалён при переходе на stepped modal W3-2702)  UPLOAD-007
 ├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
 ├── Required fields validation (title/desc/cat)     [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  UPLOAD-009
 ├── Delete video during upload                      [TODO]                                      UPLOAD-010
 ├── Save video as draft                             [TODO]                                      UPLOAD-011
-├── Select auto-generated thumbnail                 [AUTO] tests/studio/content.spec.ts         UPLOAD-012
+├── Select auto-generated thumbnail                 [TODO] (спек удалён при переходе на stepped modal W3-2702)  UPLOAD-012
 └── Publish video while still processing            [TODO] (obsolete by design — stepped modal blocks publish until processed)  UPLOAD-013
 
 ────────────────────────────────────────────────────────────────
@@ -164,6 +153,13 @@ UPLOAD TAXONOMY — categories & genres in the modal (W3-2729)
 └── Genres dropdown == expected genres (59)                    [AUTO] tests/content/upload/uploadTaxonomy.spec.ts   GENRES-UI-001
 
 ────────────────────────────────────────────────────────────────
+VIDEO MANAGE — description / studio search
+├── Description preserves empty paragraphs on video page       [AUTO] tests/content/manage/videoDescription.spec.ts  DESC-PARA-001
+├── Studio search filters videos by title                      [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-017
+├── Studio search does NOT match by description                [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-018
+└── Studio search filters shorts by title                      [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-019
+
+────────────────────────────────────────────────────────────────
 VIDEO VISIBILITY
 ├── Public: visible on channel page                 [AUTO][CRITICAL] tests/content/manage/videoVisibility.spec.ts  VIS-001
 ├── Public: visible to anonymous guest              [AUTO][CRITICAL] tests/content/manage/videoVisibility.spec.ts  VIS-001
@@ -174,9 +170,9 @@ VIDEO VISIBILITY
 ├── Unlisted: not shown on channel page             [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-005
 ├── Unlisted: accessible via direct link (anon)     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-005
 ├── Unlisted: accessible via direct link (user)     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-006
-├── Paid: badges on channel page                    [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-007
-├── Paid: paywall for anonymous                     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-007
-└── Paid: subscribe button for other user           [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-008
+├── Paid: badges on channel page                    [BLOCKED] describe.skip tests/content/manage/videoVisibility.spec.ts  VIS-007
+├── Paid: paywall for anonymous                     [BLOCKED] describe.skip tests/content/manage/videoVisibility.spec.ts  VIS-007
+└── Paid: subscribe button for other user           [TODO] (теста нет)                        VIS-008
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Regular Player
@@ -210,27 +206,25 @@ SUBSCRIPTIONS — Free (channel follow)
 └── Subscriptions feed shows videos from channel    [TODO]                                   SUB-003
 
 ────────────────────────────────────────────────────────────────
-PAID SUBSCRIPTIONS
-├── Create membership plan (owner)                  [AUTO][CRITICAL] tests/subscription/paidSubscription.spec.ts    PAID-001
-├── Purchase plan via Hero Pay (mock)               [AUTO][CRITICAL] tests/subscription/paidSubscription.spec.ts    PAID-002
-├── Access paid video after purchase                [AUTO][CRITICAL] tests/subscription/paidSubscription.spec.ts    PAID-003
+PAID SUBSCRIPTIONS — suite запаркована в tests/skip/ (исключено из прогонов)
+├── Create membership plan (owner)                  [BLOCKED] tests/skip/subscription/paidSubscription.spec.ts    PAID-001
+├── Purchase plan via Hero Pay (mock)               [BLOCKED] tests/skip/subscription/paidSubscription.spec.ts    PAID-002
+├── Access paid video after purchase                [BLOCKED] tests/skip/subscription/paidSubscription.spec.ts    PAID-003
 ├── Create membership plan via UI (studio)          [TODO]                                                PAID-004
-├── Subscription expiry → access revoked + restore   [AUTO] tests/subscription/paidSubscription.spec.ts        PAID-005
-├── Active subscription on /my-paid-subs            [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-006
-├── Expired subscription on /my-paid-subs            [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-007
-├── Pending payment status on /my-paid-subs         [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-008
-└── Payment expired status on /my-paid-subs           [AUTO] tests/subscription/paidSubsStatus.spec.ts          PAID-009
+├── Subscription expiry → access revoked + restore  [BLOCKED] tests/skip/subscription/paidSubscription.spec.ts    PAID-005
+├── Active subscription on /my-paid-subs            [BLOCKED] tests/skip/subscription/paidSubsStatus.spec.ts      PAID-006
+├── Expired subscription on /my-paid-subs           [BLOCKED] tests/skip/subscription/paidSubsStatus.spec.ts      PAID-007
+├── Pending payment status on /my-paid-subs         [BLOCKED] tests/skip/subscription/paidSubsStatus.spec.ts      PAID-008
+└── Payment expired status on /my-paid-subs         [BLOCKED] tests/skip/subscription/paidSubsStatus.spec.ts      PAID-009
 
 ────────────────────────────────────────────────────────────────
-AUTH POPUP ("Almost there!")
+AUTH POPUP ("Almost there!") — suite запаркована в tests/skip/
   Shown when anonymous user tries to subscribe or access paid content.
-  Replaces old "Register/Login" redirect — now shows inline popup with
-  "Create account" and "Login" buttons.
-├── Anonymous user sees Subscribe Now button on membership page  [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-007
-├── Clicking Subscribe Now shows auth popup (Create account + Login)  [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-008
-├── Auth popup: Create account button → navigates to register   [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-009
-├── Auth popup: Login button → navigates to login page          [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-010
-└── Auth popup: closes when clicking close button               [AUTO] tests/subscription/authPopup.spec.ts  AUTH-POP-011
+├── Anonymous user sees Subscribe Now button on membership page  [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-007
+├── Clicking Subscribe Now shows auth popup (Create account + Login)  [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-008
+├── Auth popup: Create account button → navigates to register   [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-009
+├── Auth popup: Login button → navigates to login page          [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-010
+└── Auth popup: closes when clicking close button               [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-011
 
 ────────────────────────────────────────────────────────────────
 PLAYLISTS
@@ -278,10 +272,8 @@ STUDIO CONTENT PAGE
 ├── Filter by status: Draft                         [TODO]                                   STUDIO-013
 ├── Filter: multiple checkboxes combined            [TODO]                                   STUDIO-014
 ├── Filter: Reset clears all filters                [TODO]                                   STUDIO-015
-├── Action menu: edit video                         [TODO]                                   STUDIO-016
-├── Search filters videos by title                  [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-017
-├── Search does NOT match by description            [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-018
-└── Search filters shorts by title                  [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-019
+└── Action menu: edit video                         [TODO]                                   STUDIO-016
+    (поиск по студии — см. VIDEO MANAGE: STUDIO-017..019)
 
 ────────────────────────────────────────────────────────────────
 HOME PAGE
@@ -298,15 +290,16 @@ SEARCH (/search)
 
 ────────────────────────────────────────────────────────────────
 HERO / CRYPTO
-└── HERO coins displayed in header                  [AUTO] tests/hero/heroIntegration.spec.ts  HERO-001
+└── HERO coins displayed in header                  [TODO] (спек удалён)                     HERO-001
 
 ────────────────────────────────────────────────────────────────
-VALIDATION
-├── Username — min/max length                       [AUTO] tests/validation/usernameValidation.spec.ts  VAL-001
-├── Username — allowed characters                   [AUTO] tests/validation/usernameValidation.spec.ts  VAL-002
-├── Handle — min/max length                         [AUTO] tests/validation/handleValidation.spec.ts    VAL-003
-├── Handle — allowed characters (lowercase, no spaces) [AUTO] tests/validation/handleValidation.spec.ts VAL-004
-├── Handle — uniqueness check                       [AUTO] tests/validation/handleValidation.spec.ts    VAL-005
+VALIDATION (tag: @validation)
+├── Handle (registration) — min/max length          [AUTO] tests/auth/handleValidationOnRegPage.spec.ts  VAL-001
+├── Handle (registration) — allowed characters      [AUTO] tests/auth/handleValidationOnRegPage.spec.ts  VAL-002
+├── Handle (create channel) — min/max length        [AUTO] tests/content/channel/handleValidationOnEditPage.spec.ts  VAL-003
+├── Handle (create channel) — allowed characters    [AUTO] tests/content/channel/handleValidationOnEditPage.spec.ts  VAL-004
+├── Handle (create channel) — uniqueness check      [AUTO] tests/content/channel/handleValidationOnEditPage.spec.ts  VAL-005
+│   (вариант для Edit Channel Page — в describe.fixme там же)
 ├── Video title — required field                    [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  VAL-006
 ├── Video description — required field              [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  VAL-007
 ├── Video category — required field                 [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  VAL-008
@@ -320,7 +313,6 @@ VALIDATION
 ────────────────────────────────────────────────────────────────
 STUDIO DOMAIN (studio.web3tv.dev) — W3-1943
   Studio separated to studio.web3tv.dev, main platform stays on web3tv.dev
-  Sidebar "Memberships" button will be renamed from "Subscriptions" later
 ├── Studio sidebar: correct items for logged user   [TODO]                                   STUDIO-DOMAIN-001
 │   Dashboard, Content, Analytics, Memberships, Playlists, Edit channel, Settings, Send Feedback
 ├── Main sidebar: no studio items for logged user   [TODO]                                   STUDIO-DOMAIN-002
@@ -337,7 +329,7 @@ STUDIO DOMAIN (studio.web3tv.dev) — W3-1943
 └── Logout redirects to baseUrl (main domain /)     [TODO]                                   STUDIO-DOMAIN-011
 
 ────────────────────────────────────────────────────────────────
-ANALYTICS (studio.web3tv.dev/analytics) — W3-881
+ANALYTICS (studio.web3tv.dev/analytics) — W3-881, tag: @db
   Channel owner views analytics dashboard with seeded statistics.
   Data seeded via DB: views, likes, comments, subscribers across multiple days.
 ├── Summary cards: Views and Subscribers displayed             [AUTO] tests/content/manage/analytics.spec.ts  ANALY-001
@@ -360,15 +352,28 @@ VIDEO CHAPTERS (W3-2434)
 ├── English video → chapters_generation_success notification  [AUTO] tests/api/videoChapters.spec.ts  CHAP-002
 ├── Short video → no chapters generated                       [AUTO] tests/api/videoChapters.spec.ts  CHAP-003
 ├── Non-English video → no chapters                           [TODO] test.fixme, no fixture              CHAP-004
-├── chapters_enabled=false → chapters still returned          [AUTO] tests/api/videoChapters.spec.ts  CHAP-005
+├── chapters_enabled=false → chapters still returned          [TODO] (теста нет)                         CHAP-005
 ├── Re-transcription → old chapters replaced atomically       [TODO] test.fixme, no re-trigger API       CHAP-006
 ├── ML failure → chapters_generation_failed notification      [BLOCKED] not in MVP (no failed notif type) CHAP-007
 └── Empty ML response → chapters untouched                    [BLOCKED] cannot control OpenAI response    CHAP-008
 
 ────────────────────────────────────────────────────────────────
-VISUAL REGRESSION
-├── Desktop Chromium: main domain (9 tests)         [AUTO] Docker only                       VISUAL-001
-├── Desktop Chromium: studio domain (2 tests)       [AUTO] Docker only                       VISUAL-002
-├── Mobile iPhone 15 WebKit (6 tests)               [AUTO] Docker only                       VISUAL-003
-├── Listing dropdowns desktop: movies/series/shorts [AUTO] tests/visual/desktop/listingVisual.spec.ts (Docker only)  VIS-LIST-001..003
-└── Listing dropdowns mobile: movies/series/shorts  [AUTO] tests/visual/mobile/listingVisual.spec.ts (Docker only)   VIS-LIST-MOB-001..003
+PRODUCTION SMOKE (prodSmoke project, ENV_FILE=.env.prod)
+├── Login — success                                 [AUTO] tests/production/prodSmoke.spec.ts  PROD-001
+├── Register via email                              [AUTO] tests/production/prodSmoke.spec.ts  PROD-002
+├── Register via wallet                             [AUTO] tests/production/prodSmoke.spec.ts  PROD-003
+├── Upload private video                            [AUTO] tests/production/prodSmoke.spec.ts  PROD-004
+├── Video player plays video                        [AUTO] tests/production/prodSmoke.spec.ts  PROD-005
+├── Home page visual                                [BLOCKED] describe.skip tests/production/prodSmoke.spec.ts  PROD-VIS-001
+└── Studio page visual                              [BLOCKED] describe.skip tests/production/prodSmoke.spec.ts  PROD-VIS-002
+
+────────────────────────────────────────────────────────────────
+VISUAL REGRESSION (Docker only; фикстура @qavischan — npm run seed:fixture)
+├── Desktop: main page / header / auth modal / hover preview   [AUTO] tests/visual/desktop/aitvVisual.spec.ts        VIS-AITV-001..006
+├── Desktop: studio sidebar / header / dashboard / content     [AUTO] tests/visual/desktop/studioVisual.spec.ts      VIS-STD-001..004
+├── Desktop: upload modal Movie/Series/Shorts × 3 шага         [AUTO] tests/visual/desktop/uploadModalVisual.spec.ts VIS-UPL-001..009
+├── Desktop: video page + channel page (anon/user/owner)       [AUTO] tests/visual/desktop/videoChannelVisual.spec.ts VIS-VCH-001..005
+├── Desktop: listing dropdowns movies/series/shorts            [AUTO] tests/visual/desktop/listingVisual.spec.ts     VIS-LIST-001..003
+├── Mobile: header / dropdown / auth modal                     [AUTO] tests/visual/mobile/aitvVisual.spec.ts         VIS-AITV-MOB-003..006
+├── Mobile: video page + channel page (anon/user/owner)        [AUTO] tests/visual/mobile/videoChannelVisual.spec.ts VIS-MOB-001..005
+└── Mobile: listing dropdowns movies/series/shorts             [AUTO] tests/visual/mobile/listingVisual.spec.ts      VIS-LIST-MOB-001..003
