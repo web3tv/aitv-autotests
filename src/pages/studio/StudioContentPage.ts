@@ -48,10 +48,10 @@ export class StudioContentPage {
     }
 
     async checkVideoDescription(description: any){
-        await expect(this.firstVideoDescription).toContainText(description);
+        await expect(this.firstVideoDescription, 'First video description does not contain expected text').toContainText(description);
     }
     async checkVideoVisibility(visibility: any){
-        await expect(this.firstVideoVisibility).toContainText(visibility);
+        await expect(this.firstVideoVisibility, 'First video visibility does not contain expected text').toContainText(visibility);
     }
 
     async checkVideoStatus(status: string) {
@@ -74,19 +74,27 @@ export class StudioContentPage {
     
     // TABS 
     async clickShortsTab(){
+       await expect(this.shortsTab, 'Shorts tab is not visible').toBeVisible();
+       await expect(this.shortsTab, 'Shorts tab is not enabled').toBeEnabled();
        await this.shortsTab.click();
     }
 
     async clickVideosTab(){
-        await this.videosTab.click();
+        await expect(this.videosTab, 'Videos tab is not visible').toBeVisible();
+       await expect(this.videosTab, 'Videos tab is not enabled').toBeEnabled();
+       await this.videosTab.click();
     }
 
     async clickLiveTab(){
-        await this.liveTab.click();
+        await expect(this.liveTab, 'Live tab is not visible').toBeVisible();
+       await expect(this.liveTab, 'Live tab is not enabled').toBeEnabled();
+       await this.liveTab.click();
     }
 
     async clickSeriesTab(){
-        await this.seriesTab.click();
+        await expect(this.seriesTab, 'Series tab is not visible').toBeVisible();
+       await expect(this.seriesTab, 'Series tab is not enabled').toBeEnabled();
+       await this.seriesTab.click();
     }
 
     async searchByText(text: string) {
@@ -111,6 +119,6 @@ export class StudioContentPage {
     }
 
     async assertNoVideoRows() {
-        await expect(this.videoRows.first()).not.toBeVisible({ timeout: 5000 });
+        await expect(this.videoRows.first(), 'Video rows should not be visible').not.toBeVisible({ timeout: 5000 });
     }
 }

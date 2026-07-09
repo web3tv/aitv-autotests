@@ -105,20 +105,20 @@ export class ChannelMainPage {
     // PUBLIC VIDEO/ SHORTS
 
     async checkVideoIsExist(name: string){
-        await expect(this.firstVideo).toContainText(name);
+        await expect(this.firstVideo, 'First video does not contain expected text').toContainText(name);
     }
 
     async clickFirstVideo(){
-        await expect(this.firstVideo).toBeVisible();
+        await expect(this.firstVideo, 'First video is not visible').toBeVisible();
         await this.firstVideo.click();
     }
 
     async checkShortsIsExist(name: string){
-        await expect(this.firstShort).toContainText(name);
+        await expect(this.firstShort, 'First short does not contain expected text').toContainText(name);
     }
 
     async clickFirstShort(){
-        await expect(this.firstShort).toBeVisible();
+        await expect(this.firstShort, 'First short is not visible').toBeVisible();
         await this.firstShort.click();
     }
 
@@ -152,7 +152,7 @@ export class ChannelMainPage {
 
     async checkChannelWithoutVideo(){
         await expect(this.noContentBlock, 'No-content block is not visible').toBeVisible();
-        await expect(this.firstVideo).toHaveCount(0);
+        await expect(this.firstVideo, 'First video count mismatch').toHaveCount(0);
     }
 
     async checkPrivateVideoOnChannelPage(){
@@ -181,17 +181,18 @@ export class ChannelMainPage {
 
     async clickRegisterLoginBtn(){
         await this.checkRegisterLoginBtn();
+        await expect(this.registerLoginBtn, 'Login button is not enabled').toBeEnabled();
         await this.registerLoginBtn.click();
     }
 
     async clickButtonSubscribeNow(){
-        await expect(this.subscribeBtn).toBeVisible();
-        await expect(this.subscribeBtn).toBeEnabled();
+        await expect(this.subscribeBtn, 'Subscribe button is not visible').toBeVisible();
+        await expect(this.subscribeBtn, 'Subscribe button is not enabled').toBeEnabled();
         await this.subscribeBtn.click();
     }
 
     async checkRegisterLoginBtn(){
-        await expect(this.registerLoginBtn).toBeVisible();
+        await expect(this.registerLoginBtn, 'Register login button is not visible').toBeVisible();
     }
     
     async checkButtonSubscribeNow(){
@@ -252,12 +253,13 @@ export class ChannelMainPage {
     }
 
     async checkExclusiveContentBadge(){
+        await expect(this.firstVideo, 'First video tile is not visible').toBeVisible();
         await this.firstVideo.hover();
-        await expect(this.exclusiveBadge).toBeVisible();; 
+        await expect(this.exclusiveBadge, 'Exclusive badge is not visible').toBeVisible();; 
     }
 
     async checkLockedBadge(){
-        await expect(this.lockedBadge).toBeVisible();
+        await expect(this.lockedBadge, 'Locked badge is not visible').toBeVisible();
     }
 
     async waitForMembershipPage(): Promise<void> {

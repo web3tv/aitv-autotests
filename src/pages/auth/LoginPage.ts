@@ -79,7 +79,7 @@ export class LoginPage {
     await this.emailInput.click();
     await this.emailInput.clear();
     await this.emailInput.fill(email);
-    await expect(this.emailInput).toHaveValue(email);
+    await expect(this.emailInput, 'Email input has wrong value').toHaveValue(email);
   }
 
   async fillPasswordInput(password:string){
@@ -87,7 +87,7 @@ export class LoginPage {
     await this.passwordInput.click();
     await this.passwordInput.clear();
     await this.passwordInput.fill(password);
-    await expect(this.passwordInput).toHaveValue(password);
+    await expect(this.passwordInput, 'Password input has wrong value').toHaveValue(password);
   }
 
   async clickLoginBtn(){
@@ -103,9 +103,9 @@ export class LoginPage {
   async fillUsernameInput(username?: string) {
     const finalUsername = username ?? `autotest_${Date.now()}`;
 
-    await expect(this.usernameInput).toBeEditable();
+    await expect(this.usernameInput, 'Username input is not editable').toBeEditable();
     await this.usernameInput.fill(finalUsername);
-    await expect(this.usernameInput).toHaveValue(finalUsername)
+    await expect(this.usernameInput, 'Username input has wrong value').toHaveValue(finalUsername)
     return finalUsername;
   }
 
@@ -113,7 +113,7 @@ export class LoginPage {
   async fillUsernameInput2(username?: string) {
     const finalUsername = username ?? `autotest_${Date.now()}`;
 
-    await expect(this.usernameInput).toBeEditable();
+    await expect(this.usernameInput, 'Username input is not editable').toBeEditable();
     await this.usernameInput.fill(finalUsername);
   }
 
@@ -123,28 +123,28 @@ export class LoginPage {
   }
 
   async clickContinueWithEmail() {
-    await expect(this.registerEmailBtn).toBeEnabled();
+    await expect(this.registerEmailBtn, 'Register email button is not enabled').toBeEnabled();
     await this.registerEmailBtn.click();
     await expect(this.enterEmailPrompt, 'Enter-email prompt is not visible').toBeVisible();
   }
 
   async fillEmailRegistrationInput(email: any) {
-    await expect(this.emailInputRegistration).toBeEditable();
+    await expect(this.emailInputRegistration, 'Email input registration is not editable').toBeEditable();
     await this.emailInputRegistration.fill(email);
   }
 
   async fillFirstPassword(firstPassword:any) {
-    await expect(this.firstPassword).toBeEditable();
+    await expect(this.firstPassword, 'First password is not editable').toBeEditable();
     await this.firstPassword.fill(firstPassword);
   }
   
   async fillSecondPassword(secondPassword:any) {
-    await expect(this.secondPassword).toBeEditable();
+    await expect(this.secondPassword, 'Second password is not editable').toBeEditable();
     await this.secondPassword.fill(secondPassword);
   }
   
   async clickCreateAccountBtn(email: any) {
-    await expect(this.createAccountBtn).toBeEnabled();
+    await expect(this.createAccountBtn, 'Create account button is not enabled').toBeEnabled();
     await this.createAccountBtn.click();
     await expect(this.body, 'Verification-link message is not visible').toContainText('Please check your email for the verification link sent to:');
     await expect(this.body, `Email ${email} is not shown in the verification message`).toContainText(email);
@@ -155,16 +155,18 @@ export class LoginPage {
   }
 
   async setUsernameAndBlur(value: string) {
+    await expect(this.usernameInput, 'Username input is not visible').toBeVisible();
+    await expect(this.usernameInput, 'Username input is not editable').toBeEditable();
     await this.usernameInput.fill(value);
     await this.blur();
   }
 
   async assertError(text: string) {
-    await expect(this.page.getByText(text)).toBeVisible();
+    await expect(this.page.getByText(text), `Expected text "${text}" is not visible`).toBeVisible();
   }
 
   async assertLowercased(expected: string) {
-    await expect(this.usernameInput).toHaveValue(expected);
+    await expect(this.usernameInput, 'Username input has wrong value').toHaveValue(expected);
   }
 
   async clickWalletLoginBtn() {
@@ -197,9 +199,9 @@ export class LoginPage {
   }
 
   async assertButtonsDisabled() {
-    await expect(this.registerWalletBtn).toBeDisabled();
-    await expect(this.registerEmailBtn).toBeDisabled();
-    await expect(this.telegramLoginBtn).toBeDisabled();
+    await expect(this.registerWalletBtn, 'Register wallet button should be disabled').toBeDisabled();
+    await expect(this.registerEmailBtn, 'Register email button should be disabled').toBeDisabled();
+    await expect(this.telegramLoginBtn, 'Telegram login button should be disabled').toBeDisabled();
   }
 
 }

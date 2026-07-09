@@ -19,7 +19,18 @@ Review the provided test files and Page Objects for quality and correctness.
 - All locators defined in Page Object **constructor** — NEVER inline in methods (exception: locators parameterized by a method argument may be built inside the method)
 - `test.step()` wraps every logical step
 - `waitUntil: 'domcontentloaded'` — NEVER `networkidle`
-- `waitForResponse` set up BEFORE the action that triggers the request
+- `waitForResponse` set up BEFORE the action that triggers the request. Anti-pattern to flag (race — the response may arrive before the listener exists):
+  ```typescript
+  // WRONG — click first, then waitForResponse
+  await this.submitBtn.click();
+  await this.page.waitForResponse(res => res.url().includes('/api/...') && res.status() === 200);
+  // CORRECT — register the promise, trigger, then await
+  const responsePromise = this.page.waitForResponse(res => res.url().includes('/api/...') && res.status() === 200, { timeout: 15000 });
+  await this.submitBtn.click();
+  await responsePromise;
+  ```
+- No `waitForTimeout` without a justifying comment — wait for a concrete state instead (`toBeVisible`, `waitForResponse`, `toHaveURL`, `expect.poll`/`toPass`)
+- No hardcoded passwords/OTP — use `process.env.USER_PASSWORD` and `STATIC_OTP_CODE` from `AuthApi`
 - TC-ID only in `annotation: { type: 'TC', description: 'TC-ID' }` — NEVER in the test name
 
 ### 2. Test independence
@@ -32,7 +43,7 @@ Review the provided test files and Page Objects for quality and correctness.
 - No leftover state that affects subsequent steps
 
 ### 4. Assertion quality
-- Meaningful error messages in `expect()` — name the element and describe the failure
+- **Every** `expect()` must carry a descriptive message — name the element and describe the failure (e.g. `'Submit button is not enabled'`); flag any bare `expect(locator).toBeVisible()`
 - Correct expected values — not hardcoded magic strings
 - Assertions match what the test claims to verify
 

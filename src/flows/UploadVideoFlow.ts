@@ -42,7 +42,7 @@ export class UploadVideoFlow {
         await this.uploadVideoPage.uploadVideo(pathToFileURL);
         await initResponsePromise;
         await studioResponsePromise;
-        await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 60_000 });
+        await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]'), 'Video preview processing indicator is not visible').toBeVisible({ timeout: 60_000 });
         await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
         // await expect(this.uploadVideoPage.page.locator('form')).toContainText(videoName);
     }
@@ -100,7 +100,7 @@ export class UploadVideoFlow {
         await expect(this.page.getByText('Wrong file type'), 'Wrong file type error appeared — check file MIME type').not.toBeVisible({ timeout: 3000 });
         await initResponsePromise;
         await studioResponsePromise;
-        await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]')).toBeVisible({ timeout: 60_000 });
+        await expect(this.uploadVideoPage.page.getByText('Video Preview [Processing]'), 'Video preview processing indicator is not visible').toBeVisible({ timeout: 60_000 });
         await expect(this.uploadVideoPage.page.locator('div').filter({ hasText: /^Upload VideoDetailsVisibility$/ }).first()).toBeVisible();
         // await expect(this.uploadVideoPage.page.locator('form')).toContainText(videoName);
     }
@@ -119,7 +119,7 @@ export class UploadVideoFlow {
             },
                 { timeout: 240_000 });
         try{
-            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:60_000});
+            await expect(this.uploadVideoPage.page.locator('body'), 'Upload success message is not shown').toContainText('Video successfully uploaded',{timeout:60_000});
         } catch(err){
             throw new Error("Video not uploaded");
         }
@@ -140,7 +140,7 @@ export class UploadVideoFlow {
             },
                 { timeout: 240_000 });
         try{
-            await expect(this.uploadVideoPage.page.locator('body')).toContainText('Video successfully uploaded',{timeout:60_000});
+            await expect(this.uploadVideoPage.page.locator('body'), 'Upload success message is not shown').toContainText('Video successfully uploaded',{timeout:60_000});
         } catch(err){
             throw new Error("Video not uploaded");
         }
@@ -192,7 +192,7 @@ export class UploadVideoFlow {
 
     async clickPublishBtn(){
         await  this.uploadVideoPage.clickPublishbtn();
-        await expect(this.uploadVideoPage.page.getByLabel('Upload Complete')).toContainText('Congratulations!Your video has been successfully uploaded.',{timeout:10_000});
+        await expect(this.uploadVideoPage.page.getByLabel('Upload Complete'), 'Upload Complete dialog is missing congratulations text').toContainText('Congratulations!Your video has been successfully uploaded.',{timeout:10_000});
         await this.page.waitForTimeout(5000);
         await this.uploadVideoPage.page.getByRole('button').filter({ hasText: /^$/ }).click();
     }

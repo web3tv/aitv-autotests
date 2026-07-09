@@ -23,28 +23,28 @@ export class StudioProfilePage {
     }
 
     async clearHandleInput(){
-        await expect(this.handleInput).toBeEditable();
+        await expect(this.handleInput, 'Handle input is not editable').toBeEditable();
         await this.handleInput.clear();
     }
 
     async fillHandleName(name: any){
         const finalUsername = name ?? `autotest_${Date.now()}`;
 
-        await expect(this.handleInput).toBeEditable();
+        await expect(this.handleInput, 'Handle input is not editable').toBeEditable();
         await this.handleInput.fill(finalUsername);
-        await expect(this.handleInput).toHaveValue(finalUsername)
+        await expect(this.handleInput, 'Handle input has wrong value').toHaveValue(finalUsername)
     }
 
     async fillHandleWithoutAssertToHaveValue(name: string){
         const finalUsername = name ?? `autotest_${Date.now()}`;
 
-        await expect(this.handleInput).toBeEditable();
+        await expect(this.handleInput, 'Handle input is not editable').toBeEditable();
         await this.handleInput.fill(finalUsername);
-        await expect(this.handleInput).not.toHaveValue(finalUsername)
+        await expect(this.handleInput, 'Handle input should not have this value').not.toHaveValue(finalUsername)
     }
 
     async asertLowerCase(expected: string){
-        await expect(this.handleInput).toHaveValue(expected)
+        await expect(this.handleInput, 'Handle input has wrong value').toHaveValue(expected)
     }
 
     async blur() {
@@ -52,15 +52,15 @@ export class StudioProfilePage {
     }
 
     async assertError(text: string) {
-        await expect(this.page.getByText(text)).toBeVisible();
+        await expect(this.page.getByText(text), `Expected text "${text}" is not visible`).toBeVisible();
     }
 
     async assertSaveBtnDisabled() {
-        await expect(this.saveBtn).toBeDisabled();
+        await expect(this.saveBtn, 'Save button should be disabled').toBeDisabled();
     }
 
     async assertSaveBtnEnabled() {
-        await expect(this.saveBtn).toBeEnabled();
+        await expect(this.saveBtn, 'Save button is not enabled').toBeEnabled();
     }
 
 

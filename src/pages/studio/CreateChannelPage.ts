@@ -23,41 +23,41 @@ export class CreateChannelPage {
     }
 
     async clickStartSetup(){
-        await expect(this.startSetupBtn).toBeEnabled();
+        await expect(this.startSetupBtn, 'Start setup button is not enabled').toBeEnabled();
         await this.startSetupBtn.click();
     }
 
     async fillHandleName(name:any){
         const finalUsername = name ?? `autotest_${Date.now()}`;
 
-        await expect(this.handleInput).toBeEditable();
+        await expect(this.handleInput, 'Handle input is not editable').toBeEditable();
         await this.handleInput.fill(finalUsername);
-        await expect(this.handleInput).toHaveValue(finalUsername)
+        await expect(this.handleInput, 'Handle input has wrong value').toHaveValue(finalUsername)
     }
 
     async fillHandleWithoutAssertToHaveValue(name: string){
         const finalUsername = name ?? `autotest_${Date.now()}`;
 
-        await expect(this.handleInput).toBeEditable();
+        await expect(this.handleInput, 'Handle input is not editable').toBeEditable();
         await this.handleInput.fill(finalUsername);
-        await expect(this.handleInput).not.toHaveValue(finalUsername)
+        await expect(this.handleInput, 'Handle input should not have this value').not.toHaveValue(finalUsername)
     }
 
     async fillName(name:any){
         const finalUsername = name ?? `autotest_${Date.now()}`;
 
-        await expect(this.nameInput).toBeEditable();
+        await expect(this.nameInput, 'Name input is not editable').toBeEditable();
         await this.nameInput.fill(finalUsername);
-        await expect(this.nameInput).toHaveValue(finalUsername)
+        await expect(this.nameInput, 'Name input has wrong value').toHaveValue(finalUsername)
     }
 
     async clearHandleInput(){
-        await expect(this.handleInput).toBeEditable();
+        await expect(this.handleInput, 'Handle input is not editable').toBeEditable();
         await this.handleInput.clear();
     }
 
     async asertLowerCase(expected: string){
-        await expect(this.handleInput).toHaveValue(expected)
+        await expect(this.handleInput, 'Handle input has wrong value').toHaveValue(expected)
     }
 
     async blur() {
@@ -65,15 +65,15 @@ export class CreateChannelPage {
     }
 
     async assertError(text: string) {
-        await expect(this.page.getByText(text)).toBeVisible();
+        await expect(this.page.getByText(text), `Expected text "${text}" is not visible`).toBeVisible();
     }
 
     async assertSaveBtnDisabled() {
-        await expect(this.submitBtn).toBeDisabled();
+        await expect(this.submitBtn, 'Submit button should be disabled').toBeDisabled();
     }
 
     async assertSaveBtnEnabled() {
-        await expect(this.submitBtn).toBeEnabled();
+        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
     }
 
    

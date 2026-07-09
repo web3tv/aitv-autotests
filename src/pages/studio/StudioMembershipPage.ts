@@ -47,7 +47,7 @@ export class StudioMembershipPage {
   }
 
   async addMembershipPlan(membershipName: string, membershipDescription: string) {
-    await expect(this.noMembershipPlansMessage).toContainText('No Membership Plans Yet 😓');
+    await expect(this.noMembershipPlansMessage, 'No membership plans message does not contain expected text').toContainText('No Membership Plans Yet 😓');
 
     await expect(this.createPlanButton, 'Create plan button is not visible').toBeVisible();
     await expect(this.createPlanButton, 'Create plan button is not enabled').toBeEnabled();
@@ -80,7 +80,7 @@ export class StudioMembershipPage {
     await expect(this.durationOption, 'Duration option is not visible').toBeVisible();
     await this.durationOption.click();
 
-    await expect(this.form).toContainText(`${membershipName}0.991 weekSubscribe Now!${membershipDescription}`);
+    await expect(this.form, 'Form does not contain expected text').toContainText(`${membershipName}0.991 weekSubscribe Now!${membershipDescription}`);
 
     await expect(this.nextButton, 'Next button is not visible').toBeVisible();
     await expect(this.nextButton, 'Next button is not enabled').toBeEnabled();
@@ -90,7 +90,7 @@ export class StudioMembershipPage {
     await expect(this.createConfirmButton, 'Create confirm button is not enabled').toBeEnabled();
     await this.createConfirmButton.click();
 
-    await expect(this.successMessage).toBeVisible({ timeout: 30_000 });
+    await expect(this.successMessage, 'Success message is not visible').toBeVisible({ timeout: 30_000 });
 
     await expect(this.closeButton, 'Close button is not visible').toBeVisible();
     await expect(this.closeButton, 'Close button is not enabled').toBeEnabled();
@@ -98,8 +98,8 @@ export class StudioMembershipPage {
   }
 
   async checkAddedPlan(membershipName: string, membershipDescription: string) {
-    await expect(this.addedPlanRow).toContainText(membershipName);
-    await expect(this.addedPlanRow).toContainText(membershipDescription);
+    await expect(this.addedPlanRow, 'Added plan row does not contain expected text').toContainText(membershipName);
+    await expect(this.addedPlanRow, 'Added plan row does not contain expected text').toContainText(membershipDescription);
   }
 
   // Add more methods as needed for your tests

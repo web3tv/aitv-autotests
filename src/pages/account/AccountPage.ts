@@ -94,30 +94,30 @@ export class AccountPage {
 
     // CHANGE PASSWORD METHODS
     async clickEditPasswordBtn(): Promise<void> {
-        await expect(this.editPasswordBtn).toBeEnabled();
+        await expect(this.editPasswordBtn, 'Edit password button is not enabled').toBeEnabled();
         await this.editPasswordBtn.click();
     }
 
     async fillOldPassword(password: string): Promise<void> {
-        await expect(this.oldPasswordInput).toBeEditable();
+        await expect(this.oldPasswordInput, 'Old password input is not editable').toBeEditable();
         await this.oldPasswordInput.click();
         await this.oldPasswordInput.fill(password);
     }
 
     async fillNewPassword(password: string): Promise<void> {
-        await expect(this.newPasswordInput).toBeEditable();
+        await expect(this.newPasswordInput, 'New password input is not editable').toBeEditable();
         await this.newPasswordInput.click();
         await this.newPasswordInput.fill(password);
     }
 
     async fillConfirmPassword(password: string): Promise<void> {
-        await expect(this.confirmPasswordInput).toBeEditable();
+        await expect(this.confirmPasswordInput, 'Confirm password input is not editable').toBeEditable();
         await this.confirmPasswordInput.click();
         await this.confirmPasswordInput.fill(password);
     }
 
     async clickSubmitBtn(): Promise<void> {
-        await expect(this.submitBtn).toBeEnabled();
+        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
         await this.submitBtn.click();
     }
 
@@ -141,28 +141,28 @@ export class AccountPage {
 
     // CHANGE EMAIL METHODS
     async clickEditEmailBtn(): Promise<void> {
-        await expect(this.editEmailBtn).toBeEnabled();
+        await expect(this.editEmailBtn, 'Edit email button is not enabled').toBeEnabled();
         await this.editEmailBtn.click();
     }
 
     async fillNewEmail(email: string): Promise<void> {
-        await expect(this.newEmailInput).toBeEditable();
+        await expect(this.newEmailInput, 'New email input is not editable').toBeEditable();
         await this.newEmailInput.click();
         await this.newEmailInput.fill(email);
     }
 
     async fillEmailPassword(password: string): Promise<void> {
-        await expect(this.emailPasswordInput).toBeEditable();
+        await expect(this.emailPasswordInput, 'Email password input is not editable').toBeEditable();
         await this.emailPasswordInput.click();
         await this.emailPasswordInput.fill(password);
     }
 
     async verifyEmailConfirmationAlert(): Promise<void> {
-        await expect(this.emailConfirmationAlert).toBeVisible();
+        await expect(this.emailConfirmationAlert, 'Email confirmation alert is not visible').toBeVisible();
     }
 
     async changeEmail(email:string,newEmail: string, password: string): Promise<void> {
-        await expect(this.oldEmail).toContainText(email);
+        await expect(this.oldEmail, 'Old email does not contain expected text').toContainText(email);
         await this.clickEditEmailBtn();
         await this.fillNewEmail(newEmail);
         await this.fillEmailPassword(password);
