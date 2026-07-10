@@ -157,6 +157,26 @@ UPLOAD TAXONOMY — categories & genres in the modal (W3-2729)
 └── Genres dropdown == expected genres (59)                    [AUTO] tests/content/upload/uploadTaxonomy.spec.ts   GENRES-UI-001
 
 ────────────────────────────────────────────────────────────────
+VIDEO GENERATION (AI) — POST /video-generations (W3-2747)
+  Флоу (со слов бэка): запись в БД video_generations создаётся 1:1 с задачей
+  в сервисе генерации; каждые 5 мин крон-команда опрашивает статус у сервиса
+  и обновляет его у нас; затем асинхронный импорт готового видео в s3 →
+  создаётся запись video → стандартный флоу транскодинга.
+  Body: channelId, prompt, ratio (напр. 9:16), duration (сек), generateAudio, watermark.
+  Генерация — сервис seedance. Крон: */5 * * * * php bin/console video:generations:poll;
+  ту же команду (bin/console video:generations:poll в поде бэка) можно дёрнуть вручную,
+  чтобы не ждать 5 мин — проверяет статус у seedance и создаёт video у нас.
+├── Create generation task via API → задача создана, запись в video_generations  [TODO] @db  VIDGEN-001
+├── Status sync: сервис завершил задачу → статус обновлён у нас     [TODO] @db              VIDGEN-002
+├── Готовое видео импортировано в s3 → создана запись video          [TODO]                  VIDGEN-003
+├── Сгенерированное видео проходит транскодинг и играет в плеере     [TODO]                  VIDGEN-004
+├── Параметры учтены: ratio/duration/audio/watermark соответствуют   [TODO]                  VIDGEN-005
+├── Validation: невалидные параметры (prompt/ratio/duration) → 4xx   [TODO]                  VIDGEN-006
+├── Unauthorized (без токена) → 401                                  [TODO]                  VIDGEN-007
+├── Чужой channelId → 403                                            [TODO]                  VIDGEN-008
+└── Failed generation → статус failed, видео не создаётся            [TODO] @db              VIDGEN-009
+
+────────────────────────────────────────────────────────────────
 VIDEO MANAGE — description / studio search
 ├── Description preserves empty paragraphs on video page       [AUTO] tests/content/manage/videoDescription.spec.ts  DESC-PARA-001
 ├── Studio search filters videos by title                      [AUTO] tests/content/manage/studioSearch.spec.ts STUDIO-017
