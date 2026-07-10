@@ -59,7 +59,7 @@ export class RegistrationFlow {
     const token = await this.mailHelper.getToken(email);
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickSignup();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
@@ -86,7 +86,7 @@ export class RegistrationFlow {
     const username = DataGenerator.generateUsername();
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickSignup();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.clickSwitchToPhone();
@@ -113,7 +113,7 @@ export class RegistrationFlow {
     const email = await this.mailHelper.generateEmail();
 
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickGetStarted();
+    await this.headerPage.clickSignup();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
