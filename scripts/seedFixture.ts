@@ -5,8 +5,10 @@
  * reserves a handle+email once registered — a deleted account can never be recreated
  * (409) — so the FIXED fixture accounts (owner / viewer) are created once and reused,
  * and only their CONTENT is wiped and re-seeded each run: a deterministic owner channel
- * with N videos, a series with episodes, and a fixed follower count. The resolved
- * identifiers are written to test-data/visual-fixture.json for the specs to read.
+ * with N videos, a series with episodes, and a fixed follower count. Channel attributes
+ * (description + social links, via API) and the owner avatar (user profile) survive the
+ * wipe and are re-applied idempotently — the avatar part drives a headless browser,
+ * since profile data is only writable via the FE /profile form.
  *
  * Prereqs (same as any @db work): a DB port-forward — content-wipe and follower seeding
  * go straight to the database.
@@ -18,15 +20,22 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), process.env.ENV_FILE || '.env.web3tv2') });
 
-import { request } from '@playwright/test';
+import { request, chromium } from '@playwright/test';
 import { AuthApi, STATIC_OTP_CODE } from '../src/api/AuthApi';
 import { DatabaseHelper } from '../src/api/DatabaseHelper';
+import { VideoApi } from '../src/api/VideoApi';
 import { setupVideoViaApi, setupSeriesWithEpisodes } from '../src/utils/studioTestHelpers';
+import { AuthFlow } from '../src/flows/AuthFlow';
+import { ProfilePage } from '../src/pages/account/ProfilePage';
 import { deleteUser } from './deleteUser';
 import {
     FIXTURE_OWNER,
     FIXTURE_VIEWER,
     FIXTURE_FOLLOWER_COUNT,
+    FIXTURE_CHANNEL_DESCRIPTION,
+    FIXTURE_CHANNEL_DESCRIPTION_SHORT,
+    FIXTURE_SOCIAL_LINKS,
+    FIXTURE_AVATAR_PATH,
 } from '../tests/fixtures/sharedFixture';
 import {
     FIXTURE_VIDEO_TITLE,
@@ -81,6 +90,18 @@ async function main() {
     // ── 2. Wipe the owner's existing content (keeps the account + channel) ───────
     console.log('▸ Wiping owner content…');
     await deleteUser(owner.email, false, { contentOnly: true });
+
+    // ── 2b. Channel description + social links (channel entity; survives the wipe,
+    //        re-applied idempotently — a fresh account starts empty) ──────────────
+    console.log('▸ Setting channel description + socials…');
+    const videoApi = new VideoApi(ctx);
+    const ownerToken = await authApi.getUserToken(owner.email, password);
+    const ownerChannelId = await videoApi.getChannelId(ownerToken);
+    await videoApi.updateChannel(ownerToken, ownerChannelId, {
+        description: FIXTURE_CHANNEL_DESCRIPTION,
+        descriptionShort: FIXTURE_CHANNEL_DESCRIPTION_SHORT,
+        ...FIXTURE_SOCIAL_LINKS,
+    });
 
     // ── 3. Upload the seeded videos on the owner's channel ───────────────────────
     console.log('▸ Uploading videos…');
@@ -164,6 +185,25 @@ async function main() {
         await db.disconnect();
     }
 
+    // ── 6. Owner avatar (= the channel photo; lives on the USER PROFILE) ─────────
+    // The avatar is only writable via the FE (/profile form → /api/profile/update),
+    // so this step drives a headless browser. Last on purpose: it is the most
+    // DOM-fragile part — if it breaks, all API/DB seeding has already landed.
+    console.log('▸ Uploading owner avatar via browser…');
+    const browser = await chromium.launch();
+    try {
+        const context = await browser.newContext({
+            baseURL: baseUrl,
+            viewport: { width: 1920, height: 1080 },
+        });
+        const page = await context.newPage();
+        await new AuthFlow(page).loginSuccess(owner.email, password, owner.username);
+        await page.goto('/profile', { waitUntil: 'domcontentloaded' });
+        await new ProfilePage(page).uploadAvatarAndSubmit(FIXTURE_AVATAR_PATH);
+    } finally {
+        await browser.close();
+    }
+
     // The seed only ensures the data EXISTS on the stand — tests resolve the actual
     // URLs at runtime (resolveSharedFixture), so nothing is written/committed here.
     console.log('\n✓ Visual fixture ready on this stand:');
@@ -173,6 +213,8 @@ async function main() {
     console.log(`  content : video + short + private + unlisted + description`);
     console.log(`  series  : "${series.seriesTitle}" (${FIXTURE_SERIES_EPISODE_COUNT} episodes)`);
     console.log(`  followers: ${FIXTURE_FOLLOWER_COUNT}`);
+    console.log(`  channel : description + socials (x/youtube/insta/tiktok/telegram)`);
+    console.log(`  profile : avatar (${FIXTURE_AVATAR_PATH})`);
     console.log(`  → tests resolve URLs at runtime; nothing to commit.\n`);
 }
 

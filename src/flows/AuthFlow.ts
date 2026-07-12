@@ -249,11 +249,11 @@ export class AuthFlow {
     await expect(this.headerPage.userIcon, 'Profile button is not visible').toBeVisible();
     await this.headerPage.clickUserIcon();
     await expect(
-      this.headerPage.mobileProfileMenuChannelLink,
-      'Profile menu channel link is not visible'
+      this.headerPage.mobileProfileMenu,
+      'Mobile profile menu is not visible'
     ).toBeVisible();
     await expect(
-      this.headerPage.mobileProfileMenuChannelLink,
+      this.headerPage.mobileProfileMenu,
       `Expected @${username} in profile menu`
     ).toContainText(`@${username}`);
     await this.page.keyboard.press('Escape');

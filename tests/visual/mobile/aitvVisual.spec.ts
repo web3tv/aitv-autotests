@@ -5,13 +5,10 @@ import { MainPage } from '../../../src/pages/components/MainPage';
 import { LoginPopupPage } from '../../../src/pages/testPopups/LoginPopupPage';
 import { resolveSharedFixture } from '../../fixtures/sharedFixture';
 
+// The header avatar/name is NOT masked: logged-in views run as the fixed fixture
+// owner whose avatar + handle are seeded deterministically (npm run seed:fixture).
 const mainPageMasks = (page: Page) => [
     new MainPage(page).hero,
-];
-
-const mainPageLoggedInMasks = (page: Page) => [
-    ...mainPageMasks(page),
-    new HeaderPage(page).userIcon,
 ];
 
 /**
@@ -107,7 +104,6 @@ test.describe('AITV mobile visual tests', () => {
         await test.step('Take header screenshot', async () => {
             await settleMobileHeader(page, headerPage);
             await expect(headerPage.mobileHeader).toHaveScreenshot('header-logged-in.png', {
-                mask: [headerPage.userIcon],
                 maxDiffPixelRatio: 0.02,
             });
         });

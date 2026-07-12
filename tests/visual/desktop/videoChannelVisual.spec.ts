@@ -24,17 +24,13 @@ const videoDetailsMasks = (page: Page) => {
     ];
 };
 
-// The channel comes from a FIXED seeded fixture (deterministic handle, name and follower
-// count — see tests/fixtures/sharedFixture.ts), so the identity header is
-// screenshot UNMASKED alongside the cover grid. Only the authed header controls stay
-// masked (profile trigger / studio channel trigger — no-op matches when anonymous), and
-// the seeded short auto-plays so it is masked too.
+// The channel comes from a FIXED seeded fixture (deterministic handle, name, follower
+// count, description, socials and owner avatar — see tests/fixtures/sharedFixture.ts),
+// so the identity hero AND the authed header controls are screenshot UNMASKED. Only the
+// seeded short stays masked — it auto-plays.
 const channelPageMasks = (page: Page) => {
-    const header = new HeaderPage(page);
     const channel = new ChannelMainPage(page);
     return [
-        header.userIcon,
-        header.channelTriggerBtn,
         channel.shortCards,
     ];
 };

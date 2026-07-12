@@ -92,7 +92,7 @@ test('Default description auto-fills description field when opening upload popup
             const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
             const channelId = await videoApi.getChannelId(token);
-            await videoApi.setDefaultVideoDescription(token, channelId, user.username, defaultDescription);
+            await videoApi.setDefaultVideoDescription(token, channelId, defaultDescription);
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
         });
 
@@ -130,7 +130,7 @@ test('Override pre-filled description — video saved with custom description',
             const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
             const channelId = await videoApi.getChannelId(token);
-            await videoApi.setDefaultVideoDescription(token, channelId, user.username, defaultDescription);
+            await videoApi.setDefaultVideoDescription(token, channelId, defaultDescription);
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
         });
 
@@ -173,7 +173,7 @@ test('Clear default description — upload popup opens with empty description',
             const user = await authApi.createUserFast();
             const token = await authApi.getUserToken(user.email, process.env.USER_PASSWORD!);
             const channelId = await videoApi.getChannelId(token);
-            await videoApi.setDefaultVideoDescription(token, channelId, user.username, defaultDescription);
+            await videoApi.setDefaultVideoDescription(token, channelId, defaultDescription);
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
             await sideBar.clickStudioEditChannel();
         });

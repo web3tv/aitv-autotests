@@ -10,13 +10,10 @@ import { resolveSharedFixture } from '../../fixtures/sharedFixture';
 // "Hide dynamic images" steps). Because `visibility:hidden` preserves layout, this
 // screenshot still verifies the full-page structure, typography and spacing — it does
 // NOT verify imagery, and that is by design.
+// The header avatar/name is NOT masked: logged-in views run as the fixed fixture
+// owner whose avatar + handle are seeded deterministically (npm run seed:fixture).
 const mainPageMasks = (page: Page) => [
     new MainPage(page).hero,
-];
-
-const mainPageLoggedInMasks = (page: Page) => [
-    ...mainPageMasks(page),
-    new HeaderPage(page).userIcon,
 ];
 
 const videoCardHoverMasks = (page: Page) => {
@@ -104,7 +101,7 @@ test.describe('AITV visual tests', () => {
         await test.step('Take screenshot', async () => {
             await expect(page).toHaveScreenshot('main-page-logged-in.png', {
                 fullPage: true,
-                mask: mainPageLoggedInMasks(page),
+                mask: mainPageMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });
@@ -162,7 +159,6 @@ test.describe('AITV visual tests', () => {
         await test.step('Take header screenshot', async () => {
             await expect(headerPage.header).toBeVisible();
             await expect(headerPage.header).toHaveScreenshot('header-logged-in.png', {
-                mask: [headerPage.userIcon],
                 maxDiffPixelRatio: 0.02,
             });
         });

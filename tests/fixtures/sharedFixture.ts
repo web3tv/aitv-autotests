@@ -15,7 +15,8 @@ import {
  *
  * A one-off seed script (`npm run seed:fixture`, run locally) creates a FIXED channel
  * `@qavischan` with deterministic content (public/short/private/unlisted videos, a
- * series, followers). Instead of committing per-env video URLs (slugs differ per env
+ * series, followers) and channel attributes (description, social links, owner avatar).
+ * Instead of committing per-env video URLs (slugs differ per env
  * and per re-seed), tests RESOLVE the current stand's URLs at runtime by title via
  * `resolveSharedFixture()`. The account (email/handle/password) is deterministic and
  * identical on every stand, so the SAME code works on dev1 and dev2 — nothing to
@@ -38,6 +39,25 @@ export const FIXTURE_OWNER = { email: `qa_vis_chan@${domain}`, username: 'qavisc
 export const FIXTURE_VIEWER = { email: `qa_vis_watch@${domain}`, username: 'qaviswatch' };
 /** Deterministic follower count seeded on the channel (renders in the identity header). */
 export const FIXTURE_FOLLOWER_COUNT = 5;
+/** Fixed channel description (channel entity, PUT /channels) — renders in the identity hero. */
+export const FIXTURE_CHANNEL_DESCRIPTION =
+    'QA Visual channel description — fixed text for the shared read-only fixture.';
+export const FIXTURE_CHANNEL_DESCRIPTION_SHORT = 'QA Visual channel short description';
+/**
+ * Fixed CHANNEL social links (channel entity; PUT /channels takes them as FLAT fields,
+ * GET returns them nested under `socials`) — render as icons on the channel hero.
+ * Not to be confused with the USER-PROFILE socials (facebook/twitter/... on the
+ * /profile form), which do NOT appear on the channel page.
+ */
+export const FIXTURE_SOCIAL_LINKS = {
+    xUsername: 'qavischan',
+    youtubeUrl: 'https://youtube.com/@qavischan',
+    instagramUsername: 'qavischan',
+    tiktokUsername: 'qavischan',
+    telegramUsername: 'qavischan',
+} as const;
+/** Owner avatar = the channel photo; reuses the deterministic video-cover asset. */
+export const FIXTURE_AVATAR_PATH = 'test-data/fixtures/photo/cat.jpg';
 
 export interface SharedFixture {
     /** `${BASE_URL}/@${owner.username}`. */
@@ -58,6 +78,10 @@ export interface SharedFixture {
     viewerUsername: string;
     password: string;
     followerCount: number;
+    /** Seeded channel description (channel entity). */
+    channelDescription: string;
+    /** Seeded channel social links (render as icons on the channel hero). */
+    socialLinks: typeof FIXTURE_SOCIAL_LINKS;
     /** Series on the channel (populates the "Series" tab). */
     seriesTitle: string;
     seriesSlug: string;
@@ -87,6 +111,13 @@ export async function resolveSharedFixture(): Promise<SharedFixture> {
             throw new Error(`${SEED_HINT}\n(cause: owner @${FIXTURE_OWNER.username} cannot log in)`);
         });
         const videoApi = new VideoApi(ctx);
+
+        // Cheap liveness check for the seeded channel attributes (socials/avatar live on
+        // the user profile — only reachable via the FE, guarded by the visual baselines).
+        const channelInfo = await videoApi.getChannelInfo(token);
+        if (channelInfo.description !== FIXTURE_CHANNEL_DESCRIPTION) {
+            throw new Error(`${SEED_HINT}\n(cause: channel description missing/stale — channel attributes not seeded)`);
+        }
 
         const videos = await videoApi.listStudioContent(token, 'video');
         const shorts = await videoApi.listStudioContent(token, 'short');
@@ -120,6 +151,8 @@ export async function resolveSharedFixture(): Promise<SharedFixture> {
             viewerUsername: FIXTURE_VIEWER.username,
             password,
             followerCount: FIXTURE_FOLLOWER_COUNT,
+            channelDescription: FIXTURE_CHANNEL_DESCRIPTION,
+            socialLinks: FIXTURE_SOCIAL_LINKS,
             seriesTitle: FIXTURE_SERIES_TITLE,
             seriesSlug: series.slug,
             seriesId: series.id,

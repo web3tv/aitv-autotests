@@ -123,7 +123,14 @@ export async function deleteUser(
              WHERE picture_id IN (SELECT id FROM pictures WHERE uploaded_by = ?)`,
             [userId]
         );
-        await del('pictures', 'uploaded_by = ?', [userId]);
+        // contentOnly keeps user_profiles (see section 1), so its avatar picture must
+        // survive too — user_profiles.picture_id is a FK into pictures.
+        await del('pictures', contentOnly
+            ? `uploaded_by = ? AND id NOT IN (
+                   SELECT picture_id FROM user_profiles
+                   WHERE user_id = ? AND picture_id IS NOT NULL)`
+            : 'uploaded_by = ?',
+            contentOnly ? [userId, userId] : [userId]);
 
         // ── 3. Плейлисты (сначала видео внутри) ──────────────────
         await del('playlist_videos',

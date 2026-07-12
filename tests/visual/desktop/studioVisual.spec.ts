@@ -8,14 +8,9 @@ import { resolveSharedFixture } from '../../fixtures/sharedFixture';
 
 const studioBaseUrl = process.env.STUDIO_URL!;
 
-const studioHeaderMasks = (page: Page) => {
-    const header = new HeaderPage(page);
-    return [
-        header.userIcon,
-        header.channelTriggerBtn,
-    ];
-};
-
+// The studio header (avatar + channel trigger with name) is NOT masked: the spec runs
+// as the fixed fixture owner whose avatar + handle are seeded deterministically.
+//
 // Intentional LAYOUT check: the dashboard/content screenshots mask the dynamic
 // analytics values, latest-video title/cover and per-row image/title/date/description.
 // Page structure, labels, tabs, search and controls are still verified — the changing
@@ -23,7 +18,6 @@ const studioHeaderMasks = (page: Page) => {
 const studioDashboardMasks = (page: Page) => {
     const analytics = new StudioAnalyticsPage(page);
     return [
-        ...studioHeaderMasks(page),
         analytics.dashboardAnalyticsData,
         analytics.dashboardVideoTitle,
         analytics.dashboardVideoCover,
@@ -33,7 +27,6 @@ const studioDashboardMasks = (page: Page) => {
 const studioContentMasks = (page: Page) => {
     const content = new StudioContentPage(page);
     return [
-        ...studioHeaderMasks(page),
         content.videoRowImages,
         content.videoRowDates,
         content.videoRowTitles,
@@ -93,7 +86,6 @@ test.describe('Studio visual tests', () => {
             const headerPage = new HeaderPage(page);
             await expect(headerPage.header, 'Header is not visible').toBeVisible();
             await expect(headerPage.header).toHaveScreenshot('studio-header.png', {
-                mask: studioHeaderMasks(page),
                 maxDiffPixelRatio: 0.02,
             });
         });

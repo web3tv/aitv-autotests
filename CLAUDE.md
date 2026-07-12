@@ -24,7 +24,7 @@ npx playwright test --grep "Success login as user" --project=functional
 kubectl port-forward -n web3tv svc/mariadb 3307:3306   # DB for content-wipe + subscribers
 npm run seed:fixture                                    # ENV_FILE=.env.web3tv npm run seed:fixture for dev1
 ```
-This get-or-creates a FIXED channel (`@qavischan`) and refreshes its content — public/short/private/unlisted videos (+ a multi-paragraph-description one), a series with episodes, and a follower count. It writes
+This get-or-creates a FIXED channel (`@qavischan`) and refreshes its content — public/short/private/unlisted videos (+ a multi-paragraph-description one), a series with episodes, and a follower count — plus the channel attributes: description + social links (via `PUT /channels`) and the owner's avatar (via a headless browser — profile data is only writable through the FE `/profile` form). It writes
 **nothing** to commit: all read-only specs (visual + functional) call
 `resolveSharedFixture()` (`tests/fixtures/sharedFixture.ts`), which logs in as the
 fixed owner and looks the content up **by title from the current stand at runtime**. So
@@ -140,7 +140,7 @@ docs/           — TESTING_STRATEGY.md (strategy), FIXTURES_AUDIT.md (fixtures 
 
 ### Fixtures (don't conflate the two "fixture" meanings)
 
-- **`tests/fixtures/sharedFixture.ts`** — the single **read-only** channel `@qavischan` for visual + view-only functional tests. `resolveSharedFixture()` logs in as the fixed owner and resolves content URLs **by title from the current stand** (env-agnostic, nothing committed): `channelUrl`, `videoUrl`, `shortUrl`, `privateVideoUrl`, `unlistedVideoUrl`, `descriptionVideoUrl`, `seriesId`/`seriesSlug`/`episodeUrls`, owner + non-owner creds. Read-only — never mutate it (see the "Independent user per test" exception).
+- **`tests/fixtures/sharedFixture.ts`** — the single **read-only** channel `@qavischan` for visual + view-only functional tests. `resolveSharedFixture()` logs in as the fixed owner and resolves content URLs **by title from the current stand** (env-agnostic, nothing committed): `channelUrl`, `videoUrl`, `shortUrl`, `privateVideoUrl`, `unlistedVideoUrl`, `descriptionVideoUrl`, `seriesId`/`seriesSlug`/`episodeUrls`, owner + non-owner creds, plus the seeded channel attributes (`channelDescription`, `socialLinks` — channel-level x/youtube/instagram/tiktok/telegram, rendered on the channel hero; the owner avatar is `test-data/fixtures/photo/cat.jpg`). Read-only — never mutate it (see the "Independent user per test" exception).
 - **`tests/fixtures/videoSeed.ts`** — seeded-content constants (`FIXTURE_VIDEO_TITLE`, `FIXTURE_SERIES_TITLE`, category, genres, rating…). Single source of truth: `scripts/seedFixture.ts` creates the content by them, `resolveSharedFixture()` and assertions find it by them.
 - **`tests/fixtures/fixtureCheck.setup.ts`** — the `fixture-check` setup project (a dependency of `functional`/visual). Calls `resolveSharedFixture()` once; if content is missing it fails the run with a re-seed hint.
 - **`test-data/fixtures/`** — NOT Playwright fixtures: **static assets** (video files, photos) uploaded during tests.

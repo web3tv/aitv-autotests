@@ -93,7 +93,7 @@ export class VideoApi {
         return channelId;
     }
 
-    async getChannelInfo(token: string): Promise<{ id: string; name: string; handle: string }> {
+    async getChannelInfo(token: string): Promise<{ id: string; name: string; handle: string; description: string }> {
         const response = await this.request.get(`${this.baseUrl}/channels`, {
             headers: {
                 Accept: "application/json",
@@ -115,7 +115,7 @@ export class VideoApi {
         }
 
         const handleStr = typeof channel.handle === 'string' ? channel.handle : channel.handle?.name;
-        return { id: channel.id, name: channel.name, handle: handleStr };
+        return { id: channel.id, name: channel.name, handle: handleStr, description: channel.description ?? '' };
     }
 
     /**
@@ -233,39 +233,89 @@ export class VideoApi {
         return items.map((p) => ({ id: p?.id, title: p?.title, slug: p?.slug, type: p?.type }));
     }
 
+    /**
+     * Partially updates the owner's channel: GETs the current channel state and merges
+     * `fields` over it, so an update never silently wipes unrelated fields (the PUT
+     * endpoint requires the full payload). Channel socials are FLAT fields in the PUT
+     * payload (xUsername, youtubeUrl, …) but come back NESTED under `socials` in GET.
+     */
+    async updateChannel(
+        token: string,
+        channelId: string,
+        fields: Partial<{
+            name: string;
+            handle: string;
+            description: string;
+            descriptionShort: string;
+            privacySettings: string;
+            isDefault: boolean;
+            backgroundPictureId: string | null;
+            defaultVideoDescription: string;
+            xUsername: string | null;
+            youtubeUrl: string | null;
+            instagramUsername: string | null;
+            tiktokUsername: string | null;
+            telegramUsername: string | null;
+            email: string | null;
+        }>
+    ): Promise<void> {
+        const response = await this.request.get(`${this.baseUrl}/channels`, {
+            headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            params: { mine: "true", maxResults: "50" },
+        });
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to get channel for update: ${response.status()} ${body}`);
+        }
+        const json = await response.json();
+        const items: any[] = json?.data?.items ?? json?.items ?? [];
+        const channel = items.find((c) => c?.id === channelId);
+        if (!channel) {
+            throw new Error(`Channel ${channelId} not found for update`);
+        }
+        const handleStr = typeof channel.handle === 'string' ? channel.handle : channel.handle?.name;
+        // backgroundPictureId is not returned by GET (only backgroundThumbnails URLs), so
+        // an update that doesn't pass it explicitly keeps today's behavior (null).
+        const payload = {
+            name: channel.name,
+            handle: handleStr,
+            description: channel.description ?? "",
+            descriptionShort: channel.descriptionShort ?? "",
+            privacySettings: channel.privacySettings ?? "public",
+            isDefault: channel.isDefault ?? true,
+            backgroundPictureId: channel.backgroundPictureId ?? null,
+            defaultVideoDescription: channel.defaultVideoDescription ?? "",
+            xUsername: channel.socials?.xUsername ?? null,
+            youtubeUrl: channel.socials?.youtubeUrl ?? null,
+            instagramUsername: channel.socials?.instagramUsername ?? null,
+            tiktokUsername: channel.socials?.tiktokUsername ?? null,
+            telegramUsername: channel.socials?.telegramUsername ?? null,
+            email: channel.socials?.email ?? null,
+            ...fields,
+        };
+        const putResponse = await this.request.put(`${this.baseUrl}/channels/${channelId}`, {
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            data: payload,
+        });
+        if (!putResponse.ok()) {
+            const body = await putResponse.text();
+            throw new Error(`Failed to update channel: ${putResponse.status()} ${body}`);
+        }
+    }
+
     async setDefaultVideoDescription(
         token: string,
         channelId: string,
-        handle: string,
         defaultVideoDescription: string
     ): Promise<void> {
-        const response = await this.request.put(
-            `${this.baseUrl}/channels/${channelId}`,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                data: {
-                    name: handle,
-                    handle,
-                    description: "",
-                    descriptionShort: "",
-                    privacySettings: "public",
-                    isDefault: true,
-                    backgroundPictureId: null,
-                    defaultVideoDescription: `${defaultVideoDescription}`,
-                },
-            }
-        );
-
-        if (!response.ok()) {
-            const body = await response.text();
-            throw new Error(
-                `Failed to set default video description: ${response.status()} ${body}`
-            );
-        }
+        return this.updateChannel(token, channelId, { defaultVideoDescription });
     }
 
     private async initUpload(
@@ -330,25 +380,46 @@ export class VideoApi {
         const MAX_CHUNK_SIZE = 52428800; // 50MB
         const contentRange = `bytes 0-${size}/${size}/${MAX_CHUNK_SIZE}`;
 
-        const response = await this.request.post(
-            `${this.baseUrl}/videos/${videoId}/chunk`,
-            {
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/octet-stream",
-                    "Content-Range": contentRange,
-                    "Content-MD5": md5Hash,
-                    "Content-Checksum": sha256Hash,
-                    Authorization: `Bearer ${token}`,
-                },
-                data: fileBuffer,
+        // The stand's upload path intermittently hangs or drops connections under load;
+        // re-sending the same chunk is idempotent (same Content-Range + checksums), so
+        // retry transport-level failures a few times before giving up.
+        const MAX_ATTEMPTS = 3;
+        let lastError: Error | undefined;
+        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            let response;
+            try {
+                response = await this.request.post(
+                    `${this.baseUrl}/videos/${videoId}/chunk`,
+                    {
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/octet-stream",
+                            "Content-Range": contentRange,
+                            "Content-MD5": md5Hash,
+                            "Content-Checksum": sha256Hash,
+                            Authorization: `Bearer ${token}`,
+                        },
+                        data: fileBuffer,
+                        timeout: 120_000,
+                    }
+                );
+            } catch (err: any) {
+                lastError = err;
+                console.warn(`[VideoApi] Chunk upload attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err?.message}`);
+                if (attempt < MAX_ATTEMPTS) {
+                    await new Promise((r) => setTimeout(r, 5_000));
+                    continue;
+                }
+                throw err;
             }
-        );
 
-        if (response.status() !== 202 && !response.ok()) {
-            const body = await response.text();
-            throw new Error(`Failed to upload chunk: ${response.status()} ${body}`);
+            if (response.status() !== 202 && !response.ok()) {
+                const body = await response.text();
+                throw new Error(`Failed to upload chunk: ${response.status()} ${body}`);
+            }
+            return;
         }
+        throw lastError;
     }
 
     private async fetchVideoUrl(

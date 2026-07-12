@@ -8,7 +8,7 @@ export class HeaderPage {
   readonly mobileHeader: Locator;
   readonly mobileDropdownTrigger: Locator;
   readonly mobileDropdownMenu: Locator;
-  readonly mobileProfileMenuChannelLink: Locator;
+  readonly mobileProfileMenu: Locator;
 
   // Unauthenticated header
   readonly loginBtn: Locator;
@@ -37,7 +37,13 @@ export class HeaderPage {
     this.mobileHeader = page.locator('[data-id="aitv-header-mobile"]');
     this.mobileDropdownTrigger = page.locator('[data-id="aitv-header-dropdown-trigger"]');
     this.mobileDropdownMenu = page.locator('ul[role="menu"]');
-    this.mobileProfileMenuChannelLink = page.locator('[data-id="aitv-profile-menu-channel-link"]');
+    // The mobile profile menu is a MUI bottom-sheet rendered in a portal; the
+    // [data-id="aitv-profile-menu"] node is an empty anchor and the identity block
+    // (name + @handle) carries no data-id, so anchor on the drawer paper that holds
+    // the menu items.
+    this.mobileProfileMenu = page.locator('.MuiPaper-root', {
+      has: page.locator('[data-id="aitv-profile-menu-logout"]'),
+    });
 
     this.loginBtn = page.getByTestId('aitv-auth-header-login');
     this.signupBtn = page.getByTestId('aitv-auth-header-signup');
