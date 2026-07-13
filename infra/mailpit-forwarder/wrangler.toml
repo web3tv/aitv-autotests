@@ -1,0 +1,13 @@
+name = "mailpit-forwarder"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+# Email Worker вызывается Email Routing-ом, HTTP-вход не нужен:
+# не публикуем на workers.dev и не задаём routes.
+workers_dev = false
+
+# Адрес API Mailpit (через Caddy/HTTPS — fetch из Workers надёжен только на
+# стандартных портах). Пароль basic-auth НЕ здесь: он задаётся секретом
+#   npx wrangler secret put MAILPIT_AUTH     (значение вида qa:<пароль>)
+[vars]
+MAILPIT_URL = "https://qa-aitv.lapito.app"

@@ -1,5 +1,5 @@
 import { Page, APIRequestContext, test } from '@playwright/test';
-import { GmailHelper } from '../utils/gmailHelper.ts';
+import { createMailHelper, MailHelper } from '../utils/mailHelper.ts';
 import { AuthFlow } from './AuthFlow';
 import { LoginPage } from '../pages/auth/LoginPage.ts';
 import { expect } from '@playwright/test';
@@ -10,7 +10,7 @@ import { STATIC_OTP_CODE } from '../api/AuthApi';
 
 export class RegistrationFlow {
   readonly loginPage: LoginPage;
-  readonly mailHelper: GmailHelper;
+  readonly mailHelper: MailHelper;
   readonly headerPage: HeaderPage;
   readonly loginPopupPage: LoginPopupPage;
 
@@ -19,7 +19,7 @@ export class RegistrationFlow {
     private request: APIRequestContext
   ) {
     this.loginPage = new LoginPage(page);
-    this.mailHelper = new GmailHelper(request);
+    this.mailHelper = createMailHelper(request);
     this.headerPage = new HeaderPage(page);
     this.loginPopupPage = new LoginPopupPage(page);
   }

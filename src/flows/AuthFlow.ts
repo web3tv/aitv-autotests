@@ -3,7 +3,7 @@ import { LoginPage } from "../pages/auth/LoginPage";
 import { UserDropdownPage } from "../pages/components/UserDropdownPage";
 import { expect } from '@playwright/test';
 import { Page } from '@playwright/test';
-import { GmailHelper } from "../utils/gmailHelper";
+import { createMailHelper } from "../utils/mailHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
 import { AccountPage } from "../pages/account/AccountPage";
@@ -99,7 +99,7 @@ export class AuthFlow {
   }
 
   async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
-    const mailHelper = new GmailHelper(this.page.request);
+    const mailHelper = createMailHelper(this.page.request);
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthApi } from '../../src/api/AuthApi';
 import { VideoApi } from '../../src/api/VideoApi';
-import { GmailHelper } from '../../src/utils/gmailHelper';
+import { createMailHelper, assertEmailBasics } from '../../src/utils/mailHelper';
 
 /**
  * Pre-subscribed ("Coming Soon") видео → email-уведомление о публикации (W3-2662).
@@ -23,7 +23,7 @@ test.describe.serial('Coming Soon video — release email notification', { tag: 
     }, async ({ request }) => {
         const authApi = new AuthApi(request);
         const videoApi = new VideoApi(request);
-        const mailHelper = new GmailHelper(request);
+        const mailHelper = createMailHelper(request);
         const password = process.env.USER_PASSWORD!;
 
         let authorToken: string;
@@ -88,7 +88,7 @@ test.describe.serial('Coming Soon video — release email notification', { tag: 
             const messageId = await mailHelper.waitForMessage(subMailToken, 'Video released', 20, 3000);
             const email = await mailHelper.getMessage(messageId, subMailToken);
 
-            GmailHelper.assertEmailBasics(email, { subject: 'Video released' });
+            assertEmailBasics(email, { subject: 'Video released' });
             expect(email.text, 'email mentions the video title').toContain(videoTitle);
             expect(email.text, 'email mentions the channel handle').toContain(channelHandle);
             expect(email.text, 'release wording ("just dropped")').toMatch(/just dropped/i);

@@ -1,6 +1,6 @@
 import { APIRequestContext } from "@playwright/test";
 import { DataGenerator } from "../utils/dataGenerator";
-import { GmailHelper } from "../utils/gmailHelper";
+import { createMailHelper } from "../utils/mailHelper";
 import * as crypto from "node:crypto";
 
 const OAUTH_CLIENT_ID = "fa281fa9-ea9c-467e-a0f1-776876c3ad76";
@@ -104,7 +104,7 @@ export class AuthApi {
     }
 
     async createAndVerifyUser() {
-        const mailHelper = new GmailHelper(this.request);
+        const mailHelper = createMailHelper(this.request);
         const email = await mailHelper.generateEmail();
         const mailToken = await mailHelper.getToken(email);
 

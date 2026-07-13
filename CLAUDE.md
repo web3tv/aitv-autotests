@@ -90,6 +90,8 @@ Required variables:
 - `EMAIL_DOMAIN` — domain for locally-built addresses in fast/static-OTP flows that never read a mailbox (`AuthApi.createUserFast`)
 - `EMAIL_ACCOUNT` — the real Gmail inbox used for email reading, e.g. `aitvtests@gmail.com` (all test mail lands here via plus-addressing)
 - `EMAIL_PASSWORD` — Gmail **App Password** (16 chars, requires 2FA on the account) used for IMAP access by `GmailHelper`
+- `MAIL_TRANSPORT` — mail-reading transport: `mailpit` (current: Cloudflare Email Routing catch-all on `lapito.app` → Email Worker `infra/mailpit-forwarder` → self-hosted Mailpit, read via its HTTP API) or `gmail` (legacy IMAP fallback; its App Password was revoked 2026-07-13, regenerate before using). All code gets the helper via `createMailHelper()` (`src/utils/mailHelper.ts`), never by instantiating `GmailHelper`/`MailpitHelper` directly
+- `MAIL_API_URL` / `MAIL_DOMAIN` / `MAIL_API_AUTH` — Mailpit API base URL, catch-all domain for generated addresses, and `user:pass` for its basic auth (used only when `MAIL_TRANSPORT=mailpit`)
 
 ## Architecture
 

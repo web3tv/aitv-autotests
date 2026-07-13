@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
-import { GmailHelper } from '../../src/utils/gmailHelper';
+import { createMailHelper } from '../../src/utils/mailHelper';
 import { AccountPage } from '../../src/pages/account/AccountPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletInfo } from '../../src/utils/walletMock';
@@ -91,7 +91,7 @@ test.describe('Wallet and email tests',()=>{
     });
 
     await test.step('Add first email and save verification URL', async () => {
-      const mailHelper1 = new GmailHelper(request);
+      const mailHelper1 = createMailHelper(request);
       const firstEmail = await mailHelper1.generateEmail();
       const firstToken = await mailHelper1.getToken(firstEmail);
 
@@ -107,7 +107,7 @@ test.describe('Wallet and email tests',()=>{
     });
 
     await test.step('Add second email and save verification URL', async () => {
-      const mailHelper2 = new GmailHelper(request);
+      const mailHelper2 = createMailHelper(request);
       const secondEmail = await mailHelper2.generateEmail();
       const secondToken = await mailHelper2.getToken(secondEmail);
 
@@ -135,7 +135,7 @@ test.describe('Wallet and email tests',()=>{
   test('Add email to wallet account', { annotation: { type: 'TC', description: 'AUTH-011' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     let email: string;
     let mailToken: string;
 
