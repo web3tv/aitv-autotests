@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
-import { GmailHelper } from '../../src/utils/gmailHelper';
+import { createMailHelper } from '../../src/utils/mailHelper';
 import { AuthApi, STATIC_OTP_CODE } from '../../src/api/AuthApi';
 import { DataGenerator } from '../../src/utils/dataGenerator';
 
 test.describe('Handle validation on registration page', { tag: '@validation', annotation: [{ type: 'TC', description: 'VAL-001' }, { type: 'TC', description: 'VAL-002' }] }, () => {
 
   test.beforeEach(async ({ page, request }) => {
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     const headerPage = new HeaderPage(page);
     const loginPopupPage = new LoginPopupPage(page);
 

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { AuthApi } from '../../src/api/AuthApi';
 import { RegistrationFlow } from '../../src/flows/RegistrationFlow';
-import { GmailHelper } from '../../src/utils/gmailHelper';
+import { createMailHelper } from '../../src/utils/mailHelper';
 import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
 
@@ -121,7 +121,7 @@ test.describe('Registration tests', () => {
 
     test('Can`t verify email with wrong code 4 times — too many attempts error', { annotation: { type: 'TC', description: 'AUTH-009' } }, async ({ page, request }) => {
         const authFlow = new AuthFlow(page);
-        const mailHelper = new GmailHelper(request);
+        const mailHelper = createMailHelper(request);
         let email: string;
 
         await test.step('Generate email for registration', async () => {
@@ -141,7 +141,7 @@ test.describe('Reset password tests', () => {
     test('Reset password via popup: old password fails, new password succeeds', { annotation: { type: 'TC', description: 'AUTH-007' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const mailHelper = new GmailHelper(request);
+        const mailHelper = createMailHelper(request);
         const oldPassword = process.env.USER_PASSWORD!;
         const newPassword = 'Admin1234@@';
 
@@ -189,7 +189,7 @@ test.describe('Reset password tests', () => {
     test('Can`t reset password with mismatched passwords in popup', { annotation: { type: 'TC', description: 'AUTH-008' } }, async ({ page, request }) => {
         const authFlow = new AuthFlow(page);
         const authApi = new AuthApi(request);
-        const mailHelper = new GmailHelper(request);
+        const mailHelper = createMailHelper(request);
         const newPassword = 'Admin1234@@';
         const wrongPassword = 'Admin1233@@';
 

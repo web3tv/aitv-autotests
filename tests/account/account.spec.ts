@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { AuthApi } from '../../src/api/AuthApi';
 import { AccountPage } from '../../src/pages/account/AccountPage';
-import { GmailHelper } from '../../src/utils/gmailHelper';
+import { createMailHelper } from '../../src/utils/mailHelper';
 
 test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
@@ -36,7 +36,7 @@ test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' }
   });
 
   await test.step('Verify changing password via email', async () => {
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification');
     const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
@@ -86,7 +86,7 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
   });
 
   await test.step('Verify first password change via email', async () => {
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification');
     const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
@@ -94,7 +94,7 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
   });
 
   await test.step('Verify second password change via email', async () => {
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification', 10, 3000, beforeSecondChange);
     const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
@@ -133,7 +133,7 @@ test.fixme('Change email without verification then change password', { annotatio
 
   await test.step('Change email without verification', async () => {
     const accountPage = new AccountPage(page);
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     const newEmail = await mailHelper.generateEmail();
     await mailHelper.createMailbox();
     await accountPage.changeEmail(user.email, newEmail, user.password);
@@ -145,7 +145,7 @@ test.fixme('Change email without verification then change password', { annotatio
   });
 
   await test.step('Verify password change via email and login with new password', async () => {
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     const authFlow = new AuthFlow(page);
     const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification');
     const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
@@ -178,7 +178,7 @@ test.fixme('Change email twice without verification', { annotation: { type: 'TC'
 
   await test.step('Change email first time and get verification link', async () => {
     const accountPage = new AccountPage(page);
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     firstNewEmail = await mailHelper.generateEmail();
     await mailHelper.createMailbox();
     const firstNewToken = await mailHelper.getToken(firstNewEmail);
@@ -190,7 +190,7 @@ test.fixme('Change email twice without verification', { annotation: { type: 'TC'
 
   await test.step('Change email second time immediately', async () => {
     const accountPage = new AccountPage(page);
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     secondNewEmail = await mailHelper.generateEmail();
     await mailHelper.createMailbox();
     secondNewToken = await mailHelper.getToken(secondNewEmail);
@@ -206,7 +206,7 @@ test.fixme('Change email twice without verification', { annotation: { type: 'TC'
   });
 
   await test.step('Verify second email and login with new email', async () => {
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     const authFlow = new AuthFlow(page);
     const messageId = await mailHelper.waitForMessage(secondNewToken, 'Email Verification');
     const verificationUrl = await mailHelper.extractVerificationUrl(messageId, secondNewToken);
@@ -233,7 +233,7 @@ test.fixme('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001
   await test.step('Change email', async () => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
-    const mailHelper = new GmailHelper(request);
+    const mailHelper = createMailHelper(request);
     newEmail = await mailHelper.generateEmail();
 
     await authFlow.loginSuccess(user.email, user.password, user.username);

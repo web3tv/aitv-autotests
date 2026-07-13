@@ -1,0 +1,16 @@
+{
+  "name": "mailpit-forwarder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cloudflare Email Worker: пересылает письма из Email Routing (catch-all на lapito.app) в Mailpit на VPS через POST /api/v1/send",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "logs": "wrangler tail"
+  },
+  "dependencies": {
+    "postal-mime": "^2.4.3"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
