@@ -35,6 +35,29 @@ const channelPageMasks = (page: Page) => {
     ];
 };
 
+// The short watch page is screenshot at viewport resolution (like the channel page). The
+// autoplaying player is hidden (VideoPlayerPage.hideShortPlayer); the up-next rail stays
+// visible with its thumbnail images masked, and the view count + relative date are masked.
+const shortPageMasks = (page: Page) => {
+    const video = new VideoPlayerPage(page);
+    return [
+        video.shortViewsCount,
+        video.shortViewsCountDate,
+        video.shortRailImages,
+    ];
+};
+
+// The channel avatar (channel.thumbnails) loads lazily from the CDN via next/image, so
+// screenshots must wait for it or they catch the empty-avatar placeholder. Tolerant: if the
+// shot has no channel-picture avatar in frame, continue rather than time out.
+async function waitForChannelAvatar(page: Page): Promise<void> {
+    await page.waitForFunction(() => {
+        const av = Array.from(document.querySelectorAll('img')).find(
+            (i) => /channel.{0,3}picture/i.test((i as HTMLImageElement).currentSrc || (i as HTMLImageElement).src));
+        return !!av && (av as HTMLImageElement).complete && (av as HTMLImageElement).naturalWidth > 0;
+    }, { timeout: 15_000 }).catch(() => { /* no channel-picture avatar in frame — fine */ });
+}
+
 // platform: describe title
 test.describe('Video & channel visual tests (desktop)', () => {
 
@@ -43,6 +66,7 @@ test.describe('Video & channel visual tests (desktop)', () => {
     let username: string;
     let videoUrl: string;
     let channelUrl: string;
+    let shortUrl: string;
     // The fixed logged-in NON-owner used for the "user" channel screenshot.
     let viewerEmail: string;
     let viewerUsername: string;
@@ -57,6 +81,7 @@ test.describe('Video & channel visual tests (desktop)', () => {
         password = fx.password;
         videoUrl = fx.videoUrl;
         channelUrl = fx.channelUrl;
+        shortUrl = fx.shortUrl;
         viewerEmail = fx.viewerEmail;
         viewerUsername = fx.viewerUsername;
     });
@@ -108,11 +133,37 @@ test.describe('Video & channel visual tests (desktop)', () => {
             const imgs = Array.from(document.querySelectorAll('[data-id="aitv-video-card"] img')).slice(0, 6);
             return imgs.length > 0 && imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0);
         }, { timeout: 20_000 });
+        await waitForChannelAvatar(page);
         await page.evaluate(async () => { await document.fonts.ready; });
         // platform: no extra settle on desktop (mobile/webkit adds a waitForTimeout here)
         await expect(page).toHaveScreenshot(name, {
             fullPage: false,
             mask: channelPageMasks(page),
+            maxDiffPixelRatio: 0.02,
+        });
+    }
+
+    // ── Short watch page ──
+    // Viewport screenshot of the seeded short (@qavischan's fixed short), like the channel
+    // page. The autoplaying player is hidden and the rail images / view count / date are
+    // masked. Three viewer states: anon / user / owner.
+    async function shootShort(page: Page, name: string): Promise<void> {
+        const videoPlayer = new VideoPlayerPage(page);
+        const header = new HeaderPage(page);
+
+        await page.goto(shortUrl, { waitUntil: 'domcontentloaded' });
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 }); // platform: header anchor
+        await expect(videoPlayer.shortDetails, 'Short details block is not visible')
+            .toBeVisible({ timeout: 15_000 });
+        await expect(videoPlayer.shortViewsCount, 'Short details did not populate')
+            .toBeVisible({ timeout: 15_000 });
+        await waitForChannelAvatar(page);
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await videoPlayer.hideShortPlayer();
+        // platform: no extra settle on desktop (mobile/webkit adds a waitForTimeout here)
+        await expect(page).toHaveScreenshot(name, {
+            fullPage: false,
+            mask: shortPageMasks(page),
             maxDiffPixelRatio: 0.02,
         });
     }
@@ -166,6 +217,38 @@ test.describe('Video & channel visual tests (desktop)', () => {
         });
         await test.step('Open channel page and screenshot', async () => {
             await shootChannel(page, 'channel-page-owner.png', true);
+        });
+    });
+
+    test('Short page for anonymous user', {
+        annotation: { type: 'TC', description: 'VIS-VCH-006' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Open short page and screenshot details block', async () => {
+            await shootShort(page, 'short-page-anon.png');
+        });
+    });
+
+    test('Short page for logged-in user (not owner)', {
+        annotation: { type: 'TC', description: 'VIS-VCH-007' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Login as non-owner', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(viewerEmail, password, viewerUsername, false); // platform: isMobile flag
+        });
+        await test.step('Open short page and screenshot details block', async () => {
+            await shootShort(page, 'short-page-user.png');
+        });
+    });
+
+    test('Short page for channel owner', {
+        annotation: { type: 'TC', description: 'VIS-VCH-008' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Login as owner', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(userEmail, password, username, false); // platform: isMobile flag
+        });
+        await test.step('Open short page and screenshot details block', async () => {
+            await shootShort(page, 'short-page-owner.png');
         });
     });
 

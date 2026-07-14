@@ -43,6 +43,12 @@ export class VideoPlayerPage {
   readonly shortCards: Locator;
   readonly videoViewsCount: Locator;
   readonly videoViewsCountDate: Locator;
+  // Short watch page (desktop): details side panel + its dynamic view count / relative date
+  // and the up-next rail images (all masked in visual snapshots).
+  readonly shortDetails: Locator;
+  readonly shortViewsCount: Locator;
+  readonly shortViewsCountDate: Locator;
+  readonly shortRailImages: Locator;
   readonly commentingAsTrigger: Locator;
   readonly shareBtn: Locator;
 
@@ -67,6 +73,10 @@ export class VideoPlayerPage {
     this.shortCards = page.locator('[data-id="aitv-short-card"]');
     this.videoViewsCount = page.locator('[data-id="aitv-watch-content"]').getByText(/views$/);
     this.videoViewsCountDate = page.locator('[data-id="aitv-watch-content"]').getByText(/ago$/);
+    this.shortDetails = page.locator('[data-id="aitv-short-details"]');            // desktop side panel
+    this.shortViewsCount = this.shortDetails.getByText(/views$/);
+    this.shortViewsCountDate = this.shortDetails.getByText(/ago$/);
+    this.shortRailImages = page.locator('[data-id="aitv-shorts-up-next-rail"] img'); // rail kept visible, imgs masked
     this.commentingAsTrigger = page.locator('[data-id="commenting-as-trigger"]');
     this.shareBtn = page.getByTestId('aitv-share');
 
@@ -109,6 +119,25 @@ export class VideoPlayerPage {
     await expect(this.playButton, 'Play button is not visible').toBeVisible({ timeout: 5_000 });
     await expect(this.playButton, 'Play button is not enabled').toBeEnabled();
     await this.playButton.click();
+  }
+
+  /**
+   * Hide the autoplaying short <video-js> for a stable visual snapshot. The video plays,
+   * buffers, or (in the Docker Linux browsers) fails the mp4 codec and paints a
+   * "No compatible source" error modal — all non-deterministic. `opacity: 0` blanks the whole
+   * <video-js> subtree (a child can't override it) while preserving layout; the error/loading
+   * modals are also removed globally in case they mount outside it, and the transient player
+   * controls are hidden. The overlaid action column + up-next rail sit OUTSIDE <video-js> and
+   * stay visible (the rail's thumbnail images are masked at shot time — see shortRailImages).
+   */
+  async hideShortPlayer(): Promise<void> {
+    await this.page.addStyleTag({
+      content: `
+        video-js { opacity: 0 !important; }
+        .vjs-error-display, .vjs-modal-dialog, .vjs-loading-spinner { display: none !important; }
+        [data-testid^="aitv-player-"] { visibility: hidden !important; }
+      `,
+    });
   }
 
   async assertShortsIsPlaying(): Promise<void> {
