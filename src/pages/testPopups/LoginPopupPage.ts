@@ -18,6 +18,7 @@ export class LoginPopupPage {
     readonly continueBtn: Locator;
     readonly switchToPhoneBtn: Locator;
     readonly emailSwitchIntentBtn: Locator;
+    readonly noAccountError: Locator;
 
     // Step 2 (phone): Phone input
     readonly phoneInput: Locator;
@@ -79,6 +80,7 @@ export class LoginPopupPage {
 
         this.emailUsernameeInput  = page.getByTestId('aitv-auth-email-input');
         this.continueBtn      = page.getByTestId('aitv-auth-email-continue')
+        this.noAccountError   = this.dialog.getByText('No account found for this email');
         this.continueBtn2      = page.getByTestId('aitv-auth-login-continue')
 
         this.passwordInput    = page.getByTestId('aitv-auth-login-password');
@@ -146,6 +148,13 @@ export class LoginPopupPage {
         await expect(this.continueBtn, 'Continue button is not visible').toBeVisible();
         await expect(this.continueBtn, 'Continue button is not enabled').toBeEnabled();
         await this.continueBtn.click();
+    }
+
+    // After entering the identifier, an unknown/unverified email is rejected at this step
+    // with an inline error and never advances to the password step.
+    async assertNoAccountFound(): Promise<void> {
+        await expect(this.noAccountError, 'No-account-found error is not visible').toBeVisible({ timeout: 10_000 });
+        await expect(this.passwordInput, 'Password step should not appear for a non-existent account').toBeHidden();
     }
 
     async fillPassword(password: string): Promise<void> {

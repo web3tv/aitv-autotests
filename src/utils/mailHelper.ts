@@ -1,8 +1,12 @@
 import { APIRequestContext } from '@playwright/test';
 import { GmailHelper } from './gmailHelper';
 import { MailpitHelper } from './mailpitHelper';
+import { MailFlows } from './mailFlows';
 
 export type { EmailMessage } from './gmailHelper';
+export { MailFlows } from './mailFlows';
+export type { WaitOpts } from './mailFlows';
+export { MailSubject } from './mailSubjects';
 
 /**
  * Общий интерфейс почтового хелпера — то, чем пользуются тесты и флоу.
@@ -31,6 +35,14 @@ export function createMailHelper(request?: APIRequestContext): MailHelper {
   return process.env.MAIL_TRANSPORT === 'mailpit'
     ? new MailpitHelper(request)
     : new GmailHelper(request);
+}
+
+/**
+ * Обёртка над хелпером с интент-именованными действиями «дождаться письма и
+ * извлечь ссылку/код» (см. mailFlows.ts). Единая точка правки при смене флоу/темы.
+ */
+export function createMailFlows(request?: APIRequestContext): MailFlows {
+  return new MailFlows(createMailHelper(request));
 }
 
 /** Транспортно-независимые проверки инвариантов письма (см. gmailHelper.ts). */

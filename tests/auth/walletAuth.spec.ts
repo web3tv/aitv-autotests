@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
-import { createMailHelper } from '../../src/utils/mailHelper';
+import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
 import { AccountPage } from '../../src/pages/account/AccountPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletInfo } from '../../src/utils/walletMock';
@@ -92,6 +92,7 @@ test.describe('Wallet and email tests',()=>{
 
     await test.step('Add first email and save verification URL', async () => {
       const mailHelper1 = createMailHelper(request);
+      const mailFlows1 = createMailFlows(request);
       const firstEmail = await mailHelper1.generateEmail();
       const firstToken = await mailHelper1.getToken(firstEmail);
 
@@ -102,12 +103,12 @@ test.describe('Wallet and email tests',()=>{
       await addEmailInput.fill(firstEmail);
       await accountPage.clickSubmitBtn();
 
-      const messageId = await mailHelper1.waitForMessage(firstToken, 'Your verification link');
-      firstVerificationUrl = await mailHelper1.extractVerificationUrl(messageId, firstToken);
+      firstVerificationUrl = await mailFlows1.emailChangeUrl(firstToken);
     });
 
     await test.step('Add second email and save verification URL', async () => {
       const mailHelper2 = createMailHelper(request);
+      const mailFlows2 = createMailFlows(request);
       const secondEmail = await mailHelper2.generateEmail();
       const secondToken = await mailHelper2.getToken(secondEmail);
 
@@ -117,8 +118,7 @@ test.describe('Wallet and email tests',()=>{
       await addEmailInput.fill(secondEmail);
       await accountPage.clickSubmitBtn();
 
-      const messageId = await mailHelper2.waitForMessage(secondToken, 'Your verification link');
-      secondVerificationUrl = await mailHelper2.extractVerificationUrl(messageId, secondToken);
+      secondVerificationUrl = await mailFlows2.emailChangeUrl(secondToken);
     });
 
     await test.step('Verify second email — expect success', async () => {
@@ -159,8 +159,7 @@ test.describe('Wallet and email tests',()=>{
     });
 
     await test.step('Verify email via Gmail', async () => {
-      const messageId = await mailHelper.waitForMessage(mailToken, 'Your verification link');
-      const verificationUrl = await mailHelper.extractVerificationUrl(messageId, mailToken);
+      const verificationUrl = await createMailFlows(request).emailChangeUrl(mailToken);
       await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
       await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
     });
