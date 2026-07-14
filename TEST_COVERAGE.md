@@ -68,7 +68,7 @@ ACCOUNT SETTINGS (/account)
 ├── Display wallet address (read-only)              [AUTO] tests/auth/walletAuth.spec.ts     ACCOUNT-003
 ├── Add wallet to email account                     [AUTO] tests/auth/walletAuth.spec.ts     ACCOUNT-005
 ├── Change password twice in one session            [BLOCKED] test.fixme W3-2731 tests/account/account.spec.ts  ACCOUNT-006
-├── Change email then change password (unverified)  [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-007
+├── Change email then change password (unverified)  [AUTO] tests/account/account.spec.ts     ACCOUNT-007
 └── Change email twice without verification         [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-008
 
 ────────────────────────────────────────────────────────────────

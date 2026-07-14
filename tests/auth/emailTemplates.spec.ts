@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthApi } from '../../src/api/AuthApi';
 import { AuthFlow } from '../../src/flows/AuthFlow';
-import { createMailHelper, assertEmailBasics, EmailMessage } from '../../src/utils/mailHelper';
+import { createMailFlows, assertEmailBasics, EmailMessage, MailSubject } from '../../src/utils/mailHelper';
 
 
 const IP_RE = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
@@ -12,7 +12,7 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
         annotation: { type: 'TC', description: 'EMAIL-001' },
     }, async ({ request }) => {
         const authApi = new AuthApi(request);
-        const mailHelper = createMailHelper(request);
+        const mailFlows = createMailFlows(request);
         let mailToken: string;
         let email: EmailMessage;
 
@@ -21,12 +21,11 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
         });
 
         await test.step('Fetch verification email', async () => {
-            const messageId = await mailHelper.waitForMessage(mailToken, 'Email Verification', 15, 3000);
-            email = await mailHelper.getMessage(messageId, mailToken);
+            email = await mailFlows.message(mailToken, MailSubject.REGISTRATION_VERIFICATION, { retries: 15 });
         });
 
         await test.step('Assert common invariants and security content', async () => {
-            assertEmailBasics(email, { subject: 'Email Verification' });
+            assertEmailBasics(email, { subject: MailSubject.REGISTRATION_VERIFICATION });
             // контракт
             expect(email.text, 'verification heading').toContain('Verification code');
             expect(email.text, 'verification code present (4 digits)').toMatch(/\b\d{4}\b/);
@@ -42,7 +41,7 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
         annotation: { type: 'TC', description: 'EMAIL-002' },
     }, async ({ request }) => {
         const authApi = new AuthApi(request);
-        const mailHelper = createMailHelper(request);
+        const mailFlows = createMailFlows(request);
         let mailToken: string;
         let username: string;
         let email: EmailMessage;
@@ -52,12 +51,11 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
         });
 
         await test.step('Fetch welcome email', async () => {
-            const messageId = await mailHelper.waitForMessage(mailToken, 'Welcome to AI.TV', 15, 3000);
-            email = await mailHelper.getMessage(messageId, mailToken);
+            email = await mailFlows.message(mailToken, MailSubject.WELCOME, { retries: 15 });
         });
 
         await test.step('Assert common invariants and content', async () => {
-            assertEmailBasics(email, { subject: 'Welcome to AI.TV' });
+            assertEmailBasics(email, { subject: MailSubject.WELCOME });
             // контракт
             expect(email.text, 'personalised with username').toContain(username);
             expect(email.text, 'studio deep-link').toContain('/studio/content');
@@ -71,7 +69,7 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
     }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const mailHelper = createMailHelper(request);
+        const mailFlows = createMailFlows(request);
         let mailToken: string;
         let userEmail: string;
         let email: EmailMessage;
@@ -85,12 +83,11 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
         });
 
         await test.step('Fetch password reset email', async () => {
-            const messageId = await mailHelper.waitForMessage(mailToken, 'Your password verification link', 15, 3000);
-            email = await mailHelper.getMessage(messageId, mailToken);
+            email = await mailFlows.message(mailToken, MailSubject.PASSWORD_RESET, { retries: 15 });
         });
 
         await test.step('Assert common invariants, link and security content', async () => {
-            assertEmailBasics(email, { subject: 'Your password verification link' });
+            assertEmailBasics(email, { subject: MailSubject.PASSWORD_RESET });
             // ссылка может быть в text и/или html — проверяем объединённое тело
             const body = `${email.text}\n${email.html}`;
             // контракт
@@ -109,7 +106,7 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
     }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const mailHelper = createMailHelper(request);
+        const mailFlows = createMailFlows(request);
         const newPassword = 'Admin1234@@';
         let mailToken: string;
         let userEmail: string;
@@ -122,8 +119,7 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
 
         await test.step('Request password reset and open reset link', async () => {
             await authFlow.submitForgotPasswordViaPopup(userEmail);
-            const messageId = await mailHelper.waitForMessage(mailToken, 'Your password verification link', 15, 3000);
-            const url = await mailHelper.extractPasswordResetnUrl(messageId, mailToken);
+            const url = await mailFlows.passwordResetUrl(mailToken, { retries: 15 });
             await page.goto(url, { waitUntil: 'domcontentloaded' });
         });
 
@@ -132,12 +128,11 @@ test.describe('Email templates content (AITV)', { tag: '@emails' }, () => {
         });
 
         await test.step('Fetch password changed email', async () => {
-            const messageId = await mailHelper.waitForMessage(mailToken, 'Your password has been changed', 15, 3000);
-            email = await mailHelper.getMessage(messageId, mailToken);
+            email = await mailFlows.message(mailToken, MailSubject.PASSWORD_CHANGED, { retries: 15 });
         });
 
         await test.step('Assert common invariants and confirmation content', async () => {
-            assertEmailBasics(email, { subject: 'Your password has been changed' });
+            assertEmailBasics(email, { subject: MailSubject.PASSWORD_CHANGED });
             // контракт
             expect(email.text, 'personalised with username').toContain(username);
             expect(email.text, 'change timestamp in UTC').toContain('UTC');

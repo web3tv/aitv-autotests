@@ -1,5 +1,5 @@
 import { Page, APIRequestContext, test } from '@playwright/test';
-import { createMailHelper, MailHelper } from '../utils/mailHelper.ts';
+import { createMailHelper, MailHelper, MailFlows } from '../utils/mailHelper.ts';
 import { AuthFlow } from './AuthFlow';
 import { LoginPage } from '../pages/auth/LoginPage.ts';
 import { expect } from '@playwright/test';
@@ -11,6 +11,7 @@ import { STATIC_OTP_CODE } from '../api/AuthApi';
 export class RegistrationFlow {
   readonly loginPage: LoginPage;
   readonly mailHelper: MailHelper;
+  readonly mailFlows: MailFlows;
   readonly headerPage: HeaderPage;
   readonly loginPopupPage: LoginPopupPage;
 
@@ -20,6 +21,7 @@ export class RegistrationFlow {
   ) {
     this.loginPage = new LoginPage(page);
     this.mailHelper = createMailHelper(request);
+    this.mailFlows = new MailFlows(this.mailHelper);
     this.headerPage = new HeaderPage(page);
     this.loginPopupPage = new LoginPopupPage(page);
   }
@@ -44,8 +46,7 @@ export class RegistrationFlow {
     const email = await this.mailHelper.generateEmail();
     const username = await this.registerViaEmail(email,password);
     const token = await this.mailHelper.getToken(email);
-    const messageId = await this.mailHelper.waitForMessage(token,'Email Verification');
-    const verificationUrl = await this.mailHelper.extractVerificationUrl(messageId, token);
+    const verificationUrl = await this.mailFlows.registrationUrl(token);
     await this.page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(this.page.getByText(/Email Successfully Verified!/i), 'Email-verified confirmation is not visible').toBeVisible({timeout: 40_000 });
     return { email, password, username, token };
@@ -65,8 +66,7 @@ export class RegistrationFlow {
     await this.loginPopupPage.fillEmailOrUsername(email);
     await this.loginPopupPage.clickContinue();
 
-    const messageId = await this.mailHelper.waitForMessage(token, 'Email Verification', 20, 3000);
-    const code = await this.mailHelper.extractVerificationCode(messageId, token);
+    const code = await this.mailFlows.registrationCode(token, { retries: 20 });
     await this.loginPopupPage.fillCode(code);
 
     await this.loginPopupPage.fillCreatePassword(password);
