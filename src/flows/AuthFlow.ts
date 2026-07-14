@@ -75,6 +75,18 @@ export class AuthFlow {
     await expect(this.page.locator('body'), 'Invalid-password error is not shown').toContainText('Invalid password. Please re-enter another password.');
   }
 
+  // A non-existent / unverified email is rejected at the identifier step ("No account
+  // found for this email.") and never reaches the password step.
+  async loginNoAccountFound(email: string): Promise<void> {
+    await this.page.goto('/', { waitUntil: 'domcontentloaded' });
+    await this.headerPage.clickLogin();
+    await this.loginPopupPage.assertPopupVisible();
+    await this.loginPopupPage.clickEmailEntry();
+    await this.loginPopupPage.fillEmailOrUsername(email);
+    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.assertNoAccountFound();
+  }
+
   async loginWith2FaFailed(email:string,password:string){
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickLogin();

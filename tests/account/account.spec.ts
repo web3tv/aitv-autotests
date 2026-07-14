@@ -113,10 +113,9 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
   });
 });
 
-// BLOCKED by W3-2732: password change confirmation link is invalid after an unverified email change
-// https://stretch-com.atlassian.net/browse/W3-2732
-test.fixme('Change email without verification then change password', { annotation: { type: 'TC', description: 'ACCOUNT-007' } }, async ({ page, request }) => {
+test('Change email without verification then change password', { annotation: { type: 'TC', description: 'ACCOUNT-007' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
+  let newEmail: string;
   const newPassword = 'NewPassword1@@';
 
   await test.step('Create user', async () => {
@@ -134,7 +133,7 @@ test.fixme('Change email without verification then change password', { annotatio
   await test.step('Change email without verification', async () => {
     const accountPage = new AccountPage(page);
     const mailHelper = createMailHelper(request);
-    const newEmail = await mailHelper.generateEmail();
+    newEmail = await mailHelper.generateEmail();
     await mailHelper.createMailbox();
     await accountPage.changeEmail(user.email, newEmail, user.password);
   });
@@ -144,14 +143,25 @@ test.fixme('Change email without verification then change password', { annotatio
     await accountPage.changePassword(user.password, newPassword);
   });
 
-  await test.step('Verify password change via email and login with new password', async () => {
+  await test.step('Verify password change via email from the still-verified old address', async () => {
     const mailHelper = createMailHelper(request);
-    const authFlow = new AuthFlow(page);
     const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification');
     const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
+  });
+
+  await test.step('Old email + new password -> Success (unverified email change did not switch the login)', async () => {
+    const authFlow = new AuthFlow(page);
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await authFlow.logout();
     await authFlow.loginSuccess(user.email, newPassword, user.username);
+    await authFlow.logout();
+  });
+
+  await test.step('New (unverified) email is not a recognized account -> no account found', async () => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginNoAccountFound(newEmail);
   });
 });
 
