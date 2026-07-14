@@ -57,20 +57,21 @@ test('Set default video description in channel settings — saved successfully',
         const editChannelPage = new EditChannelPage(page);
         const defaultDescription = `Default desc ${Date.now()}`;
 
-        await test.step('Create user, login and navigate to channel settings', async () => {
+        await test.step('Create user, login and open channel Advanced settings', async () => {
             const user = await authApi.createUserFast();
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
             await sideBar.clickStudioEditChannel();
+            await editChannelPage.openAdvancedTab();
         });
 
-        await test.step('Fill default video description and save', async () => {
+        await test.step('Fill default video description and publish', async () => {
             await editChannelPage.fillDefaultVideoDescription(defaultDescription);
-            await editChannelPage.clickSave();
-            await editChannelPage.assertSuccessToast();
+            await editChannelPage.saveChanges();
         });
 
         await test.step('Reload page and verify description is persisted', async () => {
             await page.reload({ waitUntil: 'domcontentloaded' });
+            await editChannelPage.openAdvancedTab();
             await editChannelPage.assertDefaultVideoDescriptionValue(defaultDescription);
         });
     }
@@ -176,16 +177,19 @@ test('Clear default description — upload popup opens with empty description',
             await videoApi.setDefaultVideoDescription(token, channelId, defaultDescription);
             await authFlow.loginSuccess(user.email, process.env.USER_PASSWORD!, user.username);
             await sideBar.clickStudioEditChannel();
+            await editChannelPage.openAdvancedTab();
         });
 
-        await test.step('Clear default description and save', async () => {
+        await test.step('Clear default description and publish', async () => {
             await editChannelPage.assertDefaultVideoDescriptionValue(defaultDescription);
             await editChannelPage.clearDefaultVideoDescription();
-            await editChannelPage.clickSave();
-            await editChannelPage.assertSuccessToast();
+            await editChannelPage.saveChanges();
         });
 
         await test.step('Open upload popup and verify description field is empty', async () => {
+            // The upload popup pre-fills its description from client-side channel state
+            // cached before the clear; reload to force a refetch of the now-empty default.
+            await page.reload({ waitUntil: 'domcontentloaded' });
             await uploadWithChunkCheck(page, async () => {
                 await flow.openNewVideo();
                 await flow.modal.selectFile(VIDEO_PATH);

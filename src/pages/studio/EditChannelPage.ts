@@ -3,16 +3,28 @@ import { Page, Locator, expect } from '@playwright/test';
 export class EditChannelPage {
     readonly page: Page;
 
+    readonly advancedTab: Locator;
     readonly defaultVideoDescriptionEditor: Locator;
     readonly saveBtn: Locator;
-    readonly successToast: Locator;
 
     constructor(page: Page) {
         this.page = page;
 
-        this.defaultVideoDescriptionEditor = page.locator('textarea[name="defaultVideoDescription"]');
+        // The default video description moved to the "Advanced" tab of the redesigned
+        // Edit channel page and is now a Quill rich-text editor (not a <textarea>).
+        this.advancedTab = page.getByTestId('aitv-edit-channel-tab-advanced');
+        this.defaultVideoDescriptionEditor = page
+            .getByTestId('aitv-default-video-description-card')
+            .locator('.ql-editor');
+        // Save button reads "Publish changes" and only appears once the form is dirty.
         this.saveBtn = page.locator('[data-id="submit-btn"]');
-        this.successToast = page.getByText('Channel successfully updated');
+    }
+
+    async openAdvancedTab() {
+        await expect(this.advancedTab, 'Advanced tab is not visible').toBeVisible();
+        await expect(this.advancedTab, 'Advanced tab is not enabled').toBeEnabled();
+        await this.advancedTab.click();
+        await expect(this.defaultVideoDescriptionEditor, 'Default video description editor is not visible after opening Advanced tab').toBeVisible();
     }
 
     async fillDefaultVideoDescription(text: string) {
@@ -27,14 +39,18 @@ export class EditChannelPage {
         await this.defaultVideoDescriptionEditor.fill('');
     }
 
-    async clickSave() {
-        await expect(this.saveBtn, 'Save button is not visible').toBeVisible();
-        await expect(this.saveBtn, 'Save button is not enabled').toBeEnabled();
+    // Publishes channel changes. The redesigned page no longer shows a success toast,
+    // so the PUT /api/channels/edit response is the completion signal (registered
+    // before the click to avoid a race).
+    async saveChanges() {
+        await expect(this.saveBtn, 'Publish changes button is not visible').toBeVisible();
+        await expect(this.saveBtn, 'Publish changes button is not enabled').toBeEnabled();
+        const responsePromise = this.page.waitForResponse(
+            (r) => r.url().includes('/api/channels/edit') && r.request().method() === 'PUT' && r.status() === 200,
+            { timeout: 15000 }
+        );
         await this.saveBtn.click();
-    }
-
-    async assertSuccessToast() {
-        await expect(this.successToast, 'Success toast "Channel successfully updated" is not visible').toBeVisible();
+        await responsePromise;
     }
 
     async assertDefaultVideoDescriptionValue(expectedText: string) {
