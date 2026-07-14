@@ -47,6 +47,17 @@ const shortPageMasks = (page: Page) => {
     ];
 };
 
+// The channel avatar (channel.thumbnails) loads lazily from the CDN via next/image, so
+// screenshots must wait for it or they catch the empty-avatar placeholder. Tolerant: if the
+// shot has no channel-picture avatar in frame, continue rather than time out.
+async function waitForChannelAvatar(page: Page): Promise<void> {
+    await page.waitForFunction(() => {
+        const av = Array.from(document.querySelectorAll('img')).find(
+            (i) => /channel.{0,3}picture/i.test((i as HTMLImageElement).currentSrc || (i as HTMLImageElement).src));
+        return !!av && (av as HTMLImageElement).complete && (av as HTMLImageElement).naturalWidth > 0;
+    }, { timeout: 15_000 }).catch(() => { /* no channel-picture avatar in frame — fine */ });
+}
+
 // platform: describe title
 test.describe('Video & channel visual tests (desktop)', () => {
 
@@ -122,6 +133,7 @@ test.describe('Video & channel visual tests (desktop)', () => {
             const imgs = Array.from(document.querySelectorAll('[data-id="aitv-video-card"] img')).slice(0, 6);
             return imgs.length > 0 && imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0);
         }, { timeout: 20_000 });
+        await waitForChannelAvatar(page);
         await page.evaluate(async () => { await document.fonts.ready; });
         // platform: no extra settle on desktop (mobile/webkit adds a waitForTimeout here)
         await expect(page).toHaveScreenshot(name, {
@@ -145,6 +157,7 @@ test.describe('Video & channel visual tests (desktop)', () => {
             .toBeVisible({ timeout: 15_000 });
         await expect(videoPlayer.shortViewsCount, 'Short details did not populate')
             .toBeVisible({ timeout: 15_000 });
+        await waitForChannelAvatar(page);
         await page.evaluate(async () => { await document.fonts.ready; });
         await videoPlayer.hideShortPlayer();
         // platform: no extra settle on desktop (mobile/webkit adds a waitForTimeout here)

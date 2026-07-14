@@ -6,9 +6,10 @@
  * (409) — so the FIXED fixture accounts (owner / viewer) are created once and reused,
  * and only their CONTENT is wiped and re-seeded each run: a deterministic owner channel
  * with N videos, a series with episodes, and a fixed follower count. Channel attributes
- * (description + social links, via API) and the owner avatar (user profile) survive the
- * wipe and are re-applied idempotently — the avatar part drives a headless browser,
- * since profile data is only writable via the FE /profile form.
+ * (description + social links, via API), the user profile avatar and the CHANNEL avatar
+ * (studio /channel "Profile picture" → channel.thumbnails) survive the wipe and are
+ * re-applied idempotently — the avatar parts drive a headless browser, since both are only
+ * writable via the FE.
  *
  * Prereqs (same as any @db work): a DB port-forward — content-wipe and follower seeding
  * go straight to the database.
@@ -27,6 +28,8 @@ import { VideoApi } from '../src/api/VideoApi';
 import { setupVideoViaApi, setupSeriesWithEpisodes } from '../src/utils/studioTestHelpers';
 import { AuthFlow } from '../src/flows/AuthFlow';
 import { ProfilePage } from '../src/pages/account/ProfilePage';
+import { SideBarPage } from '../src/pages/components/SideBarPage';
+import { EditChannelPage } from '../src/pages/studio/EditChannelPage';
 import { deleteUser } from './deleteUser';
 import {
     FIXTURE_OWNER,
@@ -185,11 +188,14 @@ async function main() {
         await db.disconnect();
     }
 
-    // ── 6. Owner avatar (= the channel photo; lives on the USER PROFILE) ─────────
-    // The avatar is only writable via the FE (/profile form → /api/profile/update),
-    // so this step drives a headless browser. Last on purpose: it is the most
-    // DOM-fragile part — if it breaks, all API/DB seeding has already landed.
-    console.log('▸ Uploading owner avatar via browser…');
+    // ── 6. Avatars (FE-only, so this step drives a headless browser) ─────────────
+    // Two distinct images, both cat.jpg:
+    //   • USER avatar (/profile form → /api/profile/update) — header + "commenting as".
+    //   • CHANNEL avatar (studio /channel "Profile picture" → POST /channels/edit/avatar)
+    //     = channel.thumbnails, the byline avatar on the channel hero and every video/short.
+    // The channel one is the piece that was missing (byline showed initials). Last on
+    // purpose: the most DOM-fragile part — all API/DB seeding has already landed.
+    console.log('▸ Uploading owner + channel avatars via browser…');
     const browser = await chromium.launch();
     try {
         const context = await browser.newContext({
@@ -200,6 +206,8 @@ async function main() {
         await new AuthFlow(page).loginSuccess(owner.email, password, owner.username);
         await page.goto('/profile', { waitUntil: 'domcontentloaded' });
         await new ProfilePage(page).uploadAvatarAndSubmit(FIXTURE_AVATAR_PATH);
+        await new SideBarPage(page).clickStudioEditChannel();
+        await new EditChannelPage(page).uploadChannelAvatarAndPublish(FIXTURE_AVATAR_PATH);
     } finally {
         await browser.close();
     }
@@ -214,7 +222,7 @@ async function main() {
     console.log(`  series  : "${series.seriesTitle}" (${FIXTURE_SERIES_EPISODE_COUNT} episodes)`);
     console.log(`  followers: ${FIXTURE_FOLLOWER_COUNT}`);
     console.log(`  channel : description + socials (x/youtube/insta/tiktok/telegram)`);
-    console.log(`  profile : avatar (${FIXTURE_AVATAR_PATH})`);
+    console.log(`  avatars : user profile + channel picture (${FIXTURE_AVATAR_PATH})`);
     console.log(`  → tests resolve URLs at runtime; nothing to commit.\n`);
 }
 
