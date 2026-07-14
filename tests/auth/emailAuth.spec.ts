@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { AuthApi } from '../../src/api/AuthApi';
 import { RegistrationFlow } from '../../src/flows/RegistrationFlow';
-import { createMailHelper } from '../../src/utils/mailHelper';
+import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
 import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { LoginPopupPage } from '../../src/pages/testPopups/LoginPopupPage';
 
@@ -141,7 +141,7 @@ test.describe('Reset password tests', () => {
     test('Reset password via popup: old password fails, new password succeeds', { annotation: { type: 'TC', description: 'AUTH-007' } }, async ({ page, request }) => {
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const mailHelper = createMailHelper(request);
+        const mailFlows = createMailFlows(request);
         const oldPassword = process.env.USER_PASSWORD!;
         const newPassword = 'Admin1234@@';
 
@@ -158,8 +158,7 @@ test.describe('Reset password tests', () => {
         });
 
         await test.step('Extract reset URL from email and set new password', async () => {
-            const messageId = await mailHelper.waitForMessage(mailToken, 'password', 15, 3000);
-            const url = await mailHelper.extractPasswordResetnUrl(messageId, mailToken);
+            const url = await mailFlows.passwordResetUrl(mailToken, { retries: 15 });
             await page.goto(url, { waitUntil: 'domcontentloaded' });
             await authFlow.loginPopupPage.fillResetPassword(newPassword);
             const verifyResponse = page.waitForResponse(
@@ -189,7 +188,7 @@ test.describe('Reset password tests', () => {
     test('Can`t reset password with mismatched passwords in popup', { annotation: { type: 'TC', description: 'AUTH-008' } }, async ({ page, request }) => {
         const authFlow = new AuthFlow(page);
         const authApi = new AuthApi(request);
-        const mailHelper = createMailHelper(request);
+        const mailFlows = createMailFlows(request);
         const newPassword = 'Admin1234@@';
         const wrongPassword = 'Admin1233@@';
 
@@ -206,8 +205,7 @@ test.describe('Reset password tests', () => {
         });
 
         await test.step('Extract reset URL and enter new passwords with mismatch', async () => {
-            const messageId = await mailHelper.waitForMessage(mailToken, 'password', 15, 3000);
-            const url = await mailHelper.extractPasswordResetnUrl(messageId, mailToken);
+            const url = await mailFlows.passwordResetUrl(mailToken, { retries: 15 });
             await page.goto(url, { waitUntil: 'domcontentloaded' });
             await authFlow.loginPopupPage.fillResetPassword(newPassword);
             await authFlow.loginPopupPage.repeatResetPasswordInput.fill(wrongPassword);

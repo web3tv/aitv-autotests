@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { AuthApi } from '../../src/api/AuthApi';
 import { AccountPage } from '../../src/pages/account/AccountPage';
-import { createMailHelper } from '../../src/utils/mailHelper';
+import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
 
 test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
@@ -36,9 +36,8 @@ test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' }
   });
 
   await test.step('Verify changing password via email', async () => {
-    const mailHelper = createMailHelper(request);
-    const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification');
-    const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
+    const mailFlows = createMailFlows(request);
+    const verificationUrl = await mailFlows.passwordChangeUrl(user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
   });
@@ -54,8 +53,9 @@ test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' }
   });
 });
 
-// BLOCKED by W3-2731: password change confirmation link is rejected as expired/invalid
-// https://stretch-com.atlassian.net/browse/W3-2731
+// BLOCKED by W3-2783: second password change in one session fails with 412 Precondition Failed
+// (PUT /api/account/password), so the confirm-password-change modal never appears.
+// https://stretch-com.atlassian.net/browse/W3-2783
 test.fixme('Change password twice in one session', { annotation: { type: 'TC', description: 'ACCOUNT-006' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   const firstNewPassword = 'FirstNew1@@';
@@ -86,17 +86,15 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
   });
 
   await test.step('Verify first password change via email', async () => {
-    const mailHelper = createMailHelper(request);
-    const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification');
-    const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
+    const mailFlows = createMailFlows(request);
+    const verificationUrl = await mailFlows.passwordChangeUrl(user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
   });
 
   await test.step('Verify second password change via email', async () => {
-    const mailHelper = createMailHelper(request);
-    const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification', 10, 3000, beforeSecondChange);
-    const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
+    const mailFlows = createMailFlows(request);
+    const verificationUrl = await mailFlows.passwordChangeUrl(user.token, { since: beforeSecondChange });
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
   });
@@ -144,9 +142,8 @@ test('Change email without verification then change password', { annotation: { t
   });
 
   await test.step('Verify password change via email from the still-verified old address', async () => {
-    const mailHelper = createMailHelper(request);
-    const messageId = await mailHelper.waitForMessage(user.token, 'Password Verification');
-    const verificationUrl = await mailHelper.extractVerificationUrl(messageId, user.token);
+    const mailFlows = createMailFlows(request);
+    const verificationUrl = await mailFlows.passwordChangeUrl(user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
   });
@@ -165,9 +162,7 @@ test('Change email without verification then change password', { annotation: { t
   });
 });
 
-// BLOCKED by W3-2730: email change verification link / mail delivery
-// https://stretch-com.atlassian.net/browse/W3-2730
-test.fixme('Change email twice without verification', { annotation: { type: 'TC', description: 'ACCOUNT-008' } }, async ({ page, request }) => {
+test('Change email twice without verification', { annotation: { type: 'TC', description: 'ACCOUNT-008' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   let firstNewEmail: string;
   let firstVerificationUrl: string;
@@ -189,12 +184,12 @@ test.fixme('Change email twice without verification', { annotation: { type: 'TC'
   await test.step('Change email first time and get verification link', async () => {
     const accountPage = new AccountPage(page);
     const mailHelper = createMailHelper(request);
+    const mailFlows = createMailFlows(request);
     firstNewEmail = await mailHelper.generateEmail();
     await mailHelper.createMailbox();
     const firstNewToken = await mailHelper.getToken(firstNewEmail);
     await accountPage.changeEmail(user.email, firstNewEmail, user.password);
-    const messageId = await mailHelper.waitForMessage(firstNewToken, 'Email Verification');
-    firstVerificationUrl = await mailHelper.extractVerificationUrl(messageId, firstNewToken);
+    firstVerificationUrl = await mailFlows.emailChangeUrl(firstNewToken);
     await expect(accountPage.emailConfirmationAlert, 'First email change toast did not disappear').toBeHidden({ timeout: 10_000 });
   });
 
@@ -216,19 +211,16 @@ test.fixme('Change email twice without verification', { annotation: { type: 'TC'
   });
 
   await test.step('Verify second email and login with new email', async () => {
-    const mailHelper = createMailHelper(request);
+    const mailFlows = createMailFlows(request);
     const authFlow = new AuthFlow(page);
-    const messageId = await mailHelper.waitForMessage(secondNewToken, 'Email Verification');
-    const verificationUrl = await mailHelper.extractVerificationUrl(messageId, secondNewToken);
+    const verificationUrl = await mailFlows.emailChangeUrl(secondNewToken);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
     await authFlow.loginSuccess(secondNewEmail, user.password, user.username);
   });
 });
 
-// BLOCKED by W3-2730: email change verification link / mail delivery
-// https://stretch-com.atlassian.net/browse/W3-2730
-test.fixme('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } }, async ({ page, request }) => {
+test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   let newEmailToken: string;
   let newEmail: string;
@@ -244,6 +236,7 @@ test.fixme('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
     const mailHelper = createMailHelper(request);
+    const mailFlows = createMailFlows(request);
     newEmail = await mailHelper.generateEmail();
 
     await authFlow.loginSuccess(user.email, user.password, user.username);
@@ -252,8 +245,7 @@ test.fixme('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001
     newEmailToken = await mailHelper.getToken(newEmail);
     await accountPage.assertDisplayedEmail(user.email);
     await accountPage.changeEmail(user.email, newEmail, user.password);
-    const messageId = await mailHelper.waitForMessage(newEmailToken, 'Email Verification');
-    verificationUrl = await mailHelper.extractVerificationUrl(messageId, newEmailToken);
+    verificationUrl = await mailFlows.emailChangeUrl(newEmailToken);
     await authFlow.logout();
   });
 

@@ -3,7 +3,7 @@ import { LoginPage } from "../pages/auth/LoginPage";
 import { UserDropdownPage } from "../pages/components/UserDropdownPage";
 import { expect } from '@playwright/test';
 import { Page } from '@playwright/test';
-import { createMailHelper } from "../utils/mailHelper";
+import { createMailFlows } from "../utils/mailHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
 import { AccountPage } from "../pages/account/AccountPage";
@@ -65,6 +65,16 @@ export class AuthFlow {
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
     await this.loginPopupPage.clickContinue();
+    // Two failure modes after the identifier step: an unregistered email is rejected
+    // here ("No account found." — no password step), while a known account advances to
+    // the password step and fails there ("Invalid password.").
+    await expect(
+      this.loginPopupPage.noAccountError.or(this.loginPopupPage.passwordInput),
+      'Neither the no-account error nor the password step appeared after entering the email'
+    ).toBeVisible({ timeout: 15_000 });
+    if (await this.loginPopupPage.noAccountError.isVisible()) {
+      return;
+    }
     await this.loginPopupPage.fillPassword(password);
     const failResponse = this.page.waitForResponse(
       r => r.url().includes('/api/auth/legacy-login') && r.status() === 400,
@@ -111,7 +121,7 @@ export class AuthFlow {
   }
 
   async loginWith2FaSuccess(email:string,password:string,token:string,username:string){
-    const mailHelper = createMailHelper(this.page.request);
+    const mailFlows = createMailFlows(this.page.request);
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
@@ -122,8 +132,7 @@ export class AuthFlow {
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
     await expect(this.page.locator('body'), '2FA code prompt is not shown').toContainText('sent a verification code');
-    const messageId = await mailHelper.waitForMessage(token, 'Authentication Code', 10, 3000, requestedAt);
-    const [d1, d2, d3, d4] = await mailHelper.extract2FACode(messageId,token);
+    const [d1, d2, d3, d4] = await mailFlows.authCode(token, { since: requestedAt });
     console.log(`Extracted 2FA code: ${d1}${d2}${d3}${d4}`);
     // 500ms pauses between OTP characters: the input auto-advances focus and swallows
     // keystrokes typed too fast. Re-evaluate when the skipped 2FA suite is revived.

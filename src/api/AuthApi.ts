@@ -1,6 +1,6 @@
 import { APIRequestContext } from "@playwright/test";
 import { DataGenerator } from "../utils/dataGenerator";
-import { createMailHelper } from "../utils/mailHelper";
+import { createMailHelper, MailFlows } from "../utils/mailHelper";
 import * as crypto from "node:crypto";
 
 const OAUTH_CLIENT_ID = "fa281fa9-ea9c-467e-a0f1-776876c3ad76";
@@ -105,16 +105,14 @@ export class AuthApi {
 
     async createAndVerifyUser() {
         const mailHelper = createMailHelper(this.request);
+        const mailFlows = new MailFlows(mailHelper);
         const email = await mailHelper.generateEmail();
         const mailToken = await mailHelper.getToken(email);
 
         const { username } = await this.registerViaOtp(
             "email",
             email,
-            async () => {
-                const messageId = await mailHelper.waitForMessage(mailToken, "verification", 15, 3000);
-                return mailHelper.extractVerificationCode(messageId, mailToken);
-            },
+            () => mailFlows.registrationCode(mailToken, { retries: 15 }),
             DataGenerator.generateUsername(),
         );
 
