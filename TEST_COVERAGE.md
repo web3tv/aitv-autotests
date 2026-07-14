@@ -400,7 +400,7 @@ VISUAL REGRESSION (Docker only; фикстура @qavischan — npm run seed:fix
 ├── Desktop: main page / header / auth modal / hover preview   [AUTO] tests/visual/desktop/aitvVisual.spec.ts        VIS-AITV-001..006
 ├── Desktop: studio sidebar / header / dashboard / content     [AUTO] tests/visual/desktop/studioVisual.spec.ts      VIS-STD-001..004
 ├── Desktop: upload modal Movie/Series/Shorts × 3 шага         [AUTO] tests/visual/desktop/uploadModalVisual.spec.ts VIS-UPL-001..009
-├── Desktop: video page + channel page (anon/user/owner)       [AUTO] tests/visual/desktop/videoChannelVisual.spec.ts VIS-VCH-001..005
+├── Desktop: video + channel + short page (anon/user/owner)    [AUTO] tests/visual/desktop/videoChannelVisual.spec.ts VIS-VCH-001..008
 ├── Desktop: listing dropdowns movies/series/shorts            [AUTO] tests/visual/desktop/listingVisual.spec.ts     VIS-LIST-001..003
 ├── Mobile: header / dropdown / auth modal                     [AUTO] tests/visual/mobile/aitvVisual.spec.ts         VIS-AITV-MOB-003..006
 ├── Mobile: video page + channel page (anon/user/owner)        [AUTO] tests/visual/mobile/videoChannelVisual.spec.ts VIS-MOB-001..005

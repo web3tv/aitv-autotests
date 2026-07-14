@@ -35,6 +35,18 @@ const channelPageMasks = (page: Page) => {
     ];
 };
 
+// The short watch page is screenshot at viewport resolution (like the channel page). The
+// autoplaying player is hidden (VideoPlayerPage.hideShortPlayer); the up-next rail stays
+// visible with its thumbnail images masked, and the view count + relative date are masked.
+const shortPageMasks = (page: Page) => {
+    const video = new VideoPlayerPage(page);
+    return [
+        video.shortViewsCount,
+        video.shortViewsCountDate,
+        video.shortRailImages,
+    ];
+};
+
 // platform: describe title
 test.describe('Video & channel visual tests (desktop)', () => {
 
@@ -43,6 +55,7 @@ test.describe('Video & channel visual tests (desktop)', () => {
     let username: string;
     let videoUrl: string;
     let channelUrl: string;
+    let shortUrl: string;
     // The fixed logged-in NON-owner used for the "user" channel screenshot.
     let viewerEmail: string;
     let viewerUsername: string;
@@ -57,6 +70,7 @@ test.describe('Video & channel visual tests (desktop)', () => {
         password = fx.password;
         videoUrl = fx.videoUrl;
         channelUrl = fx.channelUrl;
+        shortUrl = fx.shortUrl;
         viewerEmail = fx.viewerEmail;
         viewerUsername = fx.viewerUsername;
     });
@@ -117,6 +131,30 @@ test.describe('Video & channel visual tests (desktop)', () => {
         });
     }
 
+    // ── Short watch page ──
+    // Viewport screenshot of the seeded short (@qavischan's fixed short), like the channel
+    // page. The autoplaying player is hidden and the rail images / view count / date are
+    // masked. Three viewer states: anon / user / owner.
+    async function shootShort(page: Page, name: string): Promise<void> {
+        const videoPlayer = new VideoPlayerPage(page);
+        const header = new HeaderPage(page);
+
+        await page.goto(shortUrl, { waitUntil: 'domcontentloaded' });
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 }); // platform: header anchor
+        await expect(videoPlayer.shortDetails, 'Short details block is not visible')
+            .toBeVisible({ timeout: 15_000 });
+        await expect(videoPlayer.shortViewsCount, 'Short details did not populate')
+            .toBeVisible({ timeout: 15_000 });
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await videoPlayer.hideShortPlayer();
+        // platform: no extra settle on desktop (mobile/webkit adds a waitForTimeout here)
+        await expect(page).toHaveScreenshot(name, {
+            fullPage: false,
+            mask: shortPageMasks(page),
+            maxDiffPixelRatio: 0.02,
+        });
+    }
+
     test('Video page for anonymous user', {
         annotation: { type: 'TC', description: 'VIS-VCH-001' }, // platform: TC prefix
     }, async ({ page }) => {
@@ -166,6 +204,38 @@ test.describe('Video & channel visual tests (desktop)', () => {
         });
         await test.step('Open channel page and screenshot', async () => {
             await shootChannel(page, 'channel-page-owner.png', true);
+        });
+    });
+
+    test('Short page for anonymous user', {
+        annotation: { type: 'TC', description: 'VIS-VCH-006' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Open short page and screenshot details block', async () => {
+            await shootShort(page, 'short-page-anon.png');
+        });
+    });
+
+    test('Short page for logged-in user (not owner)', {
+        annotation: { type: 'TC', description: 'VIS-VCH-007' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Login as non-owner', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(viewerEmail, password, viewerUsername, false); // platform: isMobile flag
+        });
+        await test.step('Open short page and screenshot details block', async () => {
+            await shootShort(page, 'short-page-user.png');
+        });
+    });
+
+    test('Short page for channel owner', {
+        annotation: { type: 'TC', description: 'VIS-VCH-008' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Login as owner', async () => {
+            const authFlow = new AuthFlow(page);
+            await authFlow.loginSuccess(userEmail, password, username, false); // platform: isMobile flag
+        });
+        await test.step('Open short page and screenshot details block', async () => {
+            await shootShort(page, 'short-page-owner.png');
         });
     });
 
