@@ -17,6 +17,10 @@ export class VideoPlayerPage {
   readonly playerNextBtn: Locator;
   readonly playerSettingsBtn: Locator;
   readonly playerFullscreenBtn: Locator;
+  // Episodes overlay: button in the controls bar that opens the series episodes panel,
+  // and the panel container itself.
+  readonly playerEpisodesBtn: Locator;
+  readonly episodesPanel: Locator;
 
   // Backwards-compatible aliases
   readonly playButton: Locator;
@@ -91,6 +95,8 @@ export class VideoPlayerPage {
     this.playerNextBtn = page.getByTestId('aitv-player-next');
     this.playerSettingsBtn = page.getByTestId('aitv-player-settings');
     this.playerFullscreenBtn = page.getByTestId('aitv-player-fullscreen');
+    this.playerEpisodesBtn = page.getByTestId('aitv-player-episodes-button');
+    this.episodesPanel = page.getByTestId('aitv-episodes-panel');
 
     this.playButton = this.playerCenterPlayBtn;
     this.shortsPlayButton = page.locator('.swiper-slide-active').getByTestId('aitv-player-center-play');
@@ -113,6 +119,41 @@ export class VideoPlayerPage {
 
   async assertPlayerVisible(): Promise<void> {
     await expect(this.videoElement, 'Video player is not visible').toBeVisible({ timeout: 10_000 });
+  }
+
+  /**
+   * A single episode card inside the Episodes panel, keyed by 1-based episode number.
+   * The card for the CURRENTLY-playing episode renders as a highlighted `<div>` (not
+   * clickable); every other episode is a `<button>`. Parameterized locator, so it lives
+   * in the method rather than the constructor.
+   */
+  episodeCard(episodeNumber: number): Locator {
+    return this.page.getByTestId(`aitv-episodes-panel-card-${episodeNumber}`);
+  }
+
+  /**
+   * Open the series Episodes overlay. Hovers the player first to surface the transient
+   * controls bar, then clicks the Episodes button and waits for the panel to render.
+   */
+  async openEpisodesPanel(): Promise<void> {
+    await expect(this.playerContainer, 'Video player container is not visible').toBeVisible({ timeout: 15_000 });
+    await this.playerContainer.hover();
+    await expect(this.playerEpisodesBtn, 'Episodes button is not visible').toBeVisible({ timeout: 10_000 });
+    await expect(this.playerEpisodesBtn, 'Episodes button is not enabled').toBeEnabled();
+    await this.playerEpisodesBtn.click();
+    await expect(this.episodesPanel, 'Episodes panel did not open').toBeVisible({ timeout: 10_000 });
+  }
+
+  /**
+   * Click the episode card for the given 1-based episode number to switch playback to it.
+   * Only valid for a NON-current episode: the currently-playing episode renders as a
+   * highlighted, non-interactive `<div>` (see episodeCard), so clicking it is a silent no-op.
+   */
+  async clickEpisodeCard(episodeNumber: number): Promise<void> {
+    const card = this.episodeCard(episodeNumber);
+    await expect(card, `Episode ${episodeNumber} card is not visible`).toBeVisible({ timeout: 10_000 });
+    await expect(card, `Episode ${episodeNumber} card is not enabled`).toBeEnabled();
+    await card.click();
   }
 
   async clickPlay(): Promise<void> {

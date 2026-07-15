@@ -204,6 +204,7 @@ VIDEO PLAYER — Regular Player
 ├── currentTime advances while playing              [AUTO][CRITICAL] tests/player/videoPlayer.spec.ts  PLAYER-002
 ├── Progress bar advances while playing             [AUTO][CRITICAL] tests/player/videoPlayer.spec.ts  PLAYER-003
 ├── Series: episode auto-advances to next on end    [AUTO][CRITICAL] tests/player/seriesPlayback.spec.ts  SERIES-003
+├── Series: player Episodes panel switches episode  [AUTO]           tests/player/seriesPlayback.spec.ts  SERIES-004
 ├── Dubbing available for video <1 min              [TODO]                                   PLAYER-004
 ├── Dubbing: switch language                        [TODO]                                   PLAYER-005
 ├── Hot-spots: owner sets hot-spot area             [TODO]                                   PLAYER-006
