@@ -6,7 +6,6 @@
 |-------|----------|-------------|
 | `/pipeline` | `~/.claude/commands/pipeline/` | Universal test automation pipeline (11 phases) |
 | `/jira` | `~/.claude/commands/jira/` | Create Jira issues via REST API |
-| `/planner` | `~/.claude/commands/planner/` | Personal task planner |
 | `/project-manager` | `~/.claude/commands/project-manager/` | Requirements analysis (Russian) |
 
 ## Pipeline Phases (`/pipeline`)

@@ -46,6 +46,11 @@ export default defineConfig({
   reporter: process.env.CI
   ? [
       ['list'],
+      // JSON riding inside playwright-report/ so it ships in the existing
+      // `nightly-regression-report` / `prod-smoke-report` artifacts (no workflow
+      // change needed). Consumed by the /morning-report skill for reliable
+      // pass/fail/error parsing.
+      ['json', { outputFile: 'playwright-report/results.json' }],
       ['html', { open: 'never', outputFolder: 'playwright-report' }],
     ]
   : [
