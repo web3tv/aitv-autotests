@@ -95,7 +95,7 @@ export class VideoPlayerPage {
     this.playButton = this.playerCenterPlayBtn;
     this.shortsPlayButton = page.locator('.swiper-slide-active').getByTestId('aitv-player-center-play');
     this.shortsVideoElement = page.locator('.swiper-slide-active video.vjs-tech');
-    this.activeShortPlaying = page.locator('.swiper-slide-active .vjs-playing');
+    this.activeShortPlaying = page.locator('.swiper-slide-active video-js.vjs-playing');
 
     this.showMoreBtn = page.locator('[data-id="aitv-description-more"]');
     this.showLessBtn = page.locator('[data-id="aitv-description-more"]');
