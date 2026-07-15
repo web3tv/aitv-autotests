@@ -146,6 +146,8 @@ export class VideoPlayerPage {
 
   /**
    * Click the episode card for the given 1-based episode number to switch playback to it.
+   * Only valid for a NON-current episode: the currently-playing episode renders as a
+   * highlighted, non-interactive `<div>` (see episodeCard), so clicking it is a silent no-op.
    */
   async clickEpisodeCard(episodeNumber: number): Promise<void> {
     const card = this.episodeCard(episodeNumber);
