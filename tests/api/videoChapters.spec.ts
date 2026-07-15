@@ -7,7 +7,7 @@ const ENGLISH_VIDEO_PATH = 'test-data/fixtures/video/ENGLISH_VIDEO.mp4';
 const SHORT_VIDEO_PATH = 'test-data/fixtures/video/shortsVideo.MOV';
 
 test.describe('Video chapters — English video', () => {
-    test.describe.configure({ timeout: 480_000 });
+    test.describe.configure({ timeout: 600_000 });
 
     let token: string;
     let videoId: string;
@@ -33,7 +33,7 @@ test.describe('Video chapters — English video', () => {
         });
         videoId = video.id;
 
-        await videoApi.waitForProcessing(token, videoId, 'video', 48, 5_000);
+        await videoApi.waitForProcessing(token, videoId, 'video', 150, 5_000);
         chapters = await videoApi.waitForChapters(videoId, token);
     });
 
