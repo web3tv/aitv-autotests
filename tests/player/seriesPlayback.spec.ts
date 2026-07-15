@@ -32,3 +32,33 @@ test('Series auto-advances to the next episode when an episode finishes', {
         await assertVideoPlays(page);
     });
 });
+
+test('Clicking an episode in the player Episodes panel switches playback to it', {
+    annotation: { type: 'TC', description: 'SERIES-004' },
+}, async ({ page }) => {
+    const player = new VideoPlayerPage(page);
+    // Click a NON-adjacent episode (3) so the switch can't be confused with the auto-advance
+    // "next episode" behaviour. `autoplay=false` keeps episode 1 from ending + auto-advancing
+    // (episodes are ~5s), so the panel and starting episode stay deterministic.
+    const targetEpisode = 3;
+    const targetPath = new URL(fx.episodeUrls[targetEpisode - 1]).pathname;
+
+    await test.step('Open episode 1 in series context (autoplay off)', async () => {
+        await page.goto(`${fx.episodeUrls[0]}?list=${fx.seriesId}&autoplay=false`, { waitUntil: 'domcontentloaded' });
+        await expect(player.videoTitle, 'Episode 1 title is not shown').toContainText('Episode 1');
+    });
+
+    await test.step('Open the Episodes panel', async () => {
+        await player.openEpisodesPanel();
+    });
+
+    await test.step(`Click episode ${targetEpisode} → player switches to it and plays`, async () => {
+        await player.clickEpisodeCard(targetEpisode);
+        await page.waitForURL((url) => url.pathname === targetPath, { timeout: 30_000 });
+        await page.waitForLoadState('domcontentloaded');
+
+        await expect(player.videoTitle, `Episode ${targetEpisode} title is not shown after switch`)
+            .toContainText(`Episode ${targetEpisode}`);
+        await assertVideoPlays(page);
+    });
+});
