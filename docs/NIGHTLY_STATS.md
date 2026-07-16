@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-07-16
+
+**Nightly Regression (dev2)** — ❌ failure · [run #29467900498](https://github.com/web3tv/aitv-autotests/actions/runs/29467900498)
+Passed 94 · Failed 1 · Flaky 1 · Skipped 27 · _(данные: лог-fallback, results.json в артефакте нет)_
+- `content/manage/studioSearch.spec.ts:11` — **[NEEDS CHECK]** — `/api/videos/studio-videos` 90s timeout (ретрай упал уже на `/api/auth/legacy-login`); **2-ю ночь подряд**, та же сигнатура что 15.07
+- flaky `api/videoChapters.spec.ts:40` — `beforeAll` hook timeout 600s (обработка видео), прошёл на ретрае; вчера падал оба раза, сегодня флейк
+
+**Prod Smoke (prod)** — ✅ success · [run #29462035942](https://github.com/web3tv/aitv-autotests/actions/runs/29462035942)
+Passed 5 · Skipped 2 · Failed 0
+
 ## 2026-07-15
 
 **Nightly Regression (dev2)** — ❌ failure · [run #29385416161](https://github.com/web3tv/aitv-autotests/actions/runs/29385416161)

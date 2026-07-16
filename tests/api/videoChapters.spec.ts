@@ -7,7 +7,9 @@ const ENGLISH_VIDEO_PATH = 'test-data/fixtures/video/ENGLISH_VIDEO.mp4';
 const SHORT_VIDEO_PATH = 'test-data/fixtures/video/shortsVideo.MOV';
 
 test.describe('Video chapters — English video', () => {
-    test.describe.configure({ timeout: 600_000 });
+    // dev2 транскод одного ролика гуляет ~400–600s+ (замер 2026-07-16), генерация глав мгновенна.
+    // Бутылочное горлышко — waitForProcessing в beforeAll; 900s даёт запас над разбросом.
+    test.describe.configure({ timeout: 900_000 });
 
     let token: string;
     let videoId: string;
@@ -16,7 +18,7 @@ test.describe('Video chapters — English video', () => {
     let user: { id?: string; email: string; username: string };
 
     test.beforeAll(async ({ request }, testInfo) => {
-        testInfo.setTimeout(600_000);
+        testInfo.setTimeout(900_000);
         const authApi = new AuthApi(request);
         const videoApi = new VideoApi(request);
         const password = process.env.USER_PASSWORD!;
