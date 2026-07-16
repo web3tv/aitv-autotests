@@ -220,6 +220,47 @@ test('Change email twice without verification', { annotation: { type: 'TC', desc
   });
 });
 
+test.fixme('Change email to an already-registered address is rejected', { annotation: { type: 'TC', description: 'ACCOUNT-009' } }, async ({ page, request }) => {
+  let user: { email: string, username: string, password: string };
+  let takenEmail: string;
+
+  await test.step('Create the acting user and a second user whose email is already taken', async () => {
+    const authApi = new AuthApi(request);
+    const { email, username } = await authApi.createAndVerifyUser();
+    user = { email, username, password: process.env.USER_PASSWORD! };
+    const second = await authApi.createAndVerifyUser();
+    takenEmail = second.email;
+  });
+
+  await test.step('Login and open account settings', async () => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
+    await authFlow.openAccountSettings();
+  });
+
+  await test.step('Attempt to change email to the already-registered address -> 422 rejected', async () => {
+    const accountPage = new AccountPage(page);
+    await accountPage.assertDisplayedEmail(user.email);
+
+    const responsePromise = page.waitForResponse(
+      r => r.url().includes('/api/account/email') && r.request().method() === 'PUT',
+      { timeout: 15000 }
+    );
+    await accountPage.fillAndSubmitEmailChange(user.email, takenEmail, user.password);
+    const response = await responsePromise;
+
+    expect(response.status(), 'Change-email request should fail with 422 for a taken email').toBe(422);
+    expect(await response.json(), 'Error body should report the email is already registered')
+      .toMatchObject({ error: 'account_already_exists' });
+  });
+
+  await test.step('UI shows the duplicate-email error and the email stays unchanged', async () => {
+    const accountPage = new AccountPage(page);
+    await accountPage.assertEmailAlreadyRegisteredError();
+    await accountPage.assertDisplayedEmail(user.email);
+  });
+});
+
 test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   let newEmailToken: string;

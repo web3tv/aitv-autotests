@@ -31,6 +31,7 @@ export class AccountPage {
 
     // Messages
     readonly emailConfirmationAlert: Locator;
+    readonly emailAlreadyExistsError: Locator;
 
     // "Edit Password" confirmation modal
     readonly editPasswordModal: Locator;
@@ -65,6 +66,7 @@ export class AccountPage {
 
         // Alert messages
         this.emailConfirmationAlert = page.getByRole('alert').filter({ hasText: 'Please check your email for' });
+        this.emailAlreadyExistsError = page.getByText(/account already exists for this email/i);
 
         // "Edit Password" confirmation modal
         this.editPasswordModal = page.getByLabel('Edit Password');
@@ -161,12 +163,22 @@ export class AccountPage {
         await expect(this.emailConfirmationAlert, 'Email confirmation alert is not visible').toBeVisible();
     }
 
-    async changeEmail(email:string,newEmail: string, password: string): Promise<void> {
+    async fillAndSubmitEmailChange(email: string, newEmail: string, password: string): Promise<void> {
         await expect(this.oldEmail, 'Old email does not contain expected text').toContainText(email);
         await this.clickEditEmailBtn();
         await this.fillNewEmail(newEmail);
         await this.fillEmailPassword(password);
         await this.clickSubmitBtn();
+    }
+
+    async changeEmail(email:string,newEmail: string, password: string): Promise<void> {
+        await this.fillAndSubmitEmailChange(email, newEmail, password);
         await this.verifyEmailConfirmationAlert();
+    }
+
+    // Negative: attempting to switch to an address that already belongs to another account.
+    async assertEmailAlreadyRegisteredError(): Promise<void> {
+        await expect(this.emailAlreadyExistsError, 'Duplicate-email error message is not shown').toBeVisible({ timeout: 10_000 });
+        await expect(this.emailConfirmationAlert, 'Success confirmation must not appear for a taken email').toBeHidden();
     }
 }
