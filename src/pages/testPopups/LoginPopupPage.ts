@@ -37,6 +37,7 @@ export class LoginPopupPage {
 
     // Step 3c: Reset password
     readonly forgotContinueBtn: Locator;
+    readonly resetRequestEmailInput: Locator;
 
     // Step 3b: Code verification (new user / password reset) — 4 separate OTP inputs
     readonly otpInputs: Locator;
@@ -71,14 +72,23 @@ export class LoginPopupPage {
         this.walletEntryBtn   = page.getByTestId('aitv-auth-entry-wallet');
         this.entrySwitchIntentBtn = page.getByTestId('aitv-auth-entry-switch-intent');
         this.backBtn          = page.getByTestId('aitv-auth-back');
-        this.switchToPhoneBtn = page.getByTestId('aitv-auth-email-switch-phone');
+        // W3-2782 renamed the login form's controls from `aitv-auth-email-*` to
+        // `aitv-auth-login-*` (and merged the two steps into one screen). Sign-up keeps
+        // the `aitv-auth-email-*` ids, so accept either — only one exists at a time.
+        this.switchToPhoneBtn = page.getByTestId('aitv-auth-login-switch-phone')
+            .or(page.getByTestId('aitv-auth-email-switch-phone'));
         this.emailSwitchIntentBtn = page.getByTestId('aitv-auth-email-switch-intent');
 
-        this.phoneInput       = page.getByTestId('aitv-auth-phone-input');
+        this.phoneInput       = page.getByTestId('aitv-auth-login-phone-input')
+            .or(page.getByTestId('aitv-auth-phone-input'));
         this.phoneContinueBtn = page.getByTestId('aitv-auth-phone-continue');
         this.phoneSwitchIntentBtn = page.getByTestId('aitv-auth-phone-switch-intent');
 
-        this.emailUsernameeInput  = page.getByTestId('aitv-auth-email-input');
+        // Login identifier field: renamed to `aitv-auth-login-identifier-input` on the
+        // redesigned single-screen login (W3-2782); sign-up and the legacy two-step
+        // login still use `aitv-auth-email-input`.
+        this.emailUsernameeInput  = page.getByTestId('aitv-auth-login-identifier-input')
+            .or(page.getByTestId('aitv-auth-email-input'));
         this.continueBtn      = page.getByTestId('aitv-auth-email-continue')
         this.noAccountError   = this.dialog.getByText('No account found for this email');
         this.continueBtn2      = page.getByTestId('aitv-auth-login-continue')
@@ -89,7 +99,10 @@ export class LoginPopupPage {
         this.resetPasswordBtn = page.getByTestId('aitv-auth-login-forgot');
         this.loginChangeBtn   = page.getByTestId('aitv-auth-login-change');
         this.loginSwitchSignupBtn = page.getByTestId('aitv-auth-login-switch-signup');
-        this.forgotContinueBtn = page.getByRole('dialog').getByRole('button', { name: 'Continue' });
+        this.forgotContinueBtn = page.getByTestId('aitv-auth-reset-continue');
+        // The Reset Password screen's email field carries no test id on either stand;
+        // match it by its (stand-varying) email placeholder within the dialog.
+        this.resetRequestEmailInput = this.dialog.getByPlaceholder(/email/i);
 
         this.otpInputs        = page.locator('[data-testid^="aitv-auth-otp-input-"]');
 
@@ -168,10 +181,37 @@ export class LoginPopupPage {
         await this.continueBtn2.click();
     }
 
+    /**
+     * Bring the LOGIN form to a state where the password field is present, regardless
+     * of layout. The redesigned single-screen login (W3-2782) shows the identifier and
+     * password together, so nothing is needed; the legacy two-step login reveals the
+     * password only after an intermediate Continue on the identifier step. No-op when
+     * the password field is already visible, so it's safe on both stands.
+     *
+     * @param via which identifier was entered — selects the correct "Continue" to press
+     *            on the legacy two-step form (email step vs phone step).
+     */
+    async revealLoginPasswordStep(via: 'email' | 'phone' = 'email'): Promise<void> {
+        if (await this.passwordInput.isVisible().catch(() => false)) {
+            return;
+        }
+        if (via === 'phone') {
+            await this.clickPhoneContinue();
+        } else {
+            await this.clickContinue();
+        }
+    }
+
     async clickResetPassword(): Promise<void> {
         await expect(this.resetPasswordBtn, 'Reset password button is not visible').toBeVisible();
         await expect(this.resetPasswordBtn, 'Reset password button is not enabled').toBeEnabled();
         await this.resetPasswordBtn.click();
+    }
+
+    async fillResetRequestEmail(email: string): Promise<void> {
+        await expect(this.resetRequestEmailInput, 'Reset-request email input is not visible').toBeVisible();
+        await expect(this.resetRequestEmailInput, 'Reset-request email input is not editable').toBeEditable();
+        await this.resetRequestEmailInput.fill(email);
     }
 
     async clickForgotContinue(): Promise<void> {

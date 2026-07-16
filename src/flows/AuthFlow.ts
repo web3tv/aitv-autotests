@@ -38,10 +38,10 @@ export class AuthFlow {
     if (typeof credentials === 'object') {
       await this.loginPopupPage.clickSwitchToPhone();
       await this.loginPopupPage.fillPhone(credentials.phone);
-      await this.loginPopupPage.clickPhoneContinue();
+      await this.loginPopupPage.revealLoginPasswordStep('phone');
     } else {
       await this.loginPopupPage.fillEmailOrUsername(credentials);
-      await this.loginPopupPage.clickContinue();
+      await this.loginPopupPage.revealLoginPasswordStep('email');
     }
     await this.loginPopupPage.fillPassword(password);
     // W3-2725: the password step submits to /api/auth/legacy-login (/api/auth/login is the identifier step)
@@ -64,10 +64,12 @@ export class AuthFlow {
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
-    await this.loginPopupPage.clickContinue();
-    // Two failure modes after the identifier step: an unregistered email is rejected
-    // here ("No account found." — no password step), while a known account advances to
-    // the password step and fails there ("Invalid password.").
+    await this.loginPopupPage.revealLoginPasswordStep('email');
+    // Legacy two-step form: an unregistered email is rejected at the identifier step
+    // ("No account found." — no password step), while a known account advances to the
+    // password step and fails there ("Invalid password."). The redesigned single-screen
+    // form (W3-2782) always shows the password field and returns a single generic
+    // "Invalid email or password" for both cases.
     await expect(
       this.loginPopupPage.noAccountError.or(this.loginPopupPage.passwordInput),
       'Neither the no-account error nor the password step appeared after entering the email'
@@ -82,19 +84,29 @@ export class AuthFlow {
     );
     await this.loginPopupPage.clickContinue2();
     await failResponse;
-    await expect(this.page.locator('body'), 'Invalid-password error is not shown').toContainText('Invalid password. Please re-enter another password.');
+    await expect(this.page.locator('body'), 'Login-failure error is not shown')
+      .toContainText(/Invalid password\. Please re-enter another password\.|Invalid email or password/);
   }
 
-  // A non-existent / unverified email is rejected at the identifier step ("No account
-  // found for this email.") and never reaches the password step.
+  // A non-existent / unverified email is rejected: on the legacy two-step form at the
+  // identifier step ("No account found for this email." — no password step); on the
+  // redesigned single-screen form (W3-2782) only after submitting email + password, as
+  // the generic "Invalid email or password".
   async loginNoAccountFound(email: string): Promise<void> {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
     await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
-    await this.loginPopupPage.clickContinue();
-    await this.loginPopupPage.assertNoAccountFound();
+    if (await this.loginPopupPage.passwordInput.isVisible().catch(() => false)) {
+      await this.loginPopupPage.fillPassword(process.env.USER_PASSWORD ?? 'Admin1@@');
+      await this.loginPopupPage.clickContinue2();
+      await expect(this.page.locator('body'), 'Account-not-found error is not shown')
+        .toContainText(/No account found for this email\.|Invalid email or password/, { timeout: 10_000 });
+    } else {
+      await this.loginPopupPage.clickContinue();
+      await this.loginPopupPage.assertNoAccountFound();
+    }
   }
 
   async loginWith2FaFailed(email:string,password:string){
@@ -103,7 +115,7 @@ export class AuthFlow {
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
-    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.revealLoginPasswordStep('email');
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
     await expect(this.page.locator('body'), '2FA code prompt is not shown').toContainText('sent a verification code');
@@ -127,7 +139,7 @@ export class AuthFlow {
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
-    await this.loginPopupPage.clickContinue();
+    await this.loginPopupPage.revealLoginPasswordStep('email');
     const requestedAt = Date.now();
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
@@ -159,8 +171,19 @@ export class AuthFlow {
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(identifier);
-    await this.loginPopupPage.clickContinue();
-    await expect(this.page.locator('body'), 'Account-not-found error is not shown').toContainText('We couldn\'t find an account for that handle.', { timeout: 10_000 });
+    // Legacy two-step form rejects an unknown handle at the identifier step with a
+    // dedicated message; the single-screen form (W3-2782) surfaces it only after
+    // submitting identifier + password, as the generic "Invalid email or password".
+    if (await this.loginPopupPage.passwordInput.isVisible().catch(() => false)) {
+      await this.loginPopupPage.fillPassword(process.env.USER_PASSWORD ?? 'Admin1@@');
+      await this.loginPopupPage.clickContinue2();
+      await expect(this.page.locator('body'), 'Account-not-found error is not shown')
+        .toContainText(/We couldn't find an account for that handle\.|Invalid email or password/, { timeout: 10_000 });
+    } else {
+      await this.loginPopupPage.clickContinue();
+      await expect(this.page.locator('body'), 'Account-not-found error is not shown')
+        .toContainText('We couldn\'t find an account for that handle.', { timeout: 10_000 });
+    }
   }
 
   async walletLoginSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; skipModalCheck?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
@@ -454,17 +477,17 @@ export class AuthFlow {
     if (typeof credentials === 'object') {
       await this.loginPopupPage.clickSwitchToPhone();
       await this.loginPopupPage.fillPhone(credentials.phone);
-      await this.loginPopupPage.clickPhoneContinue();
+      await this.loginPopupPage.revealLoginPasswordStep('phone');
     } else {
       await this.loginPopupPage.fillEmailOrUsername(credentials);
-      await this.loginPopupPage.clickContinue();
+      await this.loginPopupPage.revealLoginPasswordStep('email');
     }
     await this.loginPopupPage.fillPassword(password);
     await this.loginPopupPage.clickContinue2();
     await expect(
       this.page.locator('body'),
       'Error message not visible in popup'
-    ).toContainText('Invalid password. Please re-enter another password.', { timeout: 10_000 });
+    ).toContainText(/Invalid password\. Please re-enter another password\.|Invalid email or password/, { timeout: 10_000 });
   }
 
   async emailNotFoundViaPopup(email: string): Promise<void> {
@@ -473,11 +496,23 @@ export class AuthFlow {
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
     await this.loginPopupPage.fillEmailOrUsername(email);
-    await this.loginPopupPage.clickContinue();
-    await expect(
-      this.page.locator('body'),
-      'Error message not visible in popup'
-    ).toContainText('No account found for this email.', { timeout: 10_000 });
+    // Legacy two-step form rejects an unknown email at the identifier step; the
+    // single-screen form (W3-2782) surfaces it only after submitting email + password,
+    // as the generic "Invalid email or password".
+    if (await this.loginPopupPage.passwordInput.isVisible().catch(() => false)) {
+      await this.loginPopupPage.fillPassword(process.env.USER_PASSWORD ?? 'Admin1@@');
+      await this.loginPopupPage.clickContinue2();
+      await expect(
+        this.page.locator('body'),
+        'Error message not visible in popup'
+      ).toContainText(/No account found for this email\.|Invalid email or password/, { timeout: 10_000 });
+    } else {
+      await this.loginPopupPage.clickContinue();
+      await expect(
+        this.page.locator('body'),
+        'Error message not visible in popup'
+      ).toContainText('No account found for this email.', { timeout: 10_000 });
+    }
   }
 
   async submitForgotPasswordViaPopup(email: string): Promise<void> {
@@ -485,9 +520,16 @@ export class AuthFlow {
     await this.headerPage.clickLogin();
     await this.loginPopupPage.assertPopupVisible();
     await this.loginPopupPage.clickEmailEntry();
-    await this.loginPopupPage.fillEmailOrUsername(email);
-    await this.loginPopupPage.clickContinue();
+    // Legacy two-step form hides "Forgot password?" behind the password step (reached
+    // by entering the identifier + Continue); the single-screen form (W3-2782) shows it
+    // immediately. Advance only when the link isn't visible yet.
+    if (!(await this.loginPopupPage.resetPasswordBtn.isVisible().catch(() => false))) {
+      await this.loginPopupPage.fillEmailOrUsername(email);
+      await this.loginPopupPage.clickContinue();
+    }
     await this.loginPopupPage.clickResetPassword();
+    // The Reset Password screen has its own email field — fill it, then submit.
+    await this.loginPopupPage.fillResetRequestEmail(email);
     await this.loginPopupPage.clickForgotContinue();
   }
 
