@@ -91,7 +91,9 @@ NOTIFICATIONS (/notifications) — suite в test.fixme (WIP)
 ────────────────────────────────────────────────────────────────
 AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641)
 ├── Subscribed user gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
-└── Unsubscribed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+├── Unsubscribed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+├── Subscriber gets exactly ONE video_release notification (no duplicates)  [TODO] W3-2735 (dup bug fixed on stage — regression guard)  AITV-003
+└── Author self-subscription on own coming-soon video is rejected (4xx) + not persisted  [BLOCKED] W3-2735 (bug NOT fixed: POST returns 204, subscription persists, author self-notified)  AITV-004
 
 ────────────────────────────────────────────────────────────────
 CHANNELS
