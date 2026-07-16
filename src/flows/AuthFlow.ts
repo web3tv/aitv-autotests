@@ -30,11 +30,27 @@ export class AuthFlow {
     this.loginPopupPage = new LoginPopupPage(page);
   }
 
+  /**
+   * Open the auth modal and land on the email login step. Desktop still has a Login
+   * button in the header; on mobile (W3-2782 item 7) it was removed, so login is reached
+   * via Sign Up → "Email or Phone Number" → "Already have an account? Log In".
+   */
+  private async openLoginEmailForm(isMobile: boolean): Promise<void> {
+    if (isMobile) {
+      await this.headerPage.clickSignup();
+      await this.loginPopupPage.assertPopupVisible();
+      await this.loginPopupPage.clickEmailEntry();
+      await this.loginPopupPage.clickSwitchToLoginIntent();
+    } else {
+      await this.headerPage.clickLogin();
+      await this.loginPopupPage.assertPopupVisible();
+      await this.loginPopupPage.clickEmailEntry();
+    }
+  }
+
   async loginSuccess(credentials: string | { phone: string }, password: string, username: string, isMobile = false) {
     await this.page.goto('/', { waitUntil: 'domcontentloaded' });
-    await this.headerPage.clickLogin();
-    await this.loginPopupPage.assertPopupVisible();
-    await this.loginPopupPage.clickEmailEntry();
+    await this.openLoginEmailForm(isMobile);
     if (typeof credentials === 'object') {
       await this.loginPopupPage.clickSwitchToPhone();
       await this.loginPopupPage.fillPhone(credentials.phone);

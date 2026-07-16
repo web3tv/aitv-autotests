@@ -152,6 +152,18 @@ export class LoginPopupPage {
         await this.emailEntryBtn.click();
     }
 
+    /**
+     * On the "Sign up with email" step, flip the intent to login via the
+     * "Already have an account? Log In" link (`aitv-auth-email-switch-intent`).
+     * Used by the mobile login flow, where the header no longer exposes a Login button
+     * (W3-2782) and login is reached through Sign Up.
+     */
+    async clickSwitchToLoginIntent(): Promise<void> {
+        await expect(this.emailSwitchIntentBtn, '"Already have an account? Log In" link is not visible').toBeVisible();
+        await expect(this.emailSwitchIntentBtn, '"Already have an account? Log In" link is not enabled').toBeEnabled();
+        await this.emailSwitchIntentBtn.click();
+    }
+
     async fillEmailOrUsername(value: string): Promise<void> {
         await expect(this.emailUsernameeInput, 'Email/username input is not visible').toBeVisible();
         await this.emailUsernameeInput.fill(value);
