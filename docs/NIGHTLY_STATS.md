@@ -18,6 +18,28 @@
 
 ---
 
+## 2026-07-17
+
+**Nightly Regression (dev2)** — ❌ failure · [run #29551291216](https://github.com/web3tv/aitv-autotests/actions/runs/29551291216)
+Passed 87 · Failed 9 · Flaky 0 · Skipped 28 · _(данные: лог-fallback, results.json в артефакте нет)_
+- `account/account.spec.ts:7` — **[NEEDS CHECK]** — «Edit password button» не найдена на account-странице (AccountPage:99), оба раза
+- `account/account.spec.ts:114` — **[NEEDS CHECK]** — `oldEmail` не найден (AccountPage:167), оба раза
+- `account/account.spec.ts:165` — **[NEEDS CHECK]** — `oldEmail` не найден (AccountPage:167), оба раза
+- `account/account.spec.ts:264` — **[NEEDS CHECK]** — `displayedEmail` не найден (AccountPage:78), оба раза
+- `auth/walletAuth.spec.ts:43` — **[NEEDS CHECK]** — `walletAddress` не виден на account-странице (:82), оба раза
+- `auth/walletAuth.spec.ts:63` — **[NEEDS CHECK]** — `addWalletBtn` не виден (:88), оба раза
+- `auth/walletAuth.spec.ts:135` — **[NEEDS CHECK]** — `addEmailInput` не виден (:156), оба раза
+- ↑ все 7 — один системный корень: элементы account/security-страницы отсутствуют на dev2 (вероятно редизайн/регрессия страницы), не чинить тесты вслепую
+- `content/manage/studioSearch.spec.ts:11` — **[NEEDS CHECK]** — `/content` waitForResponse 90s timeout, «Studio content is not visible»; **3-ю ночь подряд** (та же сигнатура 15.07 и 16.07)
+- `player/seriesPlayback.spec.ts:36` — **[NEEDS CHECK]** — «Episodes button is not visible» в плеере (:141), оба раза
+
+**Prod Smoke (prod)** — ❌ failure · [run #29545475810](https://github.com/web3tv/aitv-autotests/actions/runs/29545475810)
+Passed 2 · Skipped 2 · Failed 3
+- `production/prodSmoke.spec.ts:10` — **[NEEDS CHECK]** — «Email/username input is not visible» на странице логина (LoginPage:143), оба раза
+- `production/prodSmoke.spec.ts:48` — **[NEEDS CHECK]** — то же (падает на логине перед загрузкой), оба раза
+- `production/prodSmoke.spec.ts:78` — **[NEEDS CHECK]** — то же (падает на логине перед плеером), оба раза
+- ↑ все 3 — один корень: инпут email/username не виден на login-странице prod; **вчера (16.07) prod был зелёный** → свежая регрессия/инцидент на проде
+
 ## 2026-07-16
 
 **Nightly Regression (dev2)** — ❌ failure · [run #29467900498](https://github.com/web3tv/aitv-autotests/actions/runs/29467900498)
