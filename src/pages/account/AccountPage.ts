@@ -5,89 +5,89 @@ export class AccountPage {
 
     readonly page: Page;
 
-    // Edit buttons
-    readonly editPasswordBtn: Locator;
-    readonly editEmailBtn: Locator;
-    readonly addEmailBtn: Locator;
+    // Security tab — row entries
+    readonly emailValue: Locator;
+    readonly changeEmailBtn: Locator;
+    readonly passwordRow: Locator;
+    readonly addEmailRow: Locator;      // wallet-only account: "Add Email"
+    readonly noWalletRow: Locator;      // email account: "No wallet added"
+    readonly walletValue: Locator;      // wallet account: connected address
 
-    // Password inputs
-    readonly oldPasswordInput: Locator;
-    readonly newPasswordInput: Locator;
-    readonly confirmPasswordInput: Locator;
-
-    // Email inputs
+    // Change-email modal (aitv-email-modal)
+    readonly emailModal: Locator;
+    readonly emailCurrentValue: Locator;
     readonly newEmailInput: Locator;
     readonly emailPasswordInput: Locator;
-    readonly oldEmail: Locator;
-    readonly displayedEmail: Locator;
+    readonly emailContinueBtn: Locator;
+    readonly emailSentStep: Locator;
+    readonly emailCloseBtn: Locator;
+
+    // Change-password modal (aitv-password-modal)
+    readonly passwordModal: Locator;
+    readonly currentPasswordInput: Locator;
+    readonly newPasswordInput: Locator;
+    readonly repeatPasswordInput: Locator;
+    readonly passwordConfirmBtn: Locator;
+    readonly passwordSentStep: Locator;
+    readonly passwordCloseBtn: Locator;
 
     // Wallet
-    readonly walletAddress: Locator;
-    readonly addWalletBtn: Locator;
     readonly walletAddedToast: Locator;
 
-    // Buttons
-    readonly submitBtn: Locator;
-
-    // Messages
-    readonly emailConfirmationAlert: Locator;
+    // Negative
     readonly emailAlreadyExistsError: Locator;
-
-    // "Edit Password" confirmation modal
-    readonly editPasswordModal: Locator;
-    readonly editPasswordModalBtn: Locator;
 
     constructor(page: Page) {
         this.page = page;
 
-        // Edit buttons
-        this.editPasswordBtn = page.getByRole('button', { name: 'Edit' }).nth(1);
-        this.editEmailBtn = page.getByRole('button', { name: 'Edit' }).first();
-        this.addEmailBtn = page.getByRole('button', { name: 'Add' });
+        // Security tab rows
+        this.emailValue = page.getByTestId('aitv-security-email-value');
+        this.changeEmailBtn = page.getByTestId('aitv-security-email-change-btn');
+        this.passwordRow = page.getByTestId('aitv-security-password-row');
+        this.addEmailRow = page.getByTestId('aitv-security-add-email-row');
+        this.noWalletRow = page.getByTestId('aitv-security-no-wallet-row');
+        this.walletValue = page.getByTestId('aitv-security-wallet-value');
 
-        // Password input fields
-        this.oldPasswordInput = page.locator('input[name="oldPassword"]');
-        this.newPasswordInput = page.locator('input[name="newPassword"]');
-        this.confirmPasswordInput = page.locator('input[name="confirmPassword"]');
+        // Change-email modal
+        this.emailModal = page.getByTestId('aitv-email-modal');
+        this.emailCurrentValue = page.getByTestId('aitv-email-current-value');
+        this.newEmailInput = page.getByTestId('aitv-email-new-input');
+        this.emailPasswordInput = page.getByTestId('aitv-email-password-input');
+        this.emailContinueBtn = page.getByTestId('aitv-email-continue-btn');
+        this.emailSentStep = page.getByTestId('aitv-email-sent-step');
+        this.emailCloseBtn = page.getByTestId('aitv-email-close-btn');
 
-        // Email input fields
-        this.newEmailInput = page.locator('input[name="newEmail"]');
-        this.emailPasswordInput = page.getByRole('textbox', { name: 'Enter password' });
-        this.oldEmail = page.getByTestId('account-page');
-        this.displayedEmail = page.locator('h3').filter({ hasText: 'Email Address' }).locator('~ p');
+        // Change-password modal
+        this.passwordModal = page.getByTestId('aitv-password-modal');
+        this.currentPasswordInput = page.getByTestId('aitv-password-current-input');
+        this.newPasswordInput = page.getByTestId('aitv-password-new-input');
+        this.repeatPasswordInput = page.getByTestId('aitv-password-repeat-input');
+        this.passwordConfirmBtn = page.getByTestId('aitv-password-confirm-btn');
+        this.passwordSentStep = page.getByTestId('aitv-password-sent-step');
+        this.passwordCloseBtn = page.getByTestId('aitv-password-close-btn');
 
         // Wallet
-        this.walletAddress = page.locator('h3').filter({ hasText: 'Wallet Used for Sign In' }).locator('~ p');
-        this.addWalletBtn = page.getByRole('button', { name: 'Add wallet' });
         this.walletAddedToast = page.getByText('Wallet successfully added!');
 
-        // Submit button
-        this.submitBtn = page.getByRole('button', { name: 'Submit' });
-
-        // Alert messages
-        this.emailConfirmationAlert = page.getByRole('alert').filter({ hasText: 'Please check your email for' });
+        // Negative
         this.emailAlreadyExistsError = page.getByText(/account already exists for this email/i);
-
-        // "Edit Password" confirmation modal
-        this.editPasswordModal = page.getByLabel('Edit Password');
-        this.editPasswordModalBtn = this.editPasswordModal.getByRole('button');
     }
 
     // DISPLAY ASSERTIONS
     async assertDisplayedEmail(email: string): Promise<void> {
-        await expect(this.displayedEmail, 'Email address is not displayed correctly').toHaveText(email);
+        await expect(this.emailValue, 'Email address is not displayed correctly').toHaveText(email);
     }
 
     async assertDisplayedWalletAddress(address: string): Promise<void> {
-        await expect(this.walletAddress, 'Wallet address is not visible').toBeVisible();
-        await expect(this.walletAddress, 'Wallet address is not displayed correctly').toHaveText(address);
+        await expect(this.walletValue, 'Wallet address is not visible').toBeVisible();
+        await expect(this.walletValue, 'Wallet address is not displayed correctly').toHaveText(address);
     }
 
-    // ADD WALLET (email-only user)
+    // ADD WALLET (email-only user) — opens the wallet selector (wallet-selector-<rdns>)
     async clickAddWalletBtn(): Promise<void> {
-        await expect(this.addWalletBtn, 'Add wallet button is not visible').toBeVisible();
-        await expect(this.addWalletBtn, 'Add wallet button is not enabled').toBeEnabled();
-        await this.addWalletBtn.click();
+        await expect(this.noWalletRow, 'Add wallet row is not visible').toBeVisible();
+        await expect(this.noWalletRow, 'Add wallet row is not enabled').toBeEnabled();
+        await this.noWalletRow.click();
     }
 
     async assertWalletAddedToast(): Promise<void> {
@@ -96,14 +96,15 @@ export class AccountPage {
 
     // CHANGE PASSWORD METHODS
     async clickEditPasswordBtn(): Promise<void> {
-        await expect(this.editPasswordBtn, 'Edit password button is not enabled').toBeEnabled();
-        await this.editPasswordBtn.click();
+        await expect(this.passwordRow, 'Change password row is not enabled').toBeEnabled();
+        await this.passwordRow.click();
+        await expect(this.passwordModal, 'Change password modal is not visible').toBeVisible();
     }
 
     async fillOldPassword(password: string): Promise<void> {
-        await expect(this.oldPasswordInput, 'Old password input is not editable').toBeEditable();
-        await this.oldPasswordInput.click();
-        await this.oldPasswordInput.fill(password);
+        await expect(this.currentPasswordInput, 'Current password input is not editable').toBeEditable();
+        await this.currentPasswordInput.click();
+        await this.currentPasswordInput.fill(password);
     }
 
     async fillNewPassword(password: string): Promise<void> {
@@ -113,14 +114,14 @@ export class AccountPage {
     }
 
     async fillConfirmPassword(password: string): Promise<void> {
-        await expect(this.confirmPasswordInput, 'Confirm password input is not editable').toBeEditable();
-        await this.confirmPasswordInput.click();
-        await this.confirmPasswordInput.fill(password);
+        await expect(this.repeatPasswordInput, 'Repeat password input is not editable').toBeEditable();
+        await this.repeatPasswordInput.click();
+        await this.repeatPasswordInput.fill(password);
     }
 
-    async clickSubmitBtn(): Promise<void> {
-        await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
-        await this.submitBtn.click();
+    async clickPasswordConfirmBtn(): Promise<void> {
+        await expect(this.passwordConfirmBtn, 'Confirm button is not enabled').toBeEnabled();
+        await this.passwordConfirmBtn.click();
     }
 
     async changePassword(oldPassword: string, newPassword: string): Promise<void> {
@@ -128,23 +129,36 @@ export class AccountPage {
         await this.fillOldPassword(oldPassword);
         await this.fillNewPassword(newPassword);
         await this.fillConfirmPassword(newPassword);
-        await this.clickSubmitBtn();
-        await expect(this.editPasswordModal, 'Edit Password confirmation modal is not visible').toContainText('confirm password change');
-        await expect(this.editPasswordModalBtn, 'Edit Password modal button is not visible').toBeVisible();
-        await this.editPasswordModalBtn.click();
+        await this.clickPasswordConfirmBtn();
+        // The change is confirmed via an email link; the modal advances to a "sent" step.
+        await expect(this.passwordSentStep, 'Password change sent-step is not visible').toBeVisible();
+        await this.closePasswordModal();
     }
 
-    // ADD EMAIL (wallet-only user)
+    async closePasswordModal(): Promise<void> {
+        await expect(this.passwordCloseBtn, 'Password modal close button is not visible').toBeVisible();
+        await this.passwordCloseBtn.click();
+        await expect(this.passwordModal, 'Password modal did not close').toBeHidden();
+    }
+
+    // ADD EMAIL (wallet-only user) — opens the same aitv-email-modal ("Add Email", no password field)
     async clickAddEmailBtn(): Promise<void> {
-        await expect(this.addEmailBtn, 'Add email button is not visible').toBeVisible();
-        await expect(this.addEmailBtn, 'Add email button is not enabled').toBeEnabled();
-        await this.addEmailBtn.click();
+        await expect(this.addEmailRow, 'Add email row is not visible').toBeVisible();
+        await expect(this.addEmailRow, 'Add email row is not enabled').toBeEnabled();
+        await this.addEmailRow.click();
+        await expect(this.emailModal, 'Add email modal is not visible').toBeVisible();
+    }
+
+    async fillAndSubmitAddEmail(newEmail: string): Promise<void> {
+        await this.fillNewEmail(newEmail);
+        await this.clickEmailContinueBtn();
     }
 
     // CHANGE EMAIL METHODS
     async clickEditEmailBtn(): Promise<void> {
-        await expect(this.editEmailBtn, 'Edit email button is not enabled').toBeEnabled();
-        await this.editEmailBtn.click();
+        await expect(this.changeEmailBtn, 'Change email button is not enabled').toBeEnabled();
+        await this.changeEmailBtn.click();
+        await expect(this.emailModal, 'Change email modal is not visible').toBeVisible();
     }
 
     async fillNewEmail(email: string): Promise<void> {
@@ -159,26 +173,41 @@ export class AccountPage {
         await this.emailPasswordInput.fill(password);
     }
 
+    async clickEmailContinueBtn(): Promise<void> {
+        await expect(this.emailContinueBtn, 'Continue button is not enabled').toBeEnabled();
+        await this.emailContinueBtn.click();
+    }
+
     async verifyEmailConfirmationAlert(): Promise<void> {
-        await expect(this.emailConfirmationAlert, 'Email confirmation alert is not visible').toBeVisible();
+        // The old toast is gone — the modal advances to an in-modal "sent" step instead.
+        await expect(this.emailSentStep, 'Email change sent-step is not visible').toBeVisible();
     }
 
     async fillAndSubmitEmailChange(email: string, newEmail: string, password: string): Promise<void> {
-        await expect(this.oldEmail, 'Old email does not contain expected text').toContainText(email);
+        await this.assertDisplayedEmail(email);
         await this.clickEditEmailBtn();
         await this.fillNewEmail(newEmail);
         await this.fillEmailPassword(password);
-        await this.clickSubmitBtn();
+        await this.clickEmailContinueBtn();
     }
 
-    async changeEmail(email:string,newEmail: string, password: string): Promise<void> {
+    async changeEmail(email: string, newEmail: string, password: string): Promise<void> {
         await this.fillAndSubmitEmailChange(email, newEmail, password);
         await this.verifyEmailConfirmationAlert();
+        await this.closeEmailModal();
+    }
+
+    async closeEmailModal(): Promise<void> {
+        await expect(this.emailCloseBtn, 'Email modal close button is not visible').toBeVisible();
+        await this.emailCloseBtn.click();
+        await expect(this.emailModal, 'Email modal did not close').toBeHidden();
     }
 
     // Negative: attempting to switch to an address that already belongs to another account.
     async assertEmailAlreadyRegisteredError(): Promise<void> {
         await expect(this.emailAlreadyExistsError, 'Duplicate-email error message is not shown').toBeVisible({ timeout: 10_000 });
-        await expect(this.emailConfirmationAlert, 'Success confirmation must not appear for a taken email').toBeHidden();
+        await expect(this.emailAlreadyExistsError, 'Duplicate-email error text is incorrect')
+            .toHaveText('An account already exists for this email.');
+        await expect(this.emailSentStep, 'Success sent-step must not appear for a taken email').toBeHidden();
     }
 }

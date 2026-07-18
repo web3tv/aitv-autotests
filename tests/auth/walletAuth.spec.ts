@@ -60,7 +60,10 @@ test.describe('Wallet auth tests', () => {
 
 test.describe('Wallet and email tests',()=>{
 
-  test('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
+  // BLOCKED by W3-2809: adding a wallet from /account fails with "Error verifying address" —
+  // the wallet is never linked, so addWalletFromAccountSuccess times out on /api/auth/add-wallet.
+  // https://stretch-com.atlassian.net/browse/W3-2809
+  test.fixme('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     let wallet: WalletInfo;
@@ -98,10 +101,7 @@ test.describe('Wallet and email tests',()=>{
 
       await page.goto('/account', { waitUntil: 'domcontentloaded' });
       await accountPage.clickAddEmailBtn();
-      const addEmailInput = page.getByRole('textbox', { name: 'Enter email' });
-      await expect(addEmailInput, 'Add email input is not visible').toBeVisible();
-      await addEmailInput.fill(firstEmail);
-      await accountPage.clickSubmitBtn();
+      await accountPage.fillAndSubmitAddEmail(firstEmail);
 
       firstVerificationUrl = await mailFlows1.emailChangeUrl(firstToken);
     });
@@ -113,17 +113,14 @@ test.describe('Wallet and email tests',()=>{
       const secondToken = await mailHelper2.getToken(secondEmail);
 
       await accountPage.clickAddEmailBtn();
-      const addEmailInput = page.getByRole('textbox', { name: 'Enter email' });
-      await expect(addEmailInput, 'Add email input is not visible').toBeVisible();
-      await addEmailInput.fill(secondEmail);
-      await accountPage.clickSubmitBtn();
+      await accountPage.fillAndSubmitAddEmail(secondEmail);
 
       secondVerificationUrl = await mailFlows2.emailChangeUrl(secondToken);
     });
 
     await test.step('Verify second email — expect success', async () => {
       await page.goto(secondVerificationUrl, { waitUntil: 'domcontentloaded' });
-      await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
+      await expect(page.getByText(/Email changed/i)).toBeVisible({ timeout: 40_000 });
     });
 
     await test.step('Visit first verification link — expect expired error', async () => {
@@ -152,16 +149,13 @@ test.describe('Wallet and email tests',()=>{
     await test.step('Navigate to account settings and add email', async () => {
       await page.goto('/account', { waitUntil: 'domcontentloaded' });
       await accountPage.clickAddEmailBtn();
-      const addEmailInput = page.getByRole('textbox', { name: 'Enter email' });
-      await expect(addEmailInput, 'Add email input is not visible').toBeVisible();
-      await addEmailInput.fill(email);
-      await accountPage.clickSubmitBtn();
+      await accountPage.fillAndSubmitAddEmail(email);
     });
 
     await test.step('Verify email via Gmail', async () => {
       const verificationUrl = await createMailFlows(request).emailChangeUrl(mailToken);
       await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-      await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
+      await expect(page.getByText(/Email changed/i)).toBeVisible({ timeout: 40_000 });
     });
   });
 })

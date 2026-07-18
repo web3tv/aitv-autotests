@@ -4,7 +4,7 @@ import { AuthApi } from '../../src/api/AuthApi';
 import { AccountPage } from '../../src/pages/account/AccountPage';
 import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
 
-test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' } }, async ({ page, request }) => {
+test('Change password with email confirmation', { annotation: { type: 'TC', description: 'ACCOUNT-010' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string, token: string };
   const newPassword = 'NewPassword1@';
 
@@ -14,7 +14,42 @@ test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' }
     user = { email, username, password: process.env.USER_PASSWORD!, token: mailToken };
   });
 
-  await test.step('Update password without verifying via email', async () => {
+  await test.step('Change password and confirm it via the email link', async () => {
+    const authFlow = new AuthFlow(page);
+    const accountPage = new AccountPage(page);
+    const mailFlows = createMailFlows(request);
+
+    await authFlow.loginSuccess(user.email, user.password, user.username);
+    await authFlow.openAccountSettings();
+    await accountPage.changePassword(user.password, newPassword);
+
+    const verificationUrl = await mailFlows.passwordChangeUrl(user.token);
+    await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText(/Password updated/i)).toBeVisible({ timeout: 20_000 });
+  });
+
+  await test.step('Login with the old password -> Error', async () => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginFailed(user.email, user.password);
+  });
+
+  await test.step('Login with the new password -> Success', async () => {
+    const authFlow = new AuthFlow(page);
+    await authFlow.loginSuccess(user.email, newPassword, user.username);
+  });
+});
+
+test('Change password without email confirmation', { annotation: { type: 'TC', description: 'ACCOUNT-011' } }, async ({ page, request }) => {
+  let user: { email: string, username: string, password: string };
+  const newPassword = 'NewPassword1@';
+
+  await test.step('Create user', async () => {
+    const authApi = new AuthApi(request);
+    const { email, username } = await authApi.createAndVerifyUser();
+    user = { email, username, password: process.env.USER_PASSWORD! };
+  });
+
+  await test.step('Change password but do NOT confirm it via email', async () => {
     const authFlow = new AuthFlow(page);
     const accountPage = new AccountPage(page);
 
@@ -24,32 +59,14 @@ test('Change password', { annotation: { type: 'TC', description: 'ACCOUNT-002' }
     await authFlow.logout();
   });
 
-  await test.step('Login with old password without verifying via email -> Success', async () => {
-    const authFlow = new AuthFlow(page);
-    await authFlow.loginSuccess(user.email, user.password, user.username);
-    await authFlow.logout();
-  });
-
-  await test.step('Login with new password without verifying via email -> Error', async () => {
+  await test.step('Login with the new (unconfirmed) password -> Error', async () => {
     const authFlow = new AuthFlow(page);
     await authFlow.loginFailed(user.email, newPassword);
   });
 
-  await test.step('Verify changing password via email', async () => {
-    const mailFlows = createMailFlows(request);
-    const verificationUrl = await mailFlows.passwordChangeUrl(user.token);
-    await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
-  });
-
-  await test.step('Login with old password after verification via email -> Error', async () => {
+  await test.step('Login with the old password -> Success', async () => {
     const authFlow = new AuthFlow(page);
-    await authFlow.loginFailed(user.email, user.password);
-  });
-
-  await test.step('Login with new password after verification via email -> Success', async () => {
-    const authFlow = new AuthFlow(page);
-    await authFlow.loginSuccess(user.email, newPassword, user.username);
+    await authFlow.loginSuccess(user.email, user.password, user.username);
   });
 });
 
@@ -89,14 +106,14 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
     const mailFlows = createMailFlows(request);
     const verificationUrl = await mailFlows.passwordChangeUrl(user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/Password updated/i)).toBeVisible({ timeout: 20_000 });
   });
 
   await test.step('Verify second password change via email', async () => {
     const mailFlows = createMailFlows(request);
     const verificationUrl = await mailFlows.passwordChangeUrl(user.token, { since: beforeSecondChange });
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/Password updated/i)).toBeVisible({ timeout: 20_000 });
   });
 
   await test.step('Login with second new password -> Success', async () => {
@@ -145,13 +162,14 @@ test('Change email without verification then change password', { annotation: { t
     const mailFlows = createMailFlows(request);
     const verificationUrl = await mailFlows.passwordChangeUrl(user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Password Successfully Verified!/i)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(/Password updated/i)).toBeVisible({ timeout: 20_000 });
   });
 
   await test.step('Old email + new password -> Success (unverified email change did not switch the login)', async () => {
     const authFlow = new AuthFlow(page);
+    // Visiting the password-change verification link already signs the current session out
+    // ("You'll be signed out from all other devices"), so no explicit logout is needed here.
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await authFlow.logout();
     await authFlow.loginSuccess(user.email, newPassword, user.username);
     await authFlow.logout();
   });
@@ -190,7 +208,6 @@ test('Change email twice without verification', { annotation: { type: 'TC', desc
     const firstNewToken = await mailHelper.getToken(firstNewEmail);
     await accountPage.changeEmail(user.email, firstNewEmail, user.password);
     firstVerificationUrl = await mailFlows.emailChangeUrl(firstNewToken);
-    await expect(accountPage.emailConfirmationAlert, 'First email change toast did not disappear').toBeHidden({ timeout: 10_000 });
   });
 
   await test.step('Change email second time immediately', async () => {
@@ -215,12 +232,12 @@ test('Change email twice without verification', { annotation: { type: 'TC', desc
     const authFlow = new AuthFlow(page);
     const verificationUrl = await mailFlows.emailChangeUrl(secondNewToken);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
+    await expect(page.getByText(/Email changed/i)).toBeVisible({ timeout: 40_000 });
     await authFlow.loginSuccess(secondNewEmail, user.password, user.username);
   });
 });
 
-test.fixme('Change email to an already-registered address is rejected', { annotation: { type: 'TC', description: 'ACCOUNT-009' } }, async ({ page, request }) => {
+test('Change email to an already-registered address is rejected', { annotation: { type: 'TC', description: 'ACCOUNT-009' } }, async ({ page, request }) => {
   let user: { email: string, username: string, password: string };
   let takenEmail: string;
 
@@ -238,25 +255,52 @@ test.fixme('Change email to an already-registered address is rejected', { annota
     await authFlow.openAccountSettings();
   });
 
-  await test.step('Attempt to change email to the already-registered address -> 422 rejected', async () => {
+  // On submit the FE validates the new email against GET /api/emails/check; a taken address is
+  // flagged client-side (inline error + disabled button) and the change is never sent — no
+  // PUT /api/account/email fires.
+  let putEmailSent = false;
+
+  await test.step('Submit the already-registered email -> FE reports it as existing', async () => {
     const accountPage = new AccountPage(page);
     await accountPage.assertDisplayedEmail(user.email);
+    await accountPage.clickEditEmailBtn();
+    await accountPage.fillNewEmail(takenEmail);
+    await accountPage.fillEmailPassword(user.password);
 
-    const responsePromise = page.waitForResponse(
-      r => r.url().includes('/api/account/email') && r.request().method() === 'PUT',
+    // Guard: no change-email request must be sent for a taken address.
+    page.on('request', r => {
+      if (r.url().includes('/api/account/email') && r.method() === 'PUT') putEmailSent = true;
+    });
+
+    // Clicking Continue triggers the availability check (button is enabled until the check returns).
+    const checkPromise = page.waitForResponse(
+      r => r.url().includes('/api/emails/check') && r.request().method() === 'GET',
       { timeout: 15000 }
     );
-    await accountPage.fillAndSubmitEmailChange(user.email, takenEmail, user.password);
-    const response = await responsePromise;
+    await expect(accountPage.emailContinueBtn, 'Continue is not enabled before submit').toBeEnabled();
+    await accountPage.emailContinueBtn.click();
+    const checkResponse = await checkPromise;
 
-    expect(response.status(), 'Change-email request should fail with 422 for a taken email').toBe(422);
-    expect(await response.json(), 'Error body should report the email is already registered')
-      .toMatchObject({ error: 'account_already_exists' });
+    expect(checkResponse.status(), 'emails/check should return 200').toBe(200);
+    expect(await checkResponse.json(), 'The taken email must be reported as already existing')
+      .toMatchObject({ isExist: true });
   });
 
-  await test.step('UI shows the duplicate-email error and the email stays unchanged', async () => {
+  await test.step('Submit is blocked client-side: inline error + disabled button, no PUT sent', async () => {
     const accountPage = new AccountPage(page);
+
+    // Duplicate-email error shown, "sent" step never reached, Continue becomes disabled.
     await accountPage.assertEmailAlreadyRegisteredError();
+    await expect(accountPage.emailContinueBtn, 'Continue must be disabled for a taken email').toBeDisabled();
+
+    // No change-email request is ever fired.
+    await page.waitForTimeout(2000);
+    expect(putEmailSent, 'No PUT /api/account/email must be sent for a taken email').toBe(false);
+  });
+
+  await test.step('The email on the account page stays unchanged', async () => {
+    const accountPage = new AccountPage(page);
+    await accountPage.closeEmailModal();
     await accountPage.assertDisplayedEmail(user.email);
   });
 });
@@ -303,7 +347,7 @@ test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } },
 
   await test.step('Verify changing email via email', async () => {
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByText(/Email Successfully Verified!/i)).toBeVisible({ timeout: 40_000 });
+    await expect(page.getByText(/Email changed/i)).toBeVisible({ timeout: 40_000 });
   });
 
   await test.step('Login with NEW email after verification -> Success', async () => {
