@@ -6,7 +6,7 @@ import { Page } from '@playwright/test';
 import { createMailFlows } from "../utils/mailHelper";
 import { ForgotPasswordPage } from "../pages/auth/ForgotPasswordPage";
 import { injectEthereumMock, type WalletInfo, type EvmWalletType } from "../utils/walletMock";
-import { AccountPage } from "../pages/account/AccountPage";
+import { SecurityPage } from "../pages/account/SecurityPage";
 import { TestPopupsPage } from "../pages/testPopups/TestPopupsPage";
 import { LoginPopupPage } from "../pages/testPopups/LoginPopupPage";
 import { DataGenerator } from "../utils/dataGenerator";
@@ -252,9 +252,9 @@ export class AuthFlow {
       ? options.wallet
       : await injectEthereumMock(this.page, options?.wallet, walletType);
 
-    const accountPage = new AccountPage(this.page);
+    const securityPage = new SecurityPage(this.page);
     await this.page.goto('/account', { waitUntil: 'domcontentloaded' });
-    await accountPage.clickAddWalletBtn();
+    await securityPage.clickAddWalletBtn();
 
     const addWalletResponse = this.page.waitForResponse(
       r => r.url().includes('/api/auth/add-wallet'),
@@ -264,8 +264,8 @@ export class AuthFlow {
     const res = await addWalletResponse;
     expect(res.status(), `auth/add-wallet returned ${res.status()}`).toBe(200);
 
-    await accountPage.assertWalletAddedToast();
-    await accountPage.assertDisplayedWalletAddress(wallet.address);
+    await securityPage.assertWalletAddedToast();
+    await securityPage.assertDisplayedWalletAddress(wallet.address);
 
     return wallet;
   }
