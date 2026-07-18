@@ -106,7 +106,7 @@ project/runtime: `visual/` (Docker projects), `production/` (prod env), `api/`
 ```
 tests/
   auth/         — Authentication (login, registration, 2FA, reset, email templates) + registration-page validation
-  account/      — Account & profile settings, notifications (profile/notifications are test.fixme WIP)
+  accountSettings/ — /account page: security (email/password/wallet/2FA), profile (name/bio/social), notifications; organized by tab (profile/notifications/privacy/channels WIP)
   content/      — Creator: create & manage video content
     upload/     — Movie/Series/Shorts/Taxonomy upload + upload validation
     manage/     — Visibility, description, analytics, NFT conversion, studio search

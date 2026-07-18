@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
-import { AccountPage } from '../../src/pages/account/AccountPage';
+import { SecurityPage } from '../../src/pages/account/SecurityPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletInfo } from '../../src/utils/walletMock';
 
@@ -42,7 +42,7 @@ test.describe('Wallet auth tests', () => {
 
   test('Display wallet address on account page', { annotation: { type: 'TC', description: 'ACCOUNT-003' } }, async ({ page }) => {
     const authFlow = new AuthFlow(page);
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
     let walletAddress: string;
 
     await test.step('Register via wallet', async () => {
@@ -52,7 +52,7 @@ test.describe('Wallet auth tests', () => {
 
     await test.step('Navigate to account page and verify wallet address', async () => {
       await page.goto('/account', { waitUntil: 'domcontentloaded' });
-      await accountPage.assertDisplayedWalletAddress(walletAddress);
+      await securityPage.assertDisplayedWalletAddress(walletAddress);
     });
   });
 
@@ -85,7 +85,7 @@ test.describe('Wallet and email tests',()=>{
   // https://stretch-com.atlassian.net/browse/W3-2730
   test.fixme('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
     let firstVerificationUrl: string;
     let secondVerificationUrl: string;
 
@@ -100,8 +100,8 @@ test.describe('Wallet and email tests',()=>{
       const firstToken = await mailHelper1.getToken(firstEmail);
 
       await page.goto('/account', { waitUntil: 'domcontentloaded' });
-      await accountPage.clickAddEmailBtn();
-      await accountPage.fillAndSubmitAddEmail(firstEmail);
+      await securityPage.clickAddEmailBtn();
+      await securityPage.fillAndSubmitAddEmail(firstEmail);
 
       firstVerificationUrl = await mailFlows1.emailChangeUrl(firstToken);
     });
@@ -112,8 +112,8 @@ test.describe('Wallet and email tests',()=>{
       const secondEmail = await mailHelper2.generateEmail();
       const secondToken = await mailHelper2.getToken(secondEmail);
 
-      await accountPage.clickAddEmailBtn();
-      await accountPage.fillAndSubmitAddEmail(secondEmail);
+      await securityPage.clickAddEmailBtn();
+      await securityPage.fillAndSubmitAddEmail(secondEmail);
 
       secondVerificationUrl = await mailFlows2.emailChangeUrl(secondToken);
     });
@@ -131,7 +131,7 @@ test.describe('Wallet and email tests',()=>{
 
   test('Add email to wallet account', { annotation: { type: 'TC', description: 'AUTH-011' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
     const mailHelper = createMailHelper(request);
     let email: string;
     let mailToken: string;
@@ -148,8 +148,8 @@ test.describe('Wallet and email tests',()=>{
 
     await test.step('Navigate to account settings and add email', async () => {
       await page.goto('/account', { waitUntil: 'domcontentloaded' });
-      await accountPage.clickAddEmailBtn();
-      await accountPage.fillAndSubmitAddEmail(email);
+      await securityPage.clickAddEmailBtn();
+      await securityPage.fillAndSubmitAddEmail(email);
     });
 
     await test.step('Verify email via Gmail', async () => {

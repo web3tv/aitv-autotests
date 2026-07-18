@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { AuthApi } from '../../src/api/AuthApi';
-import { AccountPage } from '../../src/pages/account/AccountPage';
+import { SecurityPage } from '../../src/pages/account/SecurityPage';
 import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
 
 test('Change password with email confirmation', { annotation: { type: 'TC', description: 'ACCOUNT-010' } }, async ({ page, request }) => {
@@ -16,12 +16,12 @@ test('Change password with email confirmation', { annotation: { type: 'TC', desc
 
   await test.step('Change password and confirm it via the email link', async () => {
     const authFlow = new AuthFlow(page);
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
     const mailFlows = createMailFlows(request);
 
     await authFlow.loginSuccess(user.email, user.password, user.username);
     await authFlow.openAccountSettings();
-    await accountPage.changePassword(user.password, newPassword);
+    await securityPage.changePassword(user.password, newPassword);
 
     const verificationUrl = await mailFlows.passwordChangeUrl(user.token);
     await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
@@ -51,11 +51,11 @@ test('Change password without email confirmation', { annotation: { type: 'TC', d
 
   await test.step('Change password but do NOT confirm it via email', async () => {
     const authFlow = new AuthFlow(page);
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
 
     await authFlow.loginSuccess(user.email, user.password, user.username);
     await authFlow.openAccountSettings();
-    await accountPage.changePassword(user.password, newPassword);
+    await securityPage.changePassword(user.password, newPassword);
     await authFlow.logout();
   });
 
@@ -91,15 +91,15 @@ test.fixme('Change password twice in one session', { annotation: { type: 'TC', d
   });
 
   await test.step('Change password first time', async () => {
-    const accountPage = new AccountPage(page);
-    await accountPage.changePassword(user.password, firstNewPassword);
+    const securityPage = new SecurityPage(page);
+    await securityPage.changePassword(user.password, firstNewPassword);
   });
 
   const beforeSecondChange = Date.now();
 
   await test.step('Change password second time immediately', async () => {
-    const accountPage = new AccountPage(page);
-    await accountPage.changePassword(user.password, secondNewPassword);
+    const securityPage = new SecurityPage(page);
+    await securityPage.changePassword(user.password, secondNewPassword);
   });
 
   await test.step('Verify first password change via email', async () => {
@@ -146,16 +146,16 @@ test('Change email without verification then change password', { annotation: { t
   });
 
   await test.step('Change email without verification', async () => {
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
     const mailHelper = createMailHelper(request);
     newEmail = await mailHelper.generateEmail();
     await mailHelper.createMailbox();
-    await accountPage.changeEmail(user.email, newEmail, user.password);
+    await securityPage.changeEmail(user.email, newEmail, user.password);
   });
 
   await test.step('Change password immediately after unverified email change', async () => {
-    const accountPage = new AccountPage(page);
-    await accountPage.changePassword(user.password, newPassword);
+    const securityPage = new SecurityPage(page);
+    await securityPage.changePassword(user.password, newPassword);
   });
 
   await test.step('Verify password change via email from the still-verified old address', async () => {
@@ -200,23 +200,23 @@ test('Change email twice without verification', { annotation: { type: 'TC', desc
   });
 
   await test.step('Change email first time and get verification link', async () => {
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
     const mailHelper = createMailHelper(request);
     const mailFlows = createMailFlows(request);
     firstNewEmail = await mailHelper.generateEmail();
     await mailHelper.createMailbox();
     const firstNewToken = await mailHelper.getToken(firstNewEmail);
-    await accountPage.changeEmail(user.email, firstNewEmail, user.password);
+    await securityPage.changeEmail(user.email, firstNewEmail, user.password);
     firstVerificationUrl = await mailFlows.emailChangeUrl(firstNewToken);
   });
 
   await test.step('Change email second time immediately', async () => {
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
     const mailHelper = createMailHelper(request);
     secondNewEmail = await mailHelper.generateEmail();
     await mailHelper.createMailbox();
     secondNewToken = await mailHelper.getToken(secondNewEmail);
-    await accountPage.changeEmail(user.email, secondNewEmail, user.password);
+    await securityPage.changeEmail(user.email, secondNewEmail, user.password);
   });
 
   await test.step('First verification link is invalid and email not assigned', async () => {
@@ -261,11 +261,11 @@ test('Change email to an already-registered address is rejected', { annotation: 
   let putEmailSent = false;
 
   await test.step('Submit the already-registered email -> FE reports it as existing', async () => {
-    const accountPage = new AccountPage(page);
-    await accountPage.assertDisplayedEmail(user.email);
-    await accountPage.clickEditEmailBtn();
-    await accountPage.fillNewEmail(takenEmail);
-    await accountPage.fillEmailPassword(user.password);
+    const securityPage = new SecurityPage(page);
+    await securityPage.assertDisplayedEmail(user.email);
+    await securityPage.clickEditEmailBtn();
+    await securityPage.fillNewEmail(takenEmail);
+    await securityPage.fillEmailPassword(user.password);
 
     // Guard: no change-email request must be sent for a taken address.
     page.on('request', r => {
@@ -277,8 +277,8 @@ test('Change email to an already-registered address is rejected', { annotation: 
       r => r.url().includes('/api/emails/check') && r.request().method() === 'GET',
       { timeout: 15000 }
     );
-    await expect(accountPage.emailContinueBtn, 'Continue is not enabled before submit').toBeEnabled();
-    await accountPage.emailContinueBtn.click();
+    await expect(securityPage.emailContinueBtn, 'Continue is not enabled before submit').toBeEnabled();
+    await securityPage.emailContinueBtn.click();
     const checkResponse = await checkPromise;
 
     expect(checkResponse.status(), 'emails/check should return 200').toBe(200);
@@ -287,11 +287,11 @@ test('Change email to an already-registered address is rejected', { annotation: 
   });
 
   await test.step('Submit is blocked client-side: inline error + disabled button, no PUT sent', async () => {
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
 
     // Duplicate-email error shown, "sent" step never reached, Continue becomes disabled.
-    await accountPage.assertEmailAlreadyRegisteredError();
-    await expect(accountPage.emailContinueBtn, 'Continue must be disabled for a taken email').toBeDisabled();
+    await securityPage.assertEmailAlreadyRegisteredError();
+    await expect(securityPage.emailContinueBtn, 'Continue must be disabled for a taken email').toBeDisabled();
 
     // No change-email request is ever fired.
     await page.waitForTimeout(2000);
@@ -299,9 +299,9 @@ test('Change email to an already-registered address is rejected', { annotation: 
   });
 
   await test.step('The email on the account page stays unchanged', async () => {
-    const accountPage = new AccountPage(page);
-    await accountPage.closeEmailModal();
-    await accountPage.assertDisplayedEmail(user.email);
+    const securityPage = new SecurityPage(page);
+    await securityPage.closeEmailModal();
+    await securityPage.assertDisplayedEmail(user.email);
   });
 });
 
@@ -319,7 +319,7 @@ test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } },
 
   await test.step('Change email', async () => {
     const authFlow = new AuthFlow(page);
-    const accountPage = new AccountPage(page);
+    const securityPage = new SecurityPage(page);
     const mailHelper = createMailHelper(request);
     const mailFlows = createMailFlows(request);
     newEmail = await mailHelper.generateEmail();
@@ -328,8 +328,8 @@ test('Change email', { annotation: { type: 'TC', description: 'ACCOUNT-001' } },
     await authFlow.openAccountSettings();
     await mailHelper.createMailbox();
     newEmailToken = await mailHelper.getToken(newEmail);
-    await accountPage.assertDisplayedEmail(user.email);
-    await accountPage.changeEmail(user.email, newEmail, user.password);
+    await securityPage.assertDisplayedEmail(user.email);
+    await securityPage.changeEmail(user.email, newEmail, user.password);
     verificationUrl = await mailFlows.emailChangeUrl(newEmailToken);
     await authFlow.logout();
   });
