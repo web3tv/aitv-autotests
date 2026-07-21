@@ -308,10 +308,31 @@ HOME PAGE
 └── Continue Watching: Dismiss removes item         [TODO]                                   HOME-004
 
 ────────────────────────────────────────────────────────────────
-SEARCH (/search)
-├── Search by keyword returns videos                [TODO]                                   SEARCH-001
-├── Search: Shorts tab                              [TODO]                                   SEARCH-002
-└── Search: Channels tab                            [TODO]                                   SEARCH-003
+SEARCH (global search modal — W3-2692)
+├── Search by keyword returns videos (All tab)      [AUTO] tests/search/globalSearch.spec.ts SEARCH-001
+├── Keyword search matches video description         [AUTO] tests/search/globalSearch.spec.ts SEARCH-051
+├── Search: Shorts tab                              [AUTO] tests/search/globalSearch.spec.ts SEARCH-002
+├── Search: Channels tab (by handle) + navigate     [AUTO] tests/search/globalSearch.spec.ts SEARCH-003
+├── All tab: parallel video+shorts+channel fan-out  [AUTO] tests/search/globalSearch.spec.ts SEARCH-004
+├── Movies tab: standalone videos (series excluded) [AUTO] tests/search/globalSearch.spec.ts SEARCH-005
+├── Series tab: series content (standalone excluded)[AUTO] tests/search/globalSearch.spec.ts SEARCH-006
+├── Modal opens from header + input autofocused     [AUTO] tests/search/globalSearch.spec.ts SEARCH-010
+├── Modal closes via close button and Escape        [AUTO] tests/search/globalSearch.spec.ts SEARCH-011
+├── Result card click navigates + closes modal      [AUTO] tests/search/globalSearch.spec.ts SEARCH-012
+├── Reopening the modal resets query + view         [AUTO] tests/search/globalSearch.spec.ts SEARCH-013
+├── Clear button restores the empty-state view      [AUTO] tests/search/globalSearch.spec.ts SEARCH-020
+├── No-results state + Reset Search                 [AUTO] tests/search/globalSearch.spec.ts SEARCH-021
+├── Search API failure → error state + retry        [AUTO] tests/search/globalSearch.spec.ts SEARCH-022
+├── Guest empty-state carousels (no Continue watch) [AUTO] tests/search/globalSearch.spec.ts SEARCH-030
+├── Whitespace-only query fires no search call      [AUTO] tests/search/globalSearch.spec.ts SEARCH-040
+├── Single-character query searches (no min gate)   [AUTO] tests/search/globalSearch.spec.ts SEARCH-041
+├── Special-char/XSS query handled safely           [AUTO] tests/search/globalSearch.spec.ts SEARCH-042
+├── Debounce collapses rapid typing to one call     [AUTO] tests/search/globalSearch.spec.ts SEARCH-043
+├── Query retained across tab switches              [AUTO] tests/search/globalSearch.spec.ts SEARCH-045
+├── Opening search pauses video; closing resumes    [AUTO] tests/search/globalSearch.spec.ts SEARCH-050
+├── Channels search by display name                 [TODO] (fixture name==handle; low value)  SEARCH-007
+├── Logged-in empty-state: Continue watching row    [TODO] (needs seeded watch history)       SEARCH-031
+└── Stale-response race safety (latest wins)        [TODO] (P3, interception-heavy)           SEARCH-044
 
 ────────────────────────────────────────────────────────────────
 HERO / CRYPTO

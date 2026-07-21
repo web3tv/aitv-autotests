@@ -5,9 +5,14 @@
  * instead of masked. The title is deliberately long (but ≤100 chars — the backend
  * limit) to exercise the two-line wrap/ellipsis; the description is long to exercise
  * the truncation + "more" control.
+ *
+ * The public titles (video/series/short) embed the unique `QAVISCHAN` marker so global
+ * search (W3-2692) resolves them deterministically — the stand carries historical
+ * orphan videos from earlier seed runs that reused the old generic titles, and the
+ * `QAVISCHAN` token guarantees a search hit maps to THIS fixture and no other content.
  */
 export const FIXTURE_VIDEO_TITLE =
-    'Длинное название видеоролика Длинное название видеоролика Длинное название QA Visual';
+    'Уникальное длинное название видео QAVISCHAN для проверки переноса строки и эллипсиса';
 
 export const FIXTURE_VIDEO_DESCRIPTION =
     'Длинное описание видео для проверки обрезки текста и кнопки «more». '.repeat(8).trim();
@@ -20,11 +25,11 @@ export const FIXTURE_VIDEO_GENRES = ['Action', 'Adventure', 'Comedy'];
 export const FIXTURE_VIDEO_CONTENT_RATING = 18;
 
 /** Fixed series seeded on the visual channel — populates the channel "Series" tab. */
-export const FIXTURE_SERIES_TITLE = 'QA Visual Series';
+export const FIXTURE_SERIES_TITLE = 'QAVISCHAN Unique Series';
 export const FIXTURE_SERIES_EPISODE_COUNT = 3;
 
 /** Fixed short seeded on the channel — populates the "Shorts" tab (auto-plays in grid). */
-export const FIXTURE_SHORT_TITLE = 'QA Visual Short';
+export const FIXTURE_SHORT_TITLE = 'QAVISCHAN Unique Short';
 /** Non-public videos on the same channel — used to assert they stay HIDDEN publicly. */
 export const FIXTURE_PRIVATE_TITLE = 'QA Visual Private';
 export const FIXTURE_UNLISTED_TITLE = 'QA Visual Unlisted';
