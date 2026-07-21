@@ -1,7 +1,7 @@
 ---
 name: test-case-designer
 description: Generates detailed test cases for a feature based on requirements, existing coverage, and project conventions
-model: sonnet
+model: opus
 ---
 
 # Test Case Designer Agent
