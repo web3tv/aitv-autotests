@@ -67,6 +67,8 @@ test.describe('Video & channel visual tests (desktop)', () => {
     let videoUrl: string;
     let channelUrl: string;
     let shortUrl: string;
+    // Episode 1 opened in series context (`?list=`) — renders the series watch layout.
+    let seriesUrl: string;
     // The fixed logged-in NON-owner used for the "user" channel screenshot.
     let viewerEmail: string;
     let viewerUsername: string;
@@ -82,6 +84,7 @@ test.describe('Video & channel visual tests (desktop)', () => {
         videoUrl = fx.videoUrl;
         channelUrl = fx.channelUrl;
         shortUrl = fx.shortUrl;
+        seriesUrl = `${fx.episodeUrls[0]}?list=${fx.seriesId}&autoplay=false`;
         viewerEmail = fx.viewerEmail;
         viewerUsername = fx.viewerUsername;
     });
@@ -105,6 +108,49 @@ test.describe('Video & channel visual tests (desktop)', () => {
         await page.evaluate(async () => { await document.fonts.ready; });
         await expect(videoPlayer.videoDescriptionBlock).toHaveScreenshot(name, {
             mask: videoDetailsMasks(page),
+        });
+    }
+
+    // ── Watch page layout: movie vs series ──
+    // Viewport screenshot of the WHOLE watch page — the redesigned player area, the
+    // series row under the player (series only) and the right-hand rail (episode list
+    // in series context, related videos otherwise). The `<video-js>` subtree is hidden
+    // (non-deterministic frame; hideShortPlayer's CSS is player-agnostic) and playback
+    // is pinned paused so the ~5s fixture video can't end and auto-navigate away
+    // mid-shot. Both possible rails are masked (episode view counts grow per run,
+    // related videos are algorithmic) — the movie/series layout split is what the shot
+    // asserts.
+    async function shootWatchLayout(page: Page, url: string, name: string, series: boolean): Promise<void> {
+        const videoPlayer = new VideoPlayerPage(page);
+        const header = new HeaderPage(page);
+
+        await page.goto(url, { waitUntil: 'domcontentloaded' });
+        await expect(header.header, 'Header is not visible').toBeVisible({ timeout: 15_000 }); // platform: header anchor
+        await videoPlayer.holdPaused();
+        await expect(videoPlayer.videoDescriptionBlock, 'Video details block is not visible')
+            .toBeVisible({ timeout: 15_000 });
+        if (series) {
+            await expect(videoPlayer.seriesRow, 'Series row under the player is not visible') // platform: desktop series row
+                .toBeVisible({ timeout: 15_000 });
+            await expect(videoPlayer.playlistVideosRail, 'Episodes rail did not render')
+                .toBeVisible({ timeout: 15_000 });
+        } else {
+            await expect(videoPlayer.recommendedVideos, 'Related videos rail did not render') // platform: desktop rail anchor
+                .toBeVisible({ timeout: 15_000 });
+            await expect(videoPlayer.seriesRow, 'Series row must not render on a movie page') // platform: desktop series row
+                .toHaveCount(0);
+        }
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await videoPlayer.hideShortPlayer();
+        // platform: no extra settle on desktop (mobile/webkit adds a waitForTimeout here)
+        await expect(page).toHaveScreenshot(name, {
+            fullPage: false,
+            mask: [
+                ...videoDetailsMasks(page),
+                videoPlayer.recommendedVideos,
+                videoPlayer.playlistVideosRail,
+            ],
+            maxDiffPixelRatio: 0.02,
         });
     }
 
@@ -249,6 +295,22 @@ test.describe('Video & channel visual tests (desktop)', () => {
         });
         await test.step('Open short page and screenshot details block', async () => {
             await shootShort(page, 'short-page-owner.png');
+        });
+    });
+
+    test('Movie watch page layout', {
+        annotation: { type: 'TC', description: 'VIS-VCH-009' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Open the movie page and screenshot the layout', async () => {
+            await shootWatchLayout(page, videoUrl, 'movie-page-layout.png', false);
+        });
+    });
+
+    test('Series watch page layout (episode row under the player)', {
+        annotation: { type: 'TC', description: 'VIS-VCH-010' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Open an episode in series context and screenshot the layout', async () => {
+            await shootWatchLayout(page, seriesUrl, 'series-page-layout.png', true);
         });
     });
 

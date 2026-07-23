@@ -43,6 +43,8 @@ test.describe('Video & channel visual tests (mobile)', () => {
     let username: string;
     let videoUrl: string;
     let channelUrl: string;
+    // Episode 1 opened in series context (`?list=`) — renders the series watch layout.
+    let seriesUrl: string;
     // The fixed logged-in NON-owner used for the "user" channel screenshot.
     let viewerEmail: string;
     let viewerUsername: string;
@@ -57,6 +59,7 @@ test.describe('Video & channel visual tests (mobile)', () => {
         password = fx.password;
         videoUrl = fx.videoUrl;
         channelUrl = fx.channelUrl;
+        seriesUrl = `${fx.episodeUrls[0]}?list=${fx.seriesId}&autoplay=false`;
         viewerEmail = fx.viewerEmail;
         viewerUsername = fx.viewerUsername;
     });
@@ -80,6 +83,46 @@ test.describe('Video & channel visual tests (mobile)', () => {
         await page.evaluate(async () => { await document.fonts.ready; });
         await expect(videoPlayer.videoDescriptionBlock).toHaveScreenshot(name, {
             mask: videoDetailsMasks(page),
+        });
+    }
+
+    // ── Watch page layout: movie vs series ──
+    // Viewport screenshot of the WHOLE watch page — the redesigned player area, the
+    // compact series row + action row under the player (mobile layout). The `<video-js>`
+    // subtree is hidden (non-deterministic frame; hideShortPlayer's CSS is
+    // player-agnostic) and playback is pinned paused so the ~5s fixture video can't end
+    // and auto-navigate away mid-shot. Both possible rails are masked (episode view
+    // counts grow per run, related videos are algorithmic) — the movie/series layout
+    // split is what the shot asserts.
+    async function shootWatchLayout(page: Page, url: string, name: string, series: boolean): Promise<void> {
+        const videoPlayer = new VideoPlayerPage(page);
+        const header = new HeaderPage(page);
+
+        await page.goto(url, { waitUntil: 'domcontentloaded' });
+        await expect(header.mobileHeader, 'Mobile header is not visible').toBeVisible({ timeout: 15_000 }); // platform: header anchor
+        await videoPlayer.holdPaused();
+        await expect(videoPlayer.videoDescriptionBlock, 'Video details block is not visible')
+            .toBeVisible({ timeout: 15_000 });
+        if (series) {
+            await expect(videoPlayer.mobileSeriesRow, 'Compact series row under the player is not visible') // platform: compact series row
+                .toBeVisible({ timeout: 15_000 });
+        } else {
+            await expect(videoPlayer.mobileActionRow, 'Compact action row under the player is not visible') // platform: compact action row anchor
+                .toBeVisible({ timeout: 15_000 });
+            await expect(videoPlayer.mobileSeriesRow, 'Series row must not render on a movie page') // platform: compact series row
+                .toHaveCount(0);
+        }
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await videoPlayer.hideShortPlayer();
+        await page.waitForTimeout(2000); // platform: mobile settle (webkit is slower to settle the layout)
+        await expect(page).toHaveScreenshot(name, {
+            fullPage: false,
+            mask: [
+                ...videoDetailsMasks(page),
+                videoPlayer.recommendedVideos,
+                videoPlayer.playlistVideosRail,
+            ],
+            maxDiffPixelRatio: 0.02,
         });
     }
 
@@ -166,6 +209,22 @@ test.describe('Video & channel visual tests (mobile)', () => {
         });
         await test.step('Open channel page and screenshot', async () => {
             await shootChannel(page, 'channel-page-owner.png', true);
+        });
+    });
+
+    test('Movie watch page layout', {
+        annotation: { type: 'TC', description: 'VIS-MOB-006' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Open the movie page and screenshot the layout', async () => {
+            await shootWatchLayout(page, videoUrl, 'movie-page-layout.png', false);
+        });
+    });
+
+    test('Series watch page layout (episode row under the player)', {
+        annotation: { type: 'TC', description: 'VIS-MOB-007' }, // platform: TC prefix
+    }, async ({ page }) => {
+        await test.step('Open an episode in series context and screenshot the layout', async () => {
+            await shootWatchLayout(page, seriesUrl, 'series-page-layout.png', true);
         });
     });
 
