@@ -94,6 +94,24 @@ AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641)
 └── Unsubscribed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
 
 ────────────────────────────────────────────────────────────────
+AITV HEADER NOTIFICATIONS POPUP (W3-2748)
+├── Bell opens popup (title + controls)                          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-001
+├── Popup closes on Escape / outside click                        [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-002
+├── Fresh user: empty state, no badge, controls disabled          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-003
+├── Unread badge count + per-row unread dots                      [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-004
+├── Sections: comment reply → Mentions, follow → For you          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-005
+├── Hover row → seen event, dot/badge clear                       [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-006
+├── Click row → clicked event + navigation (/studio)               [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-007
+├── Mark all as read: batch, badge reset, persists after reload   [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-008
+├── Settings gear → /notifications                                [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-009
+├── "Show older notifications" disabled stub                      [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-010
+├── Followed channel upload → For-you notification → opens video  [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-011
+├── Badge caps at "9+"                                            [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-012
+├── Weekly watchlist notification                                 [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B01
+├── New episodes in started/completed series                      [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B02
+└── "Someone liked your comment" (aggregated)                     [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B03
+
+────────────────────────────────────────────────────────────────
 CHANNELS
 ├── Channel created automatically on registration   [TODO]                                   CHANNEL-001
 ├── Create additional channel                       [TODO]                                   CHANNEL-002
