@@ -769,7 +769,7 @@ export class VideoApi {
         return Number(channel?.statistics?.view_count ?? 0);
     }
 
-    async getNotifications(token: string): Promise<any[]> {
+    async getNotifications(token: string, status?: 'seen' | 'unseen' | 'clicked'): Promise<any[]> {
         const response = await this.request.get(
             `${this.baseUrl}/user/notifications/on-platform`,
             {
@@ -777,6 +777,7 @@ export class VideoApi {
                     Accept: "application/json",
                     Authorization: `Bearer ${token}`,
                 },
+                params: status ? { status, maxResults: '99' } : {},
             }
         );
 
