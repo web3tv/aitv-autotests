@@ -1,4 +1,4 @@
-# Pipeline Flow — `/web3tv-pipeline` v3.0
+# Pipeline Flow — `/pipeline` v5.0
 
 ```
 Phase 0    Branch Setup              — creates test/<name> branch from main
@@ -23,13 +23,19 @@ Phase 6    MCP Smoke Check           — basic functionality via MCP Playwright 
      │
 Phase 7    MCP Edge Cases Check      — edge cases via MCP Playwright (optional)
      │
-Phase 8    Code Writing              — POM → Flow → spec + run tests
+Phase 8    Visual Verification       — MCP screenshots of affected UI/emails vs design (always);
+     │                                 saved to docs/<task>-screenshots/ + SETUP.md journal:
+     │                                 on first creation of a docs/<task>-* folder, create SETUP.md
+     │                                 recording how users/content/fixture were set up (who, how,
+     │                                 with what params), progress and how to resume — keep it
+     │                                 updated through the remaining phases
+Phase 9    Code Writing              — POM → Flow → spec + run tests
      │
-Phase 9    Code Review               — code-reviewer agent
+Phase 10   Code Review               — code-reviewer agent
      │
-Phase 10   Coverage Update           — update TEST_COVERAGE.md
+Phase 11   Coverage Update           — update TEST_COVERAGE.md
      │
-     ✅ Summary
+     ✅ Summary (incl. SETUP.md updated)
 ```
 
 ## Pause Points
@@ -49,7 +55,7 @@ Phase 10   Coverage Update           — update TEST_COVERAGE.md
 | 2     | codebase-analyzer | Analyze backend + frontend code |
 | 3     | test-case-designer | Design test cases |
 | 4     | test-analyzer | Analyze existing test infrastructure |
-| 6-7   | MCP Playwright | Execute UI checks |
-| 8     | test-runner | Run Playwright tests |
-| 9     | code-reviewer | Review written code |
-| 10    | coverage-mapper | Update TEST_COVERAGE.md |
+| 6-8   | MCP Playwright | Execute UI checks + visual screenshots |
+| 9     | test-runner | Run Playwright tests |
+| 10    | code-reviewer | Review written code |
+| 11    | coverage-mapper | Update TEST_COVERAGE.md |
