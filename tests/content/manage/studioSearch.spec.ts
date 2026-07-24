@@ -11,6 +11,8 @@ test.describe('Studio Content Search', () => {
     test('Search filters videos by title', {
         annotation: { type: 'TC', description: 'STUDIO-017' },
     }, async ({ page, request }) => {
+        // Two uploads with waitForProcessing on slow dev transcode don't fit the default 90s budget
+        test.setTimeout(240_000);
         const authApi = new AuthApi(request);
         const videoApi = new VideoApi(request);
         const authFlow = new AuthFlow(page);
