@@ -25,6 +25,11 @@ export class SecurityPage {
     readonly emailSentStep: Locator;
     readonly emailCloseBtn: Locator;
 
+    // "Email changed" success modal (aitv-email-changed-modal) — shown once the FE polling sees
+    // the new email on the profile; both Sign In and closing it log the user out (redirect to /login)
+    readonly emailChangedModal: Locator;
+    readonly emailSignInBtn: Locator;
+
     // Change-password modal (aitv-password-modal)
     readonly passwordModal: Locator;
     readonly currentPasswordInput: Locator;
@@ -67,6 +72,8 @@ export class SecurityPage {
         this.emailContinueBtn = page.getByTestId('aitv-email-continue-btn');
         this.emailSentStep = page.getByTestId('aitv-email-sent-step');
         this.emailCloseBtn = page.getByTestId('aitv-email-close-btn');
+        this.emailChangedModal = page.getByTestId('aitv-email-changed-modal');
+        this.emailSignInBtn = page.getByTestId('aitv-email-signin-btn');
 
         // Change-password modal
         this.passwordModal = page.getByTestId('aitv-password-modal');
@@ -195,6 +202,18 @@ export class SecurityPage {
     async clickEmailContinueBtn(): Promise<void> {
         await expect(this.emailContinueBtn, 'Continue button is not enabled').toBeEnabled();
         await this.emailContinueBtn.click();
+    }
+
+    // The modal pops up on its own: the FE polls the profile and shows it as soon as the new
+    // email is applied (for a wallet-only account the backend applies it right after PUT).
+    async waitForEmailChangedModal(): Promise<void> {
+        await expect(this.emailChangedModal, 'Email changed modal did not appear').toBeVisible({ timeout: 30_000 });
+    }
+
+    async clickEmailChangedSignIn(): Promise<void> {
+        await expect(this.emailSignInBtn, 'Sign In button is not visible').toBeVisible();
+        await expect(this.emailSignInBtn, 'Sign In button is not enabled').toBeEnabled();
+        await this.emailSignInBtn.click();
     }
 
     async verifyEmailConfirmationAlert(): Promise<void> {

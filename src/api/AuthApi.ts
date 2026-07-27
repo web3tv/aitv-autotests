@@ -103,10 +103,10 @@ export class AuthApi {
         return { username: (completeJson.user?.username as string) ?? username };
     }
 
-    async createAndVerifyUser() {
+    async createAndVerifyUser(email?: string) {
         const mailHelper = createMailHelper(this.request);
         const mailFlows = new MailFlows(mailHelper);
-        const email = await mailHelper.generateEmail();
+        email ??= mailHelper.generateEmail();
         const mailToken = await mailHelper.getToken(email);
 
         const { username } = await this.registerViaOtp(

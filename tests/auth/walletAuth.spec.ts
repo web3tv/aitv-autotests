@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
 import { SecurityPage } from '../../src/pages/account/SecurityPage';
+import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletInfo } from '../../src/utils/walletMock';
 
@@ -79,53 +80,114 @@ test.describe('Wallet and email tests',()=>{
     });
   });
 
-  // BLOCKED by W3-2730: email verification link / mail delivery — the 2nd added email's
-  // "Your verification link" message is not delivered to the new address (misrouted), so the
-  // "Add second email" step times out waiting for it. Same root cause as ACCOUNT-008.
-  // https://stretch-com.atlassian.net/browse/W3-2730
-  test.fixme('Add email to wallet account twice without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
+  // BLOCKED by W3-2852: an email must NOT be attached before its verification link is clicked,
+  // but the backend applies a wallet account's first email right away on PUT /api/account/email
+  // (UserManager::updateEmail sets it immediately when the user has no email yet), so the FE
+  // shows the "Email changed" modal with no link click and the address gets occupied without
+  // proving mailbox ownership. The steps below codify that current (buggy) flow as observed on
+  // dev2 27.07.2026 — kept green for reference; once W3-2852 is fixed, rework the test: after
+  // submit the email must stay unassigned until the letter link is visited.
+  // https://stretch-com.atlassian.net/browse/W3-2852
+  test.fixme('Add email to wallet account applies immediately without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const securityPage = new SecurityPage(page);
-    let firstVerificationUrl: string;
-    let secondVerificationUrl: string;
+    const mailHelper = createMailHelper(request);
+    const mailFlows = createMailFlows(request);
+    let email: string;
+    let mailToken: string;
+    let verificationUrl: string;
 
     await test.step('Register via wallet', async () => {
       await authFlow.walletRegisterSuccess();
     });
 
-    await test.step('Add first email and save verification URL', async () => {
-      const mailHelper1 = createMailHelper(request);
-      const mailFlows1 = createMailFlows(request);
-      const firstEmail = await mailHelper1.generateEmail();
-      const firstToken = await mailHelper1.getToken(firstEmail);
+    await test.step('Add email to the wallet account', async () => {
+      email = mailHelper.generateEmail();
+      mailToken = await mailHelper.getToken(email);
 
       await page.goto('/account', { waitUntil: 'domcontentloaded' });
       await securityPage.clickAddEmailBtn();
-      await securityPage.fillAndSubmitAddEmail(firstEmail);
-
-      firstVerificationUrl = await mailFlows1.emailChangeUrl(firstToken);
+      await securityPage.fillAndSubmitAddEmail(email);
     });
 
-    await test.step('Add second email and save verification URL', async () => {
-      const mailHelper2 = createMailHelper(request);
-      const mailFlows2 = createMailFlows(request);
-      const secondEmail = await mailHelper2.generateEmail();
-      const secondToken = await mailHelper2.getToken(secondEmail);
-
-      await securityPage.clickAddEmailBtn();
-      await securityPage.fillAndSubmitAddEmail(secondEmail);
-
-      secondVerificationUrl = await mailFlows2.emailChangeUrl(secondToken);
+    await test.step('"Email changed" modal appears on its own — email applied without a link click', async () => {
+      await securityPage.waitForEmailChangedModal();
     });
 
-    await test.step('Verify second email — expect success', async () => {
-      await page.goto(secondVerificationUrl, { waitUntil: 'domcontentloaded' });
+    await test.step('No second add possible: email row is filled, controls are locked', async () => {
+      await expect(securityPage.addEmailRow, 'Add email row must be gone once the email is applied').toBeHidden();
+      await securityPage.assertDisplayedEmail(email);
+      await expect(securityPage.changeEmailBtn, 'Change email must be locked until re-login').toBeDisabled();
+    });
+
+    await test.step('The verification letter still arrives — save its link', async () => {
+      verificationUrl = await mailFlows.emailChangeUrl(mailToken);
+    });
+
+    await test.step('Sign In in the modal logs the user out', async () => {
+      const headerPage = new HeaderPage(page);
+      await securityPage.clickEmailChangedSignIn();
+      // The deployed build redirects to the home page (not /login) with the session dropped.
+      await expect(page, 'Did not leave the account page after Sign In').not.toHaveURL(/\/account/, { timeout: 15_000 });
+      await expect(headerPage.loginBtn, 'User is not logged out after Sign In click').toBeVisible({ timeout: 15_000 });
+    });
+
+    await test.step('The letter link opens the "Email changed" window', async () => {
+      await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
       await expect(page.getByText(/Email changed/i)).toBeVisible({ timeout: 40_000 });
     });
+  });
 
-    await test.step('Visit first verification link — expect expired error', async () => {
-      await page.goto(firstVerificationUrl, { waitUntil: 'domcontentloaded' });
-      await expect(page.getByText(/This verification link has expired or is no longer valid/i)).toBeVisible({ timeout: 10_000 });
+  // Guards the EXPECTED behaviour behind W3-2852 (AUTH-016 above codifies the current buggy
+  // flow): an email added to a wallet account must stay unattached and unoccupied until its
+  // verification link is clicked — whoami keeps email=null, emails/check reports the address
+  // as free and another user can still register with it. Un-fixme once W3-2852 is fixed
+  // (and rework AUTH-016 at the same time).
+  // https://stretch-com.atlassian.net/browse/W3-2852
+  test.fixme('Unverified email added to wallet account is not attached and stays free', { annotation: { type: 'TC', description: 'AUTH-020' } }, async ({ page, request }) => {
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const mailHelper = createMailHelper(request);
+    let email: string;
+
+    await test.step('Register via wallet', async () => {
+      await authFlow.walletRegisterSuccess();
+    });
+
+    await test.step('Add email to the wallet account without confirming it', async () => {
+      email = mailHelper.generateEmail();
+      await page.goto('/account', { waitUntil: 'domcontentloaded' });
+      await securityPage.clickAddEmailBtn();
+      const putPromise = page.waitForResponse(
+        r => r.url().includes('/api/account/email') && r.request().method() === 'PUT',
+        { timeout: 15000 }
+      );
+      await securityPage.fillAndSubmitAddEmail(email);
+      const putResponse = await putPromise;
+      expect(putResponse.ok(), 'PUT /api/account/email should succeed').toBeTruthy();
+    });
+
+    await test.step('Email is NOT attached while unconfirmed', async () => {
+      // The buggy flow attaches the email and pops the modal ~5 s after the PUT (FE profile
+      // polling), so give it that window before asserting nothing happened.
+      await page.waitForTimeout(8_000);
+      await expect(securityPage.emailChangedModal, '"Email changed" modal must not appear before the link is clicked').toBeHidden();
+      const whoami = await page.request.get('/api/users/whoami');
+      expect(whoami.status(), 'whoami should return 200').toBe(200);
+      const { data } = await whoami.json();
+      expect(data.email, 'whoami must not return the email before verification').toBeNull();
+    });
+
+    await test.step('Address is not occupied while unconfirmed', async () => {
+      const check = await page.request.get(`/api/emails/check?email=${encodeURIComponent(email)}`);
+      expect(check.status(), 'emails/check should return 200').toBe(200);
+      expect(await check.json(), 'Unconfirmed email must not be reported as existing').toMatchObject({ isExist: false });
+    });
+
+    await test.step('Another user can register with this email', async () => {
+      const authApi = new AuthApi(request);
+      const { username } = await authApi.createAndVerifyUser(email);
+      expect(username, 'Registration with the unconfirmed email must succeed').toBeTruthy();
     });
   });
 
