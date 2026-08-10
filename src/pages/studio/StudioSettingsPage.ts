@@ -75,6 +75,13 @@ export class StudioSettingsPage {
         this.explorerLink = page.getByRole('link', { name: /sepolia\.etherscan\.io/ });
     }
 
+    /** The redesigned studio sidebar has no Settings item — the page is reached by direct URL */
+    async goto() {
+        const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
+        await this.page.goto(`${studioUrl}/settings`, { waitUntil: 'domcontentloaded' });
+        await expect(this.page, 'Did not navigate to /settings').toHaveURL(/\/settings$/);
+    }
+
     async assertNftSectionVisible() {
         await expect(this.nftAccountLabel, 'NFT ACCOUNT label is not visible').toBeVisible();
         await expect(this.nftTitle, 'NFT title is not visible').toBeVisible();
