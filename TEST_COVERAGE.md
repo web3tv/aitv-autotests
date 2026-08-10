@@ -42,9 +42,8 @@ AUTH — WALLET
 │   MetaMask, Hero, Binance, Trust, SafePal, Fireblocks, OKX, TokenPocket, Bitget,
 │   Uniswap, Ledger Live, Zerion, Best, Crypto.com, Bifrost, xPortal, Bitcoin.com,
 │   1inch, Trezor, Blockchain.com, imToken, BitPay, Gemini, Arculus, Ctrl, Ronin
-├── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
-├── Add email to wallet applied w/o verification    [BLOCKED] W3-2852 test.fixme tests/auth/walletAuth.spec.ts  AUTH-016
-└── Unverified email not attached / address free    [BLOCKED] W3-2852 test.fixme tests/auth/walletAuth.spec.ts  AUTH-020
+├── Wallet register + add email/password + login    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-014
+└── Unverified email not attached / address free    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-020
 
 ────────────────────────────────────────────────────────────────
 2FA — suite выключена (describe.skip в tests/auth/emailAuth.spec.ts)

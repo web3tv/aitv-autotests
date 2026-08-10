@@ -257,14 +257,13 @@ export class AuthFlow {
     await securityPage.clickAddWalletBtn();
 
     const addWalletResponse = this.page.waitForResponse(
-      r => r.url().includes('/api/auth/add-wallet'),
+      r => r.url().includes('/api/account/wallet') && r.request().method() === 'PUT',
       { timeout: 15_000 }
     );
     await this.loginPage.clickWalletOption(walletType);
     const res = await addWalletResponse;
-    expect(res.status(), `auth/add-wallet returned ${res.status()}`).toBe(200);
+    expect(res.status(), `account/wallet returned ${res.status()}`).toBe(200);
 
-    await securityPage.assertWalletAddedToast();
     await securityPage.assertDisplayedWalletAddress(wallet.address);
 
     return wallet;

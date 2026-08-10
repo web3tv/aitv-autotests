@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
 import { SecurityPage } from '../../src/pages/account/SecurityPage';
-import { HeaderPage } from '../../src/pages/components/HeaderPage';
 import { AuthApi } from '../../src/api/AuthApi';
 import { injectEthereumMock, WALLET_PROVIDERS, type EvmWalletType, type WalletInfo } from '../../src/utils/walletMock';
 
@@ -61,10 +60,7 @@ test.describe('Wallet auth tests', () => {
 
 test.describe('Wallet and email tests',()=>{
 
-  // BLOCKED by W3-2809: adding a wallet from /account fails with "Error verifying address" —
-  // the wallet is never linked, so addWalletFromAccountSuccess times out on /api/auth/add-wallet.
-  // https://stretch-com.atlassian.net/browse/W3-2809
-  test.fixme('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
+  test('Add wallet to email account', { annotation: { type: 'TC', description: 'ACCOUNT-005' } }, async ({ page, request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     let wallet: WalletInfo;
@@ -80,71 +76,7 @@ test.describe('Wallet and email tests',()=>{
     });
   });
 
-  // BLOCKED by W3-2852: an email must NOT be attached before its verification link is clicked,
-  // but the backend applies a wallet account's first email right away on PUT /api/account/email
-  // (UserManager::updateEmail sets it immediately when the user has no email yet), so the FE
-  // shows the "Email changed" modal with no link click and the address gets occupied without
-  // proving mailbox ownership. The steps below codify that current (buggy) flow as observed on
-  // dev2 27.07.2026 — kept green for reference; once W3-2852 is fixed, rework the test: after
-  // submit the email must stay unassigned until the letter link is visited.
-  // https://stretch-com.atlassian.net/browse/W3-2852
-  test.fixme('Add email to wallet account applies immediately without verification', { annotation: { type: 'TC', description: 'AUTH-016' } }, async ({ page, request }) => {
-    const authFlow = new AuthFlow(page);
-    const securityPage = new SecurityPage(page);
-    const mailHelper = createMailHelper(request);
-    const mailFlows = createMailFlows(request);
-    let email: string;
-    let mailToken: string;
-    let verificationUrl: string;
-
-    await test.step('Register via wallet', async () => {
-      await authFlow.walletRegisterSuccess();
-    });
-
-    await test.step('Add email to the wallet account', async () => {
-      email = mailHelper.generateEmail();
-      mailToken = await mailHelper.getToken(email);
-
-      await page.goto('/account', { waitUntil: 'domcontentloaded' });
-      await securityPage.clickAddEmailBtn();
-      await securityPage.fillAndSubmitAddEmail(email);
-    });
-
-    await test.step('"Email changed" modal appears on its own — email applied without a link click', async () => {
-      await securityPage.waitForEmailChangedModal();
-    });
-
-    await test.step('No second add possible: email row is filled, controls are locked', async () => {
-      await expect(securityPage.addEmailRow, 'Add email row must be gone once the email is applied').toBeHidden();
-      await securityPage.assertDisplayedEmail(email);
-      await expect(securityPage.changeEmailBtn, 'Change email must be locked until re-login').toBeDisabled();
-    });
-
-    await test.step('The verification letter still arrives — save its link', async () => {
-      verificationUrl = await mailFlows.emailChangeUrl(mailToken);
-    });
-
-    await test.step('Sign In in the modal logs the user out', async () => {
-      const headerPage = new HeaderPage(page);
-      await securityPage.clickEmailChangedSignIn();
-      // The deployed build redirects to the home page (not /login) with the session dropped.
-      await expect(page, 'Did not leave the account page after Sign In').not.toHaveURL(/\/account/, { timeout: 15_000 });
-      await expect(headerPage.loginBtn, 'User is not logged out after Sign In click').toBeVisible({ timeout: 15_000 });
-    });
-
-    await test.step('The letter link opens the "Email changed" window', async () => {
-      await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-      await expect(page.getByText(/Email changed/i)).toBeVisible({ timeout: 40_000 });
-    });
-  });
-
-  // Guards the EXPECTED behaviour behind W3-2852 (AUTH-016 above codifies the current buggy
-  // flow): an email added to a wallet account must stay unattached and unoccupied until its
-  // verification link is clicked — whoami keeps email=null, emails/check reports the address
-  // as free and another user can still register with it. Un-fixme once W3-2852 is fixed
-  // (and rework AUTH-016 at the same time).
-  // https://stretch-com.atlassian.net/browse/W3-2852
-  test.fixme('Unverified email added to wallet account is not attached and stays free', { annotation: { type: 'TC', description: 'AUTH-020' } }, async ({ page, request }) => {
+  test('Unverified email added to wallet account is not attached and stays free', { annotation: { type: 'TC', description: 'AUTH-020' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const securityPage = new SecurityPage(page);
     const mailHelper = createMailHelper(request);
@@ -217,7 +149,81 @@ test.describe('Wallet and email tests',()=>{
     await test.step('Verify email via Gmail', async () => {
       const verificationUrl = await createMailFlows(request).emailChangeUrl(mailToken);
       await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
-      await expect(page.getByText(/Email changed/i)).toBeVisible({ timeout: 40_000 });
+      // W3-2852: attaching an email to a wallet account shows the "Email added"
+      // modal after the verification link is opened (not "Email changed").
+      await expect(page.getByText(/Email added/i)).toBeVisible({ timeout: 40_000 });
+    });
+
+    await test.step('Email is attached to the account', async () => {
+      await page.goto('/account?tab=security', { waitUntil: 'domcontentloaded' });
+      await securityPage.assertDisplayedEmail(email);
+      await expect(securityPage.addEmailRow, 'Add Email row must disappear once the email is attached').toBeHidden();
+      await expect(securityPage.noPasswordRow, 'Create password row must become available').toBeVisible();
+
+      const whoami = await page.request.get('/api/users/whoami');
+      expect(whoami.status(), 'whoami should return 200').toBe(200);
+      const { data } = await whoami.json();
+      expect(data.email, 'whoami must report the attached email').toBe(email);
+
+      const check = await page.request.get(`/api/emails/check?email=${encodeURIComponent(email)}`);
+      expect(check.status(), 'emails/check should return 200').toBe(200);
+      expect(await check.json(), 'Attached email must be reported as existing').toMatchObject({ isExist: true });
+    });
+  });
+
+  test('Set password on wallet account and login with email and password', {
+    annotation: { type: 'TC', description: 'AUTH-014' },
+  }, async ({ page, request }) => {
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const mailHelper = createMailHelper(request);
+    const mailFlows = createMailFlows(request);
+    const password = 'NewPassword1@';
+    let email: string;
+    let mailToken: string;
+    let username: string;
+
+    await test.step('Create disposable email', async () => {
+      email = await mailHelper.generateEmail();
+      await mailHelper.createMailbox();
+      mailToken = await mailHelper.getToken(email);
+    });
+
+    await test.step('Register via wallet', async () => {
+      const result = await authFlow.walletRegisterSuccess();
+      username = result.username;
+    });
+
+    await test.step('Add and verify email', async () => {
+      await page.goto('/account', { waitUntil: 'domcontentloaded' });
+      await securityPage.clickAddEmailBtn();
+      await securityPage.fillAndSubmitAddEmail(email);
+      const verificationUrl = await mailFlows.emailChangeUrl(mailToken);
+      await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByText(/Email added/i)).toBeVisible({ timeout: 40_000 });
+    });
+
+    await test.step('Set a password and confirm it via the email link', async () => {
+      const beforePasswordMail = Date.now();
+      await page.goto('/account?tab=security', { waitUntil: 'domcontentloaded' });
+      await securityPage.setPassword(password);
+      const confirmUrl = await mailFlows.passwordChangeUrl(mailToken, { since: beforePasswordMail });
+      await page.goto(confirmUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByText(/Password created/i)).toBeVisible({ timeout: 20_000 });
+      const finishBtn = page.getByRole('button', { name: 'Finish' });
+      await expect(finishBtn, 'Finish button is not visible').toBeVisible();
+      await expect(finishBtn, 'Finish button is not enabled').toBeEnabled();
+      await finishBtn.click();
+    });
+
+    // W3-2803 drops sessions only on email/password CHANGE — after creating the
+    // first password the session stays alive, so log out explicitly.
+    await test.step('Logout', async () => {
+      await authFlow.logout();
+    });
+
+    await test.step('Login with email and the new password', async () => {
+      await authFlow.loginSuccess(email, password, username);
     });
   });
 })
