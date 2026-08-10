@@ -3,11 +3,27 @@ import { AuthApi } from '../api/AuthApi';
 import { VideoApi } from '../api/VideoApi';
 import { SubscriptionApi } from '../api/SubscriptionApi';
 
+/**
+ * Runs a UI upload while watching the direct-to-S3 chunk flow for failures:
+ * - signed-URL issuance (`/api/videos/upload/chunk-url` FE proxy or the backend
+ *   `/videos/{id}/chunks/{n}/upload-url`) responding >= 400;
+ * - the S3 part PUT itself (URL carries `partNumber=`) responding >= 500.
+ *   S3 403 is NOT recorded — it is an expired signature, which the FE worker
+ *   transparently retries with a freshly signed URL.
+ */
 export async function uploadWithChunkCheck(page: Page, uploadFn: () => Promise<void>): Promise<void> {
     let chunkError: string | null = null;
     const listener = (response: Response) => {
-        if (response.url().includes('chunk') && response.status() === 500) {
-            chunkError = `Chunk upload failed with 500: ${response.url()}`;
+        if (chunkError) return;
+        const url = response.url();
+        const status = response.status();
+        const isSignedUrlIssue =
+            (url.includes('chunk-url') || (url.includes('/chunks/') && url.includes('/upload-url'))) &&
+            status >= 400;
+        const isPartPutFailure =
+            response.request().method() === 'PUT' && url.includes('partNumber=') && status >= 500;
+        if (isSignedUrlIssue || isPartPutFailure) {
+            chunkError = `Chunk upload failed with ${status}: ${url}`;
         }
     };
     page.on('response', listener);

@@ -322,7 +322,12 @@ export class VideoApi {
         token: string,
         channelId: string,
         filePath: string
-    ): Promise<{ id: string; videoPlayerFeUrl: string }> {
+    ): Promise<{
+        id: string;
+        videoPlayerFeUrl: string;
+        locationChunkUpload?: string;
+        locationComplete?: string;
+    }> {
         const filePath_ = path.isAbsolute(filePath) ? filePath : path.resolve(PROJECT_ROOT, filePath);
         const stats = fs.statSync(filePath_);
         const filename = path.basename(filePath_);
@@ -355,77 +360,121 @@ export class VideoApi {
         return {
             id: json.id,
             videoPlayerFeUrl: json.videoPlayerFeUrl,
+            locationChunkUpload: json.locationChunkUpload,
+            locationComplete: json.locationComplete,
         };
     }
 
-    private async uploadChunk(
+    private async getChunkUploadUrl(
+        token: string,
+        videoId: string,
+        partNumber: number
+    ): Promise<{ url: string; method: string; headers: Record<string, string> }> {
+        const response = await this.request.post(
+            `${this.baseUrl}/videos/${videoId}/chunks/${partNumber}/upload-url`,
+            {
+                headers: {
+                    Accept: "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status() === 409) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to get upload URL for part ${partNumber} of video ${videoId}: 409 — ` +
+                `upload is not in a resumable (CREATED) state, it was likely already completed or aborted. ${body}`
+            );
+        }
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to get upload URL for part ${partNumber}: ${response.status()} ${body}`);
+        }
+
+        const json = await response.json();
+        return {
+            url: json.url,
+            method: json.method ?? "PUT",
+            headers: json.headers ?? {},
+        };
+    }
+
+    private async uploadParts(
         token: string,
         videoId: string,
         filePath: string
     ): Promise<void> {
         const filePath_ = path.isAbsolute(filePath) ? filePath : path.resolve(PROJECT_ROOT, filePath);
         const fileBuffer = fs.readFileSync(filePath_);
-        const size = fileBuffer.length;
 
-        const md5Hash = crypto
-            .createHash("md5")
-            .update(fileBuffer)
-            .digest("hex");
+        const PART_SIZE = 52428800; // 50MB, matches the FE worker's chunk size
+        const partCount = Math.max(1, Math.ceil(fileBuffer.length / PART_SIZE));
 
-        const sha256Hash = crypto
-            .createHash("sha256")
-            .update(fileBuffer)
-            .digest("hex");
-
-        const MAX_CHUNK_SIZE = 52428800; // 50MB
-        const contentRange = `bytes 0-${size}/${size}/${MAX_CHUNK_SIZE}`;
-
-        // The stand's upload path intermittently hangs or drops connections under load;
-        // re-sending the same chunk is idempotent (same Content-Range + checksums), so
-        // retry transport-level failures a few times before giving up.
         const MAX_ATTEMPTS = 3;
-        let lastError: Error | undefined;
-        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-            let response;
-            try {
-                response = await this.request.post(
-                    `${this.baseUrl}/videos/${videoId}/chunk`,
-                    {
-                        headers: {
-                            Accept: "application/json",
-                            "Content-Type": "application/octet-stream",
-                            "Content-Range": contentRange,
-                            "Content-MD5": md5Hash,
-                            "Content-Checksum": sha256Hash,
-                            Authorization: `Bearer ${token}`,
-                        },
-                        data: fileBuffer,
-                        timeout: 120_000,
-                    }
-                );
-            } catch (err: any) {
-                lastError = err;
-                console.warn(`[VideoApi] Chunk upload attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err?.message}`);
-                if (attempt < MAX_ATTEMPTS) {
-                    await new Promise((r) => setTimeout(r, 5_000));
-                    continue;
-                }
-                throw err;
-            }
+        const BACKOFF_MS = [1_000, 2_000, 4_000];
 
-            if (response.status() !== 202 && !response.ok()) {
+        for (let partNumber = 1; partNumber <= partCount; partNumber++) {
+            const partBuffer = fileBuffer.subarray((partNumber - 1) * PART_SIZE, partNumber * PART_SIZE);
+
+            let lastError: Error | undefined;
+            for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+                // A fresh signed URL every attempt: the SigV4 signature expires, so a
+                // retry with the previous URL would fail with RequestTimeTooSkewed.
+                const signed = await this.getChunkUploadUrl(token, videoId, partNumber);
+
+                let response;
+                try {
+                    // Direct-to-S3 PUT: send EXACTLY the signed headers (SigV4 Authorization,
+                    // X-Amz-Date, X-Amz-Content-Sha256) — no Bearer token, no Accept.
+                    response = await this.request.fetch(signed.url, {
+                        method: signed.method,
+                        headers: signed.headers,
+                        data: partBuffer,
+                        timeout: 120_000,
+                    });
+                } catch (err: any) {
+                    lastError = err;
+                    console.warn(
+                        `[VideoApi] Part ${partNumber}/${partCount} upload attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err?.message}`
+                    );
+                    if (attempt < MAX_ATTEMPTS) {
+                        await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt - 1]));
+                        continue;
+                    }
+                    throw err;
+                }
+
+                if (response.ok()) {
+                    lastError = undefined;
+                    break;
+                }
+
+                const status = response.status();
                 const body = await response.text();
-                throw new Error(`Failed to upload chunk: ${response.status()} ${body}`);
+                // 403 = expired/mismatched signature, 5xx = transient S3 error — both retryable.
+                const retryable = status === 403 || status >= 500;
+                lastError = new Error(`Failed to upload part ${partNumber}/${partCount}: ${status} ${body}`);
+                if (!retryable) {
+                    throw lastError;
+                }
+                console.warn(
+                    `[VideoApi] Part ${partNumber}/${partCount} upload attempt ${attempt}/${MAX_ATTEMPTS} got ${status}: ${body}`
+                );
+                if (attempt < MAX_ATTEMPTS) {
+                    await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt - 1]));
+                }
             }
-            return;
+            if (lastError) {
+                throw lastError;
+            }
         }
-        throw lastError;
     }
 
     private async fetchVideoUrl(
         token: string,
         videoId: string,
-        contentType: "video" | "short" = "video"
+        contentType: "video" | "short" | "episode" = "video"
     ): Promise<string> {
         const response = await this.request.get(`${this.baseUrl}/videos/studio/`, {
             headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
@@ -587,7 +636,7 @@ export class VideoApi {
     async waitForProcessing(
         token: string,
         videoId: string,
-        contentType: "video" | "short" = "video",
+        contentType: "video" | "short" | "episode" = "video",
         maxAttempts = 24,
         intervalMs = 5_000
     ): Promise<string | undefined> {
@@ -654,7 +703,8 @@ export class VideoApi {
     }
 
     /**
-     * Full upload flow: init → chunk → complete → update metadata (+ optional visibility & processing wait)
+     * Full upload flow: init → parts (direct-to-S3 multipart via signed URLs) → complete
+     * → update metadata (+ optional visibility & processing wait)
      */
     async uploadVideo(
         token: string,
@@ -684,8 +734,8 @@ export class VideoApi {
         const id = initResult.id;
         let videoPlayerFeUrl: string;
 
-        // 2. Upload chunk (single chunk for files < 50MB)
-        await this.uploadChunk(token, id, filePath);
+        // 2. Upload parts directly to S3 (50MB parts; one part for our small files)
+        await this.uploadParts(token, id, filePath);
 
         // 3. Complete
         await this.completeUpload(token, id);
@@ -717,19 +767,19 @@ export class VideoApi {
         }
 
         // 5. Build video URL; if processing is required — wait for completion first.
-        // Episodes (seriesId set) are listed under a different studio type, so the
-        // public URL is resolved from the series playlist instead — tolerate failure here.
+        // A video attached to a series is listed as type=episode (it is NOT returned
+        // by type=video queries), so poll the studio listing with the matching type.
+        const listingType: "video" | "short" | "episode" =
+            options.seriesId ? "episode" : options.contentType ?? "video";
         try {
             if (options.waitForProcessing) {
-                const builtUrl = await this.waitForProcessing(
-                    token, id, options.contentType ?? "video"
-                );
+                const builtUrl = await this.waitForProcessing(token, id, listingType);
                 if (!builtUrl) {
                     throw new Error(`No player URL available for video ${id} after processing`);
                 }
                 videoPlayerFeUrl = builtUrl;
             } else {
-                videoPlayerFeUrl = await this.fetchVideoUrl(token, id, options.contentType ?? "video");
+                videoPlayerFeUrl = await this.fetchVideoUrl(token, id, listingType);
             }
         } catch (e) {
             // Only tolerate the "can't build episode URL" case; real processing failures must surface.

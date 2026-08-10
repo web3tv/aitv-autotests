@@ -132,7 +132,7 @@ VIDEO UPLOAD
 ├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
 ├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
 ├── Upload Shorts                                   [TODO] (covered by SHORTS-003)              UPLOAD-005
-├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
+├── Upload video >50MB (multipart direct-to-S3)     [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
 ├── Upload thumbnail manually                       [TODO] (спек удалён при переходе на stepped modal W3-2702)  UPLOAD-007
 ├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
 ├── Required fields validation (title/desc/cat)     [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  UPLOAD-009
