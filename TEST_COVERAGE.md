@@ -42,8 +42,8 @@ AUTH — WALLET
 │   MetaMask, Hero, Binance, Trust, SafePal, Fireblocks, OKX, TokenPocket, Bitget,
 │   Uniswap, Ledger Live, Zerion, Best, Crypto.com, Bifrost, xPortal, Bitcoin.com,
 │   1inch, Trezor, Blockchain.com, imToken, BitPay, Gemini, Arculus, Ctrl, Ronin
-├── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
-└── Add email to wallet twice without verification  [BLOCKED] test.fixme tests/auth/walletAuth.spec.ts  AUTH-016
+├── Wallet register + add email/password + login    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-014
+└── Unverified email not attached / address free    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-020
 
 ────────────────────────────────────────────────────────────────
 2FA — suite выключена (describe.skip в tests/auth/emailAuth.spec.ts)
@@ -89,9 +89,10 @@ NOTIFICATIONS (/notifications) — suite в test.fixme (WIP)
 └── Notification on paid channel paid video upload  [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-005
 
 ────────────────────────────────────────────────────────────────
-AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641)
-├── Subscribed user gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
-└── Unsubscribed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641, reworked W3-2789: delivery is follower-based)
+├── Channel follower gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
+├── Unfollowed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+└── Notify-on-release bell toggles and state persists (no delivery since W3-2789)  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-003
 
 ────────────────────────────────────────────────────────────────
 AITV HEADER NOTIFICATIONS POPUP (W3-2748)
@@ -149,7 +150,7 @@ VIDEO UPLOAD
 ├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
 ├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
 ├── Upload Shorts                                   [TODO] (covered by SHORTS-003)              UPLOAD-005
-├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
+├── Upload video >50MB (multipart direct-to-S3)     [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
 ├── Upload thumbnail manually                       [TODO] (спек удалён при переходе на stepped modal W3-2702)  UPLOAD-007
 ├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
 ├── Required fields validation (title/desc/cat)     [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  UPLOAD-009
@@ -222,11 +223,19 @@ VIDEO PLAYER — Regular Player
 ├── currentTime advances while playing              [AUTO][CRITICAL] tests/player/videoPlayer.spec.ts  PLAYER-002
 ├── Progress bar advances while playing             [AUTO][CRITICAL] tests/player/videoPlayer.spec.ts  PLAYER-003
 ├── Series: episode auto-advances to next on end    [AUTO][CRITICAL] tests/player/seriesPlayback.spec.ts  SERIES-003
-├── Series: player Episodes panel switches episode  [AUTO]           tests/player/seriesPlayback.spec.ts  SERIES-004
+├── Series: under-player episodes popup switches episode  [AUTO]     tests/player/seriesPlayback.spec.ts  SERIES-004
+├── Series: "Next episode" pill navigates to next episode  [AUTO]    tests/player/seriesPlayback.spec.ts  SERIES-005
+├── Series: episode selector shows "Episode X / Y" counter  [AUTO]   tests/player/seriesPlayback.spec.ts  SERIES-006
 ├── Dubbing available for video <1 min              [TODO]                                   PLAYER-004
 ├── Dubbing: switch language                        [TODO]                                   PLAYER-005
 ├── Hot-spots: owner sets hot-spot area             [TODO]                                   PLAYER-006
-└── Hot-spots: viewer click triggers highlight      [TODO]                                   PLAYER-007
+├── Hot-spots: viewer click triggers highlight      [TODO]                                   PLAYER-007
+├── Fullscreen rail: like sends POST /videos/rate and activates icon        [AUTO] tests/player/fullscreenRail.spec.ts  FSRAIL-001
+├── Fullscreen rail: dislike overrides like (sequential rate requests)     [AUTO] tests/player/fullscreenRail.spec.ts  FSRAIL-002
+├── Fullscreen rail: comments panel opens in fullscreen, comment posted    [AUTO] tests/player/fullscreenRail.spec.ts  FSRAIL-003
+├── Fullscreen rail: share dialog opens, portaled into fullscreen element  [AUTO] tests/player/fullscreenRail.spec.ts  FSRAIL-004
+├── Fullscreen rail: guest like → auth-required popup, no rate request     [AUTO] tests/player/fullscreenRail.spec.ts  FSRAIL-005
+└── Fullscreen rail: comments panel closes on fullscreen exit              [AUTO] tests/player/fullscreenRail.spec.ts  FSRAIL-006
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Shorts Player
@@ -441,7 +450,9 @@ VISUAL REGRESSION (Docker only; фикстура @qavischan — npm run seed:fix
 ├── Desktop: studio sidebar / header / dashboard / content     [AUTO] tests/visual/desktop/studioVisual.spec.ts      VIS-STD-001..004
 ├── Desktop: upload modal Movie/Series/Shorts × 3 шага         [AUTO] tests/visual/desktop/uploadModalVisual.spec.ts VIS-UPL-001..009
 ├── Desktop: video + channel + short page (anon/user/owner)    [AUTO] tests/visual/desktop/videoChannelVisual.spec.ts VIS-VCH-001..008
+├── Desktop: watch-page layout Movie vs Series (эпизод-строка) [AUTO] tests/visual/desktop/videoChannelVisual.spec.ts VIS-VCH-009..010
 ├── Desktop: listing dropdowns movies/series/shorts            [AUTO] tests/visual/desktop/listingVisual.spec.ts     VIS-LIST-001..003
 ├── Mobile: header / dropdown / auth modal                     [AUTO] tests/visual/mobile/aitvVisual.spec.ts         VIS-AITV-MOB-003..006
 ├── Mobile: video page + channel page (anon/user/owner)        [AUTO] tests/visual/mobile/videoChannelVisual.spec.ts VIS-MOB-001..005
+├── Mobile: watch-page layout Movie vs Series (эпизод-строка)  [AUTO] tests/visual/mobile/videoChannelVisual.spec.ts VIS-MOB-006..007
 └── Mobile: listing dropdowns movies/series/shorts             [AUTO] tests/visual/mobile/listingVisual.spec.ts      VIS-LIST-MOB-001..003

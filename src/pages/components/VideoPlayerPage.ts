@@ -5,22 +5,56 @@ export class VideoPlayerPage {
   readonly videoElement: Locator;
   readonly shortsVideoElement: Locator;
 
-  // Player controls
+  // Player controls. Play/pause and the ±10s skips live in the CENTER overlay
+  // (the control bar itself only has volume / time / settings / fullscreen).
   readonly playerCenterPlayBtn: Locator;
-  readonly playerPlayBtn: Locator;
+  readonly playerCenterReplay10Btn: Locator;
+  readonly playerCenterForward10Btn: Locator;
   readonly playerProgress: Locator;
   readonly playerMuteBtn: Locator;
   readonly playerVolume: Locator;
-  readonly playerReplay10Btn: Locator;
-  readonly playerForward10Btn: Locator;
   readonly playerTime: Locator;
-  readonly playerNextBtn: Locator;
   readonly playerSettingsBtn: Locator;
   readonly playerFullscreenBtn: Locator;
-  // Episodes overlay: button in the controls bar that opens the series episodes panel,
-  // and the panel container itself.
-  readonly playerEpisodesBtn: Locator;
-  readonly episodesPanel: Locator;
+
+  // Series row UNDER the player (renders only for series): "Episode X / Y" selector
+  // button that opens the episodes popup, and the "next episode" pill (a link).
+  readonly seriesRow: Locator;
+  readonly seriesEpisodeSelectorBtn: Locator;
+  readonly seriesEpisodesPopup: Locator;
+  readonly seriesEpisodesPopupCloseBtn: Locator;
+  readonly seriesNextEpisodePill: Locator;
+  // Compact-only (mobile viewport) twins: the series row and the under-player action
+  // row (like/dislike pill, watch-later, share, report) — neither mounts on desktop.
+  readonly mobileSeriesRow: Locator;
+  readonly mobileActionRow: Locator;
+  // Right-hand rail on the watch page: episode list in series context (`?list=`),
+  // algorithmic related videos otherwise — the layouts are mutually exclusive.
+  readonly playlistVideosRail: Locator;
+
+  // Desktop-fullscreen action rail (renders ONLY while document.fullscreenElement is
+  // set) + the comments side panel and share dialog it opens (both portaled into the
+  // fullscreen element).
+  readonly fsActionRail: Locator;
+  readonly fsLikeBtn: Locator;
+  readonly fsDislikeBtn: Locator;
+  readonly fsCommentBtn: Locator;
+  readonly fsShareBtn: Locator;
+  // The like/dislike icons signal the active state only via SVG paint (fill goes
+  // 'none' → color), so assertions target the first <path> of each icon.
+  readonly fsLikeIconPath: Locator;
+  readonly fsDislikeIconPath: Locator;
+  readonly commentsPanel: Locator;
+  readonly commentsPanelBody: Locator;
+  readonly commentsPanelCloseBtn: Locator;
+  // Comment composer inside the fullscreen panel. Scoped to the panel because the
+  // regular watch-page comments section renders the same testids below the player.
+  readonly commentsPanelInput: Locator;
+  readonly commentsPanelSubmitBtn: Locator;
+  readonly shareDialog: Locator;
+  readonly shareCopyBtn: Locator;
+  // AuthRequiredPopup has no testid — identified by its fixed title text.
+  readonly authRequiredPopupTitle: Locator;
 
   // Backwards-compatible aliases
   readonly playButton: Locator;
@@ -85,18 +119,42 @@ export class VideoPlayerPage {
     this.shareBtn = page.getByTestId('aitv-share');
 
     this.playerCenterPlayBtn = page.getByTestId('aitv-player-center-play');
-    this.playerPlayBtn = page.getByTestId('aitv-player-play');
+    this.playerCenterReplay10Btn = page.getByTestId('aitv-player-center-replay10');
+    this.playerCenterForward10Btn = page.getByTestId('aitv-player-center-forward10');
     this.playerProgress = page.getByTestId('aitv-player-progress');
     this.playerMuteBtn = page.getByTestId('aitv-player-mute');
     this.playerVolume = page.getByTestId('aitv-player-volume');
-    this.playerReplay10Btn = page.getByTestId('aitv-player-replay10');
-    this.playerForward10Btn = page.getByTestId('aitv-player-forward10');
+    // `aitv-player-time` / `aitv-player-fullscreen` are ALSO rendered by the compact-only
+    // mobile timeline — on the desktop viewport only the control-bar pair mounts, so the
+    // unscoped locators are safe here; scope them before reusing on a mobile viewport.
     this.playerTime = page.getByTestId('aitv-player-time');
-    this.playerNextBtn = page.getByTestId('aitv-player-next');
     this.playerSettingsBtn = page.getByTestId('aitv-player-settings');
     this.playerFullscreenBtn = page.getByTestId('aitv-player-fullscreen');
-    this.playerEpisodesBtn = page.getByTestId('aitv-player-episodes-button');
-    this.episodesPanel = page.getByTestId('aitv-episodes-panel');
+
+    this.seriesRow = page.getByTestId('aitv-series-row');
+    this.seriesEpisodeSelectorBtn = page.getByTestId('aitv-series-episode-selector');
+    this.seriesEpisodesPopup = page.getByTestId('aitv-series-episodes-popup');
+    this.seriesEpisodesPopupCloseBtn = page.getByTestId('aitv-series-episodes-popup-close');
+    this.seriesNextEpisodePill = page.getByTestId('aitv-series-next-episode');
+    this.mobileSeriesRow = page.getByTestId('aitv-mobile-series-row');
+    this.mobileActionRow = page.getByTestId('aitv-mobile-action-row');
+    this.playlistVideosRail = page.locator('[data-id="aitv-playlist-videos"]');
+
+    this.fsActionRail = page.getByTestId('aitv-desktop-action-rail');
+    this.fsLikeBtn = page.getByTestId('aitv-fs-like');
+    this.fsDislikeBtn = page.getByTestId('aitv-fs-dislike');
+    this.fsCommentBtn = page.getByTestId('aitv-fs-comment');
+    this.fsShareBtn = page.getByTestId('aitv-fs-share');
+    this.fsLikeIconPath = this.fsLikeBtn.locator('svg path').first();
+    this.fsDislikeIconPath = this.fsDislikeBtn.locator('svg path').first();
+    this.commentsPanel = page.getByTestId('aitv-comments-panel');
+    this.commentsPanelBody = page.getByTestId('aitv-comments-panel-body');
+    this.commentsPanelCloseBtn = page.getByTestId('aitv-comments-panel-close');
+    this.commentsPanelInput = this.commentsPanel.getByTestId('aitv-comment-input');
+    this.commentsPanelSubmitBtn = this.commentsPanel.getByTestId('aitv-comment-submit');
+    this.shareDialog = page.getByTestId('aitv-share-dialog');
+    this.shareCopyBtn = page.getByTestId('aitv-share-copy');
+    this.authRequiredPopupTitle = page.getByText('Almost there!');
 
     this.playButton = this.playerCenterPlayBtn;
     this.shortsPlayButton = page.locator('.swiper-slide-active').getByTestId('aitv-player-center-play');
@@ -122,38 +180,88 @@ export class VideoPlayerPage {
   }
 
   /**
-   * A single episode card inside the Episodes panel, keyed by 1-based episode number.
-   * The card for the CURRENTLY-playing episode renders as a highlighted `<div>` (not
-   * clickable); every other episode is a `<button>`. Parameterized locator, so it lives
-   * in the method rather than the constructor.
+   * A single episode cell inside the episodes popup, keyed by 1-based episode number.
+   * Parameterized locator, so it lives in the method rather than the constructor.
    */
-  episodeCard(episodeNumber: number): Locator {
-    return this.page.getByTestId(`aitv-episodes-panel-card-${episodeNumber}`);
+  episodePopupItem(episodeNumber: number): Locator {
+    return this.page.getByTestId(`aitv-episodes-sheet-item-${episodeNumber}`);
   }
 
   /**
-   * Open the series Episodes overlay. Hovers the player first to surface the transient
-   * controls bar, then clicks the Episodes button and waits for the panel to render.
+   * Open the episodes popup from the "Episode X / Y" selector in the series row UNDER
+   * the player (the old in-player Episodes button was removed by the player redesign).
    */
-  async openEpisodesPanel(): Promise<void> {
+  async openEpisodesPopup(): Promise<void> {
+    await expect(this.seriesEpisodeSelectorBtn, 'Episode selector button is not visible').toBeVisible({ timeout: 15_000 });
+    await expect(this.seriesEpisodeSelectorBtn, 'Episode selector button is not enabled').toBeEnabled();
+    await this.seriesEpisodeSelectorBtn.click();
+    await expect(this.seriesEpisodesPopup, 'Episodes popup did not open').toBeVisible({ timeout: 10_000 });
+  }
+
+  /**
+   * Click the episode cell for the given 1-based episode number inside the popup.
+   * Selecting an episode closes the popup and NAVIGATES to that episode's watch URL
+   * (client-side router.push) — callers should wait for the URL change.
+   */
+  async selectEpisodeFromPopup(episodeNumber: number): Promise<void> {
+    const item = this.episodePopupItem(episodeNumber);
+    await expect(item, `Episode ${episodeNumber} popup item is not visible`).toBeVisible({ timeout: 10_000 });
+    await expect(item, `Episode ${episodeNumber} popup item is not enabled`).toBeEnabled();
+    await item.click();
+  }
+
+  /**
+   * Pause the video and keep it paused (re-pauses on any later `play`). Guards tests
+   * that interact with the page from the ~5s fixture videos finishing and auto-advancing
+   * to the next episode / a recommended video mid-interaction.
+   */
+  async holdPaused(): Promise<void> {
+    await expect(this.videoElement, 'Video element is not visible').toBeVisible({ timeout: 15_000 });
+    await this.page.evaluate(() => {
+      const video = document.querySelector('video.vjs-tech') as HTMLVideoElement | null;
+      if (!video) return;
+      video.pause();
+      video.addEventListener('play', () => video.pause());
+    });
+  }
+
+  /**
+   * Wake up the transient player controls by moving the mouse over the player area.
+   * Uses `page.mouse.move` (no actionability checks) instead of `Locator.hover()`
+   * because the center play/pause overlay intercepts pointer events over the paused
+   * player and makes `hover()` retry forever.
+   */
+  private async wakePlayerControls(): Promise<void> {
     await expect(this.playerContainer, 'Video player container is not visible').toBeVisible({ timeout: 15_000 });
-    await this.playerContainer.hover();
-    await expect(this.playerEpisodesBtn, 'Episodes button is not visible').toBeVisible({ timeout: 10_000 });
-    await expect(this.playerEpisodesBtn, 'Episodes button is not enabled').toBeEnabled();
-    await this.playerEpisodesBtn.click();
-    await expect(this.episodesPanel, 'Episodes panel did not open').toBeVisible({ timeout: 10_000 });
+    const box = await this.playerContainer.boundingBox();
+    if (box) {
+      await this.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    }
   }
 
   /**
-   * Click the episode card for the given 1-based episode number to switch playback to it.
-   * Only valid for a NON-current episode: the currently-playing episode renders as a
-   * highlighted, non-interactive `<div>` (see episodeCard), so clicking it is a silent no-op.
+   * Enter the player's native fullscreen via the control-bar toggle, then wait for
+   * `document.fullscreenElement` to be set (the desktop action rail renders only in
+   * this state).
    */
-  async clickEpisodeCard(episodeNumber: number): Promise<void> {
-    const card = this.episodeCard(episodeNumber);
-    await expect(card, `Episode ${episodeNumber} card is not visible`).toBeVisible({ timeout: 10_000 });
-    await expect(card, `Episode ${episodeNumber} card is not enabled`).toBeEnabled();
-    await card.click();
+  async enterFullscreen(): Promise<void> {
+    await this.wakePlayerControls();
+    await expect(this.playerFullscreenBtn, 'Fullscreen button is not visible').toBeVisible({ timeout: 10_000 });
+    await expect(this.playerFullscreenBtn, 'Fullscreen button is not enabled').toBeEnabled();
+    await this.playerFullscreenBtn.click();
+    await this.page.waitForFunction(() => !!document.fullscreenElement, undefined, { timeout: 10_000 });
+  }
+
+  /**
+   * Exit native fullscreen via the same control-bar toggle (its aria-label flips to
+   * "exit fullscreen") and wait for `document.fullscreenElement` to clear.
+   */
+  async exitFullscreen(): Promise<void> {
+    await this.wakePlayerControls();
+    await expect(this.playerFullscreenBtn, 'Fullscreen (exit) button is not visible').toBeVisible({ timeout: 10_000 });
+    await expect(this.playerFullscreenBtn, 'Fullscreen (exit) button is not enabled').toBeEnabled();
+    await this.playerFullscreenBtn.click();
+    await this.page.waitForFunction(() => !document.fullscreenElement, undefined, { timeout: 10_000 });
   }
 
   async clickPlay(): Promise<void> {

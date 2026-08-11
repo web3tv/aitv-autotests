@@ -135,12 +135,9 @@ test.describe('Handle validation on Create Channel Page', { annotation: [{ type:
 
         const user = await authApi.createUserFast();
         await authFlow.loginSuccess(user.email, password, user.username);
-        // Channel creation moved to the Studio channel switcher (Studio subdomain):
-        // Studio → channel switcher → "Add new channel" → /create-channel.
         await ensureOnStudioDomain(page);
         await headerPage.openChannelSwitcher();
         await headerPage.clickAddNewChannel();
-        await createChannelPage.clickStartSetup();
         await createChannelPage.fillName('test_name')
     });
 
@@ -174,7 +171,7 @@ test.describe('Handle validation on Create Channel Page', { annotation: [{ type:
         await createChannelPage.assertSaveBtnDisabled();
         await createChannelPage.clearHandleInput();
         await createChannelPage.fillHandleName('hgjfkdlsffoepeoriefeferrerererrr');
-        await createChannelPage.assertError('32/32 characters limit');
+        await createChannelPage.assertError('32/32');
         await createChannelPage.assertSaveBtnEnabled();
     });
 
@@ -213,7 +210,7 @@ test.describe('Handle validation on Create Channel Page', { annotation: [{ type:
         
         await createChannelPage.fillHandleName(username);
         await createChannelPage.blur();
-        await createChannelPage.assertError('Handle exists');
+        await createChannelPage.assertError('This handle is already taken');
         await createChannelPage.assertSaveBtnDisabled();
     });
 

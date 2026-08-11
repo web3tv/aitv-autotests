@@ -13,14 +13,16 @@ export class SideBarPage {
   readonly platformWatchLater: Locator;
   readonly platformLikedVideos: Locator;
 
-  // STUDIO
-  readonly studioDashboard: Locator;
+  // STUDIO (redesigned sidebar: Overview / Content / Analytics / Channel + disabled
+  // "Soon" items Assets / Earnings + "Back to AI.TV"; Playlists / Settings / Membership
+  // items were removed — those pages are reached by direct URL via their POM goto())
+  readonly studioOverview: Locator;
   readonly studioContent: Locator;
   readonly studioAnalytics: Locator;
-  readonly studioSubscriptions: Locator;
-  readonly studioPlaylists: Locator;
-  readonly studioEditChannel: Locator;
-  readonly studioSettings: Locator;
+  readonly studioChannel: Locator;
+  readonly studioAssets: Locator;
+  readonly studioEarnings: Locator;
+  readonly studioBackToAitv: Locator;
 
   // SETTINGS
   readonly settingsAccount: Locator;
@@ -48,13 +50,13 @@ export class SideBarPage {
     this.platformLikedVideos        = page.locator('[data-id="Liked Videos"]');
 
     // STUDIO
-    this.studioDashboard            = page.locator('[data-id="Dashboard"]');
+    this.studioOverview             = page.locator('[data-id="Overview"]');
     this.studioContent              = page.locator('[data-id="Content"]');
     this.studioAnalytics            = page.locator('[data-id="Analytics"]');
-    this.studioSubscriptions        = page.locator('[data-id="Earnings"]');
-    this.studioPlaylists            = page.locator('[data-id="Playlists"]');
-    this.studioEditChannel          = page.locator('a[href="/channel"]');
-    this.studioSettings             = page.locator('[data-id="Settings"]');
+    this.studioChannel              = page.locator('[data-id="Channel"]');
+    this.studioAssets               = page.locator('[data-id="Assets"]');       // disabled ("Soon")
+    this.studioEarnings             = page.locator('[data-id="Earnings"]');     // disabled ("Soon")
+    this.studioBackToAitv           = page.locator('[data-id="Back to AI.TV"]');
 
     // SETTINGS
     this.settingsAccount            = page.locator('[data-id="Account"]');
@@ -122,10 +124,10 @@ export class SideBarPage {
   // STUDIO ACTIONS
   // =========================
 
-  async clickStudioDashboard() {
+  async clickStudioOverview() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioDashboard, 'Studio dashboard is not visible').toBeVisible();
-    await this.studioDashboard.click();
+    await expect(this.studioOverview, 'Studio overview is not visible').toBeVisible();
+    await this.studioOverview.click();
     await expect(this.page, 'Did not navigate to /dashboard').toHaveURL(/\/dashboard$/);
   }
 
@@ -140,35 +142,14 @@ export class SideBarPage {
     await ensureOnStudioDomain(this.page);
     await expect(this.studioAnalytics, 'Studio analytics is not visible').toBeVisible();
     await this.studioAnalytics.click();
-    await expect(this.page, 'Did not navigate to /stats').toHaveURL(/\/stats$/);
-  }
-
-  async clickStudioSubscriptions() {
-    await ensureOnStudioDomain(this.page);
-    await expect(this.studioSubscriptions, 'Studio subscriptions is not visible').toBeVisible();
-    await this.studioSubscriptions.click();
-    await expect(this.page, 'Did not navigate to /membership').toHaveURL(/\/membership$/);
-  }
-
-  async clickStudioPlaylists() {
-    await ensureOnStudioDomain(this.page);
-    await expect(this.studioPlaylists, 'Studio playlists is not visible').toBeVisible();
-    await this.studioPlaylists.click();
-    await expect(this.page, 'Did not navigate to /playlists').toHaveURL(/\/playlists$/);
+    await expect(this.page, 'Did not navigate to /analytics').toHaveURL(/\/analytics$/);
   }
 
   async clickStudioEditChannel() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioEditChannel, 'Studio edit channel is not visible').toBeVisible();
-    await this.studioEditChannel.click();
+    await expect(this.studioChannel, 'Studio channel is not visible').toBeVisible();
+    await this.studioChannel.click();
     await expect(this.page, 'Did not navigate to /channel').toHaveURL(/\/channel$/);
-  }
-
-  async clickStudioSettings() {
-    await ensureOnStudioDomain(this.page);
-    await expect(this.studioSettings, 'Studio settings is not visible').toBeVisible();
-    await this.studioSettings.click();
-    await expect(this.page, 'Did not navigate to /settings').toHaveURL(/\/settings$/);
   }
 
   // =========================

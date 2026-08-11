@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-07-24
+
+**Nightly Regression (dev2)** — ❌ failure · [run #30063059974](https://github.com/web3tv/aitv-autotests/actions/runs/30063059974)
+Passed 104 · Failed 22 · Flaky 0 · Skipped 28 · _(данные: лог-fallback, results.json в артефакте нет)_
+- `search/globalSearch.spec.ts:36,57,79,104,130,151,172,203,224,250,274,303,324,352,372,391,417,437,467,492,527` — **[TEST/FLAKY]** — все 21 тест файла, одна сигнатура: `getByTestId('aitv-search-open')` не найден. Проверено вживую на dev2: поиск переделан с модалки на отдельную страницу — в хедере теперь `<a data-id="aitv-header-search" href="/search">`, страница `/search` с `data-id="search-video-preview"`/`more-button`; заодно новый топ-нав `aitv-top-nav` (home/series/movies/shorts). Сьют W3-2692 + SearchModal POM устарели целиком → переписывать под новую страницу
+- `content/manage/studioSearch.spec.ts:11` — **[TEST/FLAKY]** — «Test timeout of 90000ms exceeded» (обе попытки, точка смерти плавает: legacy-login / studio-videos). Разобрано по таймстемпам: перегруза бэка нет (2 воркера, параллельно шёл один тест, соседние STUDIO-018/019 прошли) — STUDIO-017 грузит 2 видео с `waitForProcessing` под дефолтные 90s, на медленном dev-транскоде не влезает. Та же причина у падений 15–17.07. Фикс: `test.setTimeout(240_000)` (ветка `fix/studio-017-timeout`)
+
+**Prod Smoke (prod)** — ✅ success · [run #30056800573](https://github.com/web3tv/aitv-autotests/actions/runs/30056800573)
+Passed 5 · Skipped 2 · Failed 0
+
 ## 2026-07-17
 
 **Nightly Regression (dev2)** — ❌ failure · [run #29551291216](https://github.com/web3tv/aitv-autotests/actions/runs/29551291216)

@@ -144,16 +144,19 @@ test.describe('AITV mobile visual tests', () => {
 
     // ── Auth modal ──
 
-    test('Auth modal on Login click', {
+    // The mobile header exposes only a Sign up button (the Login button was removed
+    // in W3-2782); login is reached from inside the modal, so the auth modal is
+    // opened via Sign up here.
+    test('Auth modal on Sign up click', {
         annotation: { type: 'TC', description: 'VIS-AITV-MOB-006' },
     }, async ({ page }) => {
         const headerPage = new HeaderPage(page);
         const loginPopupPage = new LoginPopupPage(page);
 
-        await test.step('Open main page and click Login', async () => {
+        await test.step('Open main page and click Sign up', async () => {
             await page.goto('/');
             await page.waitForLoadState('domcontentloaded');
-            await headerPage.clickLogin();
+            await headerPage.clickSignup();
         });
 
         await test.step('Wait for auth modal and take screenshot', async () => {

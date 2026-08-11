@@ -174,14 +174,6 @@ export async function deleteUser(
         await delByVideoIds('video_transcodings',    [userId]);
         await delByVideoIds('video_hotspots',        [userId]);
         await delByVideoIds('video_chapters',        [userId]);
-        await connection.execute(
-            `DELETE vc FROM video_upload_chunks vc
-             JOIN video_uploads vu ON vc.upload_id = vu.video_id
-             WHERE vu.video_id IN (SELECT id FROM videos WHERE uploaded_by = ?)`,
-            [userId]
-        ).then(([r]: any) => {
-            if (r.affectedRows > 0) console.log(`  ✓ video_upload_chunks (user's videos): ${r.affectedRows} row(s)`);
-        });
         await delByVideoIds('video_uploads',         [userId]);
         await delByVideoIds('video_slug_histories',  [userId]);
         await delByVideoIds('video_category_videos', [userId]);
