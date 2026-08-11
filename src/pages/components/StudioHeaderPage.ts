@@ -6,6 +6,7 @@ export class StudioHeaderPage {
 
   readonly createBtn: Locator;
   readonly plusBtn: Locator;
+  readonly notificationsBtn: Locator;
   readonly liveBtn: Locator;
   readonly heroCoins: Locator;
   readonly joinBtn: Locator;
@@ -21,9 +22,12 @@ export class StudioHeaderPage {
   constructor(page: Page) {
     this.page = page;
 
-    // "Create" and the header "+" both open the upload modal directly (the old "New Video/New Short" submenu is gone).
-    this.createBtn = page.getByRole('button', { name: 'Create' });
+    // Reworked studio header: the textual "Create" button is gone — only the "+" icon button
+    // (title="Create") remains and opens the upload modal directly. createBtn is kept as an
+    // alias of the same element so existing flows keep working.
+    this.createBtn = page.locator('[data-id="aitv-header-plus"]');
     this.plusBtn = page.locator('[data-id="aitv-header-plus"]');
+    this.notificationsBtn = page.locator('[data-id="aitv-header-notifications"]');
     this.liveBtn = page.getByText('Live');
 
     this.heroCoins = page.locator('[data-id="coins"]');

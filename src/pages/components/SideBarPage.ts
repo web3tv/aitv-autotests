@@ -13,13 +13,16 @@ export class SideBarPage {
   readonly platformWatchLater: Locator;
   readonly platformLikedVideos: Locator;
 
-  // STUDIO (redesigned sidebar: Overview / Content / Analytics / Channel + disabled
-  // "Soon" items Assets / Earnings + "Back to AI.TV"; Playlists / Settings / Membership
-  // items were removed — those pages are reached by direct URL via their POM goto())
-  readonly studioOverview: Locator;
+  // STUDIO (reworked sidebar: Home + channel-selector block with Content / Analytics /
+  // Channel under it + disabled "Soon" items Generate / Assets / Earnings + "Back to
+  // AI.TV"; Playlists / Settings / Membership items were removed — those pages are
+  // reached by direct URL via their POM goto())
+  readonly studioHome: Locator;
+  readonly studioChannelSelector: Locator;
   readonly studioContent: Locator;
   readonly studioAnalytics: Locator;
   readonly studioChannel: Locator;
+  readonly studioGenerate: Locator;
   readonly studioAssets: Locator;
   readonly studioEarnings: Locator;
   readonly studioBackToAitv: Locator;
@@ -49,10 +52,12 @@ export class SideBarPage {
     this.platformLikedVideos        = page.locator('[data-id="Liked Videos"]');
 
     // STUDIO
-    this.studioOverview             = page.locator('[data-id="Overview"]');
+    this.studioHome                 = page.locator('[data-id="Home"]');
+    this.studioChannelSelector      = page.locator('[data-id="studio-nav-drawer-channel-selector"]');
     this.studioContent              = page.locator('[data-id="Content"]');
     this.studioAnalytics            = page.locator('[data-id="Analytics"]');
     this.studioChannel              = page.locator('[data-id="Channel"]');
+    this.studioGenerate             = page.locator('[data-id="Generate"]');     // disabled ("Soon")
     this.studioAssets               = page.locator('[data-id="Assets"]');       // disabled ("Soon")
     this.studioEarnings             = page.locator('[data-id="Earnings"]');     // disabled ("Soon")
     this.studioBackToAitv           = page.locator('[data-id="Back to AI.TV"]');
@@ -122,10 +127,10 @@ export class SideBarPage {
   // STUDIO ACTIONS
   // =========================
 
-  async clickStudioOverview() {
+  async clickStudioHome() {
     await ensureOnStudioDomain(this.page);
-    await expect(this.studioOverview, 'Studio overview is not visible').toBeVisible();
-    await this.studioOverview.click();
+    await expect(this.studioHome, 'Studio home is not visible').toBeVisible();
+    await this.studioHome.click();
     await expect(this.page, 'Did not navigate to /dashboard').toHaveURL(/\/dashboard$/);
   }
 
