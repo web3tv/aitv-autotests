@@ -940,6 +940,21 @@ export class VideoApi {
         return json?.items ?? json?.data?.items ?? [];
     }
 
+    /** Фоллов (подписка) на канал: POST /subscriptions/ — получатели релизных уведомлений (W3-2789) */
+    async followChannel(token: string, channelId: string): Promise<void> {
+        const response = await this.request.post(
+            `${this.baseUrl}/subscriptions/`,
+            {
+                headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+                data: { channelId },
+            }
+        );
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to follow channel: ${response.status()} ${body}`);
+        }
+    }
+
     /** Pre-subscribe на релиз "coming soon" видео: POST /videos/{id}/notify-on-release */
     async subscribeToVideoRelease(token: string, videoId: string): Promise<void> {
         const response = await this.request.post(
@@ -953,17 +968,17 @@ export class VideoApi {
     }
 
     /**
-     * Включает уведомления о релизе подписанного видео (on-platform + email).
-     * Бэк шлёт email только внутри проверки VIDEO_RELEASE (поле `subscriptions`),
-     * а сам email — по `emailSubscriptionActivity`; PUT перезаписывает настройки
-     * целиком, поэтому отправляем оба поля. На бэке дефолт обоих может быть false.
+     * Включает уведомления о релизе видео (on-platform + email).
+     * После W3-2789: on-platform уведомление гейтится тумблером `videoReleases`,
+     * email — дополнительно `emailSubscriptionActivity`. PUT перезаписывает настройки
+     * целиком (непереданные поля DTO дефолтит в false), поэтому шлём все нужные поля явно.
      */
     async enableReleaseNotifications(token: string): Promise<void> {
         const response = await this.request.put(
             `${this.baseUrl}/user/notifications/settings/`,
             {
                 headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
-                data: { subscriptions: true, emailSubscriptionActivity: true },
+                data: { subscriptions: true, videoReleases: true, emailSubscriptionActivity: true },
             }
         );
         if (!response.ok()) {
