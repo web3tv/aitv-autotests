@@ -69,7 +69,8 @@ ACCOUNT SETTINGS (/account)
 ├── Add wallet to email account                     [AUTO] tests/auth/walletAuth.spec.ts     ACCOUNT-005
 ├── Change password twice in one session            [BLOCKED] test.fixme W3-2731 tests/account/account.spec.ts  ACCOUNT-006
 ├── Change email then change password (unverified)  [AUTO] tests/account/account.spec.ts     ACCOUNT-007
-└── Change email twice without verification         [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-008
+├── Change email twice without verification         [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-008
+└── Add email to phone-registered account           [BLOCKED] test.fixme W3-2910 tests/accountSettings/security.spec.ts  ACCOUNT-012
 
 ────────────────────────────────────────────────────────────────
 PROFILE SETTINGS (/profile) — suite в test.fixme (WIP)

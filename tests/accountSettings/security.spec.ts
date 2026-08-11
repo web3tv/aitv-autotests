@@ -3,6 +3,7 @@ import { AuthFlow } from '../../src/flows/AuthFlow';
 import { AuthApi } from '../../src/api/AuthApi';
 import { SecurityPage } from '../../src/pages/account/SecurityPage';
 import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
+import { DataGenerator } from '../../src/utils/dataGenerator';
 
 test.describe('Change password', () => {
 
@@ -308,6 +309,66 @@ test.describe('Change email', () => {
       const securityPage = new SecurityPage(page);
       await securityPage.closeEmailModal();
       await securityPage.assertDisplayedEmail(user.email);
+    });
+  });
+
+  // BLOCKED by W3-2910 [FE]: the "Add Email" modal has no current-password field, while the
+  // backend (PUT /user/me/email) requires `currentPassword` for any account that has a password
+  // (validation group `password_change`) — so for a phone+password user the request always fails
+  // with 412 "The provided password is incorrect" and an email can never be attached. Verified
+  // via direct API call: the same PUT with the correct currentPassword in the body returns 204,
+  // so once the FE asks for the password this flow works end-to-end.
+  // https://stretch-com.atlassian.net/browse/W3-2910
+  test.fixme('Add email to phone-registered account', { annotation: { type: 'TC', description: 'ACCOUNT-012' } }, async ({ page, request }) => {
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const mailHelper = createMailHelper(request);
+    let user: { phone: string, username: string, password: string };
+    let email: string;
+    let mailToken: string;
+
+    await test.step('Create user via phone + password', async () => {
+      const authApi = new AuthApi(request);
+      const { phone, username } = await authApi.createUserFastViaPhone(DataGenerator.generatePhoneNumber());
+      user = { phone, username, password: process.env.USER_PASSWORD! };
+    });
+
+    await test.step('Create disposable email', async () => {
+      email = await mailHelper.generateEmail();
+      await mailHelper.createMailbox();
+      mailToken = await mailHelper.getToken(email);
+    });
+
+    await test.step('Login via phone and open account settings', async () => {
+      await authFlow.loginSuccess({ phone: user.phone }, user.password, user.username);
+      await authFlow.openAccountSettings();
+    });
+
+    await test.step('Add email: the modal asks for the current password since the account has one', async () => {
+      await securityPage.clickAddEmailBtn();
+      await securityPage.fillNewEmail(email);
+      // W3-2910: this input does not exist in the "Add Email" modal today, so the flow is blocked.
+      await securityPage.fillEmailPassword(user.password);
+      await securityPage.clickEmailContinueBtn();
+      await securityPage.verifyEmailConfirmationAlert();
+      await securityPage.closeEmailModal();
+    });
+
+    await test.step('Verify email via the link from the mailbox', async () => {
+      const verificationUrl = await createMailFlows(request).emailChangeUrl(mailToken);
+      await page.goto(verificationUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByText(/Email added/i)).toBeVisible({ timeout: 40_000 });
+    });
+
+    await test.step('Email is attached to the account', async () => {
+      await page.goto('/account?tab=security', { waitUntil: 'domcontentloaded' });
+      await securityPage.assertDisplayedEmail(email);
+      await expect(securityPage.addEmailRow, 'Add Email row must disappear once the email is attached').toBeHidden();
+
+      const whoami = await page.request.get('/api/users/whoami');
+      expect(whoami.status(), 'whoami should return 200').toBe(200);
+      const { data } = await whoami.json();
+      expect(data.email, 'whoami must report the attached email').toBe(email);
     });
   });
 
