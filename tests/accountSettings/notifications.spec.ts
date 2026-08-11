@@ -121,7 +121,7 @@ test.fixme('Notification received on paid subscription purchase', { annotation: 
   await test.step('User B: login and create membership plan', async () => {
     await authFlow.loginSuccess(userB.email, password, userB.username);
     const studioMembershipPage = new StudioMembershipPage(page);
-    await sideBarPage.clickStudioSubscriptions();
+    await studioMembershipPage.goto();
     await studioMembershipPage.addMembershipPlan('Subscription #1', 'Test Description');
     await studioMembershipPage.checkAddedPlan('Subscription #1', 'Test Description');
   });
@@ -226,7 +226,7 @@ test.fixme('Notification received when paid channel uploads paid video', { annot
     await authFlow.loginSuccess(userB.email, password, userB.username);
 
     const studioMembershipPage = new StudioMembershipPage(page);
-    await sideBarPage.clickStudioSubscriptions();
+    await studioMembershipPage.goto();
     await studioMembershipPage.addMembershipPlan('Subscription #1', 'Test Description');
     await studioMembershipPage.checkAddedPlan('Subscription #1', 'Test Description');
     await page.goto('/', { waitUntil: 'domcontentloaded' });

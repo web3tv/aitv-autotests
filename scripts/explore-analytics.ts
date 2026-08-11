@@ -90,24 +90,24 @@ async function uploadVideo(token: string): Promise<string> {
     const videoId = initJson?.data?.id ?? initJson?.id;
     console.log('Video ID:', videoId);
 
-    // 2. Upload chunk (octet-stream)
-    const md5Hash = crypto.createHash('md5').update(fileBuffer).digest('hex');
-    const MAX_CHUNK_SIZE = 52428800;
-    const contentRange = `bytes 0-${size}/${size}/${MAX_CHUNK_SIZE}`;
-
-    const uploadRes = await fetch(`${API_URL}/videos/${videoId}/chunk`, {
+    // 2. Upload the single part directly to S3 via a signed URL (W3-2574: the
+    // legacy proxied POST /videos/{id}/chunk endpoint was removed)
+    const signedRes = await fetch(`${API_URL}/videos/${videoId}/chunks/1/upload-url`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/octet-stream',
-            'Authorization': `Bearer ${token}`,
-            'Content-Range': contentRange,
-            'Content-MD5': md5Hash,
-            'Content-Checksum': checksum,
-        },
+        headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+    });
+    if (!signedRes.ok) {
+        throw new Error(`Get upload URL failed: ${signedRes.status} ${await signedRes.text()}`);
+    }
+    const signed = await signedRes.json();
+
+    const uploadRes = await fetch(signed.url, {
+        method: signed.method ?? 'PUT',
+        headers: signed.headers ?? {},
         body: fileBuffer,
     });
-    if (!uploadRes.ok && uploadRes.status !== 202) {
-        throw new Error(`Upload chunk failed: ${uploadRes.status} ${await uploadRes.text()}`);
+    if (!uploadRes.ok) {
+        throw new Error(`Upload part failed: ${uploadRes.status} ${await uploadRes.text()}`);
     }
 
     // 3. Complete

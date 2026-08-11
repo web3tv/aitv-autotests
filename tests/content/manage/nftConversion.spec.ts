@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { AuthApi } from '../../../src/api/AuthApi';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
-import { SideBarPage } from '../../../src/pages/components/SideBarPage';
 import { StudioSettingsPage } from '../../../src/pages/studio/StudioSettingsPage';
 import { HeroPayPage } from '../../../src/pages/heroPay/HeroPayPage';
 
@@ -12,7 +11,6 @@ test.fixme('Convert channel to NFT via mock payment',
 
         const studioUrl = process.env.STUDIO_URL || 'https://studio.web3tv.dev';
         const authFlow = new AuthFlow(page);
-        const sideBar = new SideBarPage(page);
         const settingsPage = new StudioSettingsPage(page);
         const heroPayPage = new HeroPayPage(page);
 
@@ -21,7 +19,7 @@ test.fixme('Convert channel to NFT via mock payment',
         });
 
         await test.step('Navigate to Studio Settings and verify NFT section', async () => {
-            await sideBar.clickStudioSettings();
+            await settingsPage.goto();
             await settingsPage.assertNftSectionVisible();
         });
 
@@ -77,7 +75,6 @@ test.fixme('Email user without wallet sees add wallet popup on Convert to NFT',
 
         const authApi = new AuthApi(request);
         const authFlow = new AuthFlow(page);
-        const sideBar = new SideBarPage(page);
         const settingsPage = new StudioSettingsPage(page);
         const password = process.env.USER_PASSWORD!;
 
@@ -87,7 +84,7 @@ test.fixme('Email user without wallet sees add wallet popup on Convert to NFT',
         });
 
         await test.step('Navigate to Studio Settings and verify NFT section', async () => {
-            await sideBar.clickStudioSettings();
+            await settingsPage.goto();
             await settingsPage.assertNftSectionVisible();
         });
 

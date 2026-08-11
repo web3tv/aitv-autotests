@@ -12,6 +12,7 @@ export class SecurityPage {
     readonly emailValue: Locator;
     readonly changeEmailBtn: Locator;
     readonly passwordRow: Locator;
+    readonly noPasswordRow: Locator;    // account without a password: "No password set / Create password"
     readonly addEmailRow: Locator;      // wallet-only account: "Add Email"
     readonly noWalletRow: Locator;      // email account: "No wallet added"
     readonly walletValue: Locator;      // wallet account: connected address
@@ -40,7 +41,6 @@ export class SecurityPage {
     readonly passwordCloseBtn: Locator;
 
     // Wallet
-    readonly walletAddedToast: Locator;
 
     // Negative
     readonly emailAlreadyExistsError: Locator;
@@ -60,6 +60,7 @@ export class SecurityPage {
         this.emailValue = page.getByTestId('aitv-security-email-value');
         this.changeEmailBtn = page.getByTestId('aitv-security-email-change-btn');
         this.passwordRow = page.getByTestId('aitv-security-password-row');
+        this.noPasswordRow = page.getByTestId('aitv-security-no-password-row');
         this.addEmailRow = page.getByTestId('aitv-security-add-email-row');
         this.noWalletRow = page.getByTestId('aitv-security-no-wallet-row');
         this.walletValue = page.getByTestId('aitv-security-wallet-value');
@@ -83,9 +84,6 @@ export class SecurityPage {
         this.passwordConfirmBtn = page.getByTestId('aitv-password-confirm-btn');
         this.passwordSentStep = page.getByTestId('aitv-password-sent-step');
         this.passwordCloseBtn = page.getByTestId('aitv-password-close-btn');
-
-        // Wallet
-        this.walletAddedToast = page.getByText('Wallet successfully added!');
 
         // Negative
         this.emailAlreadyExistsError = page.getByText(/account already exists for this email/i);
@@ -114,10 +112,6 @@ export class SecurityPage {
         await expect(this.noWalletRow, 'Add wallet row is not visible').toBeVisible();
         await expect(this.noWalletRow, 'Add wallet row is not enabled').toBeEnabled();
         await this.noWalletRow.click();
-    }
-
-    async assertWalletAddedToast(): Promise<void> {
-        await expect(this.walletAddedToast, 'Wallet added confirmation toast is not visible').toBeVisible({ timeout: 15_000 });
     }
 
     // CHANGE PASSWORD METHODS
@@ -158,6 +152,24 @@ export class SecurityPage {
         await this.clickPasswordConfirmBtn();
         // The change is confirmed via an email link; the modal advances to a "sent" step.
         await expect(this.passwordSentStep, 'Password change sent-step is not visible').toBeVisible();
+        await this.closePasswordModal();
+    }
+
+    /**
+     * SET PASSWORD (account without one, e.g. wallet-registered with attached email).
+     * The "No password set" row opens the same aitv-password-modal but in a create
+     * step WITHOUT the current-password field; the creation is confirmed via an
+     * email link (the modal advances to the "sent" step).
+     */
+    async setPassword(newPassword: string): Promise<void> {
+        await expect(this.noPasswordRow, 'Create password row is not visible').toBeVisible();
+        await expect(this.noPasswordRow, 'Create password row is not enabled').toBeEnabled();
+        await this.noPasswordRow.click();
+        await expect(this.passwordModal, 'Create password modal is not visible').toBeVisible();
+        await this.fillNewPassword(newPassword);
+        await this.fillConfirmPassword(newPassword);
+        await this.clickPasswordConfirmBtn();
+        await expect(this.passwordSentStep, 'Password creation sent-step is not visible').toBeVisible({ timeout: 15_000 });
         await this.closePasswordModal();
     }
 

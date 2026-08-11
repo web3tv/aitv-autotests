@@ -18,7 +18,8 @@ export class NotificationsPage {
         this.commentMentionsToggle = page.locator('input[name="commentMentions"]');
 
         this.bellButton = page.locator('[data-testid="notifications-button"]');
-        this.notificationPanel = page.locator('#notifications-scroll-container');
+        // AI.TV skin renders its own notifications menu (AitvNotificationsMenu)
+        this.notificationPanel = page.locator('#aitv-notifications-scroll-container');
         this.notificationEmptyState = this.notificationPanel.locator('h5:has-text("You have no new notifications")');
     }
 

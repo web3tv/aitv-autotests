@@ -42,9 +42,8 @@ AUTH — WALLET
 │   MetaMask, Hero, Binance, Trust, SafePal, Fireblocks, OKX, TokenPocket, Bitget,
 │   Uniswap, Ledger Live, Zerion, Best, Crypto.com, Bifrost, xPortal, Bitcoin.com,
 │   1inch, Trezor, Blockchain.com, imToken, BitPay, Gemini, Arculus, Ctrl, Ronin
-├── Wallet register + add email/password + login    [BLOCKED] W3-2039                        AUTH-014
-├── Add email to wallet applied w/o verification    [BLOCKED] W3-2852 test.fixme tests/auth/walletAuth.spec.ts  AUTH-016
-└── Unverified email not attached / address free    [BLOCKED] W3-2852 test.fixme tests/auth/walletAuth.spec.ts  AUTH-020
+├── Wallet register + add email/password + login    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-014
+└── Unverified email not attached / address free    [AUTO] tests/auth/walletAuth.spec.ts     AUTH-020
 
 ────────────────────────────────────────────────────────────────
 2FA — suite выключена (describe.skip в tests/auth/emailAuth.spec.ts)
@@ -90,9 +89,10 @@ NOTIFICATIONS (/notifications) — suite в test.fixme (WIP)
 └── Notification on paid channel paid video upload  [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-005
 
 ────────────────────────────────────────────────────────────────
-AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641)
-├── Subscribed user gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
-└── Unsubscribed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641, reworked W3-2789: delivery is follower-based)
+├── Channel follower gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
+├── Unfollowed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+└── Notify-on-release bell toggles and state persists (no delivery since W3-2789)  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-003
 
 ────────────────────────────────────────────────────────────────
 CHANNELS
@@ -132,7 +132,7 @@ VIDEO UPLOAD
 ├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
 ├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
 ├── Upload Shorts                                   [TODO] (covered by SHORTS-003)              UPLOAD-005
-├── Upload video >50MB (chunk upload, 500 check)    [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
+├── Upload video >50MB (multipart direct-to-S3)     [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
 ├── Upload thumbnail manually                       [TODO] (спек удалён при переходе на stepped modal W3-2702)  UPLOAD-007
 ├── AI autofill fields via AI button                [TODO]                                      UPLOAD-008
 ├── Required fields validation (title/desc/cat)     [AUTO] tests/content/upload/uploadVideoValidation.spec.ts  UPLOAD-009

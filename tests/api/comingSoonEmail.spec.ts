@@ -4,21 +4,24 @@ import { VideoApi } from '../../src/api/VideoApi';
 import { createMailFlows, assertEmailBasics, MailSubject } from '../../src/utils/mailHelper';
 
 /**
- * Pre-subscribed ("Coming Soon") видео → email-уведомление о публикации (W3-2662).
+ * Coming-soon видео → email-уведомление о публикации (W3-2662, переработано в W3-2789).
  * Поток: автор грузит видео и переводит его в coming-soon (publishedAt в будущем),
- * подписчик включает email-уведомления и pre-subscribe'ится; крон публикации
- * (раз в минуту) публикует видео по наступлении publishedAt → подписчику уходит
- * письмо "Video released". Проверяем факт публикации и контент письма.
+ * фолловер канала включает уведомления о релизах; крон публикации (раз в минуту)
+ * публикует видео по наступлении publishedAt → фолловеру уходит письмо
+ * "Video released". Проверяем факт публикации и контент письма.
+ *
+ * После W3-2789 рассылка о релизе идёт фолловерам канала; pre-subscribe на видео
+ * (notify-on-release) в доставке не участвует.
  *
  * Тест долгий: загрузка+обработка видео + буфер до publishedAt + до 60с на крон.
  */
 
-const PUBLISH_DELAY_MS = 70_000; // буфер от schedule до publishedAt (> времени на pre-subscribe)
+const PUBLISH_DELAY_MS = 70_000; // буфер от schedule до publishedAt (> времени на follow+настройки)
 
 test.describe.serial('Coming Soon video — release email notification', { tag: '@emails' }, () => {
     test.describe.configure({ timeout: 480_000 });
 
-    test('Pre-subscribed user receives release email when coming-soon video publishes', {
+    test('Channel follower receives release email when coming-soon video publishes', {
         annotation: { type: 'TC', description: 'EMAIL-006' },
     }, async ({ request }) => {
         const authApi = new AuthApi(request);
@@ -31,9 +34,10 @@ test.describe.serial('Coming Soon video — release email notification', { tag: 
         let subMailToken: string;
         let videoId: string;
         let videoTitle: string;
+        let channelId: string;
         let channelHandle: string;
 
-        await test.step('Create author and subscriber via API', async () => {
+        await test.step('Create author and follower via API', async () => {
             const author = await authApi.createAndVerifyUser();
             authorToken = await authApi.getUserToken(author.email, password);
 
@@ -42,6 +46,7 @@ test.describe.serial('Coming Soon video — release email notification', { tag: 
             subMailToken = sub.mailToken;
 
             const channel = await videoApi.getChannelInfo(authorToken);
+            channelId = channel.id;
             channelHandle = channel.handle;
         });
 
@@ -68,9 +73,9 @@ test.describe.serial('Coming Soon video — release email notification', { tag: 
             expect(new Date(v?.publishedAt).getTime(), 'publishedAt should be in the future').toBeGreaterThan(Date.now());
         });
 
-        await test.step('Subscriber enables release notifications and pre-subscribes', async () => {
+        await test.step('Follower subscribes to the channel and enables release notifications', async () => {
+            await videoApi.followChannel(subToken, channelId);
             await videoApi.enableReleaseNotifications(subToken);
-            await videoApi.subscribeToVideoRelease(subToken, videoId);
         });
 
         await test.step('Wait for cron to publish the video', async () => {
@@ -84,7 +89,7 @@ test.describe.serial('Coming Soon video — release email notification', { tag: 
             expect(published, 'video should be published by the cron (privacy becomes public)').toBe(true);
         });
 
-        await test.step('Subscriber receives the release email with correct content', async () => {
+        await test.step('Follower receives the release email with correct content', async () => {
             const email = await mailFlows.message(subMailToken, MailSubject.VIDEO_RELEASED, { retries: 20 });
 
             assertEmailBasics(email, { subject: MailSubject.VIDEO_RELEASED });

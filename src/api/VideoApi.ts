@@ -156,7 +156,8 @@ export class VideoApi {
 
     /**
      * Returns the ordered episodes of a series (by playlist position) with ready-to-open
-     * public watch URLs. Episodes use the `video` URL segment (backend maps EPISODE → 'video').
+     * public watch URLs. Since W3-2856 the canonical episode URL is 3-segment —
+     * `/video/{category}/{series-slug}/{episode-slug}` (the old 2-segment URL 308-redirects).
      */
     async getSeriesEpisodes(
         token: string,
@@ -182,7 +183,7 @@ export class VideoApi {
                 slug: v.slug,
                 title: v.title,
                 categorySlug,
-                watchUrl: `${process.env.BASE_URL}/video/${categorySlug}/${v.slug}`,
+                watchUrl: `${process.env.BASE_URL}/video/${categorySlug}/${seriesSlug}/${v.slug}`,
             };
         });
     }
@@ -322,7 +323,12 @@ export class VideoApi {
         token: string,
         channelId: string,
         filePath: string
-    ): Promise<{ id: string; videoPlayerFeUrl: string }> {
+    ): Promise<{
+        id: string;
+        videoPlayerFeUrl: string;
+        locationChunkUpload?: string;
+        locationComplete?: string;
+    }> {
         const filePath_ = path.isAbsolute(filePath) ? filePath : path.resolve(PROJECT_ROOT, filePath);
         const stats = fs.statSync(filePath_);
         const filename = path.basename(filePath_);
@@ -355,77 +361,121 @@ export class VideoApi {
         return {
             id: json.id,
             videoPlayerFeUrl: json.videoPlayerFeUrl,
+            locationChunkUpload: json.locationChunkUpload,
+            locationComplete: json.locationComplete,
         };
     }
 
-    private async uploadChunk(
+    private async getChunkUploadUrl(
+        token: string,
+        videoId: string,
+        partNumber: number
+    ): Promise<{ url: string; method: string; headers: Record<string, string> }> {
+        const response = await this.request.post(
+            `${this.baseUrl}/videos/${videoId}/chunks/${partNumber}/upload-url`,
+            {
+                headers: {
+                    Accept: "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (response.status() === 409) {
+            const body = await response.text();
+            throw new Error(
+                `Failed to get upload URL for part ${partNumber} of video ${videoId}: 409 — ` +
+                `upload is not in a resumable (CREATED) state, it was likely already completed or aborted. ${body}`
+            );
+        }
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to get upload URL for part ${partNumber}: ${response.status()} ${body}`);
+        }
+
+        const json = await response.json();
+        return {
+            url: json.url,
+            method: json.method ?? "PUT",
+            headers: json.headers ?? {},
+        };
+    }
+
+    private async uploadParts(
         token: string,
         videoId: string,
         filePath: string
     ): Promise<void> {
         const filePath_ = path.isAbsolute(filePath) ? filePath : path.resolve(PROJECT_ROOT, filePath);
         const fileBuffer = fs.readFileSync(filePath_);
-        const size = fileBuffer.length;
 
-        const md5Hash = crypto
-            .createHash("md5")
-            .update(fileBuffer)
-            .digest("hex");
+        const PART_SIZE = 52428800; // 50MB, matches the FE worker's chunk size
+        const partCount = Math.max(1, Math.ceil(fileBuffer.length / PART_SIZE));
 
-        const sha256Hash = crypto
-            .createHash("sha256")
-            .update(fileBuffer)
-            .digest("hex");
-
-        const MAX_CHUNK_SIZE = 52428800; // 50MB
-        const contentRange = `bytes 0-${size}/${size}/${MAX_CHUNK_SIZE}`;
-
-        // The stand's upload path intermittently hangs or drops connections under load;
-        // re-sending the same chunk is idempotent (same Content-Range + checksums), so
-        // retry transport-level failures a few times before giving up.
         const MAX_ATTEMPTS = 3;
-        let lastError: Error | undefined;
-        for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-            let response;
-            try {
-                response = await this.request.post(
-                    `${this.baseUrl}/videos/${videoId}/chunk`,
-                    {
-                        headers: {
-                            Accept: "application/json",
-                            "Content-Type": "application/octet-stream",
-                            "Content-Range": contentRange,
-                            "Content-MD5": md5Hash,
-                            "Content-Checksum": sha256Hash,
-                            Authorization: `Bearer ${token}`,
-                        },
-                        data: fileBuffer,
-                        timeout: 120_000,
-                    }
-                );
-            } catch (err: any) {
-                lastError = err;
-                console.warn(`[VideoApi] Chunk upload attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err?.message}`);
-                if (attempt < MAX_ATTEMPTS) {
-                    await new Promise((r) => setTimeout(r, 5_000));
-                    continue;
-                }
-                throw err;
-            }
+        const BACKOFF_MS = [1_000, 2_000, 4_000];
 
-            if (response.status() !== 202 && !response.ok()) {
+        for (let partNumber = 1; partNumber <= partCount; partNumber++) {
+            const partBuffer = fileBuffer.subarray((partNumber - 1) * PART_SIZE, partNumber * PART_SIZE);
+
+            let lastError: Error | undefined;
+            for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+                // A fresh signed URL every attempt: the SigV4 signature expires, so a
+                // retry with the previous URL would fail with RequestTimeTooSkewed.
+                const signed = await this.getChunkUploadUrl(token, videoId, partNumber);
+
+                let response;
+                try {
+                    // Direct-to-S3 PUT: send EXACTLY the signed headers (SigV4 Authorization,
+                    // X-Amz-Date, X-Amz-Content-Sha256) — no Bearer token, no Accept.
+                    response = await this.request.fetch(signed.url, {
+                        method: signed.method,
+                        headers: signed.headers,
+                        data: partBuffer,
+                        timeout: 120_000,
+                    });
+                } catch (err: any) {
+                    lastError = err;
+                    console.warn(
+                        `[VideoApi] Part ${partNumber}/${partCount} upload attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err?.message}`
+                    );
+                    if (attempt < MAX_ATTEMPTS) {
+                        await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt - 1]));
+                        continue;
+                    }
+                    throw err;
+                }
+
+                if (response.ok()) {
+                    lastError = undefined;
+                    break;
+                }
+
+                const status = response.status();
                 const body = await response.text();
-                throw new Error(`Failed to upload chunk: ${response.status()} ${body}`);
+                // 403 = expired/mismatched signature, 5xx = transient S3 error — both retryable.
+                const retryable = status === 403 || status >= 500;
+                lastError = new Error(`Failed to upload part ${partNumber}/${partCount}: ${status} ${body}`);
+                if (!retryable) {
+                    throw lastError;
+                }
+                console.warn(
+                    `[VideoApi] Part ${partNumber}/${partCount} upload attempt ${attempt}/${MAX_ATTEMPTS} got ${status}: ${body}`
+                );
+                if (attempt < MAX_ATTEMPTS) {
+                    await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt - 1]));
+                }
             }
-            return;
+            if (lastError) {
+                throw lastError;
+            }
         }
-        throw lastError;
     }
 
     private async fetchVideoUrl(
         token: string,
         videoId: string,
-        contentType: "video" | "short" = "video"
+        contentType: "video" | "short" | "episode" = "video"
     ): Promise<string> {
         const response = await this.request.get(`${this.baseUrl}/videos/studio/`, {
             headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
@@ -587,7 +637,7 @@ export class VideoApi {
     async waitForProcessing(
         token: string,
         videoId: string,
-        contentType: "video" | "short" = "video",
+        contentType: "video" | "short" | "episode" = "video",
         maxAttempts = 24,
         intervalMs = 5_000
     ): Promise<string | undefined> {
@@ -654,7 +704,8 @@ export class VideoApi {
     }
 
     /**
-     * Full upload flow: init → chunk → complete → update metadata (+ optional visibility & processing wait)
+     * Full upload flow: init → parts (direct-to-S3 multipart via signed URLs) → complete
+     * → update metadata (+ optional visibility & processing wait)
      */
     async uploadVideo(
         token: string,
@@ -684,8 +735,8 @@ export class VideoApi {
         const id = initResult.id;
         let videoPlayerFeUrl: string;
 
-        // 2. Upload chunk (single chunk for files < 50MB)
-        await this.uploadChunk(token, id, filePath);
+        // 2. Upload parts directly to S3 (50MB parts; one part for our small files)
+        await this.uploadParts(token, id, filePath);
 
         // 3. Complete
         await this.completeUpload(token, id);
@@ -717,19 +768,19 @@ export class VideoApi {
         }
 
         // 5. Build video URL; if processing is required — wait for completion first.
-        // Episodes (seriesId set) are listed under a different studio type, so the
-        // public URL is resolved from the series playlist instead — tolerate failure here.
+        // A video attached to a series is listed as type=episode (it is NOT returned
+        // by type=video queries), so poll the studio listing with the matching type.
+        const listingType: "video" | "short" | "episode" =
+            options.seriesId ? "episode" : options.contentType ?? "video";
         try {
             if (options.waitForProcessing) {
-                const builtUrl = await this.waitForProcessing(
-                    token, id, options.contentType ?? "video"
-                );
+                const builtUrl = await this.waitForProcessing(token, id, listingType);
                 if (!builtUrl) {
                     throw new Error(`No player URL available for video ${id} after processing`);
                 }
                 videoPlayerFeUrl = builtUrl;
             } else {
-                videoPlayerFeUrl = await this.fetchVideoUrl(token, id, options.contentType ?? "video");
+                videoPlayerFeUrl = await this.fetchVideoUrl(token, id, listingType);
             }
         } catch (e) {
             // Only tolerate the "can't build episode URL" case; real processing failures must surface.
@@ -890,6 +941,55 @@ export class VideoApi {
         return json?.items ?? json?.data?.items ?? [];
     }
 
+    /**
+     * Фоллов (подписка) на канал: POST /subscriptions/ — получатели релизных
+     * уведомлений (W3-2789). Возвращает id созданной подписки — анфолловить нужно
+     * строго по нему (см. unfollowChannel).
+     */
+    async followChannel(token: string, channelId: string): Promise<string> {
+        const response = await this.request.post(
+            `${this.baseUrl}/subscriptions/`,
+            {
+                headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+                data: { channelId },
+            }
+        );
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to follow channel: ${response.status()} ${body}`);
+        }
+        // id подписки: из Location (…/subscriptions/?id=<base58>) либо из тела ответа.
+        const location = response.headers()['location'] ?? '';
+        const fromLocation = location.match(/id=([a-zA-Z0-9]{22})/)?.[1];
+        if (fromLocation) return fromLocation;
+        const json = await response.json().catch(() => null);
+        const id = json?.id ?? json?.data?.id;
+        if (typeof id !== 'string' || !id) {
+            throw new Error(`Followed channel but subscription id is missing (Location: "${location}")`);
+        }
+        return id;
+    }
+
+    /**
+     * Анфоллов (отписка) от канала: DELETE /subscriptions/?id=<subscriptionId>.
+     * Принимает id ПОДПИСКИ (из followChannel), не канала: бэковый unsubscribe по
+     * channelId делает findOneBy(['channel' => …]) БЕЗ скоупа по текущему юзеру и
+     * удаляет первую попавшуюся (возможно чужую) подписку на канал — баг W3-2907.
+     */
+    async unfollowChannel(token: string, subscriptionId: string): Promise<void> {
+        const response = await this.request.delete(
+            `${this.baseUrl}/subscriptions/`,
+            {
+                headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+                params: { id: subscriptionId },
+            }
+        );
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to unfollow channel: ${response.status()} ${body}`);
+        }
+    }
+
     /** Pre-subscribe на релиз "coming soon" видео: POST /videos/{id}/notify-on-release */
     async subscribeToVideoRelease(token: string, videoId: string): Promise<void> {
         const response = await this.request.post(
@@ -903,17 +1003,17 @@ export class VideoApi {
     }
 
     /**
-     * Включает уведомления о релизе подписанного видео (on-platform + email).
-     * Бэк шлёт email только внутри проверки VIDEO_RELEASE (поле `subscriptions`),
-     * а сам email — по `emailSubscriptionActivity`; PUT перезаписывает настройки
-     * целиком, поэтому отправляем оба поля. На бэке дефолт обоих может быть false.
+     * Включает уведомления о релизе видео (on-platform + email).
+     * После W3-2789: on-platform уведомление гейтится тумблером `videoReleases`,
+     * email — дополнительно `emailSubscriptionActivity`. PUT перезаписывает настройки
+     * целиком (непереданные поля DTO дефолтит в false), поэтому шлём все нужные поля явно.
      */
     async enableReleaseNotifications(token: string): Promise<void> {
         const response = await this.request.put(
             `${this.baseUrl}/user/notifications/settings/`,
             {
                 headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
-                data: { subscriptions: true, emailSubscriptionActivity: true },
+                data: { subscriptions: true, videoReleases: true, emailSubscriptionActivity: true },
             }
         );
         if (!response.ok()) {

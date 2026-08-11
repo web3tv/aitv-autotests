@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../../src/flows/AuthFlow';
 import { AuthApi } from '../../../src/api/AuthApi';
 import { DatabaseHelper } from '../../../src/api/DatabaseHelper';
-import { SideBarPage } from '../../../src/pages/components/SideBarPage';
 import { StudioMembershipPage } from '../../../src/pages/studio/StudioMembershipPage';
 import { UploadVideoFlow } from '../../../src/flows/UploadVideoFlow';
 import { StudioContentPage } from '../../../src/pages/studio/StudioContentPage';
@@ -30,10 +29,9 @@ test('Paid video suite', { annotation: [{ type: 'TC', description: 'PAID-001' },
     });
 
     await test.step('Create subscription plan', async () => {
-        const sideBar = new SideBarPage(page);
         const studioMembershipPage = new StudioMembershipPage(page);
 
-        await sideBar.clickStudioSubscriptions();
+        await studioMembershipPage.goto();
         await studioMembershipPage.addMembershipPlan(membershipName, membershipDescription);
         await studioMembershipPage.checkAddedPlan(membershipName, membershipDescription);
     });
