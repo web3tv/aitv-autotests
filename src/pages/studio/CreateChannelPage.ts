@@ -1,30 +1,26 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
 
+// /create-channel on the AI.TV skin opens the CreateChannelModal immediately
+// (the old "Start Setup" wizard step is gone).
 export class CreateChannelPage {
-    
+
     readonly page: Page;
+    readonly modalForm: Locator;
     readonly handleInput: Locator;
     readonly nameInput: Locator;
 
-    readonly startSetupBtn: Locator;
     readonly submitBtn: Locator;
+    readonly cancelBtn: Locator;
 
     constructor(page: Page) {
         this.page = page;
 
-        // Main page
-        this.startSetupBtn = page.getByRole('button', { name: 'Start Setup' })
-
-
-        this.handleInput = page.getByRole('textbox', { name: 'yourhandle' })
-        this.nameInput = page.getByRole('textbox', { name: 'Enter your channel name' })
-        this.submitBtn = page.getByRole('button', { name: 'Continue' })
-    }
-
-    async clickStartSetup(){
-        await expect(this.startSetupBtn, 'Start setup button is not enabled').toBeEnabled();
-        await this.startSetupBtn.click();
+        this.modalForm = page.getByTestId('create-channel-form');
+        this.handleInput = page.locator('[data-id="handle"] input');
+        this.nameInput = page.locator('[data-id="name"] input');
+        this.submitBtn = page.getByTestId('create-channel-submit');
+        this.cancelBtn = page.getByTestId('create-channel-cancel');
     }
 
     async fillHandleName(name:any){
@@ -60,8 +56,10 @@ export class CreateChannelPage {
         await expect(this.handleInput, 'Handle input has wrong value').toHaveValue(expected)
     }
 
+    // A body click would land on the modal backdrop and close the modal, so
+    // blur the focused input via Tab instead.
     async blur() {
-        await this.page.click('body');
+        await this.page.keyboard.press('Tab');
     }
 
     async assertError(text: string) {
@@ -75,8 +73,5 @@ export class CreateChannelPage {
     async assertSaveBtnEnabled() {
         await expect(this.submitBtn, 'Submit button is not enabled').toBeEnabled();
     }
-
-   
-
 
 }

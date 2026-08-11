@@ -61,7 +61,8 @@ export class HeaderPage {
     this.userIcon = page.locator('[data-id="aitv-profile-menu-trigger"]');
     this.channelTriggerBtn = page.locator('[data-id="aitv-studio-channel-trigger-button"]');
     this.addNewChannelBtn = page.locator('[data-id="aitv-studio-channel-new"]');
-    this.createChannelHeading = page.getByText('Create Your Ai.tv Channel');
+    // /create-channel now opens the create-channel modal right away (no Start Setup step)
+    this.createChannelHeading = page.getByTestId('create-channel-form');
   }
 
   /** Opens the Studio channel switcher (top-left of the Studio header). Studio pages only. */
