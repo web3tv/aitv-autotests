@@ -156,7 +156,8 @@ export class VideoApi {
 
     /**
      * Returns the ordered episodes of a series (by playlist position) with ready-to-open
-     * public watch URLs. Episodes use the `video` URL segment (backend maps EPISODE → 'video').
+     * public watch URLs. Since W3-2856 the canonical episode URL is 3-segment —
+     * `/video/{category}/{series-slug}/{episode-slug}` (the old 2-segment URL 308-redirects).
      */
     async getSeriesEpisodes(
         token: string,
@@ -182,7 +183,7 @@ export class VideoApi {
                 slug: v.slug,
                 title: v.title,
                 categorySlug,
-                watchUrl: `${process.env.BASE_URL}/video/${categorySlug}/${v.slug}`,
+                watchUrl: `${process.env.BASE_URL}/video/${categorySlug}/${seriesSlug}/${v.slug}`,
             };
         });
     }
@@ -940,8 +941,12 @@ export class VideoApi {
         return json?.items ?? json?.data?.items ?? [];
     }
 
-    /** Фоллов (подписка) на канал: POST /subscriptions/ — получатели релизных уведомлений (W3-2789) */
-    async followChannel(token: string, channelId: string): Promise<void> {
+    /**
+     * Фоллов (подписка) на канал: POST /subscriptions/ — получатели релизных
+     * уведомлений (W3-2789). Возвращает id созданной подписки — анфолловить нужно
+     * строго по нему (см. unfollowChannel).
+     */
+    async followChannel(token: string, channelId: string): Promise<string> {
         const response = await this.request.post(
             `${this.baseUrl}/subscriptions/`,
             {
@@ -952,6 +957,36 @@ export class VideoApi {
         if (!response.ok()) {
             const body = await response.text();
             throw new Error(`Failed to follow channel: ${response.status()} ${body}`);
+        }
+        // id подписки: из Location (…/subscriptions/?id=<base58>) либо из тела ответа.
+        const location = response.headers()['location'] ?? '';
+        const fromLocation = location.match(/id=([a-zA-Z0-9]{22})/)?.[1];
+        if (fromLocation) return fromLocation;
+        const json = await response.json().catch(() => null);
+        const id = json?.id ?? json?.data?.id;
+        if (typeof id !== 'string' || !id) {
+            throw new Error(`Followed channel but subscription id is missing (Location: "${location}")`);
+        }
+        return id;
+    }
+
+    /**
+     * Анфоллов (отписка) от канала: DELETE /subscriptions/?id=<subscriptionId>.
+     * Принимает id ПОДПИСКИ (из followChannel), не канала: бэковый unsubscribe по
+     * channelId делает findOneBy(['channel' => …]) БЕЗ скоупа по текущему юзеру и
+     * удаляет первую попавшуюся (возможно чужую) подписку на канал — баг W3-2907.
+     */
+    async unfollowChannel(token: string, subscriptionId: string): Promise<void> {
+        const response = await this.request.delete(
+            `${this.baseUrl}/subscriptions/`,
+            {
+                headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+                params: { id: subscriptionId },
+            }
+        );
+        if (!response.ok()) {
+            const body = await response.text();
+            throw new Error(`Failed to unfollow channel: ${response.status()} ${body}`);
         }
     }
 

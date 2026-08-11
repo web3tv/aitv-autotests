@@ -23,7 +23,8 @@ export class AitvHomePage {
         this.comingSoonSection = page.locator('[data-id="aitv-coming-soon-section"]');
         this.comingSoonCards = this.comingSoonSection.locator('[data-id="aitv-coming-soon-card"]');
         this.bellButton = page.locator('[data-id="aitv-header-notifications"]');
-        this.notificationPanel = page.locator('#notifications-scroll-container');
+        // AI.TV skin renders its own notifications menu (AitvNotificationsMenu)
+        this.notificationPanel = page.locator('#aitv-notifications-scroll-container');
     }
 
     async goto(): Promise<void> {

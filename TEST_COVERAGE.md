@@ -89,9 +89,10 @@ NOTIFICATIONS (/notifications) — suite в test.fixme (WIP)
 └── Notification on paid channel paid video upload  [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-005
 
 ────────────────────────────────────────────────────────────────
-AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641)
-├── Subscribed user gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
-└── Unsubscribed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641, reworked W3-2789: delivery is follower-based)
+├── Channel follower gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
+├── Unfollowed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
+└── Notify-on-release bell toggles and state persists (no delivery since W3-2789)  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-003
 
 ────────────────────────────────────────────────────────────────
 CHANNELS

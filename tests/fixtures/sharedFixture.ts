@@ -87,8 +87,13 @@ export interface SharedFixture {
     seriesSlug: string;
     /** Playlist id — needed for `?list=` series-context playback. */
     seriesId: string;
-    /** Watch URLs of every episode in order (episode auto-advance uses [0]→[1]). */
+    /**
+     * Canonical watch URLs of every episode in order (episode auto-advance uses [0]→[1]).
+     * Since W3-2856 episodes are 3-segment: `/video/{category}/{series-slug}/{episode-slug}`.
+     */
     episodeUrls: string[];
+    /** Episode slugs in the same order — for URL waits that must survive redirects. */
+    episodeSlugs: string[];
 }
 
 const SEED_HINT =
@@ -157,6 +162,7 @@ export async function resolveSharedFixture(): Promise<SharedFixture> {
             seriesSlug: series.slug,
             seriesId: series.id,
             episodeUrls: episodes.map((e) => e.watchUrl),
+            episodeSlugs: episodes.map((e) => e.slug),
         };
     } finally {
         await ctx.dispose();
