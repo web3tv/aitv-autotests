@@ -23,7 +23,7 @@ export class AitvHomePage {
         this.comingSoonSection = page.locator('[data-id="aitv-coming-soon-section"]');
         this.comingSoonCards = this.comingSoonSection.locator('[data-id="aitv-coming-soon-card"]');
         this.bellButton = page.locator('[data-id="aitv-header-notifications"]');
-        // AI.TV skin renders its own notifications menu (AitvNotificationsMenu)
+        // The AITV popup (W3-2748) replaced the legacy menu; its scroll container carries the new id.
         this.notificationPanel = page.locator('#aitv-notifications-scroll-container');
     }
 

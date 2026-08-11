@@ -28,7 +28,6 @@ export class SideBarPage {
   readonly settingsAccount: Locator;
   readonly settingsProfile: Locator;
   readonly settingsPaidSubscriptions: Locator;
-  readonly settingsNotifications: Locator;
   readonly settingsSecurity: Locator;
 
   // SUPPORT
@@ -62,7 +61,6 @@ export class SideBarPage {
     this.settingsAccount            = page.locator('[data-id="Account"]');
     this.settingsProfile            = page.locator('[data-id="Profile"]');
     this.settingsPaidSubscriptions  = page.locator('[data-id="Paid Subscriptions"]');
-    this.settingsNotifications      = page.locator('[data-id="Notifications"]');
     this.settingsSecurity           = page.locator('[data-id="Security"]');
 
     // SUPPORT
@@ -172,12 +170,6 @@ export class SideBarPage {
     await expect(this.settingsPaidSubscriptions, 'Settings paid subscriptions is not visible').toBeVisible();
     await this.settingsPaidSubscriptions.click();
     await expect(this.page, 'Did not navigate to /my-paid-subs').toHaveURL(/\/my-paid-subs$/);
-  }
-
-  async clickSettingsNotifications() {
-    await expect(this.settingsNotifications, 'Settings notifications is not visible').toBeVisible();
-    await this.settingsNotifications.click();
-    await expect(this.page, 'Did not navigate to /notifications').toHaveURL(/\/notifications$/);
   }
 
   async clickSettingsSecurity() {
