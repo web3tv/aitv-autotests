@@ -1,21 +1,25 @@
 import { test, expect, Page, APIRequestContext } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { NotificationsPopupPage } from '../../src/pages/components/NotificationsPopupPage';
+import { AccountNotificationsTab } from '../../src/pages/account/AccountNotificationsTab';
 import { CommentsApi } from '../../src/api/CommentsApi';
 import { SubscriptionApi } from '../../src/api/SubscriptionApi';
+import { VideoApi } from '../../src/api/VideoApi';
 import { setupVideoViaApi } from '../../src/utils/studioTestHelpers';
 import {
     createUserWithChannel,
     NotificationsTestUser,
-    seedFollowers,
+    seedCommentReplies,
     waitForNotification,
     waitForUnseenCount,
 } from '../../src/utils/notificationsTestHelpers';
 
 // AITV header notifications popup (W3-2748). The popup is per-user, so every test
-// seeds its own users/notifications via API (free follow → `channel_subscription`,
-// comment reply → `comment_reply`, upload by a followed channel → `subscription`).
-// The shared @qavischan fixture is never touched.
+// seeds its own users/notifications via API. Popup-mechanics tests (count/dots,
+// hover-seen, mark-all, "9+") seed `comment_reply` notifications, which the backend
+// still emits immediately — unlike follow/like, which W3-2848 now aggregates via an
+// hourly cron (not producible in a functional run). The shared @qavischan fixture is
+// never touched.
 
 async function loginAs(page: Page, user: NotificationsTestUser): Promise<void> {
     const authFlow = new AuthFlow(page);
@@ -99,16 +103,15 @@ test('Fresh user sees the empty state and disabled controls', {
     });
 });
 
-test('Unread badge shows the unseen count and rows show unread dots', {
+test('Unread badge shows the unseen count and the popup lists the rows', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-004' },
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
     const popup = new NotificationsPopupPage(page);
     let owner: NotificationsTestUser;
 
-    await test.step('Seed 3 followers → 3 unseen channel_subscription notifications', async () => {
-        owner = await createUserWithChannel(request);
-        await seedFollowers(request, owner.channelId, 3);
+    await test.step('Seed 3 unseen comment_reply notifications', async () => {
+        owner = (await seedCommentReplies(request, 3)).owner;
         await waitForUnseenCount(request, owner.token, 3);
     });
 
@@ -117,27 +120,31 @@ test('Unread badge shows the unseen count and rows show unread dots', {
         await popup.assertBadge('3');
     });
 
-    await test.step('Popup renders 3 rows, each with an unread dot', async () => {
+    // The AITV skin marks unread rows with a row-background highlight, not a per-row
+    // dot, so unread state is asserted via the bell badge (the unseen count); here we
+    // only assert the popup lists all 3 rows.
+    await test.step('Popup renders 3 rows', async () => {
         await popup.openPopup();
         await expect(popup.rowAvatars, 'Expected 3 notification rows').toHaveCount(3, { timeout: 15_000 });
-        await expect
-            .poll(() => popup.countUnreadDots(), { message: 'Expected 3 unread dots', timeout: 10_000 })
-            .toBe(3);
     });
 });
 
-test('Comment reply lands in Mentions, channel follow lands in For you', {
+// Scope reduced (W3-2848): this originally also asserted "channel follow lands in For
+// you", but follow (`channel_subscription`) notifications are now produced only by the
+// hourly aggregation cron and cannot be seeded in a functional run — see the fixme'd
+// NOTIF-POPUP-007. The comment_reply → Activity placement is kept and still seeded
+// synchronously.
+test('Comment reply lands in the Activity section', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-005' },
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
     const popup = new NotificationsPopupPage(page);
     const commentsApi = new CommentsApi(request);
-    const subscriptionApi = new SubscriptionApi(request);
     const replyText = `Popup reply ${Date.now()}`;
     let owner: NotificationsTestUser;
     let replier: NotificationsTestUser;
 
-    await test.step('Seed: reply to the owner\'s comment + follow the owner\'s channel', async () => {
+    await test.step('Seed: a reply to the owner\'s comment', async () => {
         owner = await createUserWithChannel(request);
         replier = await createUserWithChannel(request);
 
@@ -156,10 +163,8 @@ test('Comment reply lands in Mentions, channel follow lands in For you', {
             parentId: parent.id,
             channelId: replier.channelId,
         });
-        await subscriptionApi.followChannel(replier.token, owner.channelId);
 
         await waitForNotification(request, owner.token, (n) => n.type === 'comment_reply' && n.payload?.commentText === replyText);
-        await waitForNotification(request, owner.token, (n) => n.type === 'channel_subscription');
     });
 
     await test.step('Login and open the popup', async () => {
@@ -167,12 +172,10 @@ test('Comment reply lands in Mentions, channel follow lands in For you', {
         await popup.openPopup();
     });
 
-    await test.step('Both sections render with the right rows', async () => {
-        await expect(popup.mentionsHeader, 'MENTIONS section header is not visible').toBeVisible({ timeout: 15_000 });
-        await expect(popup.forYouHeader, 'FOR YOU section header is not visible').toBeVisible();
-        await expect(popup.rowByText(`${replier.username} commented:`), 'Reply row is not shown in Mentions').toBeVisible();
-        await expect(popup.rowByText(`“${replyText}”`), 'Reply text is not shown').toBeVisible();
-        await expect(popup.rowByText('subscribed to your channel'), 'Follow row is not shown in For you').toBeVisible();
+    await test.step('The reply renders in the Activity section', async () => {
+        await expect(popup.activityHeader, 'ACTIVITY section header is not visible').toBeVisible({ timeout: 15_000 });
+        await expect(popup.rowByText(replier.username), 'Reply row (replier username) is not shown').toBeVisible();
+        await expect(popup.rowByText(replyText), 'Reply text is not shown').toBeVisible();
     });
 });
 
@@ -183,33 +186,30 @@ test('Hovering an unread row marks it seen', {
     const popup = new NotificationsPopupPage(page);
     let owner: NotificationsTestUser;
 
-    await test.step('Seed 1 unseen follow notification and open the popup', async () => {
-        owner = await createUserWithChannel(request);
-        await seedFollowers(request, owner.channelId, 1);
+    await test.step('Seed 1 unseen comment_reply notification → badge "1", open the popup', async () => {
+        owner = (await seedCommentReplies(request, 1)).owner;
         await waitForUnseenCount(request, owner.token, 1);
         await loginAs(page, owner);
+        await popup.assertBadge('1');
         await popup.openPopup();
-        await expect
-            .poll(() => popup.countUnreadDots(), { message: 'Expected 1 unread dot before hover', timeout: 10_000 })
-            .toBe(1);
     });
 
-    await test.step('Hover the row → seen event fires, dot and badge disappear', async () => {
+    await test.step('Hover the row → seen event fires and the badge disappears', async () => {
         const seenPromise = eventsResponse(page, 'seen');
-        const row = popup.rowByText('subscribed to your channel');
-        await expect(row, 'Follow notification row is not visible').toBeVisible({ timeout: 15_000 });
-        await expect(row, 'Follow notification row is not enabled').toBeEnabled();
+        const row = popup.rowAvatars.first();
+        await expect(row, 'Notification row is not visible').toBeVisible({ timeout: 15_000 });
         await row.hover();
         await seenPromise;
-
-        await expect
-            .poll(() => popup.countUnreadDots(), { message: 'Unread dot did not disappear after hover', timeout: 10_000 })
-            .toBe(0);
         await popup.assertNoBadge();
     });
 });
 
-test('Clicking a follow notification emits clicked and navigates to the studio', {
+// BLOCKED (W3-2848): this asserts a FOLLOW notification's click → /studio navigation,
+// but follow (`channel_subscription`) notifications are now produced only by the hourly
+// `notifications:aggregate-grouped` cron — they cannot be seeded synchronously in a
+// functional run. A comment_reply row navigates to the video, not the studio, so it is
+// not a substitute. Re-enable once a follow notification can be produced on demand.
+test.fixme('Clicking a follow notification emits clicked and navigates to the studio', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-007' },
 }, async ({ page, request }) => {
     test.setTimeout(120_000);
@@ -217,8 +217,7 @@ test('Clicking a follow notification emits clicked and navigates to the studio',
     let owner: NotificationsTestUser;
 
     await test.step('Seed 1 follow notification and open the popup', async () => {
-        owner = await createUserWithChannel(request);
-        await seedFollowers(request, owner.channelId, 1);
+        owner = (await seedCommentReplies(request, 1)).owner;
         await waitForUnseenCount(request, owner.token, 1);
         await loginAs(page, owner);
         await popup.openPopup();
@@ -235,26 +234,23 @@ test('Clicking a follow notification emits clicked and navigates to the studio',
     });
 });
 
-test('Mark all as read clears dots, resets the badge and persists', {
+test('Mark all as read resets the badge and persists', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-008' },
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
     const popup = new NotificationsPopupPage(page);
     let owner: NotificationsTestUser;
 
-    await test.step('Seed 4 unseen follow notifications', async () => {
-        owner = await createUserWithChannel(request);
-        await seedFollowers(request, owner.channelId, 4);
+    await test.step('Seed 4 unseen comment_reply notifications', async () => {
+        owner = (await seedCommentReplies(request, 4)).owner;
         await waitForUnseenCount(request, owner.token, 4);
     });
 
-    await test.step('Login → badge "4", popup shows 4 unread dots', async () => {
+    await test.step('Login → badge "4", popup shows 4 rows', async () => {
         await loginAs(page, owner);
         await popup.assertBadge('4');
         await popup.openPopup();
-        await expect
-            .poll(() => popup.countUnreadDots(), { message: 'Expected 4 unread dots', timeout: 10_000 })
-            .toBe(4);
+        await expect(popup.rowAvatars, 'Expected 4 notification rows').toHaveCount(4, { timeout: 15_000 });
     });
 
     await test.step('Mark all as read → batched seen events, badge resets, button disables', async () => {
@@ -267,18 +263,11 @@ test('Mark all as read clears dots, resets the badge and persists', {
 
         await popup.assertNoBadge();
         await expect(popup.markAllAsReadBtn, '"Mark all as read" must disable after clearing').toBeDisabled({ timeout: 10_000 });
-        await expect
-            .poll(() => popup.countUnreadDots(), { message: 'Unread dots remained after mark-all', timeout: 10_000 })
-            .toBe(0);
     });
 
     await test.step('Seen state persists after reload', async () => {
         await page.reload({ waitUntil: 'domcontentloaded' });
         await popup.assertNoBadge();
-        await popup.openPopup();
-        await expect
-            .poll(() => popup.countUnreadDots(), { message: 'Unread dots reappeared after reload', timeout: 10_000 })
-            .toBe(0);
     });
 });
 
@@ -292,11 +281,11 @@ test('Settings gear navigates to the notification settings page', {
         await popup.openPopup();
     });
 
-    await test.step('Click the gear → /notifications', async () => {
+    await test.step('Click the gear → notification settings (/account?tab=notifications)', async () => {
         await expect(popup.settingsGearBtn, 'Settings gear is not visible').toBeVisible();
         await expect(popup.settingsGearBtn, 'Settings gear is not enabled').toBeEnabled();
         await popup.settingsGearBtn.click();
-        await page.waitForURL(/\/notifications/, { timeout: 30_000 });
+        await page.waitForURL(/\/account\?tab=notifications/, { timeout: 30_000 });
     });
 });
 
@@ -324,6 +313,7 @@ test('Upload by a followed channel produces a For-you notification that opens th
     test.setTimeout(420_000);
     const popup = new NotificationsPopupPage(page);
     const subscriptionApi = new SubscriptionApi(request);
+    const videoApi = new VideoApi(request);
     let viewer: NotificationsTestUser;
     let videoSlugPath: string;
 
@@ -331,6 +321,9 @@ test('Upload by a followed channel produces a For-you notification that opens th
         viewer = await createUserWithChannel(request);
         const creator = await createUserWithChannel(request);
         await subscriptionApi.followChannel(viewer.token, creator.channelId);
+        // Release notifications are gated by the `videoReleases` toggle (W3-2789) —
+        // set it explicitly so the test does not rely on the backend default.
+        await videoApi.enableReleaseNotifications(viewer.token);
 
         const setup = await setupVideoViaApi(request, {
             privacySetting: 'public',
@@ -339,28 +332,32 @@ test('Upload by a followed channel produces a For-you notification that opens th
         });
         videoSlugPath = new URL(setup.videoUrl).pathname;
 
+        // A public upload is published by the same hourly-independent publishing cron
+        // (setPublished only runs there), which fires `video_release` to the channel's
+        // followers once processing completes.
         await waitForNotification(
             request,
             viewer.token,
-            (n) => ['subscription', 'video_release', 'recommended_video'].includes(n.type),
+            (n) => n.type === 'video_release',
             { maxAttempts: 40, intervalMs: 5000 }
         );
     });
 
-    await test.step('Login → the upload notification is rendered in For you', async () => {
+    await test.step('Login → the release notification is rendered in For you', async () => {
         await loginAs(page, viewer);
         await popup.openPopup();
         await expect(popup.forYouHeader, 'FOR YOU section header is not visible').toBeVisible({ timeout: 15_000 });
+        // The release row reads "<creator> released: <title>" (W3-2789 wording).
         await expect(
-            popup.rowByText(/uploaded a new video|published a new video/),
-            'Upload notification row is not shown'
+            popup.rowByText(/released:/i),
+            'Release notification row is not shown'
         ).toBeVisible({ timeout: 15_000 });
     });
 
-    await test.step('Click the row → navigates to the uploaded video', async () => {
-        const row = popup.rowByText(/uploaded a new video|published a new video/);
-        await expect(row, 'Upload notification row is not visible').toBeVisible({ timeout: 15_000 });
-        await expect(row, 'Upload notification row is not enabled').toBeEnabled();
+    await test.step('Click the row → navigates to the released video', async () => {
+        const row = popup.rowByText(/released:/i);
+        await expect(row, 'Release notification row is not visible').toBeVisible({ timeout: 15_000 });
+        await expect(row, 'Release notification row is not enabled').toBeEnabled();
         await row.click();
         await page.waitForURL((url) => url.pathname === videoSlugPath, { timeout: 30_000 });
     });
@@ -369,18 +366,56 @@ test('Upload by a followed channel produces a For-you notification that opens th
 test('Unread badge caps at "9+" beyond nine unseen notifications', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-012' },
 }, async ({ page, request }) => {
-    test.setTimeout(300_000);
+    // Seeding 10 comment_reply notifications creates 11 users; on the per-IP registration
+    // rate limit (W3-2908) the burst backs off, so allow a generous budget.
+    test.setTimeout(420_000);
     const popup = new NotificationsPopupPage(page);
     let owner: NotificationsTestUser;
 
-    await test.step('Seed 10 unseen follow notifications', async () => {
-        owner = await createUserWithChannel(request);
-        await seedFollowers(request, owner.channelId, 10);
+    await test.step('Seed 10 unseen comment_reply notifications', async () => {
+        owner = (await seedCommentReplies(request, 10)).owner;
         await waitForUnseenCount(request, owner.token, 10);
     });
 
     await test.step('Login → badge shows "9+"', async () => {
         await loginAs(page, owner);
         await popup.assertBadge('9+');
+    });
+});
+
+test('Notification settings toggles default ON and persist', {
+    annotation: { type: 'TC', description: 'NOTIF-POPUP-013' },
+}, async ({ page, request }) => {
+    const settings = new AccountNotificationsTab(page);
+    let user: NotificationsTestUser;
+
+    await test.step('Open /account?tab=notifications → all website toggles default ON', async () => {
+        user = await createUserWithChannel(request);
+        await loginAs(page, user);
+        await settings.goto();
+        await settings.assertToggle(settings.videoReleasesToggle, true, 'Video Releases');
+        await settings.assertToggle(settings.commentMentionsToggle, true, 'Comment Mentions');
+        await settings.assertToggle(settings.subscriptionsToggle, true, 'Subscriptions');
+        await settings.assertToggle(settings.allEmailsToggle, true, 'All Emails');
+    });
+
+    await test.step('Toggle Video Releases OFF → persists after reload, others untouched', async () => {
+        await settings.toggle(settings.videoReleasesToggle, 'Video Releases');
+        await settings.assertToggle(settings.videoReleasesToggle, false, 'Video Releases');
+
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await expect(settings.tab, 'Notifications tab did not re-render').toBeVisible({ timeout: 15_000 });
+        await settings.assertToggle(settings.videoReleasesToggle, false, 'Video Releases');
+        // The UI PUTs the full settings object, so the other toggles stay ON.
+        await settings.assertToggle(settings.subscriptionsToggle, true, 'Subscriptions');
+    });
+
+    await test.step('Toggle Video Releases back ON → persists after reload', async () => {
+        await settings.toggle(settings.videoReleasesToggle, 'Video Releases');
+        await settings.assertToggle(settings.videoReleasesToggle, true, 'Video Releases');
+
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await expect(settings.tab, 'Notifications tab did not re-render').toBeVisible({ timeout: 15_000 });
+        await settings.assertToggle(settings.videoReleasesToggle, true, 'Video Releases');
     });
 });

@@ -81,14 +81,6 @@ PROFILE SETTINGS (/profile) — suite в test.fixme (WIP)
 └── Social links max length validation (100 chars)  [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-006
 
 ────────────────────────────────────────────────────────────────
-NOTIFICATIONS (/notifications) — suite в test.fixme (WIP)
-├── Toggle all notification settings on/off         [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-001
-├── Notification on channel subscription            [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-002
-├── Notification on paid subscription purchase      [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-003
-├── Notification when subscribed channel uploads    [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-004
-└── Notification on paid channel paid video upload  [BLOCKED] test.fixme tests/account/notifications.spec.ts  NOTIF-005
-
-────────────────────────────────────────────────────────────────
 AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641, reworked W3-2789: delivery is follower-based)
 ├── Channel follower gets release notification when coming-soon video publishes  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-001
 ├── Unfollowed user gets no release notification  [AUTO] tests/content/manage/scheduledVideoNotify.spec.ts  AITV-002
@@ -99,15 +91,16 @@ AITV HEADER NOTIFICATIONS POPUP (W3-2748)
 ├── Bell opens popup (title + controls)                          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-001
 ├── Popup closes on Escape / outside click                        [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-002
 ├── Fresh user: empty state, no badge, controls disabled          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-003
-├── Unread badge count + per-row unread dots                      [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-004
-├── Sections: comment reply → Mentions, follow → For you          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-005
-├── Hover row → seen event, dot/badge clear                       [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-006
-├── Click row → clicked event + navigation (/studio)               [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-007
+├── Unread badge count + popup lists rows                         [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-004
+├── Comment reply → Activity section                              [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-005
+├── Hover row → seen event, badge clears                          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-006
+├── Click follow row → clicked event + nav (/studio)              [BLOCKED] test.fixme — follow notifs are hourly-grouped (W3-2848), not seedable synchronously  NOTIF-POPUP-007
 ├── Mark all as read: batch, badge reset, persists after reload   [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-008
-├── Settings gear → /notifications                                [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-009
+├── Settings gear → /account?tab=notifications                    [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-009
 ├── "Show older notifications" disabled stub                      [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-010
 ├── Followed channel upload → For-you notification → opens video  [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-011
 ├── Badge caps at "9+"                                            [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-012
+├── Settings toggles (/account?tab=notifications) default ON + persist  [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-013
 ├── Weekly watchlist notification                                 [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B01
 ├── New episodes in started/completed series                      [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B02
 └── "Someone liked your comment" (aggregated)                     [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B03
