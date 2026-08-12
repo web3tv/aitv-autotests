@@ -8,7 +8,7 @@ export class EditChannelPage {
     readonly defaultVideoDescriptionEditor: Locator;
     readonly saveBtn: Locator;
     readonly channelAvatarInput: Locator;
-    readonly avatarCropConfirmBtn: Locator;
+    readonly channelAvatarPreview: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -21,9 +21,11 @@ export class EditChannelPage {
             .locator('.ql-editor');
         // Save button reads "Publish changes" and only appears once the form is dirty.
         this.saveBtn = page.locator('[data-id="submit-btn"]');
-        // Channel "Profile picture" (Basic Info tab): a hidden file input + a crop dialog.
-        this.channelAvatarInput = page.locator('input[type="file"]').first();
-        this.avatarCropConfirmBtn = page.getByRole('button', { name: 'Confirm' });
+        // Channel "Profile picture" (Basic Info tab, upload-avatar-ai-tv block): a hidden
+        // file input; the crop dialog is gone — the picked file becomes an inline blob
+        // preview right away and the "Publish changes" button appears.
+        this.channelAvatarInput = page.locator('[data-id="upload-avatar-ai-tv"] input[type="file"]');
+        this.channelAvatarPreview = page.locator('[data-id="upload-avatar-ai-tv"] img');
     }
 
     async openAdvancedTab() {
@@ -60,15 +62,14 @@ export class EditChannelPage {
     }
 
     // Upload the channel "Profile picture" (= channel.thumbnails, the avatar shown on the
-    // channel hero and every video/short byline). Flow: pick file → crop dialog "Confirm" →
-    // "Publish changes", which fires POST /api/channels/edit/avatar (the completion signal).
+    // channel hero and every video/short byline). Flow: pick file → inline blob preview
+    // (no crop dialog anymore) → "Publish changes", which fires POST
+    // /api/channels/edit/avatar (the completion signal).
     async uploadChannelAvatarAndPublish(filePath: string) {
         const resolved = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
         await expect(this.channelAvatarInput, 'Channel avatar file input is not attached').toBeAttached();
         await this.channelAvatarInput.setInputFiles(resolved);
-        await expect(this.avatarCropConfirmBtn, 'Avatar crop Confirm button is not visible').toBeVisible();
-        await expect(this.avatarCropConfirmBtn, 'Avatar crop Confirm button is not enabled').toBeEnabled();
-        await this.avatarCropConfirmBtn.click();
+        await expect(this.channelAvatarPreview, 'Channel avatar preview did not appear after picking a file').toBeVisible();
         await expect(this.saveBtn, 'Publish changes button is not visible').toBeVisible();
         await expect(this.saveBtn, 'Publish changes button is not enabled').toBeEnabled();
         const avatarResponse = this.page.waitForResponse(
