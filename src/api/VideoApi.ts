@@ -193,11 +193,12 @@ export class VideoApi {
      * `/videos/studio/` endpoint as {@link waitForProcessing} but WITHOUT an `id`, so it
      * returns all items). Used to resolve the shared visual fixture's watch URLs at
      * runtime by title, so the fixture is env-agnostic (no committed per-env slugs).
-     * NB: `type=video` also returns series episodes (item.type === 'episode').
+     * NB: series episodes are returned ONLY by `type=episode` — `type=video` lists
+     * standalone videos exclusively.
      */
     async listStudioContent(
         token: string,
-        type: 'video' | 'short'
+        type: 'video' | 'short' | 'episode'
     ): Promise<Array<{ title: string; slug: string; type: string; categorySlug: string }>> {
         const response = await this.request.get(`${this.baseUrl}/videos/studio/`, {
             headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },

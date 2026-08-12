@@ -84,7 +84,7 @@ export class StudioContentPage {
 
 
     
-    // TABS 
+    // TABS
     async clickShortsTab(){
        await expect(this.shortsTab, 'Shorts tab is not visible').toBeVisible();
        await expect(this.shortsTab, 'Shorts tab is not enabled').toBeEnabled();
@@ -142,6 +142,22 @@ export class StudioContentPage {
         await this.ensureTableView();
         const row = this.videoRows.filter({ hasText: title });
         await expect(row.first(), `Video row with title "${title}" is not visible`).toBeVisible();
+    }
+
+    /**
+     * Clicks the row-level "edit video" action for the row containing the given title
+     * (opens the upload modal in edit mode via /studio/content?edit={id}).
+     * Parameterized row locator — cannot live in the constructor.
+     */
+    async clickEditForRow(title: string) {
+        await this.ensureTableView();
+        // Exact-text match: a substring filter could hit the wrong row and edit foreign content.
+        const row = this.videoRows.filter({ has: this.page.getByText(title, { exact: true }) }).first();
+        await expect(row, `Video row with title "${title}" is not visible`).toBeVisible({ timeout: 15_000 });
+        const editBtn = row.getByRole('button', { name: 'edit video' });
+        await expect(editBtn, `Edit button for row "${title}" is not visible`).toBeVisible();
+        await expect(editBtn, `Edit button for row "${title}" is not enabled`).toBeEnabled();
+        await editBtn.click();
     }
 
     async assertNoVideoRows() {

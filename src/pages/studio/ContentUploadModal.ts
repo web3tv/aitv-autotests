@@ -452,6 +452,13 @@ export class ContentUploadModal {
             .toContainText(/successfully (uploaded|published)/i);
     }
 
+    /** Edit-mode variant of the success screen ("Changes Saved! … successfully updated"). */
+    async assertEditSaved(): Promise<void> {
+        await expect(this.successRoot, 'Edit-saved screen is not visible').toBeVisible({ timeout: 30_000 });
+        await expect(this.successRoot, 'Edit-saved screen does not show the confirmation text')
+            .toContainText(/Changes Saved|successfully updated/i);
+    }
+
     async closeSuccess(): Promise<void> {
         await expect(this.successClose, 'Success close button is not visible').toBeVisible();
         await this.successClose.click();
