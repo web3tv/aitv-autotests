@@ -59,20 +59,22 @@ export class HeaderPage {
     this.newVideoBtn = page.getByTestId('new-video-button');
     this.newShortBtn = page.getByText('New short');
     this.userIcon = page.locator('[data-id="aitv-profile-menu-trigger"]');
-    this.channelTriggerBtn = page.locator('[data-id="aitv-studio-channel-trigger-button"]');
-    this.addNewChannelBtn = page.locator('[data-id="aitv-studio-channel-new"]');
+    // Reworked studio (08.2026): the channel switcher moved from the header into the studio
+    // sidebar; it opens a modal with Public view / search / New channel / Manage channels.
+    this.channelTriggerBtn = page.locator('[data-id="studio-nav-drawer-channel-selector"]');
+    this.addNewChannelBtn = page.locator('[data-id="aitv-switch-channel-new-channel"]');
     // /create-channel now opens the create-channel modal right away (no Start Setup step)
     this.createChannelHeading = page.getByTestId('create-channel-form');
   }
 
-  /** Opens the Studio channel switcher (top-left of the Studio header). Studio pages only. */
+  /** Opens the Studio channel switcher (channel block in the Studio sidebar). Studio pages only. */
   async openChannelSwitcher() {
     await expect(this.channelTriggerBtn, 'Channel switcher trigger is not visible').toBeVisible();
     await expect(this.channelTriggerBtn, 'Channel switcher trigger is not enabled').toBeEnabled();
     await this.channelTriggerBtn.click();
   }
 
-  /** Clicks "Add new channel" in the open channel switcher → navigates to /create-channel. */
+  /** Clicks "New channel" in the open channel-switcher modal → navigates to /create-channel. */
   async clickAddNewChannel() {
     await expect(this.addNewChannelBtn, 'Add new channel button is not visible').toBeVisible();
     await expect(this.addNewChannelBtn, 'Add new channel button is not enabled').toBeEnabled();

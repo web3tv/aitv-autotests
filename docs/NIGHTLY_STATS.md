@@ -18,6 +18,16 @@
 
 ---
 
+## 2026-08-12
+
+**Nightly Regression (dev2)** — ❌ failure · [run #31558124184](https://github.com/web3tv/aitv-autotests/actions/runs/31558124184)
+Passed 133 · Failed 8 · Flaky 1 · Skipped 23 · _(данные: лог-fallback, results.json в артефакте нет — HTML-репортер вычищает `playwright-report/`)_
+- `content/channel/handleValidationOnEditPage.spec.ts:144,153,165,178,187,196,205,217` — **[TEST/FLAKY]** — все 8 тестов «Handle validation on Create Channel Page», одна сигнатура: `[data-id="aitv-studio-channel-trigger-button"]` не найден (`HeaderPage.openChannelSwitcher`, HeaderPage.ts:70). Причина известна: редизайн студии 11.08 — переключатель каналов переехал из хедера в сайдбар (`[data-id="studio-nav-drawer-channel-selector"]`); вчерашний фикс POM (913a1b86) закрыл SideBarPage/StudioHeaderPage, но не этот локатор в HeaderPage → обновить POM + флоу открытия «Create new channel»
+- flaky `content/manage/studioSearch.spec.ts:11` — сетап: `POST /api/videos/upload/init` вернул 500 Internal Server Error, прошёл на ретрае (разовый 5xx бэка)
+
+**Prod Smoke (prod)** — ✅ success · [run #31550299200](https://github.com/web3tv/aitv-autotests/actions/runs/31550299200)
+Passed 5 · Skipped 2 · Failed 0
+
 ## 2026-07-24
 
 **Nightly Regression (dev2)** — ❌ failure · [run #30063059974](https://github.com/web3tv/aitv-autotests/actions/runs/30063059974)
