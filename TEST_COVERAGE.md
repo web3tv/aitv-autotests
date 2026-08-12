@@ -164,6 +164,12 @@ CONTENT CREATION FLOW — Movie / Series / Shorts (W3-2702)
 └── Publish a Short end-to-end                                [AUTO][CRITICAL] tests/content/upload/uploadShorts.spec.ts  SHORTS-003
 
 ────────────────────────────────────────────────────────────────
+CONTENT EDIT — тип контента не слетает при правке (W3-2906)
+├── Edit episode title → тип остаётся Series/episode (в серии, не в type=video)  [AUTO] tests/content/manage/editContentType.spec.ts  EDIT-001
+├── Edit video title → тип остаётся video                     [AUTO] tests/content/manage/editContentType.spec.ts  EDIT-002
+└── Edit short title → тип остаётся short                     [AUTO] tests/content/manage/editContentType.spec.ts  EDIT-003
+
+────────────────────────────────────────────────────────────────
 UPLOAD TAXONOMY — categories & genres in the modal (W3-2729)
 ├── Movie: Category dropdown == expected video categories      [AUTO] tests/content/upload/uploadTaxonomy.spec.ts   CATEGORIES-UI-001
 ├── Series: Category dropdown == expected episode categories   [AUTO] tests/content/upload/uploadTaxonomy.spec.ts   CATEGORIES-UI-002
