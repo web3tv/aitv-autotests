@@ -18,6 +18,14 @@ env:
   # На schedule inputs пустые — падаем на dev2 по умолчанию.
   ENVIRONMENT: ${{ github.event.inputs.environment || 'dev2' }}
 
+# Все VPN-раны делят один WireGuard-ключ (secret WG_CLIENT_CONFIG): два параллельных
+# туннеля с одним ключом перехватывают сессию друг у друга, и у обоих ранов сеть до
+# стендов начинает виснуть. Общая группа на все workflow с VPN — второй ран ждёт в
+# очереди, а не ломает первый.
+concurrency:
+  group: wireguard-vpn
+  cancel-in-progress: false
+
 jobs:
 
   regression:
