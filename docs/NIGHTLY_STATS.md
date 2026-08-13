@@ -18,6 +18,17 @@
 
 ---
 
+## 2026-08-13
+
+**Nightly Regression (dev2)** — ❌ failure · [run #31662078230](https://github.com/web3tv/aitv-autotests/actions/runs/31662078230)
+Passed 140 · Failed 4 · Flaky 1 · Skipped 23 · _(данные: лог-fallback, results.json в артефакте нет — HTML-репортер вычищает `playwright-report/`)_
+- `content/manage/editContentType.spec.ts:17` — **[KNOWN]** — эпизод пропал из серии после переименования (`getSeriesEpisodes` → title `undefined`, EDIT-002). Причина установлена: 12.08 на frontend2 задеплоен W3-2814 (`0.0.0-w3-2814-new-design-content-page-aitv`), ветка **не содержит** фикс W3-2906 (проверено `git merge-base --is-ancestor`) — регрессия въехала со стендом, апдейт видео идёт через FE-прокси. Не баг теста и не новый баг бэка → попросить влить master/фикс в ветку W3-2814 либо ждать её мержа
+- `content/manage/studioSearch.spec.ts:11,91,133` — **[TEST/FLAKY]** — все 3 теста, одна сигнатура: `[data-testid="studioSearchInput"]` не найден (StudioContentPage.ts:113). Причина: тот же деплой W3-2814 — редизайн студийной страницы Content (новый лейаут, по задаче «только layout, функциональность кнопок отдельными задачами») → поиск из UI исчез/переехал. Разобрать новый DOM: если инпут есть под новым testid — обновить POM, если поиска пока нет — парковать до задачи на функциональность
+- flaky `auth/walletAuth.spec.ts:18` — `aitv-auth-handle-input` (Choose handle) не появился за 10s при регистрации нового кошелька, прошёл на ретрае
+
+**Prod Smoke (prod)** — ✅ success · [run #31654576581](https://github.com/web3tv/aitv-autotests/actions/runs/31654576581)
+Passed 5 · Skipped 2 · Failed 0
+
 ## 2026-08-12
 
 **Nightly Regression (dev2)** — ❌ failure · [run #31558124184](https://github.com/web3tv/aitv-autotests/actions/runs/31558124184)
