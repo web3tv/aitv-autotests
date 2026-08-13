@@ -59,6 +59,33 @@ jobs:
           name: k6-load-summary
           path: k6-summary.json
 
+      # Достаём из summary серверные метрики (TTFB — норма/регресс) для Slack.
+      # if: always() — порог по TTFB валит предыдущий шаг, но метрики всё равно нужны.
+      - name: Parse k6 metrics
+        if: always()
+        run: |
+          python3 - <<'PY' >> $GITHUB_ENV
+          import json, os
+          try:
+              m = json.load(open('k6-summary.json'))['metrics']
+          except Exception:
+              # k6 не дошёл до записи summary (упал на старте / нет файла).
+              for k in ('TTFB_MED','TTFB_P95','FAIL_PCT','CHECKS_PCT','REQS'):
+                  print(f'{k}=n/a')
+              raise SystemExit(0)
+          def sec(metric, key):
+              v = m.get(metric, {}).get(key)
+              return f'{v/1000:.2f}s' if v is not None else 'n/a'
+          def pct(metric):
+              v = m.get(metric, {}).get('value')
+              return f'{v*100:.2f}%' if v is not None else 'n/a'
+          print(f"TTFB_MED={sec('http_req_waiting','med')}")
+          print(f"TTFB_P95={sec('http_req_waiting','p(95)')}")
+          print(f"FAIL_PCT={pct('http_req_failed')}")
+          print(f"CHECKS_PCT={pct('checks')}")
+          print(f"REQS={m.get('http_reqs',{}).get('count','n/a')}")
+          PY
+
       - name: Send Slack notification
         if: always()
         env:
@@ -69,5 +96,5 @@ jobs:
         run: |
           curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"message\":\"Weekly Load [prod, $PROFILE]\nStatus: $STATUS\n$RUN_URL\"}" \
+            --data "{\"message\":\"Weekly Load [prod, $PROFILE]\nStatus: $STATUS\nTTFB (сервер): med $TTFB_MED · p95 $TTFB_P95 (норма p95 < 3s)\nОшибки: $FAIL_PCT · checks: $CHECKS_PCT · запросов: $REQS\n$RUN_URL\"}" \
             "$WEBHOOK"
