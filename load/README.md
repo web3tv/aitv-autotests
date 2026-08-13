@@ -21,8 +21,16 @@ bash scripts/runLoad.sh load/scenarios/browse.js --summary-export out.json  # д
 
 - `scenarios/browse.js` — анонимный сёрфинг: главная, публичный листинг `/videos/`,
   карточка случайного видео, страница канала `@qavischan`. Только чтение — стенд не мутирует.
+  Профили `smoke` (5 VU) и `load`/`full` (50 VU — синонимы: `load` локально, `full` из CI).
 - `scenarios/prodHomepage.js` — нагрузка на главную (прод). Профили `smoke` (10 VU) и
   `full` (100 VU, профиль лида). Регулярно гоняется через `weekly-load.yml`.
+
+## CI: `weekly-load.yml`
+
+Расписание (вс 06:00 UTC) гоняет прод/`smoke`. Вручную (`workflow_dispatch`) можно выбрать
+стенд — `prod` / `dev2` / `dev1` — и профиль `smoke`/`full`. Прод запускает `prodHomepage.js`,
+dev-стенды — `browse.js` (конфиг берётся из `.env`-файла стенда). Для dev-ранов воркфлоу
+сам поднимает WireGuard и встаёт в общую VPN-очередь (`concurrency: wireguard-vpn`).
 
 ## Baseline / детект регресса
 

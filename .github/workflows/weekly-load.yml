@@ -1,4 +1,4 @@
-name: Weekly Load (k6, prod)
+name: Weekly Load (k6)
 
 on:
   schedule:
@@ -7,8 +7,17 @@ on:
     - cron: '0 6 * * 0'
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'Стенд (prod = главная ai.tv, dev = анонимный сёрфинг browse.js)'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+          - dev2
+          - dev1
       profile:
-        description: 'Профиль нагрузки (smoke = 10 VU/3.5m, full = 100 VU/11m)'
+        description: 'Профиль нагрузки (smoke = лёгкий дымовой, full = полный: 100 VU на prod, 50 VU на dev)'
         required: true
         default: 'smoke'
         type: choice
@@ -17,39 +26,72 @@ on:
           - full
 
 env:
-  # На schedule inputs пустые. По умолчанию — smoke: регулярный ран не должен
-  # сам эскалироваться до 100 VU без явного выбора. full запускаем осознанно.
+  # На schedule inputs пустые. По умолчанию — прод и smoke: регулярный ран не
+  # должен сам эскалироваться до 100 VU без явного выбора. full запускаем осознанно.
+  ENVIRONMENT: ${{ github.event.inputs.environment || 'prod' }}
   PROFILE: ${{ github.event.inputs.profile || 'smoke' }}
 
-# Один нагрузочный ран за раз — два параллельных прогона по проду смажут замеры
-# и удвоят нагрузку на живой стенд.
+# Один нагрузочный ран за раз — два параллельных прогона по одному стенду смажут
+# замеры и удвоят нагрузку. Для dev-ранов группа общая с остальными VPN-воркфлоу
+# (wireguard-vpn): все VPN-раны делят один WireGuard-ключ, два параллельных туннеля
+# перехватывают сессию друг у друга — второй ран ждёт в очереди, а не ломает первый.
 concurrency:
-  group: load-tests-prod
+  group: ${{ (github.event.inputs.environment || 'prod') == 'prod' && 'load-tests-prod' || 'wireguard-vpn' }}
   cancel-in-progress: false
 
 jobs:
   load:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load prod config
-        run: grep -E '^(BASE_URL|API_URL)=' .env.prod >> $GITHUB_ENV
+      # Стенд → конфиг + сценарий: прод грузит главную ai.tv (prodHomepage.js),
+      # dev-стенды — read-only сёрфинг по контенту фикстуры (browse.js).
+      - name: Load environment config
+        run: |
+          case "$ENVIRONMENT" in
+            prod) ENV_FILE=.env.prod;    SCENARIO=load/scenarios/prodHomepage.js ;;
+            dev1) ENV_FILE=.env.web3tv;  SCENARIO=load/scenarios/browse.js ;;
+            *)    ENV_FILE=.env.web3tv2; SCENARIO=load/scenarios/browse.js ;;
+          esac
+          grep -E '^(BASE_URL|API_URL)=' "$ENV_FILE" >> $GITHUB_ENV
+          echo "SCENARIO=$SCENARIO" >> $GITHUB_ENV
 
       - name: Run summary
         run: |
-          echo "### Weekly Load (k6, prod)" >> $GITHUB_STEP_SUMMARY
+          echo "### Weekly Load (k6)" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** $ENVIRONMENT" >> $GITHUB_STEP_SUMMARY
           echo "**Target:** $BASE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Scenario:** $SCENARIO" >> $GITHUB_STEP_SUMMARY
           echo "**Profile:** $PROFILE" >> $GITHUB_STEP_SUMMARY
+
+      # Dev-стенды доступны только через VPN (прод — публичный, туннель не нужен).
+      - name: Install WireGuard
+        if: env.ENVIRONMENT != 'prod'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wireguard-tools iproute2
+
+      - name: Connect VPN
+        if: env.ENVIRONMENT != 'prod'
+        env:
+          WG_CLIENT_CONFIG: ${{ secrets.WG_CLIENT_CONFIG }}
+        run: |
+          printf "%s\n" "$WG_CLIENT_CONFIG" > wg0.conf
+          sudo install -m 600 wg0.conf /etc/wireguard/wg0.conf
+          sudo wg-quick up wg0
+          sudo ip route replace 10.3.0.0/16 dev wg0
+          rm -f wg0.conf
 
       - uses: grafana/setup-k6-action@v1
 
       - name: Run k6 load
         run: |
-          k6 run load/scenarios/prodHomepage.js \
+          k6 run "$SCENARIO" \
             --env BASE_URL="$BASE_URL" \
+            --env API_URL="$API_URL" \
             --env PROFILE="$PROFILE" \
             --summary-export k6-summary.json
 
@@ -90,11 +132,10 @@ jobs:
         if: always()
         env:
           STATUS: ${{ job.status }}
-          PROFILE: ${{ env.PROFILE }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"message\":\"Weekly Load [prod, $PROFILE]\nStatus: $STATUS\nTTFB (сервер): med $TTFB_MED · p95 $TTFB_P95 (норма p95 < 3s)\nОшибки: $FAIL_PCT · checks: $CHECKS_PCT · запросов: $REQS\n$RUN_URL\"}" \
+            --data "{\"message\":\"Weekly Load [$ENVIRONMENT, $PROFILE]\nStatus: $STATUS\nTTFB (сервер): med $TTFB_MED · p95 $TTFB_P95 (норма p95 < 3s)\nОшибки: $FAIL_PCT · checks: $CHECKS_PCT · запросов: $REQS\n$RUN_URL\"}" \
             "$WEBHOOK"
