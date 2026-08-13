@@ -23,6 +23,8 @@ const PROFILES = {
         { duration: '1m', target: 0 },
     ],
 };
+// weekly-load.yml зовёт полный профиль `full` (единый селектор с prodHomepage.js).
+PROFILES.full = PROFILES.load;
 
 export const options = {
     stages: PROFILES[__ENV.PROFILE || 'smoke'],
