@@ -11,7 +11,9 @@
     "test:visual:desktop": "docker run --rm -v \"$PWD:/app\" test npx playwright test --project=visual-desktop-chromium",
     "test:visual:mobile": "docker run --rm -v \"$PWD:/app\" test npx playwright test --project=visual-mobile-webkit",
     "delete-user": "npx ts-node scripts/deleteUser.ts",
-    "seed:fixture": "npx ts-node scripts/seedFixture.ts"
+    "seed:fixture": "npx ts-node scripts/seedFixture.ts",
+    "load:smoke": "bash scripts/runLoad.sh",
+    "load": "PROFILE=load bash scripts/runLoad.sh"
   },
   "keywords": [],
   "author": "",
