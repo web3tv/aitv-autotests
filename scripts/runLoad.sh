@@ -22,6 +22,11 @@ if [ -z "$BASE_URL" ] || [ -z "$API_URL" ]; then
     exit 1
 fi
 
+# k6 --summary-export НЕ создаёт директорию сам: если её нет, весь прогон
+# отработает, а запись отчёта в конце упадёт с "no such file or directory".
+# Папка в .gitignore и пропадает при переключении веток/stash — создаём каждый раз.
+mkdir -p load/reports
+
 exec k6 run "$SCENARIO" \
     --env BASE_URL="$BASE_URL" \
     --env API_URL="$API_URL" \

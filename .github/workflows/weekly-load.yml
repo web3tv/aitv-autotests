@@ -1,0 +1,73 @@
+name: Weekly Load (k6, prod)
+
+on:
+  schedule:
+    # Воскресенье 06:00 UTC — окно низкого трафика. Не пересекается с ночной
+    # регрессией (02:00) и прод-смоуком (00:00).
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Профиль нагрузки (smoke = 10 VU/3.5m, full = 100 VU/11m)'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke
+          - full
+
+env:
+  # На schedule inputs пустые. По умолчанию — smoke: регулярный ран не должен
+  # сам эскалироваться до 100 VU без явного выбора. full запускаем осознанно.
+  PROFILE: ${{ github.event.inputs.profile || 'smoke' }}
+
+# Один нагрузочный ран за раз — два параллельных прогона по проду смажут замеры
+# и удвоят нагрузку на живой стенд.
+concurrency:
+  group: load-tests-prod
+  cancel-in-progress: false
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load prod config
+        run: grep -E '^(BASE_URL|API_URL)=' .env.prod >> $GITHUB_ENV
+
+      - name: Run summary
+        run: |
+          echo "### Weekly Load (k6, prod)" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** $BASE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Profile:** $PROFILE" >> $GITHUB_STEP_SUMMARY
+
+      - uses: grafana/setup-k6-action@v1
+
+      - name: Run k6 load
+        run: |
+          k6 run load/scenarios/prodHomepage.js \
+            --env BASE_URL="$BASE_URL" \
+            --env PROFILE="$PROFILE" \
+            --summary-export k6-summary.json
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-load-summary
+          path: k6-summary.json
+
+      - name: Send Slack notification
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+          PROFILE: ${{ env.PROFILE }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            --data "{\"message\":\"Weekly Load [prod, $PROFILE]\nStatus: $STATUS\n$RUN_URL\"}" \
+            "$WEBHOOK"
