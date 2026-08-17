@@ -73,13 +73,13 @@ ACCOUNT SETTINGS (/account)
 └── Add email to phone-registered account           [BLOCKED] test.fixme W3-2910 tests/accountSettings/security.spec.ts  ACCOUNT-012
 
 ────────────────────────────────────────────────────────────────
-PROFILE SETTINGS (/profile) — suite в test.fixme (WIP)
-├── Upload profile avatar — saved successfully      [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-001
-├── Avatar displayed in header after upload         [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-002
-├── Edit biography — saved successfully             [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-003
-├── Add/edit social links (FB, TW, IG, TikTok)      [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-004
-├── Biography max length validation (1000 chars)    [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-005
-└── Social links max length validation (100 chars)  [BLOCKED] test.fixme tests/account/profile.spec.ts  PROFILE-006
+PROFILE SETTINGS (модалка Edit на /account)
+├── Upload profile avatar — saved successfully      [AUTO] tests/accountSettings/profile.spec.ts  PROFILE-001
+├── Avatar displayed in profile header after upload [AUTO] tests/accountSettings/profile.spec.ts  PROFILE-002
+├── Edit biography — saved successfully             [AUTO] tests/accountSettings/profile.spec.ts  PROFILE-003
+├── Add/edit social links (FB, X, IG, TikTok)       [AUTO] tests/accountSettings/profile.spec.ts  PROFILE-004
+├── Biography max length validation (200 chars)     [AUTO] tests/accountSettings/profile.spec.ts  PROFILE-005
+└── Social links max length validation (100 chars)  [AUTO] tests/accountSettings/profile.spec.ts  PROFILE-006
 
 ────────────────────────────────────────────────────────────────
 AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641, reworked W3-2789: delivery is follower-based)
