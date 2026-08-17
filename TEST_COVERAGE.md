@@ -62,15 +62,40 @@ EMAIL TEMPLATES (W3-2662)
 └── Coming-soon (pre-subscribed) video release email [AUTO] tests/api/comingSoonEmail.spec.ts EMAIL-006
 
 ────────────────────────────────────────────────────────────────
-ACCOUNT SETTINGS (/account)
-├── Edit email address — saved successfully         [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-001
-├── Change password — saved successfully            [AUTO] tests/account/account.spec.ts     ACCOUNT-002
-├── Display wallet address (read-only)              [AUTO] tests/auth/walletAuth.spec.ts     ACCOUNT-003
-├── Add wallet to email account                     [AUTO] tests/auth/walletAuth.spec.ts     ACCOUNT-005
-├── Change password twice in one session            [BLOCKED] test.fixme W3-2731 tests/account/account.spec.ts  ACCOUNT-006
-├── Change email then change password (unverified)  [AUTO] tests/account/account.spec.ts     ACCOUNT-007
-├── Change email twice without verification         [BLOCKED] test.fixme W3-2730 tests/account/account.spec.ts  ACCOUNT-008
-└── Add email to phone-registered account           [BLOCKED] test.fixme W3-2910 tests/accountSettings/security.spec.ts  ACCOUNT-012
+ACCOUNT SETTINGS (/account — вкладка Security)
+├── Change email — saved successfully               [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-001
+├── Display wallet address (read-only)              [AUTO] tests/auth/walletAuth.spec.ts           ACCOUNT-003
+├── Add wallet to email account                     [AUTO] tests/auth/walletAuth.spec.ts           ACCOUNT-005
+├── Change password twice in one session            [BLOCKED] test.fixme W3-2783 tests/accountSettings/security.spec.ts  ACCOUNT-006
+├── Change email then change password (unverified)  [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-007
+├── Change email twice without verification         [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-008
+├── Change email to an already-registered address   [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-009
+├── Change password with email confirmation         [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-010
+├── Change password without email confirmation      [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-011
+├── Add email to phone-registered account           [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-012
+│
+│   Телефон (W3-2808)
+├── Add phone number to an email account            [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-013
+├── Change an existing phone number                 [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-014
+├── Added phone works as a sign-in method           [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-015
+├── Phone taken by another account -> 409           [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-016
+├── Wrong password -> error on the password field   [BLOCKED] test.fixme W3-2808 (коммент, п.2) tests/accountSettings/security.spec.ts  ACCOUNT-017
+├── Incomplete phone keeps submit disabled          [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-018
+├── Wrong code decrements the attempts counter      [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-019
+├── Code cleared on error / blocked when exhausted  [BLOCKED] test.fixme W3-2808 (коммент, пп.3-4) tests/accountSettings/security.spec.ts  ACCOUNT-020
+├── OTP: Edit возвращает на форму, закрытие сбрасывает  [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-021
+│
+│   Методы входа на одном аккаунте
+├── email + телефон + кошелёк: привязка и вход каждым  [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-022
+├── Привязка Google / Apple                          [BLOCKED] не автоматизируется: бэк проверяет токен реальным запросом к Google userinfo / подписью Apple JWKS, dev-байпаса нет  ACCOUNT-023
+├── Привязка Telegram                                [BLOCKED] нужен dev bot token (TELEGRAM_CLIENT_SECRET) в секретах CI — подпись tgAuthResult собирается локально  ACCOUNT-024
+│
+│   Телефон — API-контракт (W3-2808)
+├── E.164-валидация номера                          [AUTO] tests/api/accountPhone.spec.ts  API-PHONE-001
+├── Verify чужим challenge -> 410                   [AUTO] tests/api/accountPhone.spec.ts  API-PHONE-002
+├── Challenge анонимного auth-флоу -> 410           [AUTO] tests/api/accountPhone.spec.ts  API-PHONE-003
+├── Неверный код: счётчик -> attempts_exhausted     [AUTO] tests/api/accountPhone.spec.ts  API-PHONE-004
+└── Требуется корректный текущий пароль             [AUTO] tests/api/accountPhone.spec.ts  API-PHONE-005
 
 ────────────────────────────────────────────────────────────────
 PROFILE SETTINGS (модалка Edit на /account)

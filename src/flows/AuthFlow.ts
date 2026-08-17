@@ -246,6 +246,18 @@ export class AuthFlow {
     return wallet;
   }
 
+  /**
+   * The "set up an alternative login method" prompt is meant for wallet-only accounts. Call this
+   * after a wallet login on an account that already has other methods to assert it stays away
+   * (walletLoginSuccess with skipModalCheck merely doesn't look for it).
+   */
+  async assertAddEmailPromptAbsent(): Promise<void> {
+    await expect(
+      this.page.locator('[data-id="add-email-modal"]'),
+      'Add email prompt must not appear for an account that already has other sign-in methods',
+    ).toBeHidden();
+  }
+
   async addWalletFromAccountSuccess(options?: { wallet?: WalletInfo; skipInjection?: boolean; walletType?: EvmWalletType }): Promise<WalletInfo> {
     const walletType = options?.walletType ?? 'metamask';
     const wallet = options?.skipInjection && options.wallet
