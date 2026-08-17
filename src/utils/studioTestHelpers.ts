@@ -176,6 +176,10 @@ export async function setupSeriesWithEpisodes(
         // Reuse an already-created account instead of registering a fresh random one
         // (e.g. attach the series to the fixed visual-fixture owner).
         existingUser?: { email: string; username: string };
+        // Wait for every episode to finish transcoding (default true). Tests that only
+        // manage the series entity (visibility, delete) don't need playable episodes and
+        // would otherwise pay for the slow dev transcode.
+        waitForProcessing?: boolean;
     } = {}
 ): Promise<SeriesSetupResult> {
     const authApi = new AuthApi(request);
@@ -202,7 +206,7 @@ export async function setupSeriesWithEpisodes(
             categoryId,
             tags: genres,
             seriesId: series.id,
-            waitForProcessing: true,
+            waitForProcessing: options.waitForProcessing ?? true,
         });
     }
 

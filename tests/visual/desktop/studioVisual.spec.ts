@@ -24,13 +24,15 @@ const studioDashboardMasks = (page: Page) => {
     ];
 };
 
+// Since the W3-2815 redesign the page opens in the grid view, so the masks cover the
+// card markup: covers, dates and the engagement counters. Titles stay unmasked — the
+// fixture titles are fixed constants.
 const studioContentMasks = (page: Page) => {
     const content = new StudioContentPage(page);
     return [
         content.videoRowImages,
         content.videoRowDates,
-        content.videoRowTitles,
-        content.videoRowDescriptions,
+        content.cardStats,
     ];
 };
 

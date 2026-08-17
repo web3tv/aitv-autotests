@@ -28,6 +28,12 @@ export const FIXTURE_VIDEO_CONTENT_RATING = 18;
 export const FIXTURE_SERIES_TITLE = 'QAVISCHAN Unique Series';
 export const FIXTURE_SERIES_EPISODE_COUNT = 3;
 
+/**
+ * Episode titles inside the seeded series — `setupSeriesWithEpisodes` names them
+ * `Episode {n}`, and the studio-page specs look episodes up by this title.
+ */
+export const FIXTURE_EPISODE_TITLE = 'Episode 1';
+
 /** Fixed short seeded on the channel — populates the "Shorts" tab (auto-plays in grid). */
 export const FIXTURE_SHORT_TITLE = 'QAVISCHAN Unique Short';
 /** Non-public videos on the same channel — used to assert they stay HIDDEN publicly. */
