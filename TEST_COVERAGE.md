@@ -282,11 +282,11 @@ AUTH POPUP ("Almost there!") — suite запаркована в tests/skip/
 PLAYLISTS
   Main domain (/playlists) — shows only user's personal playlists
   Studio domain (/playlists) — shows only the active channel's playlists
-├── Create playlist                                 [TODO]                                   PLAYLIST-001
-├── Add video to playlist                           [TODO]                                   PLAYLIST-002
+├── Create series from studio content page          [AUTO][CRITICAL] tests/content/manage/createSeriesModal.spec.ts  PLAYLIST-001
+├── Add video to series via kebab menu              [AUTO][CRITICAL] tests/content/manage/addToSeries.spec.ts  PLAYLIST-002
 ├── Remove video from playlist                      [TODO]                                   PLAYLIST-003
-├── Delete playlist                                 [TODO]                                   PLAYLIST-004
-├── Set playlist visibility (public/private)        [TODO]                                   PLAYLIST-005
+├── Delete series from Series tab                   [AUTO][CRITICAL] tests/content/manage/studioDelete.spec.ts  PLAYLIST-004
+├── Set series visibility (public → private)        [AUTO] tests/content/manage/studioChangeVisibility.spec.ts  PLAYLIST-005
 ├── Main domain: only user playlists shown          [TODO]                                   PLAYLIST-006
 └── Studio domain: only channel playlists shown     [TODO]                                   PLAYLIST-007
 
@@ -326,6 +326,35 @@ STUDIO CONTENT PAGE
 ├── Filter: Reset clears all filters                [TODO]                                   STUDIO-015
 └── Action menu: edit video                         [TODO]                                   STUDIO-016
     (поиск по студии — см. VIDEO MANAGE: STUDIO-017..019)
+
+  Редизайн страницы Content (W3-2815) — вью, табы, bulk-меню, кебаб
+├── Grid/table toggle switches the listing          [AUTO] tests/content/manage/studioViewToggle.spec.ts  STUDIO-020
+├── View mode persists (URL + local storage)        [AUTO] tests/content/manage/studioViewToggle.spec.ts  STUDIO-021
+├── Tabs filter by content type                     [AUTO] tests/content/manage/studioViewToggle.spec.ts  STUDIO-022
+├── Empty channel: empty state + upload CTA         [AUTO] tests/content/manage/studioViewToggle.spec.ts  STUDIO-023
+├── Series tab hides the filter control             [AUTO] tests/content/manage/studioViewToggle.spec.ts  STUDIO-024
+├── Search with no matches → reset filters state    [AUTO] tests/content/manage/studioViewToggle.spec.ts  STUDIO-025
+├── Delete a video from its kebab menu              [AUTO][CRITICAL] tests/content/manage/studioDelete.spec.ts  STUDIO-026
+├── Delete confirmation Cancel deletes nothing      [AUTO] tests/content/manage/studioDelete.spec.ts  STUDIO-027
+├── Kebab items differ per content type             [AUTO] tests/content/manage/studioKebabMenu.spec.ts  STUDIO-028
+├── Manage Episodes is rendered disabled (by design)[AUTO] tests/content/manage/studioKebabMenu.spec.ts  STUDIO-029
+├── Series row links to its episodes page           [AUTO] tests/content/manage/studioKebabMenu.spec.ts  STUDIO-030
+├── Selecting content shows/hides the bulk bar      [AUTO] tests/content/manage/studioBulkBar.spec.ts  BULK-001
+├── Select all marks every listed item              [AUTO] tests/content/manage/studioBulkBar.spec.ts  BULK-002
+├── Episode in selection disables series actions    [AUTO] tests/content/manage/studioBulkBar.spec.ts  BULK-003
+├── Draft in selection disables change visibility   [TODO]                                   BULK-004
+├── Series tab: only delete + change visibility     [AUTO] tests/content/manage/studioBulkBar.spec.ts  BULK-005
+├── Bulk delete removes every selected video        [AUTO][CRITICAL] tests/content/manage/studioDelete.spec.ts  BULK-007
+├── Bulk change visibility for two videos           [AUTO] tests/content/manage/studioChangeVisibility.spec.ts  BULK-008
+├── Bulk add two videos to a series                 [AUTO] tests/content/manage/addToSeries.spec.ts  BULK-009
+├── Create unlisted series                          [BLOCKED] БАГ: POST/PUT /playlists/ → 422 на privacyStatus=unlisted  SERIES-UI-001
+├── Series title/description limits (2-100 / 200)   [AUTO] tests/content/manage/createSeriesModal.spec.ts  SERIES-UI-003
+├── Duplicate series title is rejected              [AUTO] tests/content/manage/createSeriesModal.spec.ts  SERIES-UI-004
+├── Private video → only private series offered     [BLOCKED] БАГ FE: фильтр читает кэш неверным ключом  SERIES-UI-011
+├── Change video visibility public → private        [AUTO][CRITICAL] tests/content/manage/studioChangeVisibility.spec.ts  VISCHG-001
+├── Submit disabled while current visibility chosen [AUTO] tests/content/manage/studioChangeVisibility.spec.ts  VISCHG-002
+├── Video without category blocks visibility change [TODO] (нужен сидинг видео без категории)  VISCHG-003
+└── Change series visibility to unlisted            [BLOCKED] БАГ: PUT /playlists/ → 422 на privacyStatus=unlisted  VISCHG-010
 
 ────────────────────────────────────────────────────────────────
 HOME PAGE
