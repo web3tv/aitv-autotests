@@ -34,10 +34,14 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
 
+      # timeout-minutes: apt-зеркала раннера иногда виснут — падаем за 10 минут
+      # с понятной причиной, а не съедаем весь бюджет job'а (см. run 32083900589)
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
+        timeout-minutes: 10
         run: npx playwright install-deps chromium
 
       - name: Run production smoke tests
