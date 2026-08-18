@@ -128,7 +128,7 @@ jobs:
           LABEL="${ENVIRONMENT}${TASK:+ | $TASK}"
           curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"message\":\"Critical Tests [$LABEL]\nStatus: $STATUS\n$RUN_URL${REPORT_URL:+\nОтчёт: $REPORT_URL}\"}" \
+            --data "{\"message\":\"Critical Tests [$LABEL]\nStatus: $STATUS\n$RUN_URL${REPORT_URL:+\nОтчёт: $REPORT_URL}${REPORT_FULL_URL:+\nPlaywright: $REPORT_FULL_URL}\"}" \
             "$WEBHOOK"
 
       - name: Comment on Jira task

@@ -128,5 +128,5 @@ jobs:
         run: |
           curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"message\":\"Nightly Regression [$ENVIRONMENT]\nStatus: $STATUS\n$RUN_URL${REPORT_URL:+\nОтчёт: $REPORT_URL}\"}" \
+            --data "{\"message\":\"Nightly Regression [$ENVIRONMENT]\nStatus: $STATUS\n$RUN_URL${REPORT_URL:+\nОтчёт: $REPORT_URL}${REPORT_FULL_URL:+\nPlaywright: $REPORT_FULL_URL}\"}" \
             "$WEBHOOK"

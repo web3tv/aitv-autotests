@@ -4,8 +4,10 @@
  * отчётов по каждому воркфлоу. Данные берёт из runs/<slug>/<run_id>/meta.json,
  * которые кладёт publish-report.sh.
  *
- * Заодно чистит старые прогоны: на каждый воркфлоу хранится KEEP_PER_SLUG
- * последних, иначе ветка растёт бесконечно.
+ * Заодно чистит старое, иначе сайт упрётся в лимит Pages (~1 ГБ):
+ *   - краткие отчёты: KEEP_PER_SLUG последних на воркфлоу (они по ~25 КБ);
+ *   - вложенные отчёты Playwright с трейсами: KEEP_FULL_PER_SLUG последних,
+ *     у остальных папка playwright/ удаляется (сами прогоны остаются).
  *
  * Usage: node buildPagesIndex.js <путь к чекауту gh-pages>
  */
@@ -13,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 
 const KEEP_PER_SLUG = 100;
+const KEEP_FULL_PER_SLUG = 3;
 
 const SLUG_TITLES = {
   critical: 'Critical Tests',
@@ -48,6 +51,7 @@ function readRuns(slug) {
         status: meta.status ?? 'unknown',
         runUrl: meta.runUrl,
         finishedAt: meta.finishedAt ?? '',
+        hasFull: fs.existsSync(path.join(slugDir, entry.name, 'playwright', 'index.html')),
       };
     })
     // run_id монотонно растёт, так что это надёжнее даты из meta.json
@@ -93,7 +97,16 @@ const sections = slugs.map(slug => {
     console.log(`⌫ удалён старый отчёт ${slug}/${stale.runId}`);
   }
 
-  return { slug, title: SLUG_TITLES[slug] ?? slug, runs: runs.slice(0, KEEP_PER_SLUG) };
+  const kept = runs.slice(0, KEEP_PER_SLUG);
+
+  // Трейсы/видео весят десятки мегабайт — держим их только у свежих прогонов.
+  for (const stale of kept.slice(KEEP_FULL_PER_SLUG).filter(run => run.hasFull)) {
+    fs.rmSync(path.join(runsDir, slug, stale.runId, 'playwright'), { recursive: true, force: true });
+    stale.hasFull = false;
+    console.log(`⌫ удалён отчёт Playwright ${slug}/${stale.runId} (краткий остался)`);
+  }
+
+  return { slug, title: SLUG_TITLES[slug] ?? slug, runs: kept };
 });
 
 const html = `<!DOCTYPE html>
@@ -159,6 +172,11 @@ const html = `<!DOCTYPE html>
       <span class="meta">
         <span style="color: ${statusColor(run.status)}">${escapeHtml(run.status)}</span>
         <span>${escapeHtml(formatDate(run.finishedAt))}</span>
+        ${
+          run.hasFull
+            ? `<a href="runs/${escapeHtml(run.slug)}/${escapeHtml(run.runId)}/playwright/">Playwright →</a>`
+            : ''
+        }
         ${run.runUrl ? `<a href="${escapeHtml(run.runUrl)}">CI →</a>` : ''}
       </span>
     </div>`
