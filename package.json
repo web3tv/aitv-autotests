@@ -13,7 +13,8 @@
     "delete-user": "npx ts-node scripts/deleteUser.ts",
     "seed:fixture": "npx ts-node scripts/seedFixture.ts",
     "load:smoke": "bash scripts/runLoad.sh",
-    "load": "PROFILE=load bash scripts/runLoad.sh"
+    "load": "PROFILE=load bash scripts/runLoad.sh",
+    "report:artifact": "npx ts-node scripts/generateArtifactReport.ts"
   },
   "keywords": [],
   "author": "",

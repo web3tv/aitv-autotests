@@ -92,6 +92,10 @@ jobs:
         env:
           CI: true
 
+      - name: Generate artifact report
+        if: always()
+        run: npm run report:artifact
+
       - if: always()
         run: sudo wg-quick down wg0
 

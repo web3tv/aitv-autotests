@@ -52,6 +52,10 @@ jobs:
           BUILD_NUMBER: ${{ github.event.inputs.build_number || github.run_number }}
           BUILD_COMMIT: ${{ github.sha }}
 
+      - name: Generate artifact report
+        if: always()
+        run: npm run report:artifact
+
       - if: always()
         uses: actions/upload-artifact@v4
         with:
