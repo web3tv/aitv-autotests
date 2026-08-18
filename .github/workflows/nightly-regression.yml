@@ -31,6 +31,8 @@ jobs:
   regression:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    permissions:
+      contents: write   # публикация отчёта в ветку gh-pages
 
     steps:
       - uses: actions/checkout@v4
@@ -107,6 +109,15 @@ jobs:
           name: nightly-regression-report
           path: playwright-report
 
+      - name: Publish report to GitHub Pages
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPORT_SLUG: nightly
+          REPORT_TITLE: Nightly Regression
+          REPORT_STATUS: ${{ job.status }}
+        run: .github/scripts/publish-report.sh
+
       - name: Send Slack notification
         if: always()
         env:
@@ -117,5 +128,5 @@ jobs:
         run: |
           curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"message\":\"Nightly Regression [$ENVIRONMENT]\nStatus: $STATUS\n$RUN_URL\"}" \
+            --data "{\"message\":\"Nightly Regression [$ENVIRONMENT]\nStatus: $STATUS\n$RUN_URL${REPORT_URL:+\nОтчёт: $REPORT_URL}\"}" \
             "$WEBHOOK"

@@ -34,6 +34,8 @@ jobs:
   visual:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    permissions:
+      contents: write   # публикация отчёта в ветку gh-pages
 
     steps:
       - uses: actions/checkout@v4
@@ -112,6 +114,15 @@ jobs:
           name: aitv-visual-report
           path: playwright-report
 
+      - name: Publish report to GitHub Pages
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REPORT_SLUG: visual
+          REPORT_TITLE: AITV Visual Tests
+          REPORT_STATUS: ${{ job.status }}
+        run: .github/scripts/publish-report.sh
+
       - name: Commit and push updated snapshots
         if: inputs.update_snapshots == true
         env:
@@ -141,7 +152,7 @@ jobs:
           LABEL="${ENVIRONMENT}${TASK:+ | $TASK}"
           curl -X POST \
             -H "Content-Type: application/json" \
-            --data "{\"message\":\"AITV Visual Tests [$LABEL]\nStatus: $STATUS\n$RUN_URL\"}" \
+            --data "{\"message\":\"AITV Visual Tests [$LABEL]\nStatus: $STATUS\n$RUN_URL${REPORT_URL:+\nОтчёт: $REPORT_URL}\"}" \
             "$WEBHOOK"
 
       - name: Comment on Jira task
