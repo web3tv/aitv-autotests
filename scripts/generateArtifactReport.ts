@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
+type TestStatus = 'passed' | 'failed' | 'skipped' | 'timedOut' | 'flaky';
+
 interface TestResult {
-  title?: string;
-  name?: string;
-  status: 'passed' | 'failed' | 'skipped' | 'timedOut';
+  title: string;
+  status: TestStatus;
   duration: number;
-  steps?: Array<{ title: string; status: string; duration: number }>;
   error?: { message: string; stack?: string };
   annotations?: Array<{ type: string; description: string }>;
 }
@@ -27,28 +27,103 @@ interface PlaywrightResults {
   };
 }
 
-function loadResults(): PlaywrightResults {
-  const resultsPath = path.join(process.cwd(), 'playwright-report', 'results.json');
+// The JSON reporter writes here (see playwright.config.ts); the legacy path is
+// kept as a fallback so older artifacts still render.
+const RESULTS_CANDIDATES = [
+  path.join('test-results', 'results.json'),
+  path.join('playwright-report', 'results.json'),
+];
 
-  if (!fs.existsSync(resultsPath)) {
-    throw new Error(`Results file not found: ${resultsPath}`);
+const REPORT_DIR = path.join(process.cwd(), 'playwright-report');
+
+function findResultsFile(): string | null {
+  for (const candidate of RESULTS_CANDIDATES) {
+    const full = path.join(process.cwd(), candidate);
+    if (fs.existsSync(full)) return full;
+  }
+  return null;
+}
+
+function stripAnsi(value: string): string {
+  // eslint-disable-next-line no-control-regex
+  return value.replace(/\[[0-9;]*m/g, '');
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * The Playwright JSON reporter nests suites: suites[] → (suites[] …) → specs[] →
+ * tests[] → results[]. Flatten it to one entry per file+describe with a plain
+ * test list, taking the LAST result of each test so retries collapse into a
+ * single row (passed-after-retry becomes `flaky`).
+ */
+function flattenSuites(rawSuites: any[], parentTitle = ''): SuiteResult[] {
+  const flattened: SuiteResult[] = [];
+
+  for (const suite of rawSuites ?? []) {
+    const title = parentTitle ? `${parentTitle} › ${suite.title}` : suite.title;
+
+    const tests: TestResult[] = (suite.specs ?? []).flatMap((spec: any) =>
+      (spec.tests ?? []).map((test: any) => {
+        const results = test.results ?? [];
+        const last = results[results.length - 1] ?? {};
+        const duration = results.reduce((sum: number, r: any) => sum + (r.duration ?? 0), 0);
+
+        const rawStatus: string = last.status ?? 'skipped';
+        let status: TestStatus = rawStatus === 'interrupted' ? 'failed' : (rawStatus as TestStatus);
+        if (status === 'passed' && results.length > 1) status = 'flaky';
+
+        return {
+          title: spec.title || 'Unknown test',
+          status,
+          duration,
+          error: last.error,
+          annotations: test.annotations ?? spec.annotations,
+        };
+      })
+    );
+
+    if (tests.length > 0) flattened.push({ title, tests });
+    flattened.push(...flattenSuites(suite.suites, title));
   }
 
+  return flattened;
+}
+
+function loadResults(resultsPath: string): PlaywrightResults {
   const rawData = JSON.parse(fs.readFileSync(resultsPath, 'utf-8'));
 
-  // Normalize results to handle Playwright JSON format
-  if (rawData.suites) {
-    rawData.suites = rawData.suites.map((suite: any) => ({
-      ...suite,
-      tests: suite.tests.map((test: any) => ({
-        ...test,
-        // Handle both 'title' and 'name' fields
-        title: test.title || test.name || 'Unknown test',
-      }))
-    }));
-  }
+  return {
+    suites: flattenSuites(rawData.suites),
+    stats: {
+      expected: rawData.stats?.expected ?? 0,
+      unexpected: rawData.stats?.unexpected ?? 0,
+      flaky: rawData.stats?.flaky ?? 0,
+      skipped: rawData.stats?.skipped ?? 0,
+      duration: rawData.stats?.duration ?? 0,
+    },
+  };
+}
 
-  return rawData;
+/**
+ * Ship results.json inside the uploaded `playwright-report` artifact — the
+ * /morning-report skill reads it from there. Safe to run after the HTML
+ * reporter, which has already finished wiping and rendering the folder.
+ */
+function copyResultsIntoReport(resultsPath: string): void {
+  if (!fs.existsSync(REPORT_DIR)) return;
+
+  const target = path.join(REPORT_DIR, 'results.json');
+  if (path.resolve(resultsPath) === target) return;
+
+  fs.copyFileSync(resultsPath, target);
+  console.log(`✓ results.json copied to ${target}`);
 }
 
 function formatDuration(ms: number): string {
@@ -62,33 +137,29 @@ function getStatusIcon(status: string): string {
     failed: '✗',
     skipped: '⊘',
     timedOut: '⏱',
+    flaky: '⚠',
   };
   return icons[status] || '?';
 }
 
-function getStatusColor(status: string): string {
-  const colors = {
-    passed: '#10b981',
-    failed: '#ef4444',
-    skipped: '#6b7280',
-    timedOut: '#f59e0b',
-  };
-  return colors[status] || '#666';
+function isFailure(status: string): boolean {
+  return status === 'failed' || status === 'timedOut';
 }
 
 function generateHTML(results: PlaywrightResults): string {
-  const totalTests = results.stats.expected + results.stats.unexpected;
+  const totalTests = results.stats.expected + results.stats.unexpected + results.stats.flaky;
   const passRate = totalTests > 0 ? ((results.stats.expected / totalTests) * 100).toFixed(1) : '0';
 
   const failedTests = results.suites
     .flatMap(s => s.tests)
-    .filter(t => t.status === 'failed');
+    .filter(t => isFailure(t.status));
 
   const suitesByStatus = results.suites.map(suite => {
     const passed = suite.tests.filter(t => t.status === 'passed').length;
-    const failed = suite.tests.filter(t => t.status === 'failed').length;
+    const failed = suite.tests.filter(t => isFailure(t.status)).length;
+    const flaky = suite.tests.filter(t => t.status === 'flaky').length;
     const skipped = suite.tests.filter(t => t.status === 'skipped').length;
-    return { ...suite, passed, failed, skipped };
+    return { ...suite, passed, failed, flaky, skipped };
   });
 
   return `<!DOCTYPE html>
@@ -137,6 +208,7 @@ function generateHTML(results: PlaywrightResults): string {
 
     .stat-value.passed { color: #10b981; }
     .stat-value.failed { color: #ef4444; }
+    .stat-value.flaky { color: #f59e0b; }
     .stat-value.skipped { color: #6b7280; }
     .stat-value.duration { color: #3b82f6; }
 
@@ -182,6 +254,7 @@ function generateHTML(results: PlaywrightResults): string {
     .suite-stats span { color: #94a3b8; }
     .suite-stats .passed { color: #10b981; }
     .suite-stats .failed { color: #ef4444; }
+    .suite-stats .flaky { color: #f59e0b; }
     .suite-stats .skipped { color: #6b7280; }
 
     .suite-content { padding: 1rem; }
@@ -197,6 +270,8 @@ function generateHTML(results: PlaywrightResults): string {
     }
     .test-item.passed { border-left-color: #10b981; background: rgba(16, 185, 129, 0.05); }
     .test-item.failed { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+    .test-item.timedOut { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+    .test-item.flaky { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
     .test-item.skipped { border-left-color: #6b7280; background: rgba(107, 114, 128, 0.05); }
 
     .test-name { flex: 1; }
@@ -248,6 +323,10 @@ function generateHTML(results: PlaywrightResults): string {
         <div class="stat-label">Failed</div>
       </div>
       <div class="stat-card">
+        <div class="stat-value flaky">${results.stats.flaky}</div>
+        <div class="stat-label">Flaky</div>
+      </div>
+      <div class="stat-card">
         <div class="stat-value skipped">${results.stats.skipped}</div>
         <div class="stat-label">Skipped</div>
       </div>
@@ -273,13 +352,13 @@ function generateHTML(results: PlaywrightResults): string {
       <div class="section-title">❌ Failed Tests (${failedTests.length})</div>
       ${failedTests.map(test => `
         <div class="failed-details">
-          <div class="failed-title">${test.title || 'Unknown test'}</div>
+          <div class="failed-title">${escapeHtml(test.title)}</div>
           ${test.annotations?.find(a => a.type === 'TC') ? `
             <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 0.5rem;">
-              TC: ${test.annotations.find(a => a.type === 'TC')?.description}
+              TC: ${escapeHtml(test.annotations.find(a => a.type === 'TC')?.description ?? '')}
             </div>
           ` : ''}
-          <div class="error-message">${test.error?.message || 'Unknown error'}</div>
+          <div class="error-message">${escapeHtml(stripAnsi(test.error?.message ?? 'Unknown error'))}</div>
         </div>
       `).join('')}
     ` : ''}
@@ -288,10 +367,11 @@ function generateHTML(results: PlaywrightResults): string {
     ${suitesByStatus.map(suite => `
       <div class="suite-card">
         <div class="suite-header">
-          <div class="suite-title">${suite.title}</div>
+          <div class="suite-title">${escapeHtml(suite.title)}</div>
           <div class="suite-stats">
             <span class="passed">✓ ${suite.passed}</span>
             <span class="failed">✗ ${suite.failed}</span>
+            <span class="flaky">⚠ ${suite.flaky}</span>
             <span class="skipped">⊘ ${suite.skipped}</span>
           </div>
         </div>
@@ -300,7 +380,7 @@ function generateHTML(results: PlaywrightResults): string {
             <div class="test-item ${test.status}">
               <div class="test-name">
                 <span class="test-icon">${getStatusIcon(test.status)}</span>
-                ${test.title || 'Unknown test'}
+                ${escapeHtml(test.title)}
               </div>
               <div class="test-meta">
                 <span>${formatDuration(test.duration)}</span>
@@ -322,12 +402,25 @@ function generateHTML(results: PlaywrightResults): string {
 async function main() {
   try {
     console.log('📊 Loading Playwright results...');
-    const results = loadResults();
+    const resultsPath = findResultsFile();
 
-    console.log(`✓ Found ${results.suites.length} suites with ${results.stats.expected + results.stats.unexpected} tests`);
+    if (!resultsPath) {
+      // The run may have died before the JSON reporter wrote anything (VPN drop,
+      // job timeout). Don't fail the step — the test step already reports that.
+      console.warn(`⚠ No results.json found (looked in: ${RESULTS_CANDIDATES.join(', ')}) — skipping report`);
+      return;
+    }
+
+    const results = loadResults(resultsPath);
+
+    fs.mkdirSync(REPORT_DIR, { recursive: true });
+    copyResultsIntoReport(resultsPath);
+
+    const totalTests = results.stats.expected + results.stats.unexpected + results.stats.flaky;
+    console.log(`✓ Found ${results.suites.length} suites with ${totalTests} tests`);
 
     const html = generateHTML(results);
-    const reportPath = path.join(process.cwd(), 'playwright-report', 'artifact-report.html');
+    const reportPath = path.join(REPORT_DIR, 'artifact-report.html');
 
     fs.writeFileSync(reportPath, html);
     console.log(`✓ Report saved to ${reportPath}`);

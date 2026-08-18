@@ -46,11 +46,13 @@ export default defineConfig({
   reporter: process.env.CI
   ? [
       ['list'],
-      // JSON riding inside playwright-report/ so it ships in the existing
-      // `nightly-regression-report` / `prod-smoke-report` artifacts (no workflow
-      // change needed). Consumed by the /morning-report skill for reliable
-      // pass/fail/error parsing.
-      ['json', { outputFile: 'playwright-report/results.json' }],
+      // JSON must NOT live in playwright-report/: the HTML reporter wipes its
+      // outputFolder when it renders, which deleted results.json. It is written
+      // to test-results/ and copied into playwright-report/ by
+      // `npm run report:artifact`, so it still ships in the existing
+      // `nightly-regression-report` / `prod-smoke-report` artifacts and stays
+      // parseable by the /morning-report skill.
+      ['json', { outputFile: 'test-results/results.json' }],
       ['html', { open: 'never', outputFolder: 'playwright-report' }],
     ]
   : [
