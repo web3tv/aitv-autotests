@@ -18,6 +18,29 @@
 
 ---
 
+## 2026-08-19
+
+**Nightly Regression (dev2)** — ✅ success · [run #32208404471](https://github.com/web3tv/aitv-autotests/actions/runs/32208404471)
+Passed 173 · Failed 0 · Flaky 3 · Skipped 21
+- flaky `content/upload/uploadMovie.spec.ts:11` — «Create a Movie through the full upload flow»: `aitv-upload-success-root` не появился за 30s, прошёл на ретрае
+- flaky `content/manage/studioSearch.spec.ts:11` — «Search filters videos by title»: upload 400 `video_validation_error` (FFmpeg: Unable to probe S3-объект qencode), прошёл на ретрае
+- flaky `content/manage/studioChangeVisibility.spec.ts:150` — «Change a series from public to private»: upload 400 `video_validation_error` (FFmpeg: Unable to probe S3-объект qencode), прошёл на ретрае
+
+**Prod Smoke (prod)** — ❌ failure (инфра, тесты не запускались) · [run #32200629592](https://github.com/web3tv/aitv-autotests/actions/runs/32200629592)
+- **[TEST/FLAKY]** (CI-инфра) — шаг `Install Playwright system dependencies` таймаутнул на 10 мин: apt завис на скачивании `xfonts-scalable` с azure.archive.ubuntu.com. Прогон тестов пропущен, артефакт не создан.
+
+## 2026-08-18
+
+**Nightly Regression (dev2)** — ❌ failure · [run #32091596776](https://github.com/web3tv/aitv-autotests/actions/runs/32091596776)
+Passed 174 · Failed 1 · Flaky 1 · Skipped 21 · _(данные: лог-fallback, results.json в артефакте нет — HTML-репортер вычищает `playwright-report/`)_
+- `content/upload/uploadMovie.spec.ts:90` — **[TEST/FLAKY]** — Upload >50mb: прогресс дошёл до 76% (ретрай — 71%) и упёрся в таймаут 180s (`ContentUploadModal.waitUploadProcessed`, `aitv-upload-processing`). Упал оба раза. Тем же ночью на другом тесте S3 qencode отдавал 500 → похоже на деградацию внешнего стораджа, не на код. Первое появление в логе — если повторится, поднять таймаут для 50mb-кейса
+- flaky `content/channel/channel.spec.ts:114` — **[TEST/FLAKY]** — `Chunk upload failed with 500` от `eu-central.s3.qencode.com` (partNumber=1), прошёл на ретрае. Внешний сторадж, не приложение
+
+**Prod Smoke (prod)** — ✅ success · [run #32083900589](https://github.com/web3tv/aitv-autotests/actions/runs/32083900589)
+Passed 5 · Skipped 2 · Failed 0
+
+_Прим.: раны за 14–17.08 в этот файл не записывались (разбор не запускался) — пропуск в истории._
+
 ## 2026-08-13
 
 **Nightly Regression (dev2)** — ❌ failure · [run #31662078230](https://github.com/web3tv/aitv-autotests/actions/runs/31662078230)
