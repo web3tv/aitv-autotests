@@ -107,6 +107,26 @@ AITV HEADER NOTIFICATIONS POPUP (W3-2748)
 └── "Someone liked your comment" (aggregated)                     [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B03
 
 ────────────────────────────────────────────────────────────────
+NOTIFICATION TARGET URLS — notification type x content type (W3-2923)
+Every row = click the notification, assert the resulting URL (and the comment anchor
+where applicable). Episode rows are the ones W3-2923 broke: the FE uses the raw payload
+type as the first path segment, so episodes resolve to a non-existent /episode/... route.
+├── comment/reply on a VIDEO -> /video/{cat}/{slug}?comment={id}          [TODO] seed: seedCommentReplies()                      NOTIF-URL-001
+├── comment/reply on an EPISODE -> episode watch URL + comment anchor     [TODO] seed: setupSeriesWithEpisodes() + CommentsApi   NOTIF-URL-002
+├── comment/reply on a SHORT -> /short/shorts/{slug}?comment={id}         [TODO] seed: seedCommentReplies() on a short           NOTIF-URL-003
+├── video_release for a VIDEO -> video watch URL                          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-011
+├── video_release for an EPISODE -> episode watch URL                     [TODO] seed: setupSeriesWithEpisodes(), slow transcode NOTIF-URL-004
+├── video_release for a SHORT -> /short/shorts/{slug}                     [TODO] covered manually only                           NOTIF-URL-005
+├── ai_metadata_success -> /studio/content?edit={videoId}                 [TODO] delivery only checked today (CHAP-002 analogue) NOTIF-URL-006
+├── chapters_generation_success -> /studio/content?edit={videoId}         [TODO] delivery covered (CHAP-002), click/URL is not   NOTIF-URL-007
+├── follow (channel_subscription) -> channel URL, NOT /studio             [TODO] needs a trigger: `notifications:aggregate-grouped --hours=N` (no pods/exec rights) or a DB-seeded row (@db). Expectation changed by W3-2923 — NOTIF-POPUP-007 still asserts /studio  NOTIF-URL-008
+├── video_like on VIDEO / EPISODE -> video/episode watch URL              [TODO] same trigger problem as NOTIF-URL-008 (hourly grouping, W3-2848); URL-only assertion can run off a DB-seeded row (@db)  NOTIF-URL-009
+├── comment_like -> video/episode watch URL + comment anchor              [TODO] same trigger problem as NOTIF-URL-008 (hourly grouping, W3-2848)  NOTIF-URL-010
+├── rec_video -> video/episode watch URL                                  [N/A] no such type in the backend NotificationType enum — dead branch in Notification.tsx  NOTIF-URL-011
+├── channel_transfer_sent / _received -> /@{channelHandleName}            [BLOCKED] fires off an on-chain NFT handle transfer (ChannelTransferredNotificationSendHandler), no REST route; payload also lacks channelHandleName  NOTIF-URL-012
+└── live_stream -> /livestream/{id}                                       [TODO] fully seedable over REST: POST /live-streams/ + PUT /live-streams/status  NOTIF-URL-013
+
+────────────────────────────────────────────────────────────────
 CHANNELS
 ├── Channel created automatically on registration   [TODO]                                   CHANNEL-001
 ├── Create additional channel                       [TODO]                                   CHANNEL-002
@@ -142,7 +162,6 @@ VIDEO UPLOAD
 ├── Upload horizontal video (public)                [TODO] (covered by MOVIE-001)               UPLOAD-001
 ├── Upload horizontal video (private)               [TODO]                                      UPLOAD-002
 ├── Upload horizontal video (unlisted)              [TODO]                                      UPLOAD-003
-├── Upload horizontal video (paid)                  [TODO]                                      UPLOAD-004
 ├── Upload Shorts                                   [TODO] (covered by SHORTS-003)              UPLOAD-005
 ├── Upload video >50MB (multipart direct-to-S3)     [AUTO] tests/content/upload/uploadMovie.spec.ts     UPLOAD-006
 ├── Upload thumbnail manually                       [TODO] (спек удалён при переходе на stepped modal W3-2702)  UPLOAD-007
@@ -212,10 +231,7 @@ VIDEO VISIBILITY
 ├── Private: blocked on direct link (other user)    [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-004
 ├── Unlisted: not shown on channel page             [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-005
 ├── Unlisted: accessible via direct link (anon)     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-005
-├── Unlisted: accessible via direct link (user)     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-006
-├── Paid: badges on channel page                    [BLOCKED] describe.skip tests/content/manage/videoVisibility.spec.ts  VIS-007
-├── Paid: paywall for anonymous                     [BLOCKED] describe.skip tests/content/manage/videoVisibility.spec.ts  VIS-007
-└── Paid: subscribe button for other user           [TODO] (теста нет)                        VIS-008
+└── Unlisted: accessible via direct link (user)     [AUTO] tests/content/manage/videoVisibility.spec.ts  VIS-006
 
 ────────────────────────────────────────────────────────────────
 VIDEO PLAYER — Regular Player
@@ -257,26 +273,6 @@ SUBSCRIPTIONS — Free (channel follow)
 ├── Unsubscribe from channel                        [TODO]                                   SUB-002
 └── Subscriptions feed shows videos from channel    [TODO]                                   SUB-003
 
-────────────────────────────────────────────────────────────────
-PAID SUBSCRIPTIONS — suite запаркована в tests/skip/ (исключено из прогонов)
-├── Create membership plan (owner)                  [BLOCKED] tests/skip/subscription/paidSubscription.spec.ts    PAID-001
-├── Purchase plan via Hero Pay (mock)               [BLOCKED] tests/skip/subscription/paidSubscription.spec.ts    PAID-002
-├── Access paid video after purchase                [BLOCKED] tests/skip/subscription/paidSubscription.spec.ts    PAID-003
-├── Create membership plan via UI (studio)          [TODO]                                                PAID-004
-├── Subscription expiry → access revoked + restore  [BLOCKED] tests/skip/subscription/paidSubscription.spec.ts    PAID-005
-├── Active subscription on /my-paid-subs            [BLOCKED] tests/skip/subscription/paidSubsStatus.spec.ts      PAID-006
-├── Expired subscription on /my-paid-subs           [BLOCKED] tests/skip/subscription/paidSubsStatus.spec.ts      PAID-007
-├── Pending payment status on /my-paid-subs         [BLOCKED] tests/skip/subscription/paidSubsStatus.spec.ts      PAID-008
-└── Payment expired status on /my-paid-subs         [BLOCKED] tests/skip/subscription/paidSubsStatus.spec.ts      PAID-009
-
-────────────────────────────────────────────────────────────────
-AUTH POPUP ("Almost there!") — suite запаркована в tests/skip/
-  Shown when anonymous user tries to subscribe or access paid content.
-├── Anonymous user sees Subscribe Now button on membership page  [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-007
-├── Clicking Subscribe Now shows auth popup (Create account + Login)  [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-008
-├── Auth popup: Create account button → navigates to register   [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-009
-├── Auth popup: Login button → navigates to login page          [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-010
-└── Auth popup: closes when clicking close button               [BLOCKED] tests/skip/subscription/authPopup.spec.ts  AUTH-POP-011
 
 ────────────────────────────────────────────────────────────────
 PLAYLISTS
@@ -318,7 +314,6 @@ STUDIO CONTENT PAGE
 ├── Sort by Title (asc/desc)                        [TODO]                                   STUDIO-007
 ├── Filter by visibility: Public                    [TODO]                                   STUDIO-008
 ├── Filter by visibility: Private                   [TODO]                                   STUDIO-009
-├── Filter by visibility: Paid                      [TODO]                                   STUDIO-010
 ├── Filter by visibility: Unlisted                  [TODO]                                   STUDIO-011
 ├── Filter by status: Published                     [TODO]                                   STUDIO-012
 ├── Filter by status: Draft                         [TODO]                                   STUDIO-013
@@ -420,7 +415,7 @@ VALIDATION (tag: @validation)
 STUDIO DOMAIN (studio.web3tv.dev) — W3-1943
   Studio separated to studio.web3tv.dev, main platform stays on web3tv.dev
 ├── Studio sidebar: correct items for logged user   [TODO]                                   STUDIO-DOMAIN-001
-│   Dashboard, Content, Analytics, Memberships, Playlists, Edit channel, Settings, Send Feedback
+│   Dashboard, Content, Analytics, Playlists, Edit channel, Settings, Send Feedback
 ├── Main sidebar: no studio items for logged user   [TODO]                                   STUDIO-DOMAIN-002
 │   Home, Subscription, Library, History, Continue Watching, My playlists, Watch Later, Liked Videos
 ├── Studio sidebar: hidden for anonymous user       [TODO]                                   STUDIO-DOMAIN-003
@@ -430,7 +425,7 @@ STUDIO DOMAIN (studio.web3tv.dev) — W3-1943
 ├── Edit channel click → popup (Cancel/OK) to main  [TODO]                                   STUDIO-DOMAIN-007
 ├── Non-studio pages on studio → redirect to main   [TODO]                                   STUDIO-DOMAIN-008
 ├── Studio notifications: filtered types only       [TODO]                                   STUDIO-DOMAIN-009
-│   channel_subscription, paid_channel_subscription, comment_reply, ai_metadata_failed, ai_metadata_success
+│   channel_subscription, comment_reply, ai_metadata_failed, ai_metadata_success
 ├── Main domain notifications: all types shown      [TODO]                                   STUDIO-DOMAIN-010
 └── Logout redirects to baseUrl (main domain /)     [TODO]                                   STUDIO-DOMAIN-011
 
