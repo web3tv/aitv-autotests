@@ -32,41 +32,6 @@ export class DatabaseHelper {
         return rows as T;
     }
 
-    async setActiveSubscription(email: string): Promise<void> {
-        await this.query(
-            'UPDATE paid_subscription_subscribers SET transaction_status = ?, start_date = NOW(), expired_at = DATE_ADD(NOW(), INTERVAL 30 DAY) WHERE user_id = (SELECT id FROM users WHERE email = ?)',
-            ['confirmed', email]
-        );
-    }
-
-    async expireSubscription(email: string): Promise<void> {
-        await this.query(
-            'UPDATE paid_subscription_subscribers SET transaction_status = ?, start_date = DATE_SUB(NOW(), INTERVAL 60 DAY), expired_at = DATE_SUB(NOW(), INTERVAL 1 DAY) WHERE user_id = (SELECT id FROM users WHERE email = ?)',
-            ['confirmed', email]
-        );
-    }
-
-    async expireTransaction(email: string): Promise<void> {
-        await this.query(
-            'UPDATE paid_subscription_subscribers SET transaction_status = ?, start_date = NULL, expired_at = NULL WHERE user_id = (SELECT id FROM users WHERE email = ?)',
-            ['expired', email]
-        );
-    }
-
-    async setPendingPayment(email: string): Promise<void> {
-        await this.query(
-            'UPDATE paid_subscription_subscribers SET transaction_status = ?, start_date = NULL, expired_at = NULL WHERE user_id = (SELECT id FROM users WHERE email = ?)',
-            ['new', email]
-        );
-    }
-
-    async invalidateTransaction(email: string): Promise<void> {
-        await this.query(
-            'UPDATE paid_subscription_subscribers SET transaction_status = ?, start_date = NULL, expired_at = NULL WHERE user_id = (SELECT id FROM users WHERE email = ?)',
-            ['invalid', email]
-        );
-    }
-
     /**
      * Get binary user ID by email
      */

@@ -19,8 +19,6 @@ import { uploadWithChunkCheck } from '../../../src/utils/studioTestHelpers';
 //TODO: 9. Edit channel - Video Importer
 //TODO: 10. Edit channel - Highlighted video
 //TODO: 11. Home page - Visual test
-//TODO: 12. Home page - Membership
-//TODO: 13. Home page - Membership
 //TODO: 14. Home page - Videos | Sorting
 //TODO: 15. Home page - Shorts | Sorting
 //TODO: 16. Home page - Playlists

@@ -48,8 +48,8 @@
 ## Скриншоты всех типов уведомлений (отдельное задание)
 
 Все 13 поддерживаемых типов (`subscription`, `video_release`, `comment_reply`, `channel_subscription`,
-`paid_channel_subscription`, `live_stream`, `channel_transfer_sent/received`, `chapters_generation_success`,
-`ai_metadata_success/failed`, `recommended_video`, `paid_subscription`) отрендерить в попапе через подмену
+`live_stream`, `channel_transfer_sent/received`, `chapters_generation_success`,
+`ai_metadata_success/failed`) отрендерить в попапе через подмену
 ответа `GET /api/notifications` в браузере (вживую большинство типов не вызвать) →
 скрины в `docs/W3-2748-screenshots/` + сверка с Figma (node 8071-12164).
 

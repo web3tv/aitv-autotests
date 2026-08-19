@@ -103,29 +103,3 @@ test.describe('Unlisted video visibility', () => {
         });
     });
 });
-
-// Paid visibility stays on its own seed (mutating paywall/subscription) — unchanged.
-test.describe.skip('Paid video visibility', () => {
-    let setup: VideoSetupResult;
-
-    test.beforeAll(async ({ request }) => {
-        setup = await setupVideoViaApi(request, { privacySetting: 'paid' });
-    });
-
-    test('Paid video shows badges on channel page', { annotation: { type: 'TC', description: 'VIS-007' } }, async ({ page }) => {
-        await test.step('Open channel page and verify exclusive/locked badges', async () => {
-            const channelMainPage = new ChannelMainPage(page);
-            await page.goto(setup.channelUrl, { waitUntil: 'domcontentloaded' });
-            await channelMainPage.checkPaidVideoAttributes();
-        });
-    });
-
-    test('Anonymous user sees paywall on paid video', { annotation: { type: 'TC', description: 'VIS-007' } }, async ({ page }) => {
-        await test.step('Open video page as anonymous and verify paywall', async () => {
-            const channelMainPage = new ChannelMainPage(page);
-            await page.goto(setup.videoUrl, { waitUntil: 'domcontentloaded' });
-            await channelMainPage.waitForMembershipPage();
-            await channelMainPage.assertPaywallContent(setup.membershipName!, setup.membershipDescription!, '$0.99');
-        });
-    });
-});

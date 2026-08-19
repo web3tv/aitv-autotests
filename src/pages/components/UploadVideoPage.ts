@@ -25,9 +25,7 @@ export class UploadVideoPage {
   readonly publicRadioBtn: Locator;
   readonly privateRadioBtn: Locator;
   readonly unlistedRadioBtn: Locator;
-  readonly paidRadioBtn: Locator;
 
-  readonly membershipBtn: Locator;
   readonly descriptionEditor: Locator;
   readonly uploadForm: Locator;
   readonly body: Locator;
@@ -54,9 +52,7 @@ export class UploadVideoPage {
     this.publicRadioBtn = page.getByRole('radio', { name: 'Public' });
     this.privateRadioBtn = page.getByRole('radio', { name: 'Private' });
     this.unlistedRadioBtn = page.getByRole('radio', { name: 'Unlisted' });
-    this.paidRadioBtn = page.getByRole('radio', { name: 'Paid' });
     
-    this.membershipBtn = page.getByRole('checkbox').first();
     this.uploadForm = page.locator('form');
     this.body = page.locator('body');
   }
@@ -145,18 +141,6 @@ export class UploadVideoPage {
     await expect(this.unlistedRadioBtn, 'Unlisted radio button is not enabled').toBeEnabled();
     await this.unlistedRadioBtn.click();
     await expect(this.unlistedRadioBtn, 'Unlisted radio button should be checked').toBeChecked();
-  }
-
-  async clickPaidBtn() {
-    await this.paidRadioBtn.waitFor({ state: 'visible' });
-    await expect(this.paidRadioBtn, 'Paid radio button is not enabled').toBeEnabled();
-    await this.paidRadioBtn.click();
-    await expect(this.paidRadioBtn, 'Paid radio button should be checked').toBeChecked();
-  }
-
-  async clickMembershipCheckbox(){
-    await expect(this.membershipBtn, 'Membership button is not enabled').toBeEnabled();
-    await this.membershipBtn.check();
   }
 
   async assertNextBtnDisabled(){

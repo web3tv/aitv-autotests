@@ -525,7 +525,7 @@ export class VideoApi {
             title?: string;
             description?: string;
             categoryId?: number;
-            privacySetting?: "public" | "private" | "paid" | "unlisted";
+            privacySetting?: "public" | "private" | "unlisted";
             publishedAt?: string;
             coverVerticalImgPath?: string;
             seriesId?: string;
@@ -579,59 +579,6 @@ export class VideoApi {
         if (!response.ok()) {
             const body = await response.text();
             throw new Error(`Failed to update video: ${response.status()} ${body}`);
-        }
-    }
-
-    async bindSubscription(
-        token: string,
-        videoId: string,
-        subId: string,
-        meta: { title: string; description: string; categoryId?: number }
-    ): Promise<void> {
-        const feBaseUrl = process.env.BASE_URL!;
-        const tokensData = JSON.stringify({
-            token_type: "Bearer",
-            expires_in: 3600,
-            access_token: token,
-            refresh_token: "",
-            valid_until: Date.now() + 3600_000,
-        });
-
-        const catId = String(meta.categoryId ?? (await this.getDefaultCategoryId()));
-        const boundary = "----PlaywrightFormBoundary" + Date.now();
-        const fields: Record<string, string> = {
-            title: meta.title,
-            description: meta.description,
-            "categoryId": catId,
-            privacySetting: "paid",
-            publishedAt: new Date().toISOString(),
-        };
-
-        let body = "";
-        for (const [name, value] of Object.entries(fields)) {
-            body +=
-                `--${boundary}\r\n` +
-                `Content-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`;
-        }
-        body += `--${boundary}--\r\n`;
-
-        const response = await this.request.post(
-            `${feBaseUrl}/api/videos/update/${videoId}?subIds[0]=${encodeURIComponent(subId)}`,
-            {
-                headers: {
-                    Accept: "*/*",
-                    "Content-Type": `multipart/form-data; boundary=${boundary}`,
-                    Cookie: `tokensData=${encodeURIComponent(tokensData)}`,
-                },
-                data: body,
-            }
-        );
-
-        if (!response.ok()) {
-            const body = await response.text();
-            throw new Error(
-                `Failed to bind subscription: ${response.status()} ${body}`
-            );
         }
     }
 
@@ -715,9 +662,8 @@ export class VideoApi {
             title?: string;
             description?: string;
             categoryId?: number;
-            privacySetting?: "public" | "private" | "paid" | "unlisted";
+            privacySetting?: "public" | "private" | "unlisted";
             contentType?: "video" | "short";
-            subId?: string;
             waitForProcessing?: boolean;
             coverVerticalImgPath?: string;
             publishedAt?: string;
@@ -743,7 +689,6 @@ export class VideoApi {
         await this.completeUpload(token, id);
 
         // 4. Update metadata + visibility
-        const isPaid = options.privacySetting === "paid" && options.subId;
         const publishedAt =
             options.publishedAt ??
             (options.privacySetting !== 'private' && options.privacySetting ? new Date().toISOString() : undefined);
@@ -751,22 +696,13 @@ export class VideoApi {
             title,
             description: options.description ?? `${Date.now()}`,
             categoryId: options.categoryId,
-            privacySetting: isPaid ? undefined : options.privacySetting,
+            privacySetting: options.privacySetting,
             coverVerticalImgPath: options.coverVerticalImgPath,
             publishedAt,
             seriesId: options.seriesId,
             tags: options.tags,
             contentRating: options.contentRating,
         });
-
-        // 4b. Bind subscription for paid videos (via frontend proxy)
-        if (isPaid) {
-            await this.bindSubscription(token, id, options.subId!, {
-                title,
-                description: options.description ?? `${Date.now()}`,
-                categoryId: options.categoryId,
-            });
-        }
 
         // 5. Build video URL; if processing is required — wait for completion first.
         // A video attached to a series is listed as type=episode (it is NOT returned

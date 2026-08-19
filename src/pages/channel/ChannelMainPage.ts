@@ -1,6 +1,5 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
-import { HeroPayPage } from '../heroPay/HeroPayPage';
 
 export class ChannelMainPage {
 
@@ -9,8 +8,6 @@ export class ChannelMainPage {
 
     readonly firstVideo: Locator;
 
-    readonly exclusiveBadge: Locator;
-    readonly lockedBadge: Locator;
 
 
     // 2026 channel redesign — the public channel view was rebuilt with new markup.
@@ -25,19 +22,7 @@ export class ChannelMainPage {
     readonly editBtn: Locator;
     readonly shareBtn: Locator;
 
-
-
-
-    // MEMBERSHIP
-
-    readonly subscriptionCard: Locator;
-    readonly subscriptionTitle: Locator;
-    readonly subscriptionPrice: Locator;
-    readonly subscriptionDescription: Locator;
-    readonly subscribeBtn: Locator;
-    readonly channelSubscribeBtn: Locator;
     readonly registerLoginBtn: Locator;
-    readonly payWithBtn: Locator;
 
     // Empty / unavailable states
     readonly body: Locator;
@@ -59,20 +44,7 @@ export class ChannelMainPage {
         this.followBtn = page.getByRole('button', { name: 'Follow', exact: true }).first();
         this.editBtn = page.getByRole('button', { name: 'Edit', exact: true }).first();
         this.shareBtn = page.getByRole('button', { name: 'Share', exact: true }).first();
-
-        this.exclusiveBadge = page.locator('div').filter({ hasText: /^Exclusive Content$/ }).first();
-        this.lockedBadge = this.firstVideo.locator('.locked');
-
-
-        // MEMBERSHIP
-        this.subscriptionCard = page.locator('[data-id="sub-card"]');
-        this.subscriptionTitle = page.locator('[data-id="sub-title"]');
-        this.subscriptionPrice = page.locator('[data-id="sub-price"]');
-        this.subscriptionDescription = page.locator('[data-id="sub-description"]');
-        this.subscribeBtn = this.subscriptionCard.getByRole('button', { name: 'Join' });
-        this.channelSubscribeBtn = page.getByRole('button', { name: 'Subscribe', exact: true });
         this.registerLoginBtn = page.getByRole('button', { name: 'Login' });
-        this.payWithBtn = page.getByRole('button', { name: /Pay With/ });
 
         // Empty / unavailable states
         this.body = page.locator('body');
@@ -117,98 +89,8 @@ export class ChannelMainPage {
     // UNLISTED VIDEO
 
 
-    // PAID VIDEO ON MEMBERSHIP PAGE
-
-    async assertSubscriptionCardVisible(name: string, description: string): Promise<void> {
-        await expect(this.subscriptionCard, 'Subscription card is not visible').toBeVisible();
-        await expect(this.subscriptionCard, 'Subscription card does not contain membership name').toContainText(name);
-        await expect(this.subscriptionCard, 'Subscription card does not contain membership description').toContainText(description);
-    }
-
-    async clickButtonSubscribeNow(){
-        await expect(this.subscribeBtn, 'Subscribe button is not visible').toBeVisible();
-        await expect(this.subscribeBtn, 'Subscribe button is not enabled').toBeEnabled();
-        await this.subscribeBtn.click();
-    }
-
     async checkRegisterLoginBtn(){
         await expect(this.registerLoginBtn, 'Register login button is not visible').toBeVisible();
-    }
-    
-    async checkButtonSubscribeNow(){
-        await expect(this.subscribeBtn, 'Subscribe Now button is not visible').toBeVisible();
-        await expect(this.subscribeBtn, 'Subscribe Now button is not enabled').toBeEnabled();
-    }
-
-
-    // PAID VIDEO
-
-    async clickPayWith(){
-        await expect(this.payWithBtn, 'Pay With button is not visible').toBeVisible();
-        await expect(this.payWithBtn, 'Pay With button is not enabled').toBeEnabled();
-        // force: true — после клика "Join" оверлей модалки может перехватывать pointer events
-        await this.payWithBtn.click({ force: true });
-        await this.page.waitForURL(/pay\.hero\.io/, { timeout: 30_000 });
-    }
-
-    async assertSubscriptionStatus(expectedStatus: string): Promise<void> {
-        await expect(this.body, `Expected subscription status "${expectedStatus}" not found`).toContainText(expectedStatus);
-    }
-
-    async initiatePurchaseWithoutPayment(){
-        await this.clickButtonSubscribeNow();
-        await this.clickPayWith();
-    }
-
-    async purhcaseMembershipFromMembershipPageMockPayment(){
-        await this.clickButtonSubscribeNow();
-        await this.clickPayWith();
-        const heroPay = new HeroPayPage(this.page);
-        await heroPay.mockPayment();
-    }
-
-    async purhcaseMembershipFromMembershipPageTestNet(){
-        await this.clickButtonSubscribeNow();
-        await this.clickPayWith();
-        const heroPay = new HeroPayPage(this.page);
-        await heroPay.testnetPayment();
-
-        // Poll for Active status — blockchain confirmation may take time:
-        // check the page, reloading between attempts, until Active (up to 120s).
-        await expect(async () => {
-            const body = await this.body.innerText();
-            if (!(body.includes('Active') && !body.includes('Inactive'))) {
-                await this.page.reload({ waitUntil: 'domcontentloaded' });
-                throw new Error('Subscription is not Active yet');
-            }
-        }, 'Subscription did not become Active after testnet payment').toPass({ intervals: [5_000], timeout: 120_000 });
-    }
-
-    async checkPaidVideoAttributes(){
-        await this.checkExclusiveContentBadge();
-        await this.checkLockedBadge();
-    }
-
-    async checkExclusiveContentBadge(){
-        await expect(this.firstVideo, 'First video tile is not visible').toBeVisible();
-        await this.firstVideo.hover();
-        await expect(this.exclusiveBadge, 'Exclusive badge is not visible').toBeVisible();; 
-    }
-
-    async checkLockedBadge(){
-        await expect(this.lockedBadge, 'Locked badge is not visible').toBeVisible();
-    }
-
-    async waitForMembershipPage(): Promise<void> {
-        await this.page.waitForURL(/membership/, { timeout: 15000 });
-        await expect(this.subscriptionCard, 'Subscription card is not visible').toBeVisible({ timeout: 15000 });
-    }
-
-    async assertPaywallContent(name: string, description: string, price: string): Promise<void> {
-        await expect(this.subscriptionTitle, 'Subscription title is not visible').toBeVisible();
-        await expect(this.subscriptionTitle, `Subscription title does not contain "${name}"`).toContainText(name);
-        await expect(this.subscriptionDescription, `Subscription description does not contain "${description}"`).toContainText(description);
-        await expect(this.subscriptionPrice, `Subscription price does not contain "${price}"`).toContainText(price);
     }
 
     async assertLoginModalVisible(): Promise<void> {
@@ -216,10 +98,6 @@ export class ChannelMainPage {
             this.body,
             'Login modal message is not visible'
         ).toContainText('Please log in');
-    }
-
-    async assertHeroPayInvoicePage(): Promise<void> {
-        await expect(this.page, 'Not redirected to Hero Pay invoice page').toHaveURL(/test\.pay\.hero\.io\/invoice\/currency-list(\?.*)?$/);
     }
 
 }

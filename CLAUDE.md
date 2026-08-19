@@ -128,10 +128,10 @@ src/
   pages/        — Page Object Model classes
     auth/       — Login, Register, Forgot/Reset password pages
     account/    — Account, Profile, Security pages
-    studio/     — Creator studio pages (Content, Profile, Membership, Channel)
+    studio/     — Creator studio pages (Content, Profile, Channel)
     channel/    — Public channel view
     components/ — Shared components (Header, Sidebar, UserDropdown, UploadVideo)
-    heroPay/    — Payment integration page
+    heroPay/    — Payment page used by the NFT channel-conversion flow
   api/          — Direct API helpers (bypass UI for setup)
   utils/        — Utilities (Gmail IMAP mail, data generation, player helpers, wallet mock, seed helpers — see the folder for the full set)
 scripts/        — one-off tools: seedFixture.ts (seed the shared fixture), deleteUser.ts

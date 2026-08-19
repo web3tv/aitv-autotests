@@ -49,7 +49,7 @@ Examples:
 - "Channel analytics page tests" → `test/channel-analytics`
 - "Video upload validation" → `test/video-upload-validation`
 - "User profile settings" → `test/user-profile-settings`
-- "Paid subscription flow" → `test/paid-subscription`
+- "Series playback flow" → `test/series-playback`
 
 ### 4. Create and switch to the new branch
 

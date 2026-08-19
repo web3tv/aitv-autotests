@@ -15,7 +15,7 @@ export class SideBarPage {
 
   // STUDIO (reworked sidebar: Home + channel-selector block with Content / Analytics /
   // Channel under it + disabled "Soon" items Generate / Assets / Earnings + "Back to
-  // AI.TV"; Playlists / Settings / Membership items were removed — those pages are
+  // AI.TV"; Playlists / Settings items were removed — those pages are
   // reached by direct URL via their POM goto())
   readonly studioHome: Locator;
   readonly studioChannelSelector: Locator;
@@ -30,7 +30,6 @@ export class SideBarPage {
   // SETTINGS
   readonly settingsAccount: Locator;
   readonly settingsProfile: Locator;
-  readonly settingsPaidSubscriptions: Locator;
   readonly settingsSecurity: Locator;
 
   // SUPPORT
@@ -65,7 +64,6 @@ export class SideBarPage {
     // SETTINGS
     this.settingsAccount            = page.locator('[data-id="Account"]');
     this.settingsProfile            = page.locator('[data-id="Profile"]');
-    this.settingsPaidSubscriptions  = page.locator('[data-id="Paid Subscriptions"]');
     this.settingsSecurity           = page.locator('[data-id="Security"]');
 
     // SUPPORT
@@ -169,12 +167,6 @@ export class SideBarPage {
     await expect(this.settingsProfile, 'Settings profile is not visible').toBeVisible();
     await this.settingsProfile.click();
     await expect(this.page, 'Did not navigate to /profile').toHaveURL(/\/profile$/);
-  }
-
-  async clickSettingsPaidSubscriptions() {
-    await expect(this.settingsPaidSubscriptions, 'Settings paid subscriptions is not visible').toBeVisible();
-    await this.settingsPaidSubscriptions.click();
-    await expect(this.page, 'Did not navigate to /my-paid-subs').toHaveURL(/\/my-paid-subs$/);
   }
 
   async clickSettingsSecurity() {

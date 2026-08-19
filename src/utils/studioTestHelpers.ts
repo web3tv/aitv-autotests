@@ -1,7 +1,6 @@
 import { expect, Page, APIRequestContext, Response } from '@playwright/test';
 import { AuthApi } from '../api/AuthApi';
 import { VideoApi } from '../api/VideoApi';
-import { SubscriptionApi } from '../api/SubscriptionApi';
 
 /**
  * Runs a UI upload while watching the direct-to-S3 chunk flow for failures:
@@ -41,21 +40,17 @@ export interface VideoSetupResult {
     videoName: string;
     description: string;
     channelUrl: string;
-    subId?: string;
-    membershipName?: string;
-    membershipDescription?: string;
 }
 
 export async function setupVideoViaApi(
     request: APIRequestContext,
     options: {
-        privacySetting: 'public' | 'private' | 'unlisted' | 'paid';
+        privacySetting: 'public' | 'private' | 'unlisted';
         title?: string;
         description?: string;
         contentType?: 'video' | 'short';
         coverVerticalImgPath?: string;
         waitForProcessing?: boolean;
-        subscriptionOptions?: { title: string; description: string; price: string; duration?: number };
         // Seed a fixed category + genres so the watch-page category/tag chips render
         // deterministically (needed by the visual tests). Omitted → backend default
         // category, no tags (existing behaviour, unchanged for other callers).
@@ -87,23 +82,6 @@ export async function setupVideoViaApi(
         ? await videoApi.getCategoryIdBySlug(options.categorySlug)
         : undefined;
 
-    let subId: string | undefined;
-    let membershipName: string | undefined;
-    let membershipDescription: string | undefined;
-
-    if (options.privacySetting === 'paid') {
-        const subscriptionApi = new SubscriptionApi(request);
-        const subOpts = options.subscriptionOptions ?? {
-            title: `Subscription ${videoName}`,
-            description: `Description ${videoName}`,
-            price: '0.99',
-        };
-        membershipName = subOpts.title;
-        membershipDescription = subOpts.description;
-        const sub = await subscriptionApi.createPaidSubscription(token, channelId, subOpts);
-        subId = sub.id;
-    }
-
     const contentType = options.contentType ?? 'video';
     const filePath = contentType === 'short'
         ? 'test-data/fixtures/video/shortsVideo.mp4'
@@ -117,7 +95,6 @@ export async function setupVideoViaApi(
             description,
             privacySetting: options.privacySetting,
             contentType,
-            subId,
             categoryId,
             tags: options.genres,
             contentRating: options.contentRating,
@@ -136,9 +113,6 @@ export async function setupVideoViaApi(
         videoName,
         description,
         channelUrl: `${baseUrl}/@${user.username}`,
-        subId,
-        membershipName,
-        membershipDescription,
     };
 }
 

@@ -168,7 +168,7 @@ export class UploadVideoFlow {
         return this.timestamp;
     }
 
-    async selectVisibility(type: 'public' | 'private' | 'unlisted' | 'paid') {
+    async selectVisibility(type: 'public' | 'private' | 'unlisted') {
         if(type == 'public'){
             await this.uploadVideoPage.clickPublicBtn();
         }
@@ -177,15 +177,6 @@ export class UploadVideoFlow {
         }
         if(type == 'unlisted'){
             await this.uploadVideoPage.clickUnlistedBtn();
-        }
-        if(type == 'paid'){
-            try {
-                await this.uploadVideoPage.clickPaidBtn();
-                await this.uploadVideoPage.clickMembershipCheckbox();   
-            }catch(err){
-                console.log('PAID button is not displayed')
-            }
-            
         }
         
     }

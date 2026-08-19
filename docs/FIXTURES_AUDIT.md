@@ -42,11 +42,11 @@ test3: [загрузка видео 90с] + проверка 3с = 93с
 | Категория | Спеки | Вердикт |
 |---|---|---|
 | Изоляция by design | весь `auth/*`, `validation/*`, `user.fixme/profile,account` | LEAVE — свой юзер на тест обязателен |
-| Уже `beforeAll` (1 ресурс на describe) | `videoVisibility` (4×), `subscription/authPopup` (paid), `subscription/paidSubsStatus`, `visualSuite/*/videoChannelVisual`, `aitvVisual` | OK; опц. → fixture ради чистоты (не скорости) |
+| Уже `beforeAll` (1 ресурс на describe) | `videoVisibility` (4×), `visualSuite/*/videoChannelVisual`, `aitvVisual` | OK; опц. → fixture ради чистоты (не скорости) |
 | Статичные env | `embedPlayer`, `prodSmoke` | OK |
 | Pure API (дёшево) | `videoCategories` | OK |
 | Mutating / уникальные данные | `comingSoonEmail`, `channel`, `uploadVideoUI`, `studioSearch`, `analytics.fixme`, `nft.fixme` | LEAVE — у каждого теста свой ресурс/данные |
-| Реальные кандидаты на fixture | `subscription/paidSubsStatus` + `authPopup` (video+DB), `notifications.fixme` (user-pair) | см. «Что делать» |
+| Реальные кандидаты на fixture | `notifications.fixme` (user-pair) | см. «Что делать» |
 
 ## Важные нюансы (на чём легко ошибиться)
 
@@ -78,34 +78,7 @@ setup. Дорогой ресурс строй один раз; не переза
 Read-only веер над публичным видео. Файл `tests/fixtures.ts`. Образец использования —
 `tests/studio/publishedVideo.example.spec.ts`.
 
-### 2. `paidVideo` (worker) — для `subscription/*`
-Фикстура грузит видео `privacySetting: 'paid'` один раз; **мутацию статуса подписки тест
-делает сам** (`DatabaseHelper.setActiveSubscription` / `expireSubscription`), потому что
-каждый тест проверяет своё состояние. Это и есть паттерн «дорогой общий ресурс + мутация в тесте»:
-
-```ts
-// fixture (worker): дорогой общий ресурс
-paidVideo: [async ({}, use) => {
-  const ctx = await pwRequest.newContext();
-  const setup = await setupVideoViaApi(ctx, {
-    privacySetting: 'paid',
-    subscriptionOptions: { title: 'Plan', description: 'desc', price: '0.99' },
-  });
-  await use(setup);
-  await ctx.dispose();
-}, { scope: 'worker' }],
-
-// тест: мутация состояния — своя на каждый тест, поверх общего видео
-test('expired subscriber sees paywall', async ({ page, paidVideo }) => {
-  const db = new DatabaseHelper();
-  await db.connect();
-  await db.expireSubscription(paidVideo.user.email); // мутация изолирована в тесте
-  await db.disconnect();
-  // ...read-only проверки UI...
-});
-```
-
-### 3. `creatorWithSubscriber` (worker) — на будущее
+### 2. `creatorWithSubscriber` (worker) — на будущее
 Для `notifications.fixme` (2 юзера + видео + подписка), когда сьют разблокируют.
 
 ### Не трогать
@@ -117,10 +90,8 @@ test('expired subscriber sees paywall', async ({ page, paidVideo }) => {
 1. **Этап 0 — инфраструктура (готово).** `tests/fixtures.ts` с `test = base.extend(...)`,
    worker-scoped. Спеки импортируют `test`/`expect` отсюда.
 2. **Этап 1 — классифицировать** (эта таблица).
-3. **Этап 2 — добавить `paidVideo`** и перевести `subscription/paidSubsStatus` + `authPopup`
-   (paid) с `beforeAll` на фикстуру; мутации БД оставить в тестах. Прогнать.
-4. **Этап 3 — по потребности** добавлять фикстуры (`creatorWithSubscriber` и т.п.).
-5. **Этап 4 — теги и правило.** Дорогие e2e → `@slow`/`@db`, вне `@critical`. Зафиксировать
+3. **Этап 2 — по потребности** добавлять фикстуры (`creatorWithSubscriber` и т.п.).
+4. **Этап 3 — теги и правило.** Дорогие e2e → `@slow`/`@db`, вне `@critical`. Зафиксировать
    в CLAUDE.md правило: «дорогой ресурс — fixture для веера read-only; serial-journey для
    причинной цепочки; не дублировать дорогой setup; для шаринга обязателен `scope: 'worker'`».
 
