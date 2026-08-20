@@ -18,12 +18,13 @@ npx playwright install
 
 ### Окружение
 
-Есть три окружения, каждому соответствует свой `.env`-файл. Файлы **закоммичены в репозиторий намеренно** (секретных данных в них нет); при необходимости заполни локально только `EMAIL_ACCOUNT`/`EMAIL_PASSWORD` для писем/2FA:
+Есть четыре окружения, каждому соответствует свой `.env`-файл. Файлы **закоммичены в репозиторий намеренно** (секретных данных в них нет); при необходимости заполни локально только `EMAIL_ACCOUNT`/`EMAIL_PASSWORD` для писем/2FA:
 
 | Окружение | Файл | Хост |
 |-----------|------|------|
 | dev1 | `.env.web3tv` | web3tv.dev |
 | dev2 (по умолчанию) | `.env.web3tv2` | web3tv2.dev |
+| dev3 (только фронт, API/БД общие с dev2) | `.env.web3tv3` | web3tv3.dev |
 | prod | `.env.prod` | ai.tv |
 
 По умолчанию используется `.env.web3tv2`. Переключение из терминала — через `ENV_FILE`:
@@ -216,14 +217,14 @@ npx playwright show-report
 
 ## CI (GitHub Actions)
 
-Workflows лежат в [.github/workflows/](.github/workflows/). Dev-стенды за VPN — воркфлоу поднимает WireGuard (секрет `WG_CLIENT_CONFIG`), env берётся из закоммиченных `.env.web3tv2`/`.env.web3tv`, результаты шлются в Slack (`SLACK_WEBHOOK_URL`).
+Workflows лежат в [.github/workflows/](.github/workflows/). Dev-стенды за VPN — воркфлоу поднимает WireGuard (секрет `WG_CLIENT_CONFIG`), env берётся из закоммиченных `.env.web3tv2`/`.env.web3tv`/`.env.web3tv3`, результаты шлются в Slack (`SLACK_WEBHOOK_URL`).
 
 **Прод-конфигурация:** единственный источник — закоммиченный `.env.prod`; любые изменения прод-конфига делаются правкой этого файла (секрет `PROD_ENV_FILE` больше не используется и удалён).
 
 | Workflow | Триггер | Что гоняет |
 |----------|---------|------------|
 | `nightly-regression.yml` | Каждую ночь 02:00 UTC + вручную | `npm run test:nodb` (регрессия без `@db`) на dev2 |
-| `critical-manual.yml` | Вручную | `@critical`-смоук на dev1/dev2, с привязкой к Jira-задаче |
+| `critical-manual.yml` | Вручную | `@critical`-смоук на dev1/dev2/dev3, с привязкой к Jira-задаче |
 | `prod-smoke.yml` | Каждую ночь 00:00 UTC | Прод-смоук (`prodSmoke`), env из закоммиченного `.env.prod` |
 | `aitv-visual-manual.yml` | Вручную | Визуальная регрессия |
 
@@ -239,7 +240,7 @@ npm install
 npx playwright install        # браузеры Playwright
 ```
 
-Env-файлы (`.env.web3tv2` — dev2 по умолчанию, `.env.web3tv` — dev1) уже в репозитории. Для писем/2FA заполни `EMAIL_ACCOUNT`/`EMAIL_PASSWORD` (см. «Окружение»).
+Env-файлы (`.env.web3tv2` — dev2 по умолчанию, `.env.web3tv` — dev1, `.env.web3tv3` — dev3) уже в репозитории. Для писем/2FA заполни `EMAIL_ACCOUNT`/`EMAIL_PASSWORD` (см. «Окружение»).
 
 ### 2. Фикстура — одна, `@qavischan`
 

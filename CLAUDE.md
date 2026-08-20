@@ -69,12 +69,13 @@ npx playwright show-report
 
 ## Environment Setup
 
-Three environments, each with its own `.env` file (committed to the repo — they contain no secrets; fill in `EMAIL_ACCOUNT`/`EMAIL_PASSWORD` locally if you need mail/2FA flows). Default is `.env.web3tv2`.
+Four environments, each with its own `.env` file (committed to the repo — they contain no secrets; fill in `EMAIL_ACCOUNT`/`EMAIL_PASSWORD` locally if you need mail/2FA flows). Default is `.env.web3tv2`.
 
 | Env | File | Host |
 |-----|------|------|
 | dev1 | `.env.web3tv` | web3tv.dev |
 | dev2 (default) | `.env.web3tv2` | web3tv2.dev |
+| dev3 (frontend-only; API/DB shared with dev2) | `.env.web3tv3` | web3tv3.dev |
 | prod | `.env.prod` | ai.tv |
 
 Switch via `ENV_FILE` (`ENV_FILE=.env.prod npx playwright test ...`) or, in the VS Code Playwright extension, via `playwright.env` in `.vscode/settings.json`. See README for details.

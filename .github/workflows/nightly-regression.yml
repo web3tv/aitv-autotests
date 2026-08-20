@@ -13,6 +13,7 @@ on:
         options:
           - dev2
           - dev1
+          - dev3
 
 env:
   # На schedule inputs пустые — падаем на dev2 по умолчанию.
@@ -39,11 +40,11 @@ jobs:
 
       - name: Load environment config
         run: |
-          if [ "$ENVIRONMENT" = "dev1" ]; then
-            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv >> $GITHUB_ENV
-          else
-            grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv2 >> $GITHUB_ENV
-          fi
+          case "$ENVIRONMENT" in
+            dev1) grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv  >> $GITHUB_ENV ;;
+            dev3) grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv3 >> $GITHUB_ENV ;;
+            *)    grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.web3tv2 >> $GITHUB_ENV ;;
+          esac
 
       - name: Run summary
         run: |
