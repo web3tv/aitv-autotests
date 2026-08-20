@@ -16,6 +16,7 @@ on:
           - prod
           - dev2
           - dev1
+          - dev3
       profile:
         description: 'Профиль нагрузки (smoke = лёгкий дымовой, full = полный: 100 VU на prod, 50 VU на dev)'
         required: true
@@ -54,6 +55,7 @@ jobs:
           case "$ENVIRONMENT" in
             prod) ENV_FILE=.env.prod;    SCENARIO=load/scenarios/prodHomepage.js ;;
             dev1) ENV_FILE=.env.web3tv;  SCENARIO=load/scenarios/browse.js ;;
+            dev3) ENV_FILE=.env.web3tv3; SCENARIO=load/scenarios/browse.js ;;
             *)    ENV_FILE=.env.web3tv2; SCENARIO=load/scenarios/browse.js ;;
           esac
           grep -E '^(BASE_URL|API_URL)=' "$ENV_FILE" >> $GITHUB_ENV

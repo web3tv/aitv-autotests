@@ -28,7 +28,7 @@ bash scripts/runLoad.sh load/scenarios/browse.js --summary-export out.json  # д
 ## CI: `weekly-load.yml`
 
 Расписание (вс 06:00 UTC) гоняет прод/`smoke`. Вручную (`workflow_dispatch`) можно выбрать
-стенд — `prod` / `dev2` / `dev1` — и профиль `smoke`/`full`. Прод запускает `prodHomepage.js`,
+стенд — `prod` / `dev2` / `dev1` / `dev3` — и профиль `smoke`/`full`. Прод запускает `prodHomepage.js`,
 dev-стенды — `browse.js` (конфиг берётся из `.env`-файла стенда). Для dev-ранов воркфлоу
 сам поднимает WireGuard и встаёт в общую VPN-очередь (`concurrency: wireguard-vpn`).
 
