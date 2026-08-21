@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
-import { AuthApi } from '../../src/api/AuthApi';
+import { AuthApi, STATIC_OTP_CODE } from '../../src/api/AuthApi';
 import { SecurityPage } from '../../src/pages/account/SecurityPage';
 import { createMailHelper, createMailFlows } from '../../src/utils/mailHelper';
 import { DataGenerator } from '../../src/utils/dataGenerator';
+import { injectEthereumMock, type WalletInfo } from '../../src/utils/walletMock';
 
 test.describe('Change password', () => {
 
@@ -312,14 +313,9 @@ test.describe('Change email', () => {
     });
   });
 
-  // BLOCKED by W3-2910 [FE]: the "Add Email" modal has no current-password field, while the
-  // backend (PUT /user/me/email) requires `currentPassword` for any account that has a password
-  // (validation group `password_change`) — so for a phone+password user the request always fails
-  // with 412 "The provided password is incorrect" and an email can never be attached. Verified
-  // via direct API call: the same PUT with the correct currentPassword in the body returns 204,
-  // so once the FE asks for the password this flow works end-to-end.
-  // https://stretch-com.atlassian.net/browse/W3-2910
-  test.fixme('Add email to phone-registered account', { annotation: { type: 'TC', description: 'ACCOUNT-012' } }, async ({ page, request }) => {
+  // W3-2910 fixed in W3-2808: the "Add Email" modal now asks for the current password whenever the
+  // account has one (`requiresPassword = hasPassword`), so a phone+password user can attach an email.
+  test('Add email to phone-registered account', { annotation: { type: 'TC', description: 'ACCOUNT-012' } }, async ({ page, request }) => {
     const authFlow = new AuthFlow(page);
     const securityPage = new SecurityPage(page);
     const mailHelper = createMailHelper(request);
@@ -426,6 +422,440 @@ test.describe('Change email', () => {
     await test.step('Login with OLD email after verification -> Error', async () => {
       const authFlow = new AuthFlow(page);
       await authFlow.loginFailed(user.email, user.password);
+    });
+  });
+
+});
+
+test.describe('Manage phone', () => {
+
+  test('Add phone number to an email account', { annotation: { type: 'TC', description: 'ACCOUNT-013' } }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const phone = DataGenerator.generatePhoneNumber();
+
+    let user: { email: string, username: string };
+
+    await test.step('Create user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Login and open account settings', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+    });
+
+    await test.step('A fresh account shows the Add Phone row and no number', async () => {
+      await expect(securityPage.addPhoneRow, 'Add Phone row should be visible for an account without a number').toBeVisible();
+      await expect(securityPage.phoneValue, 'No phone number should be displayed yet').toBeHidden();
+    });
+
+    await test.step('Add the number and confirm it with the code', async () => {
+      await securityPage.clickAddPhoneRow();
+      await securityPage.submitPhone(phone, password);
+      await securityPage.clickPhoneFinishBtn();
+    });
+
+    await test.step('The saved number is displayed and the Add Phone row is gone', async () => {
+      await securityPage.assertDisplayedPhone(phone);
+      await expect(securityPage.addPhoneRow, 'Add Phone row must disappear once a number is attached').toBeHidden();
+      await expect(securityPage.changePhoneBtn, 'Change button should be available').toBeVisible();
+    });
+
+    await test.step('The number survives a reload', async () => {
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await securityPage.assertDisplayedPhone(phone);
+    });
+  });
+
+  test('Change an existing phone number', { annotation: { type: 'TC', description: 'ACCOUNT-014' } }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const oldPhone = DataGenerator.generatePhoneNumber();
+    const newPhone = DataGenerator.generatePhoneNumber();
+
+    let user: { phone: string, username: string };
+
+    await test.step('Create user registered via phone', async () => {
+      user = await authApi.createUserFastViaPhone(oldPhone);
+    });
+
+    await test.step('Login via phone and open account settings', async () => {
+      await authFlow.loginSuccess({ phone: oldPhone }, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.assertDisplayedPhone(oldPhone);
+    });
+
+    await test.step('Change the number to a new one', async () => {
+      await securityPage.clickChangePhoneBtn();
+      await securityPage.submitPhone(newPhone, password);
+      await securityPage.clickPhoneFinishBtn();
+    });
+
+    await test.step('The row shows the new number after a reload', async () => {
+      await securityPage.assertDisplayedPhone(newPhone);
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await securityPage.assertDisplayedPhone(newPhone);
+    });
+  });
+
+  test('Added phone number works as a sign-in method', { annotation: { type: 'TC', description: 'ACCOUNT-015' } }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const phone = DataGenerator.generatePhoneNumber();
+
+    let user: { email: string, username: string };
+
+    await test.step('Create user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Login by email and attach a phone number', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.clickAddPhoneRow();
+      await securityPage.submitPhone(phone, password);
+      await securityPage.clickPhoneFinishBtn();
+      await securityPage.assertDisplayedPhone(phone);
+    });
+
+    await test.step('Logout and login with the phone number', async () => {
+      await authFlow.logout();
+      await authFlow.loginSuccess({ phone }, password, user.username);
+    });
+  });
+
+  test('Phone number already used by another account is rejected', { annotation: { type: 'TC', description: 'ACCOUNT-016' } }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const takenPhone = DataGenerator.generatePhoneNumber();
+
+    await test.step('Create the account that owns the number', async () => {
+      await authApi.createUserFastViaPhone(takenPhone);
+    });
+
+    let user: { email: string, username: string };
+
+    await test.step('Create the second user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Login as a second user and try to attach the same number', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.clickAddPhoneRow();
+      await securityPage.fillPhoneNumber(takenPhone);
+      await securityPage.fillPhonePassword(password);
+      const response = await securityPage.submitPhoneFormAndGetResponse();
+      expect(response.status(), 'A taken phone number must be rejected with 409').toBe(409);
+      expect((await response.json()).body, 'The rejection reason must be phone_already_in_use')
+        .toMatchObject({ reason: 'phone_already_in_use' });
+    });
+
+    await test.step('The modal stays on the form step and explains the conflict', async () => {
+      await expect(securityPage.phoneFormStep, 'The flow must stay on the form step').toBeVisible();
+      await securityPage.assertPhoneModalError('This phone number is already in use by another account.');
+      await expect(securityPage.phoneOtpInputs.first(), 'No code step should be reached').toBeHidden();
+    });
+  });
+
+  test('Wrong current password is reported on the password field', { annotation: { type: 'TC', description: 'ACCOUNT-017' } }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const phone = DataGenerator.generatePhoneNumber();
+
+    let user: { email: string, username: string };
+
+    await test.step('Create user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Login and open the add-phone modal', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.clickAddPhoneRow();
+    });
+
+    await test.step('Submit a valid number with a wrong current password', async () => {
+      await securityPage.fillPhoneNumber(phone);
+      await securityPage.fillPhonePassword('WrongPassword1@');
+      const response = await securityPage.submitPhoneFormAndGetResponse();
+      expect(response.status(), 'A wrong current password must be rejected with 422').toBe(422);
+      expect((await response.json()).body, 'The rejection reason must be validation_failed')
+        .toMatchObject({ reason: 'validation_failed' });
+    });
+
+    await test.step('The password field carries the error, the phone field does not', async () => {
+      await expect(securityPage.phoneFormStep, 'The flow must stay on the form step').toBeVisible();
+      await securityPage.assertPhoneModalError('The provided password is incorrect.');
+      // a wrong password must not be reported as an invalid phone number
+      await securityPage.assertPhoneModalErrorAbsent('Please enter a valid phone number.');
+    });
+  });
+
+  test('Incomplete phone number keeps the submit button disabled', { annotation: { type: 'TC', description: 'ACCOUNT-018' }, tag: '@validation' }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+
+    let user: { email: string, username: string };
+
+    await test.step('Create user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Login and open the add-phone modal', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.clickAddPhoneRow();
+    });
+
+    await test.step('Continue is disabled while the form is empty', async () => {
+      await expect(securityPage.phoneContinueBtn, 'Continue must be disabled with an empty form').toBeDisabled();
+    });
+
+    await test.step('Continue stays disabled for an incomplete number', async () => {
+      await securityPage.fillPhoneNumber('+1201');
+      await securityPage.fillPhonePassword(password);
+      await expect(securityPage.phoneContinueBtn, 'Continue must be disabled for an incomplete number').toBeDisabled();
+    });
+
+    await test.step('Continue becomes enabled once the number is complete', async () => {
+      await securityPage.fillPhoneNumber(DataGenerator.generatePhoneNumber());
+      await expect(securityPage.phoneContinueBtn, 'Continue must be enabled for a complete number').toBeEnabled();
+    });
+  });
+
+  test('Wrong verification code decrements the attempts counter', { annotation: { type: 'TC', description: 'ACCOUNT-019' } }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const phone = DataGenerator.generatePhoneNumber();
+
+    let user: { email: string, username: string };
+
+    await test.step('Create user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Login and request a code for a new number', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.clickAddPhoneRow();
+      await securityPage.fillPhoneNumber(phone);
+      await securityPage.fillPhonePassword(password);
+      const response = await securityPage.submitPhoneFormAndGetResponse();
+      expect(response.status(), 'Requesting a code should succeed').toBe(200);
+    });
+
+    await test.step('A wrong code is rejected and reports the remaining attempts', async () => {
+      // a challenge starts with 5 attempts, so the first wrong code leaves 4
+      const response = await securityPage.fillPhoneCodeAndGetResponse('9999');
+      expect(response.status(), 'A wrong code must be rejected with 400').toBe(400);
+      expect((await response.json()).body, 'The error must report the remaining attempts')
+        .toMatchObject({ error: 'invalid_code', attemptsRemaining: 4 });
+      await securityPage.assertPhoneModalError('Incorrect code. 4 attempts remaining.');
+    });
+
+    await test.step('The correct code still completes the flow', async () => {
+      const response = await securityPage.fillPhoneCodeAndGetResponse(STATIC_OTP_CODE);
+      expect(response.status(), 'The correct code must be accepted').toBe(204);
+      await expect(securityPage.phoneSuccessStep, 'Phone success step is not visible').toBeVisible();
+      await securityPage.clickPhoneFinishBtn();
+      await securityPage.assertDisplayedPhone(phone);
+    });
+  });
+
+  test('Code input is cleared on error and blocked once attempts are exhausted', { annotation: { type: 'TC', description: 'ACCOUNT-020' } }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const phone = DataGenerator.generatePhoneNumber();
+
+    let user: { email: string, username: string };
+
+    await test.step('Create user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Login and request a code for a new number', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.clickAddPhoneRow();
+      await securityPage.fillPhoneNumber(phone);
+      await securityPage.fillPhonePassword(password);
+      const response = await securityPage.submitPhoneFormAndGetResponse();
+      expect(response.status(), 'Requesting a code should succeed').toBe(200);
+    });
+
+    await test.step('The boxes are cleared after a wrong code', async () => {
+      await securityPage.fillPhoneCodeAndGetResponse('9999');
+      await expect(securityPage.phoneOtpInputs.first(), 'Code boxes must be cleared after a wrong code').toHaveValue('');
+    });
+
+    await test.step('Exhausting the attempts blocks further input', async () => {
+      // the challenge allows 5 attempts in total; 4 wrong ones are left
+      for (const code of ['8888', '7777', '6666', '5555']) {
+        await securityPage.fillPhoneCodeAndGetResponse(code);
+      }
+      await securityPage.assertPhoneModalError(/Too many incorrect attempts/);
+      await expect(securityPage.phoneOtpInputs.first(), 'Code boxes must be blocked once attempts are exhausted').toBeDisabled();
+    });
+  });
+
+  test('Edit returns to the form step and closing resets the modal', { annotation: { type: 'TC', description: 'ACCOUNT-021' } }, async ({ page, request }) => {
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const phone = DataGenerator.generatePhoneNumber();
+
+    let user: { email: string, username: string };
+
+    await test.step('Create user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Login and reach the code step', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.clickAddPhoneRow();
+      await securityPage.fillPhoneNumber(phone);
+      await securityPage.fillPhonePassword(password);
+      const response = await securityPage.submitPhoneFormAndGetResponse();
+      expect(response.status(), 'Requesting a code should succeed').toBe(200);
+      await expect(securityPage.phoneOtpInputs.first(), 'Code step is not visible').toBeVisible();
+    });
+
+    await test.step('Edit brings the entered number back to the form step', async () => {
+      await securityPage.clickPhoneOtpEditBtn();
+      await expect(securityPage.phoneInput, 'The entered number should be kept when going back')
+        .toHaveValue(new RegExp(phone.slice(2, 5)));
+    });
+
+    await test.step('Closing and reopening the modal resets the form', async () => {
+      await securityPage.closePhoneModal();
+      await securityPage.clickAddPhoneRow();
+      await expect(securityPage.phoneInput, 'The number field must be empty after reopening').toHaveValue('');
+      await expect(securityPage.phonePasswordInput, 'The password field must be empty after reopening').toHaveValue('');
+      await expect(securityPage.phoneContinueBtn, 'Continue must be disabled after reopening').toBeDisabled();
+    });
+  });
+
+});
+
+// One account accumulating several sign-in methods: attaching one must not break the others,
+// and every attached method must sign the user into the SAME account.
+// Social providers are out of scope here — Google/Apple cannot be linked without a real OAuth
+// round-trip (the backend verifies the token against Google userinfo / Apple JWKS) and Telegram
+// linking would need the stand's bot token, so only their "not linked" state is asserted.
+test.describe('All sign-in methods', () => {
+
+  test('Email, phone and wallet all sign the same account in', { annotation: { type: 'TC', description: 'ACCOUNT-022' } }, async ({ page, request }) => {
+    // three full UI logins plus two attach flows — ~45 s on dev2, twice the global 90 s budget
+    test.setTimeout(150_000);
+
+    const authApi = new AuthApi(request);
+    const authFlow = new AuthFlow(page);
+    const securityPage = new SecurityPage(page);
+    const password = process.env.USER_PASSWORD!;
+    const phone = DataGenerator.generatePhoneNumber();
+    let user: { email: string, username: string };
+    let wallet: WalletInfo;
+
+    await test.step('Create user', async () => {
+      user = await authApi.createUserFast();
+    });
+
+    await test.step('Inject the wallet mock before the first navigation', async () => {
+      // addInitScript + exposeFunction: must run before any goto and only once per page,
+      // so every later wallet call passes { wallet, skipInjection: true }
+      wallet = await injectEthereumMock(page);
+    });
+
+    await test.step('Login by email — only the email is attached', async () => {
+      await authFlow.loginSuccess(user.email, password, user.username);
+      await authFlow.openAccountSettings();
+      await securityPage.assertDisplayedEmail(user.email);
+      await expect(securityPage.addPhoneRow, 'A fresh account should offer to add a phone').toBeVisible();
+      await expect(securityPage.noWalletRow, 'A fresh account should offer to add a wallet').toBeVisible();
+    });
+
+    await test.step('Attach a phone number', async () => {
+      await securityPage.clickAddPhoneRow();
+      await securityPage.submitPhone(phone, password);
+      await securityPage.clickPhoneFinishBtn();
+      await securityPage.assertDisplayedPhone(phone);
+      await expect(securityPage.addPhoneRow, 'Add Phone row must disappear once a number is attached').toBeHidden();
+    });
+
+    await test.step('Attach a wallet', async () => {
+      await authFlow.addWalletFromAccountSuccess({ wallet, skipInjection: true });
+      await expect(securityPage.noWalletRow, 'Add wallet row must disappear once a wallet is attached').toBeHidden();
+    });
+
+    await test.step('All three methods are shown on one account', async () => {
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await securityPage.assertDisplayedEmail(user.email);
+      await securityPage.assertDisplayedPhone(phone);
+      await securityPage.assertDisplayedWalletAddress(wallet.address);
+    });
+
+    await test.step('Social providers are offered but not linked', async () => {
+      await securityPage.assertNoSocialConnected();
+    });
+
+    await test.step('The backend reports all three identities', async () => {
+      const token = await authApi.getUserToken(user.email, password);
+      const me = await request.get(`${process.env.API_URL}/user/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      expect(me.status(), 'GET /user/me should return 200').toBe(200);
+      const body = await me.json();
+      expect(body.email, 'The email must be reported by the backend').toBe(user.email);
+      expect(body.phone, 'The phone must be reported by the backend').toBe(phone);
+      expect(body.eip55Address, 'The wallet must be reported by the backend').toBeTruthy();
+      expect(String(body.eip55Address).toLowerCase(), 'The reported wallet must be the attached one')
+        .toBe(wallet.address.toLowerCase());
+    });
+
+    await test.step('Logout and sign in by email', async () => {
+      await authFlow.logout();
+      await authFlow.loginSuccess(user.email, password, user.username);
+    });
+
+    await test.step('Logout and sign in by phone', async () => {
+      await authFlow.logout();
+      await authFlow.loginSuccess({ phone }, password, user.username);
+    });
+
+    await test.step('Logout and sign in by wallet', async () => {
+      await authFlow.logout();
+      // skipModalCheck stops walletLoginSuccess from WAITING for the wallet-only "alternative
+      // login method" prompt; that it never appears is asserted explicitly below
+      await authFlow.walletLoginSuccess({ wallet, skipInjection: true, skipModalCheck: true });
+      await authFlow.assertAddEmailPromptAbsent();
+    });
+
+    await test.step('The wallet session is the same account, with every method still attached', async () => {
+      await authFlow.openAccountSettings();
+      await authFlow.assertAddEmailPromptAbsent();
+      await securityPage.assertDisplayedEmail(user.email);
+      await securityPage.assertDisplayedPhone(phone);
+      await securityPage.assertDisplayedWalletAddress(wallet.address);
     });
   });
 

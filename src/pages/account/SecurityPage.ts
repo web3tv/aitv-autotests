@@ -1,8 +1,15 @@
 import { Page, Locator } from '@playwright/test';
 import { expect } from '@playwright/test';
+import { STATIC_OTP_CODE } from '../../api/AuthApi';
+import { formatPhoneInternational } from '../../utils/phoneFormat';
+
+/** Social providers that can be linked to an account from the Connected accounts block. */
+export type SocialProvider = 'google' | 'apple' | 'telegram';
+export const SOCIAL_PROVIDERS: SocialProvider[] = ['google', 'apple', 'telegram'];
 
 /**
- * Security tab of the redesigned /account page: email / password / wallet, plus 2FA.
+ * Security tab of the redesigned /account page: email / password / phone / wallet,
+ * connected accounts, plus 2FA.
  */
 export class SecurityPage {
 
@@ -16,6 +23,9 @@ export class SecurityPage {
     readonly addEmailRow: Locator;      // wallet-only account: "Add Email"
     readonly noWalletRow: Locator;      // email account: "No wallet added"
     readonly walletValue: Locator;      // wallet account: connected address
+    readonly addPhoneRow: Locator;      // account without a phone: "Add Phone"
+    readonly phoneValue: Locator;       // account with a phone: the saved number
+    readonly changePhoneBtn: Locator;
 
     // Change-email modal (aitv-email-modal)
     readonly emailModal: Locator;
@@ -39,6 +49,19 @@ export class SecurityPage {
     readonly passwordConfirmBtn: Locator;
     readonly passwordSentStep: Locator;
     readonly passwordCloseBtn: Locator;
+
+    // Add/change-phone modal (aitv-phone-flow) — form step, OTP step, success step
+    readonly phoneModal: Locator;
+    readonly phoneCountrySelect: Locator;
+    readonly phoneInput: Locator;
+    readonly phonePasswordInput: Locator;
+    readonly phoneContinueBtn: Locator;
+    readonly phoneCloseBtn: Locator;
+    readonly phoneFormStep: Locator;
+    readonly phoneOtpInputs: Locator;
+    readonly phoneOtpEditBtn: Locator;
+    readonly phoneSuccessStep: Locator;
+    readonly phoneFinishBtn: Locator;
 
     // Wallet
 
@@ -65,6 +88,11 @@ export class SecurityPage {
         this.noWalletRow = page.getByTestId('aitv-security-no-wallet-row');
         this.walletValue = page.getByTestId('aitv-security-wallet-value');
 
+        // Phone row: the "Add Phone" row when no number is set, label + value + Change once it is
+        this.addPhoneRow = page.getByTestId('aitv-security-add-phone-row');
+        this.phoneValue = page.getByTestId('aitv-security-phone-value');
+        this.changePhoneBtn = page.getByTestId('aitv-security-phone-change-btn');
+
         // Change-email modal
         this.emailModal = page.getByTestId('aitv-email-modal');
         this.emailCurrentValue = page.getByTestId('aitv-email-current-value');
@@ -85,7 +113,20 @@ export class SecurityPage {
         this.passwordSentStep = page.getByTestId('aitv-password-sent-step');
         this.passwordCloseBtn = page.getByTestId('aitv-password-close-btn');
 
-        // Negative
+        // Add/change-phone modal
+        this.phoneModal = page.getByTestId('aitv-phone-flow');
+        this.phoneCountrySelect = page.getByTestId('aitv-auth-phone-country');
+        this.phoneInput = page.getByTestId('aitv-phone-input');
+        this.phonePasswordInput = page.getByTestId('aitv-phone-password-input');
+        this.phoneContinueBtn = page.getByTestId('aitv-phone-continue-btn');
+        this.phoneCloseBtn = page.getByTestId('aitv-phone-close-btn');
+        this.phoneFormStep = page.getByTestId('aitv-phone-form-step');
+        // the OTP step reuses the shared auth code input (4 boxes) — scoped to this modal
+        this.phoneOtpInputs = this.phoneModal.locator('[data-testid^="aitv-auth-otp-input-"]');
+        this.phoneOtpEditBtn = page.getByTestId('aitv-auth-otp-edit');
+        this.phoneSuccessStep = page.getByTestId('aitv-phone-success-step');
+        this.phoneFinishBtn = page.getByTestId('aitv-phone-finish-btn');
+
         this.emailAlreadyExistsError = page.getByText(/account already exists for this email/i);
 
         // 2FA (pre-redesign locators — not yet re-verified against the new UI)
@@ -105,6 +146,153 @@ export class SecurityPage {
     async assertDisplayedWalletAddress(address: string): Promise<void> {
         await expect(this.walletValue, 'Wallet address is not visible').toBeVisible();
         await expect(this.walletValue, 'Wallet address is not displayed correctly').toHaveText(address);
+    }
+
+    // PHONE METHODS (aitv-phone-flow: form step -> OTP step -> success step)
+
+    /** Opens the modal from the "Add Phone" row (account without a number). */
+    async clickAddPhoneRow(): Promise<void> {
+        await expect(this.addPhoneRow, 'Add phone row is not visible').toBeVisible();
+        await expect(this.addPhoneRow, 'Add phone row is not enabled').toBeEnabled();
+        await this.addPhoneRow.click();
+        await expect(this.phoneFormStep, 'Phone form step is not visible').toBeVisible();
+    }
+
+    /** Opens the modal from the Change button (account that already has a number). */
+    async clickChangePhoneBtn(): Promise<void> {
+        await expect(this.changePhoneBtn, 'Change phone button is not visible').toBeVisible();
+        await expect(this.changePhoneBtn, 'Change phone button is not enabled').toBeEnabled();
+        await this.changePhoneBtn.click();
+        await expect(this.phoneFormStep, 'Phone form step is not visible').toBeVisible();
+    }
+
+    /**
+     * Fills the number. The field holds the national part only — the country code comes from
+     * the selector, which defaults to US — so a `+1…` E.164 number is stripped of its prefix.
+     */
+    async fillPhoneNumber(phone: string): Promise<void> {
+        await expect(this.phoneInput, 'Phone input is not visible').toBeVisible();
+        await expect(this.phoneInput, 'Phone input is not editable').toBeEditable();
+        await this.phoneInput.fill(phone.startsWith('+1') ? phone.slice(2) : phone);
+    }
+
+    async fillPhonePassword(password: string): Promise<void> {
+        await expect(this.phonePasswordInput, 'Phone current-password input is not visible').toBeVisible();
+        await expect(this.phonePasswordInput, 'Phone current-password input is not editable').toBeEditable();
+        await this.phonePasswordInput.fill(password);
+    }
+
+    /** Submits the form step and returns the POST /api/account/phone response. */
+    async submitPhoneFormAndGetResponse(): Promise<import('@playwright/test').Response> {
+        await expect(this.phoneContinueBtn, 'Phone continue button is not visible').toBeVisible();
+        await expect(this.phoneContinueBtn, 'Phone continue button is not enabled').toBeEnabled();
+        const responsePromise = this.page.waitForResponse(
+            res => res.url().includes('/api/account/phone')
+                && !res.url().includes('/verify')
+                && res.request().method() === 'POST',
+            { timeout: 30_000 }
+        );
+        await this.phoneContinueBtn.click();
+        return await responsePromise;
+    }
+
+    /**
+     * Types the 4-digit code and returns the POST /api/account/phone/verify response.
+     * The boxes keep the previous code after a failed attempt (W3-2808 comment #3), and an
+     * unchanged value fires no request — so they are cleared before every attempt.
+     */
+    async fillPhoneCodeAndGetResponse(code: string): Promise<import('@playwright/test').Response> {
+        await expect(this.phoneOtpInputs.first(), 'Phone OTP input is not visible').toBeVisible();
+        for (let i = code.length - 1; i >= 0; i--) {
+            await this.phoneOtpInputs.nth(i).fill('');
+        }
+        const responsePromise = this.page.waitForResponse(
+            res => res.url().includes('/api/account/phone/verify') && res.request().method() === 'POST',
+            { timeout: 30_000 }
+        );
+        for (let i = 0; i < code.length; i++) {
+            await this.phoneOtpInputs.nth(i).fill(code[i]);
+        }
+        return await responsePromise;
+    }
+
+    /** Full add/change journey: form step -> OTP step -> success step (modal left open). */
+    async submitPhone(phone: string, currentPassword: string, code = STATIC_OTP_CODE): Promise<void> {
+        await this.fillPhoneNumber(phone);
+        await this.fillPhonePassword(currentPassword);
+        const startResponse = await this.submitPhoneFormAndGetResponse();
+        expect(startResponse.status(), 'Phone start request should succeed').toBe(200);
+        const verifyResponse = await this.fillPhoneCodeAndGetResponse(code);
+        expect(verifyResponse.status(), 'Phone verify request should succeed').toBe(204);
+        await expect(this.phoneSuccessStep, 'Phone success step is not visible').toBeVisible();
+    }
+
+    async clickPhoneFinishBtn(): Promise<void> {
+        await expect(this.phoneFinishBtn, 'Phone finish button is not visible').toBeVisible();
+        await expect(this.phoneFinishBtn, 'Phone finish button is not enabled').toBeEnabled();
+        await this.phoneFinishBtn.click();
+        await expect(this.phoneModal, 'Phone modal did not close').toBeHidden();
+    }
+
+    async closePhoneModal(): Promise<void> {
+        await expect(this.phoneCloseBtn, 'Phone close button is not visible').toBeVisible();
+        await expect(this.phoneCloseBtn, 'Phone close button is not enabled').toBeEnabled();
+        await this.phoneCloseBtn.click();
+        await expect(this.phoneModal, 'Phone modal did not close').toBeHidden();
+    }
+
+    async clickPhoneOtpEditBtn(): Promise<void> {
+        await expect(this.phoneOtpEditBtn, 'OTP edit button is not visible').toBeVisible();
+        await expect(this.phoneOtpEditBtn, 'OTP edit button is not enabled').toBeEnabled();
+        await this.phoneOtpEditBtn.click();
+        await expect(this.phoneFormStep, 'Phone form step is not visible after Edit').toBeVisible();
+    }
+
+    /** The row renders the number in international format, e.g. +1 201 555 0123. */
+    async assertDisplayedPhone(phone: string): Promise<void> {
+        await expect(this.phoneValue, 'Phone number is not visible').toBeVisible();
+        await expect(this.phoneValue, 'Phone number is not displayed correctly').toHaveText(formatPhoneInternational(phone));
+    }
+
+    async assertPhoneModalError(message: string | RegExp): Promise<void> {
+        await expect(this.phoneModal.getByText(message), `Phone modal should show the error "${message}"`).toBeVisible();
+    }
+
+    async assertPhoneModalErrorAbsent(message: string | RegExp): Promise<void> {
+        await expect(this.phoneModal.getByText(message), `Phone modal should not show the error "${message}"`).toBeHidden();
+    }
+
+    // CONNECTED ACCOUNTS (Google / Apple / Telegram) — locators are parameterized by provider
+
+    connectedAccountRow(provider: SocialProvider): Locator {
+        return this.page.getByTestId(`aitv-security-connected-row-${provider}`);
+    }
+
+    connectAccountBtn(provider: SocialProvider): Locator {
+        return this.page.getByTestId(`aitv-security-connect-btn-${provider}`);
+    }
+
+    connectedAccountChip(provider: SocialProvider): Locator {
+        return this.page.getByTestId(`aitv-security-connected-chip-${provider}`);
+    }
+
+    disconnectAccountBtn(provider: SocialProvider): Locator {
+        return this.page.getByTestId(`aitv-security-disconnect-btn-${provider}`);
+    }
+
+    /** The provider is offered but not linked: a Connect button, no chip and no Disconnect. */
+    async assertSocialNotConnected(provider: SocialProvider): Promise<void> {
+        await expect(this.connectedAccountRow(provider), `${provider} row is not visible`).toBeVisible();
+        await expect(this.connectAccountBtn(provider), `${provider} Connect button is not visible`).toBeVisible();
+        await expect(this.connectAccountBtn(provider), `${provider} Connect button is not enabled`).toBeEnabled();
+        await expect(this.connectedAccountChip(provider), `${provider} must not be shown as connected`).toBeHidden();
+        await expect(this.disconnectAccountBtn(provider), `${provider} must not offer Disconnect`).toBeHidden();
+    }
+
+    async assertNoSocialConnected(providers: SocialProvider[] = SOCIAL_PROVIDERS): Promise<void> {
+        for (const provider of providers) {
+            await this.assertSocialNotConnected(provider);
+        }
     }
 
     // ADD WALLET (email-only user) — opens the wallet selector (wallet-selector-<rdns>)
