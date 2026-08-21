@@ -567,11 +567,7 @@ test.describe('Manage phone', () => {
     });
   });
 
-  // BLOCKED: the backend answers 422 with errors[{ path: 'currentPassword', … }], while the FE
-  // normalizer reads `field`/`propertyPath`/`property` — so a wrong password is rendered as
-  // "Please enter a valid phone number." under the PHONE field instead of the password one.
-  // Reported in the W3-2808 comment (item 2).
-  test.fixme('Wrong current password is reported on the password field', { annotation: { type: 'TC', description: 'ACCOUNT-017' } }, async ({ page, request }) => {
+  test('Wrong current password is reported on the password field', { annotation: { type: 'TC', description: 'ACCOUNT-017' } }, async ({ page, request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     const securityPage = new SecurityPage(page);
@@ -682,10 +678,7 @@ test.describe('Manage phone', () => {
     });
   });
 
-  // BLOCKED: after a wrong code the boxes keep the entered digits (so retyping the same code
-  // fires no request at all), and once the attempts are exhausted they stay enabled instead of
-  // being blocked. Reported in the W3-2808 comment (items 3 and 4).
-  test.fixme('Code input is cleared on error and blocked once attempts are exhausted', { annotation: { type: 'TC', description: 'ACCOUNT-020' } }, async ({ page, request }) => {
+  test('Code input is cleared on error and blocked once attempts are exhausted', { annotation: { type: 'TC', description: 'ACCOUNT-020' } }, async ({ page, request }) => {
     const authApi = new AuthApi(request);
     const authFlow = new AuthFlow(page);
     const securityPage = new SecurityPage(page);

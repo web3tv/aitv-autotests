@@ -79,10 +79,10 @@ ACCOUNT SETTINGS (/account — вкладка Security)
 ├── Change an existing phone number                 [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-014
 ├── Added phone works as a sign-in method           [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-015
 ├── Phone taken by another account -> 409           [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-016
-├── Wrong password -> error on the password field   [BLOCKED] test.fixme W3-2808 (коммент, п.2) tests/accountSettings/security.spec.ts  ACCOUNT-017
+├── Wrong password -> error on the password field   [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-017
 ├── Incomplete phone keeps submit disabled          [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-018
 ├── Wrong code decrements the attempts counter      [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-019
-├── Code cleared on error / blocked when exhausted  [BLOCKED] test.fixme W3-2808 (коммент, пп.3-4) tests/accountSettings/security.spec.ts  ACCOUNT-020
+├── Code cleared on error / blocked when exhausted  [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-020
 ├── OTP: Edit возвращает на форму, закрытие сбрасывает  [AUTO] tests/accountSettings/security.spec.ts  ACCOUNT-021
 │
 │   Методы входа на одном аккаунте
