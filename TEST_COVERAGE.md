@@ -120,7 +120,7 @@ AITV HEADER NOTIFICATIONS POPUP (W3-2748)
 ├── Unread badge count + popup lists rows                         [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-004
 ├── Comment reply → Activity section                              [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-005
 ├── Open popup → rendered row auto-marked seen, badge clears (W3-2785; hover no longer marks seen) [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-006
-├── Click follow row → clicked event + nav (/studio)              [BLOCKED] test.fixme — follow notifs are hourly-grouped (W3-2848), not seedable synchronously  NOTIF-POPUP-007
+├── Click follow row → clicked event + nav to /@{handle} (W3-2923; test still asserts /studio — rewrite) [BLOCKED] test.fixme — follow notifs are hourly-grouped (W3-2848), not seedable synchronously  NOTIF-POPUP-007
 ├── Open popup → all unread rows seen in one batch, badge reset, Clear All unmounts, persists after reload [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-008
 ├── Settings gear → /account?tab=notifications                    [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-009
 ├── "Show older notifications" footer → /notifications history page (header, Settings link, empty state) [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-010
@@ -136,22 +136,25 @@ AITV HEADER NOTIFICATIONS POPUP (W3-2748)
 ────────────────────────────────────────────────────────────────
 NOTIFICATION TARGET URLS — notification type x content type (W3-2923)
 Every row = click the notification, assert the resulting URL (and the comment anchor
-where applicable). Episode rows are the ones W3-2923 broke: the FE uses the raw payload
-type as the first path segment, so episodes resolve to a non-existent /episode/... route.
+where applicable). W3-2923 FE fix verified manually on dev2 21.08.2026 (frontend2 tag
+0.0.0-w3-2923-notification-urls-aitv): episodes -> /video/{cat}/{slug} (redirects to the
+canonical 3-segment URL), follow -> /@{handle}, live -> /live/{id}, comment_like gained the
+?comment anchor. Fix adds data-testid="notification-link" (row with href) / "notification-item"
+(row without href). Plan + per-type delivery (sync vs hourly cron): docs/NOTIFICATION_URL_MATRIX.md.
 ├── comment/reply on a VIDEO -> /video/{cat}/{slug}?comment={id}          [TODO] seed: seedCommentReplies()                      NOTIF-URL-001
-├── comment/reply on an EPISODE -> episode watch URL + comment anchor     [TODO] seed: setupSeriesWithEpisodes() + CommentsApi   NOTIF-URL-002
+├── comment/reply on an EPISODE -> episode watch URL + comment anchor     [TODO] fix verified manually 21.08; seed: setupSeriesWithEpisodes() + CommentsApi; assert final URL after redirect  NOTIF-URL-002
 ├── comment/reply on a SHORT -> /short/shorts/{slug}?comment={id}         [TODO] seed: seedCommentReplies() on a short           NOTIF-URL-003
 ├── video_release for a VIDEO -> video watch URL                          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-011
-├── video_release for an EPISODE -> episode watch URL                     [TODO] seed: setupSeriesWithEpisodes(), slow transcode NOTIF-URL-004
+├── video_release for an EPISODE -> episode watch URL                     [TODO] fix verified manually 21.08; seed: setupSeriesWithEpisodes(), slow transcode NOTIF-URL-004
 ├── video_release for a SHORT -> /short/shorts/{slug}                     [TODO] covered manually only                           NOTIF-URL-005
 ├── ai_metadata_success -> /studio/content?edit={videoId}                 [TODO] delivery only checked today (CHAP-002 analogue) NOTIF-URL-006
 ├── chapters_generation_success -> /studio/content?edit={videoId}         [TODO] delivery covered (CHAP-002), click/URL is not   NOTIF-URL-007
-├── follow (channel_subscription) -> channel URL, NOT /studio             [TODO] needs a trigger: `notifications:aggregate-grouped --hours=N` (no pods/exec rights) or a DB-seeded row (@db). Expectation changed by W3-2923 — NOTIF-POPUP-007 still asserts /studio  NOTIF-URL-008
-├── video_like on VIDEO / EPISODE -> video/episode watch URL              [TODO] same trigger problem as NOTIF-URL-008 (hourly grouping, W3-2848); URL-only assertion can run off a DB-seeded row (@db)  NOTIF-URL-009
-├── comment_like -> video/episode watch URL + comment anchor              [TODO] same trigger problem as NOTIF-URL-008 (hourly grouping, W3-2848)  NOTIF-URL-010
+├── follow (channel_subscription) -> /@{payload.channelName}, NOT /studio  [TODO] fix verified manually 21.08. HOURLY CRON (`0 * * * * notifications:aggregate-grouped`, previous clock hour) — not seedable synchronously; URL-only check off a DB-seeded row (@db) or ask BE for a trigger. NOTIF-POPUP-007 still asserts /studio — rewrite  NOTIF-URL-008
+├── video_like on VIDEO / EPISODE -> video/episode watch URL              [TODO] fix verified manually 21.08. HOURLY CRON (same as NOTIF-URL-008); URL-only assertion off a DB-seeded row (@db)  NOTIF-URL-009
+├── comment_like -> video/episode watch URL + ?comment={id} (anchor added by the fix) [TODO] HOURLY CRON (same as NOTIF-URL-008); URL-only assertion off a DB-seeded row (@db)  NOTIF-URL-010
 ├── rec_video -> video/episode watch URL                                  [N/A] no such type in the backend NotificationType enum — dead branch in Notification.tsx  NOTIF-URL-011
-├── channel_transfer_sent / _received -> /@{channelHandleName}            [BLOCKED] fires off an on-chain NFT handle transfer (ChannelTransferredNotificationSendHandler), no REST route; payload also lacks channelHandleName  NOTIF-URL-012
-└── live_stream -> /livestream/{id}                                       [TODO] fully seedable over REST: POST /live-streams/ + PUT /live-streams/status  NOTIF-URL-013
+├── channel_transfer_sent / _received -> /@{channelHandleName}            [BLOCKED] fires off an on-chain NFT handle transfer (ChannelTransferredNotificationSendHandler), no REST route (payload does carry channelHandleName — buildChannelTransferPayload)  NOTIF-URL-012
+└── live_stream -> /live/{id} (was /livestream, fixed in W3-2923)          [TODO] fully seedable over REST: POST /live-streams/ + PUT /live-streams/status  NOTIF-URL-013
 
 ────────────────────────────────────────────────────────────────
 CHANNELS
