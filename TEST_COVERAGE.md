@@ -91,20 +91,22 @@ AI.TV — COMING SOON / NOTIFY ON RELEASE (W3-2641, reworked W3-2789: delivery i
 AITV HEADER NOTIFICATIONS POPUP (W3-2748)
 ├── Bell opens popup (title + controls)                          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-001
 ├── Popup closes on Escape / outside click                        [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-002
-├── Fresh user: empty state, no badge, controls disabled          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-003
+├── Fresh user: empty state, no badge, no Clear All, Show-older link active [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-003
 ├── Unread badge count + popup lists rows                         [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-004
 ├── Comment reply → Activity section                              [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-005
-├── Hover row → seen event, badge clears                          [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-006
+├── Open popup → rendered row auto-marked seen, badge clears (W3-2785; hover no longer marks seen) [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-006
 ├── Click follow row → clicked event + nav (/studio)              [BLOCKED] test.fixme — follow notifs are hourly-grouped (W3-2848), not seedable synchronously  NOTIF-POPUP-007
-├── Mark all as read: batch, badge reset, persists after reload   [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-008
+├── Open popup → all unread rows seen in one batch, badge reset, Clear All unmounts, persists after reload [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-008
 ├── Settings gear → /account?tab=notifications                    [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-009
-├── "Show older notifications" disabled stub                      [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-010
+├── "Show older notifications" footer → /notifications history page (header, Settings link, empty state) [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-010
 ├── Followed channel upload → For-you notification → opens video  [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-011
 ├── Badge caps at "9+"                                            [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-012
 ├── Settings toggles (/account?tab=notifications) default ON + persist  [AUTO] tests/notifications/notificationsPopup.spec.ts  NOTIF-POPUP-013
 ├── Weekly watchlist notification                                 [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B01
 ├── New episodes in started/completed series                      [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B02
-└── "Someone liked your comment" (aggregated)                     [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B03
+├── "Someone liked your comment" (aggregated)                     [BLOCKED] no backend type/producer (W3-2748 grooming)  NOTIF-POPUP-B03
+├── Explicit "Clear All" click sweeps unread                        [BLOCKED] W3-2785: popup auto-loads all unseen pages and auto-marks them seen on open → counter hits 0 and the button unmounts before it can be clicked  NOTIF-POPUP-B04
+└── /notifications history: rows (seen + unseen), pagination > 10 items, hide row, auto-seen [TODO] needs > 10 notifications to seed (11+ users; ~420s like NOTIF-POPUP-012)  NOTIF-POPUP-B05
 
 ────────────────────────────────────────────────────────────────
 NOTIFICATION TARGET URLS — notification type x content type (W3-2923)

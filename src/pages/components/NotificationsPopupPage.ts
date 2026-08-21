@@ -1,13 +1,21 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 /**
- * AITV header notifications popup (W3-2748): the bell in the authed header opens a
- * dropdown with a flat notification list split into "For you" / "Mentions" sections,
- * a "Mark all as read" sweep, a settings gear and a stubbed "Show older" footer.
+ * AITV header notifications popup (W3-2748, reworked by W3-2785): the bell in the
+ * authed header opens a dropdown listing ONLY unseen notifications of the last 14 days
+ * (`status=unseen&from=now-14d`), split into "For you" / "Activity" sections, with a
+ * "Clear All" sweep, a settings gear and a "Show older notifications" footer that
+ * links to the history page (/notifications).
  *
- * Locator note: only the menu-level controls carry data-ids. Rows, section headers,
- * the unread dot and the empty state have NO testids — they are targeted by text or
- * (the dot) by its computed style, always scoped inside the popup container.
+ * W3-2785 behaviour to keep in mind when asserting unread state:
+ *  - every row rendered in the popup is auto-marked `seen` on open (batched POST
+ *    notifications/events) and the unread counter is refreshed right after;
+ *  - "Clear All" is rendered ONLY while the unread counter is > 0 — with 0 unread it
+ *    is absent from the DOM (not disabled).
+ *
+ * Locator note: only the menu-level controls carry data-ids. Rows, section headers
+ * and the empty state have NO testids — they are targeted by text, always scoped
+ * inside the popup container.
  */
 export class NotificationsPopupPage {
     readonly page: Page;
@@ -17,9 +25,11 @@ export class NotificationsPopupPage {
     /** The popup Paper — also the infinite-scroll container. */
     readonly panel: Locator;
     readonly title: Locator;
-    readonly markAllAsReadBtn: Locator;
+    /** "Clear All" sweep — present in the DOM only while there are unread notifications. */
+    readonly clearAllBtn: Locator;
     readonly settingsGearBtn: Locator;
-    readonly showOlderBtn: Locator;
+    /** "Show older notifications" footer link → /notifications history page. */
+    readonly showAllLink: Locator;
     readonly emptyState: Locator;
     readonly forYouHeader: Locator;
     readonly activityHeader: Locator;
@@ -31,9 +41,9 @@ export class NotificationsPopupPage {
         this.bellButton = page.locator('[data-id="aitv-header-notifications"]');
         this.panel = page.locator('#aitv-notifications-scroll-container');
         this.title = this.panel.getByText('Notifications', { exact: true });
-        this.markAllAsReadBtn = this.panel.locator('[data-id="aitv-notifications-clear-all"]');
+        this.clearAllBtn = this.panel.locator('[data-id="aitv-notifications-clear-all"]');
         this.settingsGearBtn = this.panel.locator('[data-id="notifications-settings"]');
-        this.showOlderBtn = this.panel.locator('[data-id="aitv-notifications-show-older"]');
+        this.showAllLink = this.panel.locator('[data-id="aitv-notifications-show-all"]');
         this.emptyState = this.panel.getByText("You're all caught up");
         this.forYouHeader = this.panel.getByText('For you', { exact: true });
         // comment_reply / like / follow rows render under the "Activity" section.

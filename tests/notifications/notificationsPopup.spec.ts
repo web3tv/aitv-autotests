@@ -1,6 +1,7 @@
 import { test, expect, Page, APIRequestContext } from '@playwright/test';
 import { AuthFlow } from '../../src/flows/AuthFlow';
 import { NotificationsPopupPage } from '../../src/pages/components/NotificationsPopupPage';
+import { NotificationsHistoryPage } from '../../src/pages/notifications/NotificationsHistoryPage';
 import { AccountNotificationsTab } from '../../src/pages/account/AccountNotificationsTab';
 import { CommentsApi } from '../../src/api/CommentsApi';
 import { SubscriptionApi } from '../../src/api/SubscriptionApi';
@@ -14,12 +15,17 @@ import {
     waitForUnseenCount,
 } from '../../src/utils/notificationsTestHelpers';
 
-// AITV header notifications popup (W3-2748). The popup is per-user, so every test
-// seeds its own users/notifications via API. Popup-mechanics tests (count/dots,
-// hover-seen, mark-all, "9+") seed `comment_reply` notifications, which the backend
-// still emits immediately — unlike follow/like, which W3-2848 now aggregates via an
-// hourly cron (not producible in a functional run). The shared @qavischan fixture is
-// never touched.
+// AITV header notifications popup (W3-2748, reworked by W3-2785 — unread-only popup +
+// /notifications history page). The popup is per-user, so every test seeds its own
+// users/notifications via API. Popup-mechanics tests (count, auto-seen, "9+") seed
+// `comment_reply` notifications, which the backend still emits immediately — unlike
+// follow/like, which W3-2848 now aggregates via an hourly cron (not producible in a
+// functional run). The shared @qavischan fixture is never touched.
+//
+// W3-2785 semantics relied on below: opening the popup auto-marks every rendered row
+// `seen` (one batched POST notifications/events) and refreshes the unread counter;
+// "Clear All" is rendered only while that counter is > 0; the footer "Show older
+// notifications" is a link to /notifications (the paginated history page).
 
 async function loginAs(page: Page, user: NotificationsTestUser): Promise<void> {
     const authFlow = new AuthFlow(page);
@@ -53,9 +59,10 @@ test('Bell opens the notifications popup with title and controls', {
 
     await test.step('Verify title and controls are rendered', async () => {
         await expect(popup.title, 'Popup title is not visible').toBeVisible();
-        await expect(popup.markAllAsReadBtn, '"Mark all as read" button is not visible').toBeVisible();
         await expect(popup.settingsGearBtn, 'Settings gear is not visible').toBeVisible();
-        await expect(popup.showOlderBtn, '"Show older notifications" footer is not visible').toBeVisible();
+        await expect(popup.showAllLink, '"Show older notifications" footer is not visible').toBeVisible();
+        // A fresh user has 0 unread → "Clear All" is not rendered at all (W3-2785).
+        await expect(popup.clearAllBtn, '"Clear All" must not render with 0 unread').toHaveCount(0);
     });
 });
 
@@ -82,7 +89,7 @@ test('Popup closes on Escape and on outside click', {
     });
 });
 
-test('Fresh user sees the empty state and disabled controls', {
+test('Fresh user sees the empty state, no Clear All and an active Show-older link', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-003' },
 }, async ({ page, request }) => {
     const popup = new NotificationsPopupPage(page);
@@ -95,11 +102,12 @@ test('Fresh user sees the empty state and disabled controls', {
         await popup.assertNoBadge();
     });
 
-    await test.step('Popup shows the empty state, Mark-all and Show-older are disabled', async () => {
+    await test.step('Popup shows the empty state, no "Clear All", "Show older" link is active', async () => {
         await popup.openPopup();
         await expect(popup.emptyState, 'Empty state "You\'re all caught up" is not shown').toBeVisible({ timeout: 15_000 });
-        await expect(popup.markAllAsReadBtn, '"Mark all as read" must be disabled with 0 unread').toBeDisabled();
-        await expect(popup.showOlderBtn, '"Show older notifications" stub must be disabled').toBeDisabled();
+        await expect(popup.clearAllBtn, '"Clear All" must not render with 0 unread').toHaveCount(0);
+        await expect(popup.showAllLink, '"Show older notifications" link is not visible').toBeVisible();
+        await expect(popup.showAllLink, '"Show older notifications" link is not enabled').toBeEnabled();
     });
 });
 
@@ -179,27 +187,28 @@ test('Comment reply lands in the Activity section', {
     });
 });
 
-test('Hovering an unread row marks it seen', {
+// W3-2785: rows are no longer marked seen on hover — every row rendered in the popup is
+// auto-marked seen as soon as the popup opens.
+test('Opening the popup marks the rendered row seen and clears the badge', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-006' },
 }, async ({ page, request }) => {
     test.setTimeout(120_000);
     const popup = new NotificationsPopupPage(page);
     let owner: NotificationsTestUser;
 
-    await test.step('Seed 1 unseen comment_reply notification → badge "1", open the popup', async () => {
+    await test.step('Seed 1 unseen comment_reply notification → badge "1"', async () => {
         owner = (await seedCommentReplies(request, 1)).owner;
         await waitForUnseenCount(request, owner.token, 1);
         await loginAs(page, owner);
         await popup.assertBadge('1');
-        await popup.openPopup();
     });
 
-    await test.step('Hover the row → seen event fires and the badge disappears', async () => {
+    await test.step('Open the popup → the row renders, a seen event fires, the badge disappears', async () => {
         const seenPromise = eventsResponse(page, 'seen');
-        const row = popup.rowAvatars.first();
-        await expect(row, 'Notification row is not visible').toBeVisible({ timeout: 15_000 });
-        await row.hover();
-        await seenPromise;
+        await popup.openPopup();
+        await expect(popup.rowAvatars.first(), 'Notification row is not visible').toBeVisible({ timeout: 15_000 });
+        const response = await seenPromise;
+        expect(response.request().postDataJSON().data.length, 'Exactly 1 notification must be marked seen').toBe(1);
         await popup.assertNoBadge();
     });
 });
@@ -234,7 +243,11 @@ test.fixme('Clicking a follow notification emits clicked and navigates to the st
     });
 });
 
-test('Mark all as read resets the badge and persists', {
+// W3-2785: the explicit "Clear All" sweep is not exercised — the popup auto-loads all
+// unseen pages and marks every rendered row seen on open, so the unread counter drops to
+// 0 and the button unmounts before a test could click it. This covers the bulk auto-seen
+// path instead: one batched events call, badge reset, "Clear All" gone, seen persists.
+test('Opening the popup marks all unread rows seen in one batch and persists', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-008' },
 }, async ({ page, request }) => {
     test.setTimeout(180_000);
@@ -246,23 +259,20 @@ test('Mark all as read resets the badge and persists', {
         await waitForUnseenCount(request, owner.token, 4);
     });
 
-    await test.step('Login → badge "4", popup shows 4 rows', async () => {
+    await test.step('Login → badge "4"', async () => {
         await loginAs(page, owner);
         await popup.assertBadge('4');
-        await popup.openPopup();
-        await expect(popup.rowAvatars, 'Expected 4 notification rows').toHaveCount(4, { timeout: 15_000 });
     });
 
-    await test.step('Mark all as read → batched seen events, badge resets, button disables', async () => {
+    await test.step('Open the popup → 4 rows, one batched seen call, badge resets, "Clear All" unmounts', async () => {
         const seenPromise = eventsResponse(page, 'seen');
-        await expect(popup.markAllAsReadBtn, '"Mark all as read" is not visible').toBeVisible();
-        await expect(popup.markAllAsReadBtn, '"Mark all as read" is not enabled').toBeEnabled();
-        await popup.markAllAsReadBtn.click();
+        await popup.openPopup();
+        await expect(popup.rowAvatars, 'Expected 4 notification rows').toHaveCount(4, { timeout: 15_000 });
         const response = await seenPromise;
         expect(response.request().postDataJSON().data.length, 'All 4 notifications must be marked in one batch').toBe(4);
 
         await popup.assertNoBadge();
-        await expect(popup.markAllAsReadBtn, '"Mark all as read" must disable after clearing').toBeDisabled({ timeout: 10_000 });
+        await expect(popup.clearAllBtn, '"Clear All" must unmount once the unread counter is 0').toHaveCount(0, { timeout: 10_000 });
     });
 
     await test.step('Seen state persists after reload', async () => {
@@ -289,19 +299,29 @@ test('Settings gear navigates to the notification settings page', {
     });
 });
 
-test('"Show older notifications" footer is a disabled stub', {
+test('"Show older notifications" footer opens the notifications history page', {
     annotation: { type: 'TC', description: 'NOTIF-POPUP-010' },
 }, async ({ page, request }) => {
     const popup = new NotificationsPopupPage(page);
+    const history = new NotificationsHistoryPage(page);
 
     await test.step('Create user, login, open the popup', async () => {
         await loginAs(page, await createUserWithChannel(request));
         await popup.openPopup();
     });
 
-    await test.step('Footer button is rendered but disabled (history page is out of v1)', async () => {
-        await expect(popup.showOlderBtn, '"Show older notifications" is not visible').toBeVisible();
-        await expect(popup.showOlderBtn, '"Show older notifications" stub must be disabled').toBeDisabled();
+    await test.step('Click the footer link → /notifications', async () => {
+        await expect(popup.showAllLink, '"Show older notifications" is not visible').toBeVisible();
+        await expect(popup.showAllLink, '"Show older notifications" is not enabled').toBeEnabled();
+        await popup.showAllLink.click();
+        await history.assertOpened();
+    });
+
+    await test.step('History page renders header, Settings link and the empty state for a fresh user', async () => {
+        await expect(history.title, 'History page title is not visible').toBeVisible();
+        await expect(history.subtitle, 'History page subtitle is not visible').toBeVisible();
+        await expect(history.emptyState, 'History empty state is not shown for a fresh user').toBeVisible({ timeout: 15_000 });
+        await expect(history.pagination, 'Pagination must not render for an empty history').toHaveCount(0);
     });
 });
 
