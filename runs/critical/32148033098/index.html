@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playwright Test Report</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+    .header {
+      border-bottom: 2px solid #334155;
+      padding-bottom: 2rem;
+      margin-bottom: 2rem;
+    }
+    .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .header p { color: #94a3b8; font-size: 0.9rem; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .stat-label { color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; }
+
+    .stat-value.passed { color: #10b981; }
+    .stat-value.failed { color: #ef4444; }
+    .stat-value.flaky { color: #f59e0b; }
+    .stat-value.skipped { color: #6b7280; }
+    .stat-value.duration { color: #3b82f6; }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #334155;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #10b981;
+      transition: width 0.3s;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #334155;
+    }
+
+    .suite-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .suite-header {
+      padding: 1rem;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .suite-title { font-weight: 600; font-size: 1rem; }
+    .suite-stats { display: flex; gap: 1.5rem; font-size: 0.85rem; }
+    .suite-stats span { color: #94a3b8; }
+    .suite-stats .passed { color: #10b981; }
+    .suite-stats .failed { color: #ef4444; }
+    .suite-stats .flaky { color: #f59e0b; }
+    .suite-stats .skipped { color: #6b7280; }
+
+    .suite-content { padding: 1rem; }
+    .test-item {
+      padding: 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 3px solid;
+      font-size: 0.9rem;
+    }
+    .test-item.passed { border-left-color: #10b981; background: rgba(16, 185, 129, 0.05); }
+    .test-item.failed { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+    .test-item.timedOut { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.05); }
+    .test-item.flaky { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
+    .test-item.skipped { border-left-color: #6b7280; background: rgba(107, 114, 128, 0.05); }
+
+    .test-name { flex: 1; }
+    .test-meta { display: flex; gap: 1rem; align-items: center; color: #94a3b8; }
+    .test-icon { font-weight: bold; margin-right: 0.5rem; }
+
+    .failed-details {
+      background: #1e293b;
+      border-left: 3px solid #ef4444;
+      border-radius: 4px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+    }
+    .failed-title { color: #ef4444; font-weight: 600; margin-bottom: 0.5rem; }
+    .error-message {
+      background: #0f172a;
+      padding: 0.75rem;
+      border-radius: 4px;
+      color: #fca5a5;
+      font-family: 'Monaco', 'Menlo', monospace;
+      overflow-x: auto;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #334155;
+      color: #64748b;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Playwright Test Report</h1>
+      <p>Generated at 18.08.2026, 14:33:32</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value passed">23</div>
+        <div class="stat-label">Passed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value failed">0</div>
+        <div class="stat-label">Failed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value flaky">1</div>
+        <div class="stat-label">Flaky</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value skipped">0</div>
+        <div class="stat-label">Skipped</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value duration">542.1s</div>
+        <div class="stat-label">Total Time</div>
+      </div>
+    </div>
+
+    <div class="stat-card" style="margin-bottom: 2rem;">
+      <div style="text-align: left;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span>Pass Rate</span>
+          <span style="color: #10b981; font-weight: 600;">95.8%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: 95.8%"></div>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <div class="section-title">📋 Test Suites (18)</div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">fixtures/fixtureCheck.setup.ts</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                shared read-only fixture is seeded and live
+              </div>
+              <div class="test-meta">
+                <span>3.7s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">auth/emailAuth.spec.ts › Login tests</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Success login as user
+              </div>
+              <div class="test-meta">
+                <span>28.5s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">auth/emailAuth.spec.ts › Registration tests</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Register user via popup (email flow)
+              </div>
+              <div class="test-meta">
+                <span>30.8s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">auth/phoneAuth.spec.ts › Phone login tests</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Success login via phone
+              </div>
+              <div class="test-meta">
+                <span>28.4s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">auth/phoneAuth.spec.ts › Phone registration tests</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Register user via popup (phone flow)
+              </div>
+              <div class="test-meta">
+                <span>26.8s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">auth/walletAuth.spec.ts › Wallet auth tests</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Register user via wallet (MetaMask) -&gt; Success
+              </div>
+              <div class="test-meta">
+                <span>17.6s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">content/manage/addToSeries.spec.ts › Studio Content page — add to series</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Add a standalone video to an existing series
+              </div>
+              <div class="test-meta">
+                <span>94.8s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">content/manage/createSeriesModal.spec.ts › Studio Content page — create series</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Create a public series from a selected video
+              </div>
+              <div class="test-meta">
+                <span>61.0s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">content/manage/studioChangeVisibility.spec.ts › Studio Content page — change visibility</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Change a video from public to private via the kebab menu
+              </div>
+              <div class="test-meta">
+                <span>51.1s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">content/manage/studioDelete.spec.ts › Studio Content page — delete</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 3</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Delete a video from its kebab menu
+              </div>
+              <div class="test-meta">
+                <span>56.9s</span>
+              </div>
+            </div>
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Bulk delete removes every selected video
+              </div>
+              <div class="test-meta">
+                <span>99.5s</span>
+              </div>
+            </div>
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Delete a series from the Series tab
+              </div>
+              <div class="test-meta">
+                <span>31.0s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">content/manage/videoVisibility.spec.ts › Public video visibility</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 2</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Public video visible on channel page
+              </div>
+              <div class="test-meta">
+                <span>6.7s</span>
+              </div>
+            </div>
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Anonymous user can view public video via direct link
+              </div>
+              <div class="test-meta">
+                <span>9.8s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">content/upload/uploadMovie.spec.ts</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Create a Movie through the full upload flow
+              </div>
+              <div class="test-meta">
+                <span>66.3s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">content/upload/uploadSeries.spec.ts › Series creation flow</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 2</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Create a new Series with its first episode
+              </div>
+              <div class="test-meta">
+                <span>104.9s</span>
+              </div>
+            </div>
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Add a new Episode to an existing Series
+              </div>
+              <div class="test-meta">
+                <span>96.3s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">content/upload/uploadShorts.spec.ts</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 2</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Shorts details lock the category to &quot;Shorts&quot; and expose a single cover
+              </div>
+              <div class="test-meta">
+                <span>22.1s</span>
+              </div>
+            </div>
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Publish a Short end-to-end
+              </div>
+              <div class="test-meta">
+                <span>91.5s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">player/embedPlayer.spec.ts › Embed player — horizontal video</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Embed player plays uploaded video
+              </div>
+              <div class="test-meta">
+                <span>4.4s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">player/seriesPlayback.spec.ts</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 1</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Series auto-advances to the next episode when an episode finishes
+              </div>
+              <div class="test-meta">
+                <span>18.3s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">player/videoPlayer.spec.ts</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 0</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 1</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item flaky">
+              <div class="test-name">
+                <span class="test-icon">⚠</span>
+                Video player plays uploaded video
+              </div>
+              <div class="test-meta">
+                <span>51.3s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+      <div class="suite-card">
+        <div class="suite-header">
+          <div class="suite-title">search/globalSearch.spec.ts › Global search — keyword search</div>
+          <div class="suite-stats">
+            <span class="passed">✓ 2</span>
+            <span class="failed">✗ 0</span>
+            <span class="flaky">⚠ 0</span>
+            <span class="skipped">⊘ 0</span>
+          </div>
+        </div>
+        <div class="suite-content">
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Keyword search returns the matching video on the All tab
+              </div>
+              <div class="test-meta">
+                <span>17.1s</span>
+              </div>
+            </div>
+          
+            <div class="test-item passed">
+              <div class="test-name">
+                <span class="test-icon">✓</span>
+                Shorts tab returns the matching short
+              </div>
+              <div class="test-meta">
+                <span>13.7s</span>
+              </div>
+            </div>
+          
+        </div>
+      </div>
+    
+
+    <div class="footer">
+      <p>Generated by Playwright • Total 24 tests in 542.1s</p>
+    </div>
+  </div>
+</body>
+</html>

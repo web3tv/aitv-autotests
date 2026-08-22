@@ -1,0 +1,789 @@
+{
+  "config": {
+    "configFile": "/home/runner/work/aitv-autotests/aitv-autotests/playwright.config.ts",
+    "rootDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "build": "114",
+      "commit": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+      "ci": {
+        "commitHref": "https://github.com/web3tv/aitv-autotests/commit/27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+        "commitHash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+        "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32432118719"
+      },
+      "gitCommit": {
+        "shortHash": "27feacf",
+        "hash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+        "subject": "ci: добавить стенд dev3 в выбор окружения (#45)",
+        "body": "ci: добавить стенд dev3 в выбор окружения (#45)\n\ndev3 (web3tv3.dev) — только фронтенд: в кластере есть лишь deploy/ingress\nfrontend3, хост api.web3tv3.dev не заведён. API, база и почта общие с dev2,\nпоэтому .env.web3tv3 отличается от .env.web3tv2 только BASE_URL/STUDIO_URL.\n\nВыбор стенда в трёх воркфлоу был бинарным (dev1 или всё остальное → dev2) —\nтретий вариант молча уехал бы на dev2. Заменил if/else на case с явными\nветками; dev2 остаётся дефолтом для пустого input на cron-запусках.\n\nCo-authored-by: maxqa <maxpopow99@mail.ru>\nCo-authored-by: Claude Opus 5 (1M context) <noreply@anthropic.com>",
+        "author": {
+          "name": "maxqapwa",
+          "email": "maxqapwa@gmail.com",
+          "time": 1787222706000
+        },
+        "committer": {
+          "name": "GitHub",
+          "email": "noreply@github.com",
+          "time": 1787222706000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "open": "never",
+          "outputFolder": "playwright-report"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "114",
+          "commit": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "commitHash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32432118719"
+          },
+          "gitCommit": {
+            "shortHash": "27feacf",
+            "hash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "subject": "ci: добавить стенд dev3 в выбор окружения (#45)",
+            "body": "ci: добавить стенд dev3 в выбор окружения (#45)\n\ndev3 (web3tv3.dev) — только фронтенд: в кластере есть лишь deploy/ingress\nfrontend3, хост api.web3tv3.dev не заведён. API, база и почта общие с dev2,\nпоэтому .env.web3tv3 отличается от .env.web3tv2 только BASE_URL/STUDIO_URL.\n\nВыбор стенда в трёх воркфлоу был бинарным (dev1 или всё остальное → dev2) —\nтретий вариант молча уехал бы на dev2. Заменил if/else на case с явными\nветками; dev2 остаётся дефолтом для пустого input на cron-запусках.\n\nCo-authored-by: maxqa <maxpopow99@mail.ru>\nCo-authored-by: Claude Opus 5 (1M context) <noreply@anthropic.com>",
+            "author": {
+              "name": "maxqapwa",
+              "email": "maxqapwa@gmail.com",
+              "time": 1787222706000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1787222706000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "fixture-check",
+        "name": "fixture-check",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/fixtureCheck\\.setup\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "build": "114",
+          "commit": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "commitHash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32432118719"
+          },
+          "gitCommit": {
+            "shortHash": "27feacf",
+            "hash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "subject": "ci: добавить стенд dev3 в выбор окружения (#45)",
+            "body": "ci: добавить стенд dev3 в выбор окружения (#45)\n\ndev3 (web3tv3.dev) — только фронтенд: в кластере есть лишь deploy/ingress\nfrontend3, хост api.web3tv3.dev не заведён. API, база и почта общие с dev2,\nпоэтому .env.web3tv3 отличается от .env.web3tv2 только BASE_URL/STUDIO_URL.\n\nВыбор стенда в трёх воркфлоу был бинарным (dev1 или всё остальное → dev2) —\nтретий вариант молча уехал бы на dev2. Заменил if/else на case с явными\nветками; dev2 остаётся дефолтом для пустого input на cron-запусках.\n\nCo-authored-by: maxqa <maxpopow99@mail.ru>\nCo-authored-by: Claude Opus 5 (1M context) <noreply@anthropic.com>",
+            "author": {
+              "name": "maxqapwa",
+              "email": "maxqapwa@gmail.com",
+              "time": 1787222706000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1787222706000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "functional",
+        "name": "functional",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/^(?!.*visual)(?!.*production).*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "build": "114",
+          "commit": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "commitHash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32432118719"
+          },
+          "gitCommit": {
+            "shortHash": "27feacf",
+            "hash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "subject": "ci: добавить стенд dev3 в выбор окружения (#45)",
+            "body": "ci: добавить стенд dev3 в выбор окружения (#45)\n\ndev3 (web3tv3.dev) — только фронтенд: в кластере есть лишь deploy/ingress\nfrontend3, хост api.web3tv3.dev не заведён. API, база и почта общие с dev2,\nпоэтому .env.web3tv3 отличается от .env.web3tv2 только BASE_URL/STUDIO_URL.\n\nВыбор стенда в трёх воркфлоу был бинарным (dev1 или всё остальное → dev2) —\nтретий вариант молча уехал бы на dev2. Заменил if/else на case с явными\nветками; dev2 остаётся дефолтом для пустого input на cron-запусках.\n\nCo-authored-by: maxqa <maxpopow99@mail.ru>\nCo-authored-by: Claude Opus 5 (1M context) <noreply@anthropic.com>",
+            "author": {
+              "name": "maxqapwa",
+              "email": "maxqapwa@gmail.com",
+              "time": 1787222706000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1787222706000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "prodSmoke",
+        "name": "prodSmoke",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/production\\/(?!setup).*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "114",
+          "commit": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "commitHash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32432118719"
+          },
+          "gitCommit": {
+            "shortHash": "27feacf",
+            "hash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "subject": "ci: добавить стенд dev3 в выбор окружения (#45)",
+            "body": "ci: добавить стенд dev3 в выбор окружения (#45)\n\ndev3 (web3tv3.dev) — только фронтенд: в кластере есть лишь deploy/ingress\nfrontend3, хост api.web3tv3.dev не заведён. API, база и почта общие с dev2,\nпоэтому .env.web3tv3 отличается от .env.web3tv2 только BASE_URL/STUDIO_URL.\n\nВыбор стенда в трёх воркфлоу был бинарным (dev1 или всё остальное → dev2) —\nтретий вариант молча уехал бы на dev2. Заменил if/else на case с явными\nветками; dev2 остаётся дефолтом для пустого input на cron-запусках.\n\nCo-authored-by: maxqa <maxpopow99@mail.ru>\nCo-authored-by: Claude Opus 5 (1M context) <noreply@anthropic.com>",
+            "author": {
+              "name": "maxqapwa",
+              "email": "maxqapwa@gmail.com",
+              "time": 1787222706000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1787222706000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "visual-desktop-chromium",
+        "name": "visual-desktop-chromium",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/visual\\/desktop\\/.*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "114",
+          "commit": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "commitHash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32432118719"
+          },
+          "gitCommit": {
+            "shortHash": "27feacf",
+            "hash": "27feacf2e9764ef3ba0c836f31cf26cb99edea7e",
+            "subject": "ci: добавить стенд dev3 в выбор окружения (#45)",
+            "body": "ci: добавить стенд dev3 в выбор окружения (#45)\n\ndev3 (web3tv3.dev) — только фронтенд: в кластере есть лишь deploy/ingress\nfrontend3, хост api.web3tv3.dev не заведён. API, база и почта общие с dev2,\nпоэтому .env.web3tv3 отличается от .env.web3tv2 только BASE_URL/STUDIO_URL.\n\nВыбор стенда в трёх воркфлоу был бинарным (dev1 или всё остальное → dev2) —\nтретий вариант молча уехал бы на dev2. Заменил if/else на case с явными\nветками; dev2 остаётся дефолтом для пустого input на cron-запусках.\n\nCo-authored-by: maxqa <maxpopow99@mail.ru>\nCo-authored-by: Claude Opus 5 (1M context) <noreply@anthropic.com>",
+            "author": {
+              "name": "maxqapwa",
+              "email": "maxqapwa@gmail.com",
+              "time": 1787222706000
+            },
+            "committer": {
+              "name": "GitHub",
+              "email": "noreply@github.com",
+              "time": 1787222706000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "visual-mobile-webkit",
+        "name": "visual-mobile-webkit",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/visual\\/mobile\\/.*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "production/prodSmoke.spec.ts",
+      "file": "production/prodSmoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Auth",
+          "file": "production/prodSmoke.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Success login as user",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 10,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11824,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Login with pre-created prod user",
+                          "duration": 10927
+                        }
+                      ],
+                      "startTime": "2026-08-21T00:18:38.337Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 10,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-2c22f09156369b924ff0",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 10,
+              "column": 9
+            },
+            {
+              "title": "Register user via email",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-002",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 22,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 21246,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Register new user via popup",
+                          "duration": 17801
+                        },
+                        {
+                          "title": "Verify user is logged in after registration",
+                          "duration": 2589
+                        }
+                      ],
+                      "startTime": "2026-08-21T00:18:52.043Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-002",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 22,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-be79f8ea109d3193acb0",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 22,
+              "column": 9
+            },
+            {
+              "title": "Register user via wallet",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-003",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 36,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14291,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Register with a new wallet",
+                          "duration": 13505
+                        }
+                      ],
+                      "startTime": "2026-08-21T00:19:13.303Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-003",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 36,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-61eafd1416d329938d07",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 36,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Video upload",
+          "file": "production/prodSmoke.spec.ts",
+          "line": 46,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Upload private video",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-004",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 48,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 54416,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Login with pre-created prod user",
+                          "duration": 10250
+                        },
+                        {
+                          "title": "Upload and publish a private video through the full upload flow",
+                          "duration": 43718
+                        }
+                      ],
+                      "startTime": "2026-08-21T00:19:27.607Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-004",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 48,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-c12836d0fa2a7451c042",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 48,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Video player",
+          "file": "production/prodSmoke.spec.ts",
+          "line": 76,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Video player plays video",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-005",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 78,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 19097,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Login with pre-created prod user",
+                          "duration": 11420
+                        },
+                        {
+                          "title": "Open video page and assert player is playing",
+                          "duration": 7087
+                        }
+                      ],
+                      "startTime": "2026-08-21T00:20:22.039Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-005",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 78,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-c47bb572c6872a642973",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 78,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Visual",
+          "file": "production/prodSmoke.spec.ts",
+          "line": 100,
+          "column": 15,
+          "specs": [
+            {
+              "title": "Home page visual",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 100,
+                        "column": 15
+                      }
+                    },
+                    {
+                      "type": "TC",
+                      "description": "PROD-VIS-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 102,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-21T00:20:41.151Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 100,
+                            "column": 15
+                          }
+                        },
+                        {
+                          "type": "TC",
+                          "description": "PROD-VIS-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 102,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db21d799c13928164df6-7ff0e91b1d6d07d080d3",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 102,
+              "column": 9
+            },
+            {
+              "title": "Studio page visual",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 100,
+                        "column": 15
+                      }
+                    },
+                    {
+                      "type": "TC",
+                      "description": "PROD-VIS-002",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 106,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-21T00:20:41.152Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 100,
+                            "column": 15
+                          }
+                        },
+                        {
+                          "type": "TC",
+                          "description": "PROD-VIS-002",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 106,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db21d799c13928164df6-1787e352bf9273282a4c",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 106,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-21T00:18:36.634Z",
+    "duration": 124624.025,
+    "expected": 5,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

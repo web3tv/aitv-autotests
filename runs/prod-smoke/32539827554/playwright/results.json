@@ -1,0 +1,789 @@
+{
+  "config": {
+    "configFile": "/home/runner/work/aitv-autotests/aitv-autotests/playwright.config.ts",
+    "rootDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "build": "115",
+      "commit": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+      "ci": {
+        "commitHref": "https://github.com/web3tv/aitv-autotests/commit/3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+        "commitHash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+        "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32539827554"
+      },
+      "gitCommit": {
+        "shortHash": "3893a13",
+        "hash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+        "subject": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД",
+        "body": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД\n\n- docs/NOTIFICATION_URL_MATRIX.md: статус FE-фикса (frontend2 0.0.0-w3-2923-notification-urls-aitv),\n  таблица типов уведомлений бэка с способом доставки (follow/video_like/comment_like — почасовой крон\n  notifications:aggregate-grouped), план спека notificationTargetUrls.spec.ts по очередям\n- TEST_COVERAGE.md: строки NOTIF-URL-002/004/008-013, NOTIF-POPUP-007 — обновлены ожидания после фикса\n- plans.md: п.32 обновлён, п.33 — доступ CI к MariaDB для @db-тестов (port-forward через kubeconfig SA)\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n",
+        "author": {
+          "name": "maxqa",
+          "email": "maxpopow99@mail.ru",
+          "time": 1787314435000
+        },
+        "committer": {
+          "name": "maxqa",
+          "email": "maxpopow99@mail.ru",
+          "time": 1787314435000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "open": "never",
+          "outputFolder": "playwright-report"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "115",
+          "commit": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "commitHash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32539827554"
+          },
+          "gitCommit": {
+            "shortHash": "3893a13",
+            "hash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "subject": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД",
+            "body": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД\n\n- docs/NOTIFICATION_URL_MATRIX.md: статус FE-фикса (frontend2 0.0.0-w3-2923-notification-urls-aitv),\n  таблица типов уведомлений бэка с способом доставки (follow/video_like/comment_like — почасовой крон\n  notifications:aggregate-grouped), план спека notificationTargetUrls.spec.ts по очередям\n- TEST_COVERAGE.md: строки NOTIF-URL-002/004/008-013, NOTIF-POPUP-007 — обновлены ожидания после фикса\n- plans.md: п.32 обновлён, п.33 — доступ CI к MariaDB для @db-тестов (port-forward через kubeconfig SA)\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "fixture-check",
+        "name": "fixture-check",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/fixtureCheck\\.setup\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "build": "115",
+          "commit": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "commitHash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32539827554"
+          },
+          "gitCommit": {
+            "shortHash": "3893a13",
+            "hash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "subject": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД",
+            "body": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД\n\n- docs/NOTIFICATION_URL_MATRIX.md: статус FE-фикса (frontend2 0.0.0-w3-2923-notification-urls-aitv),\n  таблица типов уведомлений бэка с способом доставки (follow/video_like/comment_like — почасовой крон\n  notifications:aggregate-grouped), план спека notificationTargetUrls.spec.ts по очередям\n- TEST_COVERAGE.md: строки NOTIF-URL-002/004/008-013, NOTIF-POPUP-007 — обновлены ожидания после фикса\n- plans.md: п.32 обновлён, п.33 — доступ CI к MariaDB для @db-тестов (port-forward через kubeconfig SA)\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "functional",
+        "name": "functional",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/^(?!.*visual)(?!.*production).*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "build": "115",
+          "commit": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "commitHash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32539827554"
+          },
+          "gitCommit": {
+            "shortHash": "3893a13",
+            "hash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "subject": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД",
+            "body": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД\n\n- docs/NOTIFICATION_URL_MATRIX.md: статус FE-фикса (frontend2 0.0.0-w3-2923-notification-urls-aitv),\n  таблица типов уведомлений бэка с способом доставки (follow/video_like/comment_like — почасовой крон\n  notifications:aggregate-grouped), план спека notificationTargetUrls.spec.ts по очередям\n- TEST_COVERAGE.md: строки NOTIF-URL-002/004/008-013, NOTIF-POPUP-007 — обновлены ожидания после фикса\n- plans.md: п.32 обновлён, п.33 — доступ CI к MariaDB для @db-тестов (port-forward через kubeconfig SA)\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "prodSmoke",
+        "name": "prodSmoke",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/production\\/(?!setup).*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "115",
+          "commit": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "commitHash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32539827554"
+          },
+          "gitCommit": {
+            "shortHash": "3893a13",
+            "hash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "subject": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД",
+            "body": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД\n\n- docs/NOTIFICATION_URL_MATRIX.md: статус FE-фикса (frontend2 0.0.0-w3-2923-notification-urls-aitv),\n  таблица типов уведомлений бэка с способом доставки (follow/video_like/comment_like — почасовой крон\n  notifications:aggregate-grouped), план спека notificationTargetUrls.spec.ts по очередям\n- TEST_COVERAGE.md: строки NOTIF-URL-002/004/008-013, NOTIF-POPUP-007 — обновлены ожидания после фикса\n- plans.md: п.32 обновлён, п.33 — доступ CI к MariaDB для @db-тестов (port-forward через kubeconfig SA)\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "visual-desktop-chromium",
+        "name": "visual-desktop-chromium",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/visual\\/desktop\\/.*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "115",
+          "commit": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "commitHash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32539827554"
+          },
+          "gitCommit": {
+            "shortHash": "3893a13",
+            "hash": "3893a13bbdbc9dfd14c37bad18f78921bdcad3fc",
+            "subject": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД",
+            "body": "docs(notifications): W3-2923 проверен на dev2 — матрица URL, типы нотификаций (крон vs sync), план автотестов; plans: п.33 CI + БД\n\n- docs/NOTIFICATION_URL_MATRIX.md: статус FE-фикса (frontend2 0.0.0-w3-2923-notification-urls-aitv),\n  таблица типов уведомлений бэка с способом доставки (follow/video_like/comment_like — почасовой крон\n  notifications:aggregate-grouped), план спека notificationTargetUrls.spec.ts по очередям\n- TEST_COVERAGE.md: строки NOTIF-URL-002/004/008-013, NOTIF-POPUP-007 — обновлены ожидания после фикса\n- plans.md: п.32 обновлён, п.33 — доступ CI к MariaDB для @db-тестов (port-forward через kubeconfig SA)\n\nCo-Authored-By: Claude Fable 5 <noreply@anthropic.com>\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787314435000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 1
+        },
+        "id": "visual-mobile-webkit",
+        "name": "visual-mobile-webkit",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/visual\\/mobile\\/.*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "production/prodSmoke.spec.ts",
+      "file": "production/prodSmoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Auth",
+          "file": "production/prodSmoke.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Success login as user",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 10,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10698,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Login with pre-created prod user",
+                          "duration": 10172
+                        }
+                      ],
+                      "startTime": "2026-08-22T00:17:47.537Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 10,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-2c22f09156369b924ff0",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 10,
+              "column": 9
+            },
+            {
+              "title": "Register user via email",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-002",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 22,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 16058,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Register new user via popup",
+                          "duration": 14053
+                        },
+                        {
+                          "title": "Verify user is logged in after registration",
+                          "duration": 1312
+                        }
+                      ],
+                      "startTime": "2026-08-22T00:17:58.419Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-002",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 22,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-be79f8ea109d3193acb0",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 22,
+              "column": 9
+            },
+            {
+              "title": "Register user via wallet",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-003",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 36,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11990,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Register with a new wallet",
+                          "duration": 11195
+                        }
+                      ],
+                      "startTime": "2026-08-22T00:18:14.486Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-003",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 36,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-61eafd1416d329938d07",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 36,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Video upload",
+          "file": "production/prodSmoke.spec.ts",
+          "line": 46,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Upload private video",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-004",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 48,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 54683,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Login with pre-created prod user",
+                          "duration": 8479
+                        },
+                        {
+                          "title": "Upload and publish a private video through the full upload flow",
+                          "duration": 45842
+                        }
+                      ],
+                      "startTime": "2026-08-22T00:18:26.485Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-004",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 48,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-c12836d0fa2a7451c042",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 48,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Video player",
+          "file": "production/prodSmoke.spec.ts",
+          "line": 76,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Video player plays video",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PROD-005",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 78,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14920,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Login with pre-created prod user",
+                          "duration": 8717
+                        },
+                        {
+                          "title": "Open video page and assert player is playing",
+                          "duration": 5740
+                        }
+                      ],
+                      "startTime": "2026-08-22T00:19:21.179Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PROD-005",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 78,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "db21d799c13928164df6-c47bb572c6872a642973",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 78,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Visual",
+          "file": "production/prodSmoke.spec.ts",
+          "line": 100,
+          "column": 15,
+          "specs": [
+            {
+              "title": "Home page visual",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 100,
+                        "column": 15
+                      }
+                    },
+                    {
+                      "type": "TC",
+                      "description": "PROD-VIS-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 102,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-22T00:19:36.107Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 100,
+                            "column": 15
+                          }
+                        },
+                        {
+                          "type": "TC",
+                          "description": "PROD-VIS-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 102,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db21d799c13928164df6-7ff0e91b1d6d07d080d3",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 102,
+              "column": 9
+            },
+            {
+              "title": "Studio page visual",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 100,
+                        "column": 15
+                      }
+                    },
+                    {
+                      "type": "TC",
+                      "description": "PROD-VIS-002",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                        "line": 106,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "prodSmoke",
+                  "projectName": "prodSmoke",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-22T00:19:36.108Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 100,
+                            "column": 15
+                          }
+                        },
+                        {
+                          "type": "TC",
+                          "description": "PROD-VIS-002",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/production/prodSmoke.spec.ts",
+                            "line": 106,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "db21d799c13928164df6-1787e352bf9273282a4c",
+              "file": "production/prodSmoke.spec.ts",
+              "line": 106,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-22T00:17:46.262Z",
+    "duration": 109921.563,
+    "expected": 5,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

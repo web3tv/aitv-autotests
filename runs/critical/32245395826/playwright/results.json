@@ -1,0 +1,2187 @@
+{
+  "config": {
+    "configFile": "/home/runner/work/aitv-autotests/aitv-autotests/playwright.config.ts",
+    "rootDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "build": "43",
+      "commit": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+      "ci": {
+        "commitHref": "https://github.com/web3tv/aitv-autotests/commit/7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+        "commitHash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+        "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32245395826"
+      },
+      "gitCommit": {
+        "shortHash": "7e77dc6",
+        "hash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+        "subject": "fixes",
+        "body": "fixes\n",
+        "author": {
+          "name": "maxqa",
+          "email": "maxpopow99@mail.ru",
+          "time": 1787134453000
+        },
+        "committer": {
+          "name": "maxqa",
+          "email": "maxpopow99@mail.ru",
+          "time": 1787134453000
+        },
+        "branch": "main"
+      },
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "open": "never",
+          "outputFolder": "playwright-report"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "43",
+          "commit": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "commitHash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32245395826"
+          },
+          "gitCommit": {
+            "shortHash": "7e77dc6",
+            "hash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "subject": "fixes",
+            "body": "fixes\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 2
+        },
+        "id": "fixture-check",
+        "name": "fixture-check",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/fixtureCheck\\.setup\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "build": "43",
+          "commit": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "commitHash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32245395826"
+          },
+          "gitCommit": {
+            "shortHash": "7e77dc6",
+            "hash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "subject": "fixes",
+            "body": "fixes\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 2
+        },
+        "id": "functional",
+        "name": "functional",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/^(?!.*visual)(?!.*production).*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "build": "43",
+          "commit": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "commitHash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32245395826"
+          },
+          "gitCommit": {
+            "shortHash": "7e77dc6",
+            "hash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "subject": "fixes",
+            "body": "fixes\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 2
+        },
+        "id": "prodSmoke",
+        "name": "prodSmoke",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/production\\/(?!setup).*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "43",
+          "commit": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "commitHash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32245395826"
+          },
+          "gitCommit": {
+            "shortHash": "7e77dc6",
+            "hash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "subject": "fixes",
+            "body": "fixes\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 2
+        },
+        "id": "visual-desktop-chromium",
+        "name": "visual-desktop-chromium",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/visual\\/desktop\\/.*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/home/runner/work/aitv-autotests/aitv-autotests/test-results",
+        "repeatEach": 1,
+        "retries": 2,
+        "metadata": {
+          "build": "43",
+          "commit": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+          "ci": {
+            "commitHref": "https://github.com/web3tv/aitv-autotests/commit/7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "commitHash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "buildHref": "https://github.com/web3tv/aitv-autotests/actions/runs/32245395826"
+          },
+          "gitCommit": {
+            "shortHash": "7e77dc6",
+            "hash": "7e77dc614cd8b8d6bdde6c9942ad21a1565a53a0",
+            "subject": "fixes",
+            "body": "fixes\n",
+            "author": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "committer": {
+              "name": "maxqa",
+              "email": "maxpopow99@mail.ru",
+              "time": 1787134453000
+            },
+            "branch": "main"
+          },
+          "actualWorkers": 2
+        },
+        "id": "visual-mobile-webkit",
+        "name": "visual-mobile-webkit",
+        "testDir": "/home/runner/work/aitv-autotests/aitv-autotests/tests",
+        "testIgnore": [
+          "**/skip/**"
+        ],
+        "testMatch": [
+          "/visual\\/mobile\\/.*\\.spec\\.ts$/"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 2,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "fixtures/fixtureCheck.setup.ts",
+      "file": "fixtures/fixtureCheck.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "shared read-only fixture is seeded and live",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "fixture-check",
+              "projectName": "fixture-check",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3967,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-08-19T11:09:58.822Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c68724d55e31e2e6f127-bc562065cf8a542727e2",
+          "file": "fixtures/fixtureCheck.setup.ts",
+          "line": 14,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "auth/emailAuth.spec.ts",
+      "file": "auth/emailAuth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Login tests",
+          "file": "auth/emailAuth.spec.ts",
+          "line": 10,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Success login as user",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "AUTH-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/emailAuth.spec.ts",
+                        "line": 12,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 23628,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Open login popup and enter credentials",
+                          "duration": 21267
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:10:03.651Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "AUTH-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/emailAuth.spec.ts",
+                            "line": 12,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddad50de06abc8d341b2-505a8503dee4e1da6fd9",
+              "file": "auth/emailAuth.spec.ts",
+              "line": 12,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Registration tests",
+          "file": "auth/emailAuth.spec.ts",
+          "line": 65,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Register user via popup (email flow)",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "AUTH-005",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/emailAuth.spec.ts",
+                        "line": 67,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 27427,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Register new user via popup",
+                          "duration": 21970
+                        },
+                        {
+                          "title": "Verify user is logged in after registration",
+                          "duration": 4926
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:10:28.709Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "AUTH-005",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/emailAuth.spec.ts",
+                            "line": 67,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddad50de06abc8d341b2-5ff5f59e5f622d56484f",
+              "file": "auth/emailAuth.spec.ts",
+              "line": 67,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth/phoneAuth.spec.ts",
+      "file": "auth/phoneAuth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phone login tests",
+          "file": "auth/phoneAuth.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Success login via phone",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PHONE-AUTH-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/phoneAuth.spec.ts",
+                        "line": 10,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 24621,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Open login popup and enter phone credentials",
+                          "duration": 22573
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:10:03.645Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PHONE-AUTH-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/phoneAuth.spec.ts",
+                            "line": 10,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fa57b31eb1041eb23e9c-a7d40a2ea2b17216dcae",
+              "file": "auth/phoneAuth.spec.ts",
+              "line": 10,
+              "column": 9
+            }
+          ]
+        },
+        {
+          "title": "Phone registration tests",
+          "file": "auth/phoneAuth.spec.ts",
+          "line": 35,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Register user via popup (phone flow)",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PHONE-AUTH-004",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/phoneAuth.spec.ts",
+                        "line": 37,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 22820,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Register new user via popup with phone",
+                          "duration": 17283
+                        },
+                        {
+                          "title": "Verify user is logged in after registration",
+                          "duration": 5106
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:10:29.687Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PHONE-AUTH-004",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/phoneAuth.spec.ts",
+                            "line": 37,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fa57b31eb1041eb23e9c-eb4d23ba761a64fa4fce",
+              "file": "auth/phoneAuth.spec.ts",
+              "line": 37,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "auth/walletAuth.spec.ts",
+      "file": "auth/walletAuth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Wallet auth tests",
+          "file": "auth/walletAuth.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Register user via wallet (MetaMask) -> Success",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "AUTH-012",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/walletAuth.spec.ts",
+                        "line": 13,
+                        "column": 7
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 16263,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-19T11:10:52.532Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "AUTH-012",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/auth/walletAuth.spec.ts",
+                            "line": 13,
+                            "column": 7
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "482c572b369c0fa4c17d-94509577775bf6835092",
+              "file": "auth/walletAuth.spec.ts",
+              "line": 13,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "content/manage/addToSeries.spec.ts",
+      "file": "content/manage/addToSeries.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Studio Content page — add to series",
+          "file": "content/manage/addToSeries.spec.ts",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Add a standalone video to an existing series",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PLAYLIST-002",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/addToSeries.spec.ts",
+                        "line": 16,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 83946,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[VideoApi] Uploading \"Episode 1\" for channel: \"mygvu9329\" (@mygvu9329)\n"
+                        },
+                        {
+                          "text": "[VideoApi] Uploading \"AddToSeriesSource_1787137888812\" for channel: \"mygvu9329\" (@mygvu9329)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Seed a series with one episode plus a standalone video",
+                          "duration": 78474
+                        },
+                        {
+                          "title": "Open the Add to Series modal from the video kebab",
+                          "duration": 4448
+                        },
+                        {
+                          "title": "Pick the series and submit",
+                          "duration": 652
+                        },
+                        {
+                          "title": "The video is now an episode of the series",
+                          "duration": 165
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:10:56.167Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PLAYLIST-002",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/addToSeries.spec.ts",
+                            "line": 16,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "fc194e2fcc3a32a9edd7-efbb7812a4faff6c2f3a",
+              "file": "content/manage/addToSeries.spec.ts",
+              "line": 16,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "content/manage/createSeriesModal.spec.ts",
+      "file": "content/manage/createSeriesModal.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Studio Content page — create series",
+          "file": "content/manage/createSeriesModal.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Create a public series from a selected video",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PLAYLIST-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/createSeriesModal.spec.ts",
+                        "line": 21,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 50995,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[VideoApi] Uploading \"SeriesSource_1787137868874\" for channel: \"worpd5652\" (@worpd5652)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Seed a published video and log in as its owner",
+                          "duration": 43653
+                        },
+                        {
+                          "title": "Select the video and open the Create Series modal",
+                          "duration": 5838
+                        },
+                        {
+                          "title": "Fill the details and pick the public visibility",
+                          "duration": 279
+                        },
+                        {
+                          "title": "Submit and verify the success screen",
+                          "duration": 676
+                        },
+                        {
+                          "title": "Verify the series exists with the video attached",
+                          "duration": 316
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:11:08.827Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PLAYLIST-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/createSeriesModal.spec.ts",
+                            "line": 21,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9dd6040fc7f55ce84a24-540393835362e7c9b017",
+              "file": "content/manage/createSeriesModal.spec.ts",
+              "line": 21,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "content/manage/studioChangeVisibility.spec.ts",
+      "file": "content/manage/studioChangeVisibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Studio Content page — change visibility",
+          "file": "content/manage/studioChangeVisibility.spec.ts",
+          "line": 18,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Change a video from public to private via the kebab menu",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "VISCHG-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/studioChangeVisibility.spec.ts",
+                        "line": 20,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 54112,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[VideoApi] Uploading \"VisibilitySource_1787137919884\" for channel: \"hzkfj4065\" (@hzkfj4065)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Seed a public video and log in as its owner",
+                          "duration": 46344
+                        },
+                        {
+                          "title": "Switch the video to private",
+                          "duration": 7215
+                        },
+                        {
+                          "title": "The new visibility is persisted",
+                          "duration": 191
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:11:59.840Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "VISCHG-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/studioChangeVisibility.spec.ts",
+                            "line": 20,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b72035896d1b5601e8ff-0f003a9f7455962404d4",
+              "file": "content/manage/studioChangeVisibility.spec.ts",
+              "line": 20,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "content/manage/studioDelete.spec.ts",
+      "file": "content/manage/studioDelete.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Studio Content page — delete",
+          "file": "content/manage/studioDelete.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Delete a video from its kebab menu",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "STUDIO-026",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/studioDelete.spec.ts",
+                        "line": 19,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 57320,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[VideoApi] Uploading \"DeleteMe_1787137940186\" for channel: \"ahyxq7548\" (@ahyxq7548)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Seed a published video and log in as its owner",
+                          "duration": 46526
+                        },
+                        {
+                          "title": "Delete the video through the kebab menu",
+                          "duration": 10271
+                        },
+                        {
+                          "title": "The video is gone from the listing and the API",
+                          "duration": 199
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:12:20.140Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "STUDIO-026",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/studioDelete.spec.ts",
+                            "line": 19,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2ad42915f5dc31edc148-b0ec0fa8fc4cacfa7e79",
+              "file": "content/manage/studioDelete.spec.ts",
+              "line": 19,
+              "column": 9
+            },
+            {
+              "title": "Bulk delete removes every selected video",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "BULK-007",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/studioDelete.spec.ts",
+                        "line": 65,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 96867,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[VideoApi] Uploading \"BulkDeleteOne_1787137997547\" for channel: \"ffwrw1677\" (@ffwrw1677)\n"
+                        },
+                        {
+                          "text": "[VideoApi] Uploading \"BulkDeleteTwo_1787138030363\" for channel: \"ffwrw1677\" (@ffwrw1677)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Seed two published videos and log in as their owner",
+                          "duration": 87087
+                        },
+                        {
+                          "title": "Select both videos and delete them in bulk",
+                          "duration": 9361
+                        },
+                        {
+                          "title": "Both videos are gone and the bulk bar is hidden",
+                          "duration": 191
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:13:17.477Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "BULK-007",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/studioDelete.spec.ts",
+                            "line": 65,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2ad42915f5dc31edc148-f3b383d7f3c61485f295",
+              "file": "content/manage/studioDelete.spec.ts",
+              "line": 65,
+              "column": 9
+            },
+            {
+              "title": "Delete a series from the Series tab",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PLAYLIST-004",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/studioDelete.spec.ts",
+                        "line": 124,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 32232,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[VideoApi] Uploading \"Episode 1\" for channel: \"vbibd19\" (@vbibd19)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Seed a series with one episode and log in as its owner",
+                          "duration": 26917
+                        },
+                        {
+                          "title": "Delete the series from the bulk bar",
+                          "duration": 4915
+                        },
+                        {
+                          "title": "The series is gone from the tab and the API",
+                          "duration": 170
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:14:54.364Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "PLAYLIST-004",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/studioDelete.spec.ts",
+                            "line": 124,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2ad42915f5dc31edc148-a6c993e6184cbaa5b79f",
+              "file": "content/manage/studioDelete.spec.ts",
+              "line": 124,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "content/manage/videoVisibility.spec.ts",
+      "file": "content/manage/videoVisibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Public video visibility",
+          "file": "content/manage/videoVisibility.spec.ts",
+          "line": 16,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Public video visible on channel page",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "VIS-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/videoVisibility.spec.ts",
+                        "line": 17,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 6328,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Open channel page and verify video is listed",
+                          "duration": 5262
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:12:54.187Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "VIS-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/videoVisibility.spec.ts",
+                            "line": 17,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a25b9174771325ebdb95-a77a05acb5fae05c3b17",
+              "file": "content/manage/videoVisibility.spec.ts",
+              "line": 17,
+              "column": 9
+            },
+            {
+              "title": "Anonymous user can view public video via direct link",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "VIS-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/videoVisibility.spec.ts",
+                        "line": 25,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 9237,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Open video page as anonymous and verify content",
+                          "duration": 7518
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:13:03.537Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "VIS-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/manage/videoVisibility.spec.ts",
+                            "line": 25,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a25b9174771325ebdb95-e7ac46ce32c2075d84e0",
+              "file": "content/manage/videoVisibility.spec.ts",
+              "line": 25,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "content/upload/uploadMovie.spec.ts",
+      "file": "content/upload/uploadMovie.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Create a Movie through the full upload flow",
+          "ok": true,
+          "tags": [
+            "critical"
+          ],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [
+                {
+                  "type": "TC",
+                  "description": "MOVIE-001",
+                  "location": {
+                    "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadMovie.spec.ts",
+                    "line": 11,
+                    "column": 5
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "functional",
+              "projectName": "functional",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 56314,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Create user and login",
+                      "duration": 15304
+                    },
+                    {
+                      "title": "Create a public Movie end-to-end",
+                      "duration": 37571
+                    },
+                    {
+                      "title": "Verify the Movie appears on the Movies tab",
+                      "duration": 3221
+                    }
+                  ],
+                  "startTime": "2026-08-19T11:13:12.803Z",
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "MOVIE-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadMovie.spec.ts",
+                        "line": 11,
+                        "column": 5
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cd08a59674627384afc7-c0de912e2836ee5f4128",
+          "file": "content/upload/uploadMovie.spec.ts",
+          "line": 11,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "content/upload/uploadSeries.spec.ts",
+      "file": "content/upload/uploadSeries.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Series creation flow",
+          "file": "content/upload/uploadSeries.spec.ts",
+          "line": 29,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Create a new Series with its first episode",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "SERIES-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadSeries.spec.ts",
+                        "line": 31,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 62831,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Create user and login",
+                          "duration": 14895
+                        },
+                        {
+                          "title": "Create a new Series (New Series mode)",
+                          "duration": 43967
+                        },
+                        {
+                          "title": "Verify the Series appears on the Series tab",
+                          "duration": 3508
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:14:09.142Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "SERIES-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadSeries.spec.ts",
+                            "line": 31,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7e6e3b808bd32b318f70-4d780f3b5a102fd22551",
+              "file": "content/upload/uploadSeries.spec.ts",
+              "line": 31,
+              "column": 9
+            },
+            {
+              "title": "Add a new Episode to an existing Series",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "SERIES-002",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadSeries.spec.ts",
+                        "line": 59,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 94902,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "[VideoApi] Uploading \"Episode 1\" for channel: \"fdwgw7944\" (@fdwgw7944)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Seed a parent Series via API and login as its owner",
+                          "duration": 50747
+                        },
+                        {
+                          "title": "Add a new Episode under the existing Series",
+                          "duration": 41439
+                        },
+                        {
+                          "title": "Verify the Series still appears on the Series tab",
+                          "duration": 2363
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:15:11.990Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "SERIES-002",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadSeries.spec.ts",
+                            "line": 59,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "7e6e3b808bd32b318f70-ec649a50ec1f218956e5",
+              "file": "content/upload/uploadSeries.spec.ts",
+              "line": 59,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "content/upload/uploadShorts.spec.ts",
+      "file": "content/upload/uploadShorts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Shorts details lock the category to \"Shorts\" and expose a single cover",
+          "ok": true,
+          "tags": [
+            "critical"
+          ],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [
+                {
+                  "type": "TC",
+                  "description": "SHORTS-001",
+                  "location": {
+                    "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadShorts.spec.ts",
+                    "line": 9,
+                    "column": 5
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "functional",
+              "projectName": "functional",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21257,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Create user and login",
+                      "duration": 14515
+                    },
+                    {
+                      "title": "Open the Shorts flow and verify Shorts-specific details",
+                      "duration": 5326
+                    },
+                    {
+                      "title": "Upload a cover into the single Shorts slot",
+                      "duration": 860
+                    }
+                  ],
+                  "startTime": "2026-08-19T11:15:26.619Z",
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "SHORTS-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadShorts.spec.ts",
+                        "line": 9,
+                        "column": 5
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "531302489744f1e2b353-d8e1b2fff0f41e2f7dc5",
+          "file": "content/upload/uploadShorts.spec.ts",
+          "line": 9,
+          "column": 5
+        },
+        {
+          "title": "Publish a Short end-to-end",
+          "ok": true,
+          "tags": [
+            "critical"
+          ],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [
+                {
+                  "type": "TC",
+                  "description": "SHORTS-003",
+                  "location": {
+                    "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadShorts.spec.ts",
+                    "line": 58,
+                    "column": 5
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "functional",
+              "projectName": "functional",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 120806,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Create user and login",
+                      "duration": 21459
+                    },
+                    {
+                      "title": "Create and publish a Short end-to-end",
+                      "duration": 94899
+                    },
+                    {
+                      "title": "Verify the Short appears on the Shorts tab",
+                      "duration": 4049
+                    }
+                  ],
+                  "startTime": "2026-08-19T11:15:47.893Z",
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "SHORTS-003",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/content/upload/uploadShorts.spec.ts",
+                        "line": 58,
+                        "column": 5
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "531302489744f1e2b353-b2483794bb01da084e17",
+          "file": "content/upload/uploadShorts.spec.ts",
+          "line": 58,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "player/embedPlayer.spec.ts",
+      "file": "player/embedPlayer.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Embed player — horizontal video",
+          "file": "player/embedPlayer.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Embed player plays uploaded video",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "EMBED-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/embedPlayer.spec.ts",
+                        "line": 5,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4527,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Open embed iframe and assert video is playing",
+                          "duration": 4342
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:16:46.917Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "EMBED-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/embedPlayer.spec.ts",
+                            "line": 5,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8fd8fb3e230d18d6f8eb-ec506d1b506e81bbcfb4",
+              "file": "player/embedPlayer.spec.ts",
+              "line": 5,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "player/seriesPlayback.spec.ts",
+      "file": "player/seriesPlayback.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Series auto-advances to the next episode when an episode finishes",
+          "ok": true,
+          "tags": [
+            "critical"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "TC",
+                  "description": "SERIES-003",
+                  "location": {
+                    "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/seriesPlayback.spec.ts",
+                    "line": 17,
+                    "column": 5
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "functional",
+              "projectName": "functional",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 15890,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Open episode 1 (in series context) and confirm it plays",
+                      "duration": 6488
+                    },
+                    {
+                      "title": "Finish episode 1 → episode 2 auto-advances and plays",
+                      "duration": 8717
+                    }
+                  ],
+                  "startTime": "2026-08-19T11:16:51.460Z",
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "SERIES-003",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/seriesPlayback.spec.ts",
+                        "line": 17,
+                        "column": 5
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "762c40f5accad87ce007-27da1d281faaacbb8ddb",
+          "file": "player/seriesPlayback.spec.ts",
+          "line": 17,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "player/videoPlayer.spec.ts",
+      "file": "player/videoPlayer.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Video player plays uploaded video",
+          "ok": true,
+          "tags": [
+            "critical"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "TC",
+                  "description": "PLAYER-001",
+                  "location": {
+                    "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/videoPlayer.spec.ts",
+                    "line": 13,
+                    "column": 5
+                  }
+                },
+                {
+                  "type": "TC",
+                  "description": "PLAYER-002",
+                  "location": {
+                    "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/videoPlayer.spec.ts",
+                    "line": 13,
+                    "column": 5
+                  }
+                },
+                {
+                  "type": "TC",
+                  "description": "PLAYER-003",
+                  "location": {
+                    "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/videoPlayer.spec.ts",
+                    "line": 13,
+                    "column": 5
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "functional",
+              "projectName": "functional",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 1,
+                  "status": "passed",
+                  "duration": 20755,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "Login as the fixture viewer (non-owner)",
+                      "duration": 14371
+                    },
+                    {
+                      "title": "Open the seeded public video and assert player is playing",
+                      "duration": 5844
+                    }
+                  ],
+                  "startTime": "2026-08-19T11:17:10.298Z",
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "PLAYER-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/videoPlayer.spec.ts",
+                        "line": 13,
+                        "column": 5
+                      }
+                    },
+                    {
+                      "type": "TC",
+                      "description": "PLAYER-002",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/videoPlayer.spec.ts",
+                        "line": 13,
+                        "column": 5
+                      }
+                    },
+                    {
+                      "type": "TC",
+                      "description": "PLAYER-003",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/player/videoPlayer.spec.ts",
+                        "line": 13,
+                        "column": 5
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "955d21561ad0190ac09e-3ac5ad247a4fd909b6ba",
+          "file": "player/videoPlayer.spec.ts",
+          "line": 13,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "search/globalSearch.spec.ts",
+      "file": "search/globalSearch.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Global search — keyword search",
+          "file": "search/globalSearch.spec.ts",
+          "line": 129,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Keyword search returns the matching video on the All tab",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "SEARCH-001",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/search/globalSearch.spec.ts",
+                        "line": 130,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 12088,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Open search and query the fixture video",
+                          "duration": 11113
+                        },
+                        {
+                          "title": "The fixture video is present under the \"Movies or series\" section",
+                          "duration": 510
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:17:34.061Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "SEARCH-001",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/search/globalSearch.spec.ts",
+                            "line": 130,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "424bc8ab4a7c773c9a58-27370412d96262af6951",
+              "file": "search/globalSearch.spec.ts",
+              "line": 130,
+              "column": 9
+            },
+            {
+              "title": "Shorts tab returns the matching short",
+              "ok": true,
+              "tags": [
+                "critical"
+              ],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "TC",
+                      "description": "SEARCH-002",
+                      "location": {
+                        "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/search/globalSearch.spec.ts",
+                        "line": 203,
+                        "column": 9
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "functional",
+                  "projectName": "functional",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 9869,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "steps": [
+                        {
+                          "title": "Open search and switch to the Shorts tab",
+                          "duration": 8273
+                        },
+                        {
+                          "title": "Query and verify the fixture short is returned",
+                          "duration": 691
+                        }
+                      ],
+                      "startTime": "2026-08-19T11:17:49.071Z",
+                      "annotations": [
+                        {
+                          "type": "TC",
+                          "description": "SEARCH-002",
+                          "location": {
+                            "file": "/home/runner/work/aitv-autotests/aitv-autotests/tests/search/globalSearch.spec.ts",
+                            "line": 203,
+                            "column": 9
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "424bc8ab4a7c773c9a58-50935ba4e6d641c4236d",
+              "file": "search/globalSearch.spec.ts",
+              "line": 203,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-19T11:09:55.942Z",
+    "duration": 483192.06799999997,
+    "expected": 24,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
